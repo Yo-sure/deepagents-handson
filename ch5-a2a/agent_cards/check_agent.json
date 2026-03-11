@@ -1,0 +1,26 @@
+{
+  "name": "Mail Check Agent",
+  "description": "메일함을 확인하고 중요 메일을 감지하는 Agent입니다. 중요 메일 발견 시 Notify Agent에게 A2A로 알림을 요청합니다.",
+  "version": "1.0.0",
+  "supportedInterfaces": [
+    {"url": "http://localhost:9501", "protocolBinding": "JSONRPC", "protocolVersion": "1.0"}
+  ],
+  "capabilities": {
+    "streaming": false
+  },
+  "skills": [
+    {
+      "id": "check-mail",
+      "name": "메일 확인",
+      "description": "메일함의 모든 메일을 확인하고, 중요 메일을 감지합니다. 발신자, 제목, 중요도를 분석하여 결과 보고서를 생성합니다.",
+      "tags": ["mail", "inbox", "check", "important"],
+      "examples": [
+        "메일함 확인해줘",
+        "중요한 메일이 있는지 확인해줘",
+        "오늘 받은 메일 요약해줘"
+      ]
+    }
+  ],
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"]
+}

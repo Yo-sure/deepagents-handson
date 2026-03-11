@@ -1,0 +1,26 @@
+{
+  "name": "Notify Agent",
+  "description": "알림을 전송하는 Agent입니다. Slack, 콘솔, 이메일 등 여러 채널로 알림을 보냅니다.",
+  "version": "1.0.0",
+  "supportedInterfaces": [
+    {"url": "http://localhost:9502", "protocolBinding": "JSONRPC", "protocolVersion": "1.0"}
+  ],
+  "capabilities": {
+    "streaming": false
+  },
+  "skills": [
+    {
+      "id": "send-notification",
+      "name": "알림 전송",
+      "description": "중요 메일이나 이벤트에 대한 알림을 전송합니다. Slack, 콘솔, 이메일 등 여러 채널을 지원합니다.",
+      "tags": ["notification", "alert", "slack", "email"],
+      "examples": [
+        "중요 메일 알림을 보내줘",
+        "Slack으로 알림 전송해줘",
+        "긴급 알림을 모든 채널로 보내줘"
+      ]
+    }
+  ],
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"]
+}
