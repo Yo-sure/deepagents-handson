@@ -12,6 +12,7 @@ const DST = resolve(__dirname, '../chapters')
 const MIGRATED = [
   { file: 'Chapter 0. 환경 셋업.md', slug: 'chapter-0' },
   { file: 'Chapter 1. Kick-off & Agent 패러다임.md', slug: 'chapter-1' },
+  { file: 'Chapter 2. LangChain LangGraph Agent와 Harness 구조.md', slug: 'chapter-2' },
 ]
 
 // Obsidian → VitePress 최소 전처리. (Ch1은 이미 VitePress-native라 대부분 no-op)

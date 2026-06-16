@@ -118,7 +118,7 @@ def verify_total(rec: RecordV1) -> tuple[bool, float]:
 
     명세서·은행거래는 부호가 섞여 합계 규칙이 다르므로 영수증에만 적용한다.
     """
-    item_sum = sum(i.amount or 0 for i in rec.items if (i.amount or 0) > 0)
+    item_sum = sum((i.amount or 0) * (i.qty or 1) for i in rec.items if (i.amount or 0) > 0)
     return abs(item_sum - rec.total) < 1.0, item_sum
 
 

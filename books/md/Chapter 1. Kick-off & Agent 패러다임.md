@@ -258,7 +258,7 @@ record = RecordV1.model_validate_json(strip_fences(msg.content))  # 계약으로
 ```python
 def verify_total(rec: RecordV1) -> tuple[bool, float]:
     """Action — 항목 합계가 총액과 맞는지 계산한다(Observation 생성)."""
-    item_sum = sum(i.amount or 0 for i in rec.items if (i.amount or 0) > 0)
+    item_sum = sum((i.amount or 0) * (i.qty or 1) for i in rec.items if (i.amount or 0) > 0)
     return abs(item_sum - rec.total) < 1.0, item_sum
 
 

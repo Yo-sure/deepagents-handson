@@ -34,6 +34,7 @@ export default withMermaid({
           { text: '소개', link: '/' },
           { text: 'Ch0 · 환경 셋업', link: '/chapters/chapter-0' },
           { text: 'Ch1 · Kick-off & Agent 패러다임', link: '/chapters/chapter-1' },
+          { text: 'Ch2 · LangGraph 하네스', link: '/chapters/chapter-2' },
         ],
       },
       {
