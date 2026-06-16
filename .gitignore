@@ -17,6 +17,7 @@ node_modules/
 **/.vitepress/cache/
 book/public/
 book/.vitepress/cache/
+book/chapters/
 
 # OS
 .DS_Store

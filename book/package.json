@@ -5,7 +5,7 @@
   "type": "module",
   "description": "AI Agent 개발 교재 — 인터랙티브 HTML 북 (VitePress)",
   "scripts": {
-    "preassets": "node scripts/copy-assets.mjs",
+    "preassets": "node scripts/copy-assets.mjs && node scripts/build-chapters.mjs",
     "predev": "npm run preassets",
     "prebuild": "npm run preassets",
     "dev": "vitepress dev --port 5174",

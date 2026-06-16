@@ -24,14 +24,21 @@ export default withMermaid({
   themeConfig: {
     nav: [
       { text: '홈', link: '/' },
+      { text: '교재', link: '/chapters/chapter-1' },
       { text: '🎨 디자인', link: '/concept' },
-      { text: '챕터 샘플', link: '/guide/chapter2-sample' },
     ],
     sidebar: [
       {
         text: '교재 (2026 Edition)',
         items: [
           { text: '소개', link: '/' },
+          { text: 'Ch1 · Kick-off & Agent 패러다임', link: '/chapters/chapter-1' },
+        ],
+      },
+      {
+        text: '파이프라인 데모',
+        collapsed: true,
+        items: [
           { text: 'Chapter 2 · Step 1 (샘플)', link: '/guide/chapter2-sample' },
         ],
       },
