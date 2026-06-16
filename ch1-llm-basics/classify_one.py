@@ -110,31 +110,93 @@ def _strip_fences(text: str) -> str:
     return t.strip()
 
 
-# ── ReAct: 합계를 스스로 검증하는 가장 작은 루프 ──────────────────
+# ── 합계 검산 (Ch2 파이프라인이 그대로 재사용하는 순수 함수) ──────
 
 
 def verify_total(rec: RecordV1) -> tuple[bool, float]:
-    """Action — 항목 합계가 총액과 맞는지 계산한다(Observation 생성).
-
-    명세서·은행거래는 부호가 섞여 합계 규칙이 다르므로 영수증에만 적용한다.
-    """
+    """항목 합계(수량 반영)가 총액과 맞는지 계산한다. 명세서·은행은 부호가 섞여 영수증에만 쓴다."""
     item_sum = sum((i.amount or 0) * (i.qty or 1) for i in rec.items if (i.amount or 0) > 0)
     return abs(item_sum - rec.total) < 1.0, item_sum
 
 
-def extract_react(doc: str, model: str, max_loops: int = 2) -> RecordV1:
-    """추출 → 합계 검증 → 어긋나면 다시 추출. ReAct 한 바퀴를 직접 돈다."""
-    rec = extract_singleshot(doc, model)
-    if rec.doc_type != DocType.receipt.value:
-        return rec
-    for loop in range(max_loops):
-        ok, item_sum = verify_total(rec)
-        print(f"  [Observation] 항목합={item_sum:,.0f} / 총액={rec.total:,.0f} → {'일치' if ok else '불일치'}")
-        if ok:
-            break
-        print("  [Thought] 합계가 안 맞는다. 항목을 다시 읽어 보정한다.")
-        rec = extract_singleshot(doc, model)  # 실제로는 관찰을 프롬프트에 덧붙여 재요청
-    return rec
+# ── ReAct 에이전트: 모델이 스스로 도구를 호출하고 관측해 보정한다 ──
+#
+# 진짜 ReAct는 우리가 검증 함수를 부르는 게 아니라, 모델이 추론 끝에 도구 호출을
+# 결정하고(Action) 그 결과를 보고(Observation) 다음 행동을 정한다. 아래는 그 루프다.
+
+
+def _check_sum_tool():
+    from langchain_core.tools import tool
+
+    @tool
+    def check_receipt_sum(items: list[dict], total: float) -> str:
+        """영수증 항목 합계가 총액과 맞는지 검산한다. 추출한 직후 반드시 호출해 확인하라.
+
+        Args:
+            items: [{"name": 품목, "amount": 단가(원), "qty": 수량}] 목록
+            total: 영수증에 적힌 총액(원)
+        """
+        s = sum((it.get("amount") or 0) * (it.get("qty") or 1)
+                for it in items if (it.get("amount") or 0) > 0)
+        ok = abs(s - total) < 1.0
+        return (f"항목합={s:,.0f}원, 총액={total:,.0f}원 → "
+                + ("일치. 이 추출을 그대로 최종 JSON으로 출력하라."
+                   if ok else "불일치. 이미지를 다시 보고 항목이나 수량을 고쳐 재검산하라."))
+
+    return check_receipt_sum
+
+
+REACT_SYSTEM = """너는 영수증을 읽어 RecordV1 JSON으로 정리하는 회계 보조다.
+절차: ① 이미지에서 항목과 총액을 추출한다. ② 반드시 check_receipt_sum 도구를 호출해
+합계를 검산한다. ③ 도구가 '불일치'라고 하면 이미지를 다시 보고 고친 뒤 다시 검산한다.
+④ '일치'가 나오면 그때 RecordV1 JSON만 출력한다(설명·도구호출 없이)."""
+
+
+def extract_react(doc: str, model: str, max_steps: int = 5) -> RecordV1:
+    """진짜 ReAct 루프 — 모델이 check_receipt_sum을 직접 호출(Action)하고
+    관측(Observation)해 스스로 보정한 뒤 최종 JSON을 낸다."""
+    from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+
+    from analyst.schema import schema_json
+
+    key = os.environ.get("OPENROUTER_API_KEY")
+    if not key or key == "sk-or-...":
+        raise RuntimeError("OPENROUTER_API_KEY 미설정 — .env에 키를 넣거나 --mock 으로 실행")
+
+    from langchain_openai import ChatOpenAI
+
+    tool_fn = _check_sum_tool()
+    llm = ChatOpenAI(model=model, base_url="https://openrouter.ai/api/v1",
+                     api_key=key, temperature=0).bind_tools([tool_fn])
+
+    prompt = EXTRACT_PROMPT.format(schema=schema_json(), source_path=f"sample_inbox/{doc}")
+    messages = [
+        SystemMessage(content=REACT_SYSTEM),
+        HumanMessage(content=[
+            {"type": "text", "text": prompt},
+            {"type": "image_url", "image_url": {"url": _image_data_url(SAMPLE_INBOX / doc)}},
+        ]),
+    ]
+
+    for _ in range(max_steps):
+        ai = llm.invoke(messages)
+        messages.append(ai)
+        if ai.content and isinstance(ai.content, str) and ai.content.strip() and ai.tool_calls:
+            print(f"  [Thought] {ai.content.strip()[:80]}")
+        if ai.tool_calls:                                   # Action — 모델이 도구 호출을 결정
+            for tc in ai.tool_calls:
+                print(f"  [Action] {tc['name']} 호출")
+                obs = tool_fn.invoke(tc["args"])            # 런타임이 실제 실행
+                print(f"  [Observation] {obs}")
+                messages.append(ToolMessage(content=obs, tool_call_id=tc["id"]))
+            continue                                        # 관측을 들고 다시 모델에게
+        print("  [Final] 검산 통과 — 최종 JSON 출력")        # tool_calls 없음 = 종료
+        return RecordV1.model_validate_json(_strip_fences(_as_text(ai.content)))
+    raise RuntimeError("ReAct 루프가 max_steps 안에 끝나지 않았다")
+
+
+def _as_text(content) -> str:
+    return content if isinstance(content, str) else str(content)
 
 
 # ── 채점(모델 비교용) ────────────────────────────────────────────
