@@ -38,6 +38,7 @@ export default withMermaid({
           { text: 'Ch3 · DeepAgents 하네스', link: '/chapters/chapter-3' },
           { text: 'Ch4 · Skills · MCP · 지식', link: '/chapters/chapter-4' },
           { text: 'Ch5 · A2A 역할 분리', link: '/chapters/chapter-5' },
+          { text: 'Ch6 · 통합 캡스톤', link: '/chapters/chapter-6' },
         ],
       },
       {
