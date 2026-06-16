@@ -277,5 +277,16 @@ Ch3에서는 한 단계 위로 올라갑니다. 여러 문서를 서브에이전
 </div>
 </section>
 
+
+<nav class="chapnav">
+<div class="board" style="margin-top:8px">
+<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center">
+<a href="/chapters/chapter-1" style="color:inherit;text-decoration:none;font-weight:900;font-size:14px">← Ch1 · 에이전트 패러다임</a>
+<a href="/toc" style="color:var(--forest);text-decoration:none;font-weight:900;font-size:13px;background:rgba(148,210,189,.3);border:1px solid rgba(15,118,110,.24);border-radius:99px;padding:7px 16px">목차</a>
+<a href="/chapters/chapter-3" style="color:inherit;text-decoration:none;font-weight:900;font-size:14px;text-align:right">Ch3 · DeepAgents 하네스 →</a>
+</div>
+</div>
+</nav>
+
 </div>
 </div>

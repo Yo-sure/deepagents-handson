@@ -16,7 +16,7 @@ function obsidianEmbeds(md: any) {
 
 export default withMermaid({
   title: 'AI Agent 개발',
-  description: '퍼스널 워크플로 어시스턴트를 만드는 8시간 핸즈온 — 2026 Edition',
+  description: '인박스 리서치 애널리스트를 만드는 8시간 핸즈온 — 2026 Edition',
   lang: 'ko-KR',
   cleanUrls: true,
   vite: { server: { port: 5174, strictPort: false } },
@@ -24,7 +24,7 @@ export default withMermaid({
   themeConfig: {
     nav: [
       { text: '홈', link: '/' },
-      { text: '교재', link: '/chapters/chapter-1' },
+      { text: '교재', link: '/toc' },
       { text: '🎨 디자인', link: '/concept' },
     ],
     sidebar: [
