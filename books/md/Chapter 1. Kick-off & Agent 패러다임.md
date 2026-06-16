@@ -101,6 +101,16 @@ pageClass: lec-page
 <p>그래서 프로덕션 에이전트는 Tool로 실제 값을 조회하고, 답을 보류할 줄 알고, 결과를 한 번 더 검증합니다. 이 챕터의 ReAct 합계 검증이 그 가장 작은 형태입니다.</p>
 </div></div>
 </div>
+
+<div class="ask"><strong>생각해보기 (30초).</strong> LLM이 "다음 토큰 예측기"라면, "오늘 달러·원 환율 알려줘"에 정확히 답할 수 있을까요? 답하거나 못 답한다면 그 이유는 위 네 한계 중 무엇일까요?</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p>답할 수 없습니다. 가중치에는 학습 시점까지의 통계 패턴만 들어 있어 <strong>실시간 값(환율·주가·내 영수증)</strong>에 닿을 길이 없습니다. 이건 4번 Knowledge Cutoff이자 3번 Hallucination의 뿌리입니다.</p>
+<p>그럼에도 모델은 "모릅니다" 대신 그럴듯한 숫자를 자신 있게 내놓곤 합니다. 그래서 Tool로 실제 환율 API를 붙여 주는 에이전트가 필요합니다. 우리 실습에서는 같은 원리를 영수증 합계 검증으로 체험합니다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">
@@ -157,6 +167,19 @@ pageClass: lec-page
 </div>
 
 <p class="section-note" style="margin-top:18px">이 과정의 파이프라인은 대부분 워크플로입니다. 분류·정규화는 흐름이 정해져 있습니다. 에이전트가 빛나는 곳은 "여러 문서를 나눠 조사하고 교차 검산"하는 Ch3 한 구간입니다. 도구를 고를 때 이 구분이 첫 질문이 됩니다.</p>
+
+<div class="ask"><strong>빠른 판단 연습 (2분).</strong> 다음 셋은 워크플로(단일 호출·체이닝·라우팅)일까요, 에이전트일까요?<br>
+① 영수증 한 장을 RecordV1로 구조화 &nbsp;② 문서가 영수증인지 명세서인지에 따라 다른 처리로 분기 &nbsp;③ "이 인박스를 알아서 조사해 브리프로 정리"</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p>① <strong>단일 호출</strong> — 입력 하나 → 출력 하나. 반복도 도구도 필요 없습니다(Ch1 classify_one의 단발 모드).</p>
+<p>② <strong>라우팅</strong> — 입력 종류에 따라 길이 갈릴 뿐, 각 길은 미리 정해져 있습니다.</p>
+<p>③ <strong>에이전트</strong> — 몇 갈래로 볼지, 무슨 도구를 쓸지 사전에 못 박을 수 없습니다. 모델이 계획하고 반복합니다(Ch3 fan-out).</p>
+<p>실무에서는 대부분 ①②로 충분합니다. ③이 정말 필요할 때만 비용을 감수하고 에이전트를 씁니다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">
@@ -219,40 +242,57 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 20분</div>
+<div class="eyebrow">핸즈온 ① · 코드 정독</div>
 
-## 첫 부품 — classify_one.py
+## 멀티모달 호출을 뜯어본다
 
 </div>
-<p class="section-note">영수증 이미지 한 장을 모델에 보여 주고 RecordV1로 받습니다. 호출의 모양부터 봅니다. 텍스트 프롬프트와 이미지를 한 메시지에 함께 실어 보냅니다.<br>
-키가 없으면 <code>--mock</code>으로 gold 값을 적재해 파이프라인을 끝까지 돌려 볼 수 있습니다.</p>
+<p class="section-note">영수증 이미지 한 장을 모델에 보여 주고 RecordV1로 받습니다. 먼저 호출의 모양을 한 줄씩 읽습니다. 텍스트 프롬프트와 이미지를 <strong>한 메시지에 함께</strong> 실어 보내는 게 핵심입니다.</p>
 </div>
 
 ```python
-# 멀티모달 호출의 모양 — 텍스트 + 이미지를 한 메시지에
+key = os.environ["OPENROUTER_API_KEY"]          # ① 키는 .env에서 (코드에 안 박는다)
+llm = ChatOpenAI(model="google/gemini-3.5-flash",
+                 base_url="https://openrouter.ai/api/v1",
+                 api_key=key, temperature=0)     # ② temperature=0 — 추출은 매번 같아야 한다
+
+prompt = EXTRACT_PROMPT.format(schema=schema_json(), source_path=...)  # ③ RecordV1 스키마를 지시에 끼움
 msg = llm.invoke([{
     "role": "user",
     "content": [
-        {"type": "text", "text": prompt},                       # RecordV1 스키마를 끼운 지시
-        {"type": "image_url", "image_url": {"url": data_url}},   # 영수증 이미지(base64)
+        {"type": "text", "text": prompt},                       # ④ 무엇을 뽑을지
+        {"type": "image_url", "image_url": {"url": data_url}},   # ⑤ 영수증 이미지(base64 data URL)
     ],
 }])
-record = RecordV1.model_validate_json(strip_fences(msg.content))  # 계약으로 검증
+record = RecordV1.model_validate_json(strip_fences(msg.content))  # ⑥ 받은 JSON을 계약으로 검증
 ```
 
 <div class="grid-2">
-<div class="panel"><div class="panel-head"><strong>단발 — extract_singleshot</strong><span>한 번 호출, 빠르다</span></div><div class="panel-body"><div class="list">
-<p>이미지를 한 번 보여 주고 JSON을 받습니다</p>
-<p>합계가 틀려도 그대로 통과합니다</p>
+<div class="panel"><div class="panel-head"><strong>왜 이렇게 쓰나 — ②③⑥</strong><span>설계 결정</span></div><div class="panel-body"><div class="list">
+<p><strong>② temperature=0</strong> — 같은 영수증은 늘 같은 값으로 읽혀야 합니다. 창의성은 분류의 적입니다.</p>
+<p><strong>③ 스키마를 프롬프트에</strong> — 모델이 RecordV1 한글 키(판매처·금액…)에 맞춰 JSON을 내도록 형식을 못 박습니다.</p>
+<p><strong>⑥ model_validate_json</strong> — 모델 출력을 믿지 않고 계약으로 검증합니다. 필드가 빠지거나 타입이 틀리면 여기서 걸립니다.</p>
 </div></div></div>
-<div class="panel"><div class="panel-head"><strong>ReAct — extract_react</strong><span>합계를 스스로 검증</span></div><div class="panel-body"><div class="list">
-<p>추출 후 <code>verify_total</code>로 항목합을 계산합니다</p>
-<p>총액과 어긋나면 한 번 더 읽어 보정합니다</p>
+<div class="panel"><div class="panel-head"><strong>두 가지 함정 — ④⑤⑥</strong><span>자주 막히는 곳</span></div><div class="panel-body"><div class="list">
+<p>이미지는 <code>data:image/png;base64,...</code> 형태의 data URL로 넣습니다. 경로 문자열이 아닙니다.</p>
+<p>모델이 <code>```json … ```</code> 울타리를 붙여 답할 때가 있어 <code>strip_fences</code>로 벗긴 뒤 파싱합니다.</p>
 </div></div></div>
 </div>
+</section>
 
-<div class="panel" style="margin-top:18px">
-<div class="panel-head"><strong>ch1-llm-basics/classify_one.py</strong><span>합계 검증 루프 — ReAct를 가장 작게</span></div>
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ② · 코드 정독</div>
+
+## 합계를 스스로 검증한다 — ReAct
+
+</div>
+<p class="section-note">단발 추출은 빠르지만 합계가 틀려도 그대로 통과합니다. 그래서 추출 뒤에 검증 한 바퀴를 더 돕니다. 2절의 Thought→Action→Observation이 코드에서 이렇게 드러납니다.</p>
+</div>
+
+<div class="panel">
+<div class="panel-head"><strong>ch1-llm-basics/classify_one.py</strong><span>ReAct를 가장 작게</span></div>
 <div class="panel-body">
 
 ```python
@@ -265,31 +305,94 @@ def verify_total(rec: RecordV1) -> tuple[bool, float]:
 def extract_react(doc: str, model: str, max_loops: int = 2) -> RecordV1:
     """추출 → 합계 검증 → 어긋나면 다시 추출. ReAct 한 바퀴를 직접 돈다."""
     rec = extract_singleshot(doc, model)
-    if rec.doc_type != DocType.receipt.value:
+    if rec.doc_type != DocType.receipt.value:        # 영수증만 합계 검증(명세서는 부호가 섞임)
         return rec
-    for loop in range(max_loops):
-        ok, item_sum = verify_total(rec)
-        print(f"  [Observation] 항목합={item_sum:,.0f} / 총액={rec.total:,.0f}"
-              f" → {'일치' if ok else '불일치'}")
+    for loop in range(max_loops):                    # 무한 루프 방지 — 두 번까지만
+        ok, item_sum = verify_total(rec)             # Action
+        print(f"  [Observation] 항목합={item_sum:,.0f} / 총액={rec.total:,.0f}")
         if ok:
-            break
-        print("  [Thought] 합계가 안 맞는다. 항목을 다시 읽어 보정한다.")
-        rec = extract_singleshot(doc, model)
+            break                                    # 충분하면 종료
+        print("  [Thought] 합계가 안 맞는다. 다시 읽는다.")
+        rec = extract_singleshot(doc, model)         # 다시 시도
     return rec
 ```
 
-<p style="margin-top:12px;color:var(--muted);font-size:13px">전체 실행 파일은 <code>ch1-llm-basics/classify_one.py</code>. 단발 추출·채점·모델 비교까지 한 파일에 들어 있습니다.</p>
+</div>
+</div>
+
+<div class="grid-3" style="margin-top:16px">
+<div class="panel"><div class="panel-head"><strong>왜 qty를 곱하나</strong></div><div class="panel-body"><div class="list">
+<p>순대국밥 9,000 × 3 = 27,000. 단가만 더하면 불일치로 오판합니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>왜 영수증만</strong></div><div class="panel-body"><div class="list">
+<p>명세서·은행거래는 입금·출금 부호가 섞여 합계 규칙이 다릅니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>왜 max_loops</strong></div><div class="panel-body"><div class="list">
+<p>같은 실패를 무한히 반복하면 비용만 듭니다. 한계를 두는 게 하네스의 일입니다.</p>
+</div></div></div>
+</div>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ③ · 단계별 실행</div>
+
+## 돌리고, 관찰하고, 바꿔 본다
 
 </div>
+<p class="section-note">키 없이 파이프라인부터 확인하고, 키를 넣어 실제 추출을 본 뒤, 모델을 비교합니다. 각 단계마다 무엇이 보이면 성공인지 적었습니다.</p>
+</div>
+
+<div class="stack">
+<div class="row"><div class="code">1</div><div class="copy"><strong>키 없이 — 파이프라인 확인</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_starbucks.png --mock</code><br><span style="color:var(--muted)">성공 기준: 판매처·금액·항목이 든 RecordV1 JSON이 한글 키로 출력된다.</span></p></div><div class="store">mock</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>키 넣고 — ReAct 추출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code><br><span style="color:var(--muted)">성공 기준: <code>[Observation] 항목합=8,400 / 총액=8,400</code> 줄이 뜨고 "정확도 100%".</span></p></div><div class="store">실호출</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>모델 3종 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 세 모델의 정확도가 표로 나온다(비용 감각의 출발점).</span></p></div><div class="store">선택</div></div>
+</div>
+
+<div class="ask" style="margin-top:18px"><strong>직접 해보기.</strong> ① <code>--doc invoice_photo.png</code>로 바꿔 명세서를 뽑아 보세요(영수증이 아니라 합계 검증을 건너뜁니다). ② <code>verify_total</code>의 허용 오차 <code>1.0</code>을 <code>0.0</code>으로 바꾸면 어떤 영수증이 불일치로 떨어질까요?</div>
+
+<details>
+<summary>관찰 포인트</summary>
+<div class="reveal">
+<p>① 명세서는 <code>doc_type</code>이 영수증이 아니라 <code>extract_react</code>가 검증 루프를 건너뛰고 바로 반환합니다. 합계 규칙이 다른 문서를 억지로 검증하지 않는다는 설계가 코드로 보입니다.</p>
+<p>② 모델이 항목을 살짝 다르게 읽으면 1원 단위 오차가 생길 수 있습니다. 허용 오차는 "얼마나 깐깐하게 볼까"의 손잡이입니다. 너무 0에 가까우면 정상도 불일치로 떨어지고, 너무 크면 진짜 오류를 놓칩니다.</p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ④ · 트러블슈팅</div>
+
+## 막히면 여기부터
+
+</div>
+<p class="section-note">실호출에서 자주 만나는 네 가지입니다. 대부분 키·슬러그·네트워크 셋 중 하나입니다.</p>
+</div>
+
+<div class="grid-2">
+<div class="panel"><div class="panel-head"><strong>401 Unauthorized</strong><span>인증</span></div><div class="panel-body"><div class="list">
+<p><code>.env</code>의 <code>OPENROUTER_API_KEY</code>가 비었거나 <code>sk-or-...</code> placeholder 그대로입니다. 실제 키로 채웠는지 확인합니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>404 Model not found</strong><span>슬러그</span></div><div class="panel-body"><div class="list">
+<p>모델 슬러그 오타입니다. <code>google/gemini-3.5-flash</code>처럼 제공자/모델 형태가 맞는지 봅니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>JSON 파싱 오류</strong><span>출력 형식</span></div><div class="panel-body"><div class="list">
+<p>모델이 설명 문장을 덧붙였을 수 있습니다. <code>strip_fences</code>가 울타리는 벗기지만, 프롬프트에 "JSON만 출력"을 더 강하게 둘 수도 있습니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>빈 응답 · 타임아웃</strong><span>네트워크</span></div><div class="panel-body"><div class="list">
+<p>네트워크나 게이트웨이 일시 문제입니다. 잠시 후 재시도하거나 <code>--mock</code>으로 흐름만 먼저 확인합니다.</p>
+</div></div></div>
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>직접 실행</span><span class="status-pill">터미널</span></div>
-<div class="stack">
-<div class="row"><div class="code">m</div><div class="copy"><strong>키 없이 — 파이프라인 확인</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_starbucks.png --mock</code></p></div><div class="store">mock</div></div>
-<div class="row"><div class="code">r</div><div class="copy"><strong>키 넣고 — ReAct 추출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code></p></div><div class="store">실호출</div></div>
-<div class="row"><div class="code">c</div><div class="copy"><strong>모델 3종 비교표</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code></p></div><div class="store">선택</div></div>
-</div>
+<div class="board-header"><span>이 챕터에서 손에 든 것</span><span class="status-pill">체크</span></div>
+<div class="panel-body"><div class="list">
+<p>영수증 이미지 → RecordV1 추출기 · 단발과 ReAct의 차이 · 모델 3종의 정확도 감각</p>
+<p>전체 실행 파일은 <code>ch1-llm-basics/classify_one.py</code> 하나에 추출·검증·채점·비교가 다 들어 있습니다.</p>
+</div></div>
 </div>
 </section>
 

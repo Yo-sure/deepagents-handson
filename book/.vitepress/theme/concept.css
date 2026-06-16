@@ -129,6 +129,30 @@
   font-family: var(--vp-font-family-mono); font-size: 12px;
 }
 
+/* 셀프체크/연습 — 클릭하면 정답이 펼쳐지는 카드 */
+.lec details {
+  margin: 16px 0; border: 1px solid var(--line); border-radius: var(--radius);
+  background: var(--white); overflow: hidden; box-shadow: 0 10px 28px rgba(27,31,29,.06);
+}
+.lec details > summary {
+  cursor: pointer; padding: 14px 18px; font-weight: 900; font-size: 14.5px;
+  color: var(--forest); background: rgba(148,210,189,.18); list-style: none;
+}
+.lec details > summary::-webkit-details-marker { display: none; }
+.lec details > summary::before { content: "▸  "; color: var(--amber); }
+.lec details[open] > summary { border-bottom: 1px solid var(--line); }
+.lec details[open] > summary::before { content: "▾  "; }
+.lec details .reveal {
+  padding: 15px 18px; font-size: 14px; line-height: 1.68; color: #3e4844; word-break: keep-all;
+}
+.lec details .reveal p { margin: 0 0 8px; }
+.lec details .reveal p:last-child { margin-bottom: 0; }
+.lec .ask {
+  margin: 16px 0; padding: 15px 18px; border-left: 3px solid var(--amber);
+  background: rgba(224,159,62,.08); border-radius: 0 7px 7px 0; font-size: 14.5px; line-height: 1.6;
+}
+.lec .ask strong { color: #704a08; }
+
 .lec div[class*="language-"].line-numbers-mode { padding-left: 42px; }
 .lec div[class*="language-"] .line-numbers-wrapper {
   position: absolute; top: 0; bottom: 0; left: 0; width: 42px;

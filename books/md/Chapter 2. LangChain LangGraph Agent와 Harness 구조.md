@@ -199,27 +199,81 @@ def review(state: IntakeState) -> dict:
 <p>나머지 8건은 기준 아래라 자동 적재됩니다</p>
 </div></div></div>
 </div>
+
+<div class="ask"><strong>생각해보기.</strong> 만약 <code>compile()</code>에 checkpointer를 빼면 interrupt가 동작할까요? 그리고 같은 <code>thread_id</code>로 다시 부르면 무슨 일이 일어날까요?</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p>checkpointer 없이는 interrupt가 동작하지 않습니다. 멈춘 순간의 상태를 저장할 곳이 없으니 재개 지점을 잃습니다. 그래서 HITL에는 checkpointer가 필수입니다.</p>
+<p>같은 <code>thread_id</code>로 다시 부르면 저장된 그 자리부터 이어집니다. <code>Command(resume="approve")</code>가 멈춘 review 노드로 결정을 흘려보내 다음 단계(persist)로 넘어갑니다. 다른 thread_id면 처음부터 새 실행입니다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 40분</div>
+<div class="eyebrow">핸즈온 ① · 코드 정독</div>
 
-## 직접 흘려보낸다 — intake_graph.py
+## 그래프를 손으로 엮는다
 
 </div>
-<p class="section-note">sample_inbox 열 건을 그래프에 흘립니다. 키가 없으면 <code>--mock</code>으로 gold를 적재해 흐름과 중단점을 그대로 봅니다.<br>
-고액 두 건에서 interrupt가 걸리고, 승인하면 적재가 이어집니다. 끝나면 <code>workspace/classified/</code>에 열 개의 JSON이 쌓입니다.</p>
+<p class="section-note">노드 다섯 개를 엣지로 잇습니다. 한 줄씩 읽으면 분류 흐름이 그대로 그림으로 보입니다. 분기 하나(verify 다음)만 조건부고 나머지는 직선입니다.</p>
 </div>
 
-<div class="board">
-<div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
+<div class="panel">
+<div class="panel-head"><strong>ch2-langgraph-agent/intake_graph.py — build_graph</strong><span>노드·엣지·체크포인터</span></div>
+<div class="panel-body">
+
+```python
+def build_graph():
+    g = StateGraph(IntakeState)
+    g.add_node("classify", classify)     # 추출(Ch1 부품)
+    g.add_node("verify", verify)         # 합계·플래그
+    g.add_node("retry", bump_retry)      # 재분류 카운터
+    g.add_node("review", review)         # interrupt() 멈춤
+    g.add_node("persist", persist)       # classified/ 적재
+    g.add_edge(START, "classify")
+    g.add_edge("classify", "verify")
+    g.add_conditional_edges("verify", after_verify,          # ← 유일한 분기
+                            {"retry": "retry", "review": "review", "persist": "persist"})
+    g.add_edge("retry", "classify")      # 재시도는 classify로 되돌림
+    g.add_edge("review", "persist")
+    g.add_edge("persist", END)
+    return g.compile(checkpointer=InMemorySaver())            # ← interrupt에 필수
+```
+
+</div>
+</div>
+
+<div class="grid-2" style="margin-top:16px">
+<div class="panel"><div class="panel-head"><strong>직선 엣지 vs 조건부 엣지</strong></div><div class="panel-body"><div class="list">
+<p><code>add_edge(A, B)</code> — 늘 A 다음 B. 분류→검증처럼 정해진 길.</p>
+<p><code>add_conditional_edges(verify, after_verify, {...})</code> — <code>after_verify</code>가 돌려준 문자열로 다음 노드를 고릅니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>after_verify가 고르는 세 길</strong></div><div class="panel-body"><div class="list">
+<p>합계 불일치 → <code>retry</code>(상한 전), 플래그 있음 → <code>review</code>, 그 외 → <code>persist</code>.</p>
+<p>흐름 제어가 데이터(state)에 따라 코드로 결정됩니다.</p>
+</div></div></div>
+</div>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ② · 단계별 실행</div>
+
+## 흘려보내고 멈춤을 본다
+
+</div>
+<p class="section-note">전체를 한 번 흘리고, 고액 한 건만 따로 돌려 interrupt를 눈으로 보고, 반려도 해 봅니다. 각 단계의 성공 기준을 확인하세요.</p>
+</div>
+
 <div class="stack">
-<div class="row"><div class="code">a</div><div class="copy"><strong>전체 적재 — 자동 승인</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code></p></div><div class="store">10건</div></div>
-<div class="row"><div class="code">b</div><div class="copy"><strong>한 건만 — 고액 멈춤 보기</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --doc invoice_photo.png</code></p></div><div class="store">interrupt</div></div>
-<div class="row"><div class="code">c</div><div class="copy"><strong>검토건 반려</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --reject-flagged</code></p></div><div class="store">보류</div></div>
-</div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>전체 적재 — 자동 승인</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><span style="color:var(--muted)">성공 기준: 10건이 흐르고 고액 2건에서 ⏸ interrupt가 뜬 뒤 승인되어 <code>workspace/classified/</code>에 JSON 10개.</span></p></div><div class="store">10건</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>한 건만 — 멈춤 관찰</strong><p><code>... --mock --doc invoice_photo.png</code><br><span style="color:var(--muted)">성공 기준: <code>⏸ interrupt — 고액(1,650,000원)</code> 줄이 보이고 review→persist로 이어진다.</span></p></div><div class="store">interrupt</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>검토건 반려</strong><p><code>... --mock --reject-flagged</code><br><span style="color:var(--muted)">성공 기준: 고액 건이 <code>[review] 반려 — 적재 보류</code>로 빠지고 그 JSON은 안 생긴다.</span></p></div><div class="store">보류</div></div>
 </div>
 
 <div class="panel" style="margin-top:18px">
@@ -238,7 +292,44 @@ def review(state: IntakeState) -> dict:
 </div>
 </div>
 
-<p class="section-note" style="margin-top:16px">전체 실행 파일은 <code>ch2-langgraph-agent/intake_graph.py</code>. 노드·엣지·체크포인터·interrupt가 한 파일에 들어 있습니다. classify는 Ch1의 <code>extract</code>를 import해 그대로 씁니다.</p>
+<div class="ask" style="margin-top:18px"><strong>직접 해보기.</strong> <code>HIGH_VALUE</code> 임계값을 <code>10000</code>으로 낮춰 보세요. interrupt가 몇 건에서 걸릴까요? 반대로 <code>5000000</code>으로 올리면?</div>
+
+<details>
+<summary>관찰 포인트</summary>
+<div class="reveal">
+<p><code>10000</code>으로 낮추면 대부분의 영수증·명세서가 고액으로 걸려 interrupt가 쏟아집니다. 사람이 일일이 승인해야 하니 자동화 효과가 사라집니다.</p>
+<p><code>5000000</code>으로 올리면 아무것도 안 걸려 전부 자동 적재됩니다. 틀린 분류도 그냥 통과합니다. 임계값은 "자동화 vs 안전"의 손잡이입니다. 도메인에 맞게 잡는 게 설계입니다.</p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ③ · 트러블슈팅</div>
+
+## 막히면 여기부터
+
+</div>
+<p class="section-note">그래프가 안 도는 대부분은 분기 함수나 상태 키 문제입니다.</p>
+</div>
+
+<div class="grid-2">
+<div class="panel"><div class="panel-head"><strong>interrupt가 안 걸림</strong><span>HITL</span></div><div class="panel-body"><div class="list">
+<p><code>compile(checkpointer=...)</code>를 빠뜨렸거나, 고액·저신뢰 기준에 걸리는 문서가 없습니다. <code>--doc invoice_photo.png</code>로 확인하세요.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>KeyError: state 키</strong><span>상태</span></div><div class="panel-body"><div class="list">
+<p>노드가 돌려준 dict의 키가 <code>IntakeState</code>에 없으면 무시되거나 깨집니다. TypedDict에 필드를 선언했는지 봅니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>분기에서 멈춤</strong><span>조건부 엣지</span></div><div class="panel-body"><div class="list">
+<p><code>after_verify</code>가 돌려준 문자열이 매핑 dict의 키와 정확히 같아야 합니다. 오타면 그래프가 갈 곳을 잃습니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>재개가 안 됨</strong><span>thread_id</span></div><div class="panel-body"><div class="list">
+<p>재개할 때 처음과 <strong>같은</strong> <code>thread_id</code>를 써야 멈춘 자리를 찾습니다. 매번 새로 만들면 처음부터 돕니다.</p>
+</div></div></div>
+</div>
+
+<p class="section-note" style="margin-top:16px">전체 실행 파일은 <code>ch2-langgraph-agent/intake_graph.py</code>. classify는 Ch1의 <code>extract</code>를 import해 그대로 씁니다 — 부품 교체·계약 재사용의 첫 작동입니다.</p>
 </section>
 
 <section class="slide">
