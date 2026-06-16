@@ -1,0 +1,13 @@
+/* 한국어 본문 폰트: Pretendard */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@latest/dist/web/static/pretendard.min.css');
+
+:root {
+  --vp-font-family-base: "Pretendard", "Pretendard Variable", -apple-system,
+    "Segoe UI", "Noto Sans KR", sans-serif;
+  --vp-c-brand-1: #0f766e;
+  --vp-c-brand-2: #0b3b35;
+  --vp-c-brand-3: #14b8a6;
+}
+
+/* 코드 블록 가독성(한국어 주석 포함) */
+.vp-doc div[class*='language-'] code { font-size: 13.5px; }

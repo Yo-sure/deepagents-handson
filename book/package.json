@@ -1,0 +1,21 @@
+{
+  "name": "deepagents-handson-book",
+  "version": "2026.06.0",
+  "private": true,
+  "type": "module",
+  "description": "AI Agent 개발 교재 — 인터랙티브 HTML 북 (VitePress)",
+  "scripts": {
+    "preassets": "node scripts/copy-assets.mjs",
+    "predev": "npm run preassets",
+    "prebuild": "npm run preassets",
+    "dev": "vitepress dev --port 5174",
+    "build": "vitepress build",
+    "preview": "vitepress preview --port 5174"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.3",
+    "vue": "^3.5.13",
+    "mermaid": "^11.4.1",
+    "vitepress-plugin-mermaid": "^2.0.17"
+  }
+}
