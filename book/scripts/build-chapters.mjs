@@ -15,6 +15,7 @@ const MIGRATED = [
   { file: 'Chapter 2. LangChain LangGraph Agent와 Harness 구조.md', slug: 'chapter-2' },
   { file: 'Chapter 3. DeepAgents와 Harness 실습.md', slug: 'chapter-3' },
   { file: 'Chapter 4. Skills와 MCP 연계.md', slug: 'chapter-4' },
+  { file: 'Chapter 5. A2A로 역할 분리.md', slug: 'chapter-5' },
 ]
 
 // Obsidian → VitePress 최소 전처리. (Ch1은 이미 VitePress-native라 대부분 no-op)
