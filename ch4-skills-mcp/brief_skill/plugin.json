@@ -1,0 +1,9 @@
+{
+  "name": "inbox-brief",
+  "version": "0.1.0",
+  "description": "인박스 리서치 애널리스트의 월간 브리프 작성 스킬",
+  "author": "deepagents-handson",
+  "skills": ["./SKILL.md"],
+  "entry": "SKILL.md",
+  "tags": ["inbox", "brief", "okf"]
+}
