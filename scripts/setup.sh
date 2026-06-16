@@ -32,21 +32,12 @@ uv sync
 # 3) API 키 (.env)
 if [ ! -f .env ]; then
   if [ -f .env.example ]; then cp .env.example .env; else
-    printf 'OPENROUTER_API_KEY=sk-or-...\nOPENAI_API_KEY=${OPENROUTER_API_KEY}\nOPENAI_API_BASE=https://openrouter.ai/api/v1\n' > .env
+    printf 'OPENROUTER_API_KEY=sk-or-...\nOPENAI_API_KEY=sk-or-...\nOPENAI_API_BASE=https://openrouter.ai/api/v1\nMAIL_BACKEND=mock\n' > .env
   fi
   echo "· .env 생성됨 — OPENROUTER_API_KEY 를 입력하세요: https://openrouter.ai/keys"
 fi
 
-# 4) Mailpit (선택, docker 필요)
-if [ -f lab/docker-compose.yml ]; then
-  read -rp "· Mailpit(로컬 메일 서버)를 docker로 띄울까요? [y/N] " ans
-  if [[ "${ans:-N}" =~ ^[Yy]$ ]]; then
-    docker compose -f lab/docker-compose.yml up -d mailpit 2>/dev/null \
-      || echo "  (docker 미설치 — MAIL_BACKEND=mock 으로 진행됩니다)"
-  fi
-fi
-
-# 5) 프리플라이트
+# 4) 프리플라이트
 echo
 bash scripts/preflight.sh || true
 echo

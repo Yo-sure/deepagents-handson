@@ -94,3 +94,28 @@
   .lec .grid-4, .lec .grid-3, .lec .flow { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .lec .section-head { grid-template-columns: 1fr; }
 }
+
+/* layout:page(.lec)에는 default theme의 .vp-doc 코드블록 CSS가 안 붙는다(배경·거터·줄번호).
+   코드 줄높이가 .lec(1.56)을 상속해 줄번호와 어긋나므로, 블록 스타일을 .lec 안에서 직접 정의한다. */
+.lec div[class*="language-"] {
+  position: relative; margin: 18px 0; border-radius: var(--radius);
+  background: var(--vp-code-block-bg, #1b1b1f); border: 1px solid var(--line);
+  overflow-x: auto;
+}
+.lec div[class*="language-"] pre { margin: 0; padding: 18px 0; background: transparent; overflow-x: auto; }
+.lec div[class*="language-"] code {
+  display: block; width: fit-content; min-width: 100%; padding: 0 20px;
+  font-family: var(--vp-font-family-mono); font-size: 13.5px;
+  line-height: var(--vp-code-line-height, 1.7); color: var(--vp-code-block-color);
+}
+.lec div[class*="language-"] .lang,
+.lec div[class*="language-"] .copy { display: none; }
+.lec div[class*="language-"].line-numbers-mode { padding-left: 42px; }
+.lec div[class*="language-"] .line-numbers-wrapper {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 42px;
+  padding: 18px 0; text-align: center;
+  font-family: var(--vp-font-family-mono); font-size: 13.5px;
+  line-height: var(--vp-code-line-height, 1.7);
+  color: var(--vp-code-line-number-color, rgba(235,235,245,.38));
+  border-right: 1px solid rgba(255,255,255,.08);
+}

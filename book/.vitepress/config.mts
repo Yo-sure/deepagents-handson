@@ -32,6 +32,7 @@ export default withMermaid({
         text: '교재 (2026 Edition)',
         items: [
           { text: '소개', link: '/' },
+          { text: 'Ch0 · 환경 셋업', link: '/chapters/chapter-0' },
           { text: 'Ch1 · Kick-off & Agent 패러다임', link: '/chapters/chapter-1' },
         ],
       },

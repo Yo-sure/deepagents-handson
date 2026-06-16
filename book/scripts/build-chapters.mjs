@@ -10,6 +10,7 @@ const DST = resolve(__dirname, '../chapters')
 
 // 마이그레이션 완료된 챕터만 등록 (다음 사이클마다 추가)
 const MIGRATED = [
+  { file: 'Chapter 0. 환경 셋업.md', slug: 'chapter-0' },
   { file: 'Chapter 1. Kick-off & Agent 패러다임.md', slug: 'chapter-1' },
 ]
 
