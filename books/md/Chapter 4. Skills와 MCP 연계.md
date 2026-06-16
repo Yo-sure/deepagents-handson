@@ -181,22 +181,63 @@ amount: 89000
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 50분</div>
+<div class="eyebrow">핸즈온 ① · 코드 정독</div>
 
-## 직접 묶는다 — 지식·연결·절차
+## OKF 항목 하나가 만들어지는 법
 
 </div>
-<p class="section-note">조사 결과를 OKF로 적재하고, MCP 서버의 도구 목록을 점검하고, 브리프 Skill을 살펴봅니다.<br>
-세 산출물이 Ch6 캡스톤에서 그대로 배선됩니다.</p>
+<p class="section-note">OKF 항목은 YAML 머리말 + 마크다운 본문입니다. 코드는 레코드에서 값을 뽑아 이 틀에 끼웁니다. <code>type</code>이 필수라는 점만 지키면 됩니다.</p>
 </div>
 
-<div class="board">
-<div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
+<div class="panel">
+<div class="panel-head"><strong>ch4-skills-mcp/okf_store.py — okf_entry</strong><span>지식 항목 직렬화</span></div>
+<div class="panel-body">
+
+```python
+def okf_entry(type_: str, name: str, body_lines: list[str], **meta) -> str:
+    fm = [f"type: {type_}", f"name: {name}", f"schema_version: {OKF_VERSION}"]  # type 필수
+    fm += [f"{k}: {v}" for k, v in meta.items()]
+    front = "\n".join(fm)
+    body = "\n".join(body_lines)
+    return f"---\n{front}\n---\n\n# {name}\n\n{body}\n"   # 프런트매터 + 본문
+
+# 카드 대사에서 영수증 없는 줄을 gap/subscription 항목으로:
+if amt < 30000:
+    out[f"subscription-{slug(item.name)}"] = okf_entry("subscription", item.name, [...])
+else:
+    out[f"gap-{slug(item.name)}"] = okf_entry("gap", item.name, [...])   # 쿠팡 89,000 → gap
+```
+
+</div>
+</div>
+
+<div class="grid-2" style="margin-top:16px">
+<div class="panel"><div class="panel-head"><strong>MCP 도구는 어떻게 노출되나</strong></div><div class="panel-body"><div class="list">
+<p><code>@mcp.tool()</code>를 붙이면 함수가 도구가 됩니다. 함수 이름이 도구 이름, docstring이 설명, 타입힌트가 입력 스키마입니다.</p>
+<p>모델은 그 docstring을 읽고 어떤 도구를 부를지 정합니다 — 그래서 설명을 또렷이 씁니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>점진 공개는 어디서 작동하나</strong></div><div class="panel-body"><div class="list">
+<p>SKILL.md는 짧게(언제·무엇). 세부 형식은 <code>reference/brief_format.md</code>에 미뤄 둡니다.</p>
+<p>에이전트는 브리프를 실제로 쓸 때만 reference를 펼쳐 봅니다 — 평소 컨텍스트를 아낍니다.</p>
+</div></div></div>
+</div>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ② · 단계별 실행</div>
+
+## 지식·연결·절차를 묶는다
+
+</div>
+<p class="section-note">세 산출물을 각각 돌려 보고 결과를 확인합니다. 이게 Ch6 캡스톤에서 그대로 배선됩니다.</p>
+</div>
+
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code> → knowledge_base/*.md</p></div><div class="store">지식</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code></p></div><div class="store">연결</div></div>
-<div class="row"><div class="code">3</div><div class="copy"><strong>Skill 살펴보기</strong><p><code>ch4-skills-mcp/brief_skill/SKILL.md</code> · <code>reference/</code> · <code>plugin.json</code></p></div><div class="store">절차</div></div>
-</div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code> + <code>knowledge_base/gap-쿠팡-주.md</code> 생성.</span></p></div><div class="store">지식</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 나온다.</span></p></div><div class="store">연결</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>Skill·지식 열어 보기</strong><p><code>cat workspace/knowledge_base/gap-쿠팡-주.md</code> · <code>cat ch4-skills-mcp/brief_skill/SKILL.md</code><br><span style="color:var(--muted)">성공 기준: gap 항목에 <code>type: gap</code> 머리말, SKILL.md에 name·description.</span></p></div><div class="store">절차</div></div>
 </div>
 
 <div class="panel" style="margin-top:18px">
@@ -212,6 +253,43 @@ amount: 89000
 ```
 
 </div>
+</div>
+
+<div class="ask" style="margin-top:18px"><strong>직접 해보기.</strong> <code>okf_store.py</code>에서 구독 판정 기준 <code>amt &lt; 30000</code>을 <code>50000</code>으로 올리면 어떤 항목이 gap에서 subscription으로 바뀔까요?</div>
+
+<details>
+<summary>관찰 포인트</summary>
+<div class="reveal">
+<p>쿠팡 89,000원은 여전히 gap입니다(5만 초과). 다만 만약 3만~5만 사이 결제가 있었다면 그게 subscription으로 재분류됩니다. 기준 하나가 "이건 구독이다 vs 확인이 필요하다"의 판단을 가릅니다.</p>
+<p>실무에서는 이런 임계값을 도메인 지식으로 정합니다. 코드에 박힌 숫자가 곧 정책입니다.</p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ③ · 트러블슈팅</div>
+
+## 막히면 여기부터
+
+</div>
+<p class="section-note">MCP·OKF는 대부분 입력 디렉터리나 의존성 문제입니다.</p>
+</div>
+
+<div class="grid-2">
+<div class="panel"><div class="panel-head"><strong>지식이 비어 있음</strong><span>입력</span></div><div class="panel-body"><div class="list">
+<p>okf_store는 classified 레코드가 필요합니다. Ch2·Ch3을 먼저 돌렸는지 확인하세요(없으면 gold 보충).</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>MCP 도구가 안 뜸</strong><span>점검</span></div><div class="panel-body"><div class="list">
+<p><code>--list</code> 없이 실행하면 stdio 서버로 대기합니다(정상). 도구 목록만 보려면 <code>--list</code>를 붙입니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>search_knowledge 빈 결과</strong><span>type</span></div><div class="panel-body"><div class="list">
+<p>type 철자가 항목의 <code>type:</code>와 정확히 같아야 합니다(gap·subscription·merchant).</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>mcp import 에러</strong><span>의존성</span></div><div class="panel-body"><div class="list">
+<p><code>mcp[cli]</code>가 설치돼 있어야 합니다. <code>uv sync</code>로 의존성을 맞춥니다.</p>
+</div></div></div>
 </div>
 </section>
 

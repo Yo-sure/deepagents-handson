@@ -161,22 +161,63 @@ def verify_brief(brief_text: str) -> tuple[bool, list[str]]:
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 42분</div>
+<div class="eyebrow">핸즈온 ① · 코드 정독</div>
 
-## 직접 검증받는다 — a2a_verify.py
+## 서버가 요청을 받는 자리
 
 </div>
-<p class="section-note">검증 에이전트를 띄우고 브리프를 보냅니다. <code>--serve</code>는 검증 에이전트를 자동으로 기동한 뒤 통신합니다. <code>--mock</code>은 네트워크 없이 같은 결과를 냅니다.<br>
-끝나면 브리프 끝에 외부 검증 도장이 찍힌 verified_brief.md가 생깁니다.</p>
+<p class="section-note">A2A 서버의 핵심은 <code>AgentExecutor.execute</code> 하나입니다. 들어온 메시지에서 브리프를 꺼내, 검증하고, Task로 결과를 돌려줍니다. 한 가지 규칙만 지키면 됩니다 — 상태 갱신 전에 Task를 먼저 등록.</p>
 </div>
 
-<div class="board">
-<div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
+<div class="panel">
+<div class="panel-head"><strong>ch5-a2a/verifier_agent.py — execute</strong><span>요청 → 검증 → 결과</span></div>
+<div class="panel-body">
+
+```python
+async def execute(self, context: RequestContext, event_queue: EventQueue) -> None:
+    brief = context.get_user_input()              # ① 들어온 메시지에서 텍스트
+    ok, notes = verify_brief(brief)               # ② 독립 재계산
+    body = f"## 외부 검증 결과 — {'PASS' if ok else 'NEEDS_REVISION'}\n..."
+
+    await event_queue.enqueue_event(Task(         # ③ A2A 규칙: Task를 먼저 등록
+        id=context.task_id, context_id=context.context_id,
+        status=TaskStatus(state=TaskState.TASK_STATE_SUBMITTED)))
+    updater = TaskUpdater(event_queue, context.task_id, context.context_id)
+    await updater.start_work(...)                 # working
+    await updater.add_artifact(parts=[Part(text=body)], name="verdict")  # 결과 첨부
+    await updater.complete()                      # completed
+```
+
+</div>
+</div>
+
+<div class="grid-2" style="margin-top:16px">
+<div class="panel"><div class="panel-head"><strong>서버 뼈대 — 한 번 외우면 끝</strong></div><div class="panel-body"><div class="list">
+<p><code>AgentExecutor</code> 구현 → <code>DefaultRequestHandler</code>(+Card·TaskStore) → <code>create_*_routes</code> → Starlette → uvicorn.</p>
+<p>이 순서가 a2a-sdk 1.1.0 서버의 표준 골격입니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>왜 Task를 먼저 등록하나</strong></div><div class="panel-body"><div class="list">
+<p>A2A는 "Task 없이 상태 갱신 먼저"를 금지합니다. 클라이언트가 추적할 대상이 없기 때문입니다.</p>
+<p>순서를 어기면 <code>InvalidAgentResponseError</code>가 납니다 — 실제로 만나는 함정입니다.</p>
+</div></div></div>
+</div>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ② · 단계별 실행</div>
+
+## 띄우고, 보내고, 받는다
+
+</div>
+<p class="section-note">한 번에 자동 기동해 통신하거나, 서버를 따로 띄워 두고 보냅니다. 네트워크 없이 흐름만 보려면 mock입니다.</p>
+</div>
+
 <div class="stack">
-<div class="row"><div class="code">a</div><div class="copy"><strong>한 번에 — 에이전트 자동 기동 + 검증</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --serve</code></p></div><div class="store">A2A</div></div>
-<div class="row"><div class="code">b</div><div class="copy"><strong>따로 — 검증 에이전트 먼저 띄우고</strong><p><code>uv run python3 ch5-a2a/verifier_agent.py</code> (다른 터미널)</p></div><div class="store">서버</div></div>
-<div class="row"><div class="code">c</div><div class="copy"><strong>오프라인 — 네트워크 없이</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --mock</code></p></div><div class="store">목</div></div>
-</div>
+<div class="row"><div class="code">a</div><div class="copy"><strong>한 번에 — 자동 기동 + 검증</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --serve</code><br><span style="color:var(--muted)">성공 기준: <code>Agent Card: 세무·정합성 검증 에이전트</code> → <code>검증 결과 수신 (A2A)</code> → verified_brief.md.</span></p></div><div class="store">A2A</div></div>
+<div class="row"><div class="code">b</div><div class="copy"><strong>따로 — 서버 먼저(다른 터미널)</strong><p><code>uv run python3 ch5-a2a/verifier_agent.py</code> 후 <code>... a2a_verify.py</code><br><span style="color:var(--muted)">성공 기준: 브라우저로 <code>localhost:9610/.well-known/agent-card.json</code> 카드가 보인다.</span></p></div><div class="store">서버</div></div>
+<div class="row"><div class="code">c</div><div class="copy"><strong>오프라인 — 네트워크 없이</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --mock</code><br><span style="color:var(--muted)">성공 기준: 같은 PASS 결과가 네트워크 없이 나온다.</span></p></div><div class="store">목</div></div>
 </div>
 
 <div class="panel" style="margin-top:18px">
@@ -194,6 +235,43 @@ def verify_brief(brief_text: str) -> tuple[bool, list[str]]:
 ```
 
 </div>
+</div>
+
+<div class="ask" style="margin-top:18px"><strong>생각해보기.</strong> 만약 브리프에서 "쿠팡" 줄을 일부러 지우고 검증을 보내면 결과가 어떻게 바뀔까요?</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p><code>NEEDS_REVISION</code>이 돌아옵니다. 검증자는 브리프 문장을 믿지 않고 레코드에서 직접 다시 세기 때문에, 쿠팡 89,000원이 빠진 걸 잡아냅니다("브리프가 누락한 항목: 쿠팡").</p>
+<p>이게 외부 검증의 핵심입니다. 내가 쓴 글이 아니라 데이터를 기준으로 판정하니, 내 누락이 그대로 드러납니다. 같은 프로세스 안에서 자기 검증을 하면 이 효과가 없습니다.</p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ③ · 트러블슈팅</div>
+
+## 막히면 여기부터
+
+</div>
+<p class="section-note">A2A는 대부분 포트·기동 타이밍·응답 순서 문제입니다.</p>
+</div>
+
+<div class="grid-2">
+<div class="panel"><div class="panel-head"><strong>Connection refused</strong><span>기동</span></div><div class="panel-body"><div class="list">
+<p>검증 에이전트가 아직 안 떴습니다. <code>--serve</code>는 기동을 기다렸다 보내지만, 따로 띄울 땐 서버가 먼저 올라온 뒤 클라이언트를 실행하세요.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>포트 9610 사용 중</strong><span>포트</span></div><div class="panel-body"><div class="list">
+<p>이전 서버가 안 죽었습니다. 프로세스를 정리하거나 <code>PORT</code>를 바꿉니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>InvalidAgentResponseError</strong><span>응답 순서</span></div><div class="panel-body"><div class="list">
+<p>상태 갱신 전에 Task를 먼저 enqueue해야 합니다. executor의 순서를 확인하세요.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>카드 조회 실패</strong><span>well-known</span></div><div class="panel-body"><div class="list">
+<p><code>/.well-known/agent-card.json</code>이 200인지 브라우저로 먼저 확인합니다. 안 뜨면 서버가 안 올라온 겁니다.</p>
+</div></div></div>
 </div>
 </section>
 

@@ -110,11 +110,23 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 </div>
 </div>
 
+<div class="grid-2" style="margin-top:16px">
+<div class="panel"><div class="panel-head"><strong>왜 import만으로 되나</strong></div><div class="panel-body"><div class="list">
+<p>각 단계가 돌려준 산출물(classified·notes·knowledge_base)을 다음 단계가 디렉터리 규약으로 집어 옵니다.</p>
+<p>그래서 함수끼리 인자를 길게 주고받지 않아도 됩니다 — 파일이 계약입니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>한 군데만 실선, 나머지는 목</strong></div><div class="panel-body"><div class="list">
+<p>봉투(메일)는 목, 검증(A2A)·파일(MCP)은 실선. 외부통합을 둘로 묶어 8시간에 소화합니다.</p>
+<p><code>--a2a</code>를 빼면 검증도 목으로 돌아 키 없이 끝까지 돕니다.</p>
+</div></div></div>
+</div>
+
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
 <div class="stack">
-<div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — 오프라인</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock</code></p></div><div class="store">엔드투엔드</div></div>
-<div class="row"><div class="code">b</div><div class="copy"><strong>검증만 실제 A2A</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock --a2a</code></p></div><div class="store">A2A</div></div>
+<div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — 오프라인</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍히고 <code>workspace/verified_brief.md</code>가 PASS로 끝난다.</span></p></div><div class="store">엔드투엔드</div></div>
+<div class="row"><div class="code">b</div><div class="copy"><strong>검증만 실제 A2A</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock --a2a</code><br><span style="color:var(--muted)">성공 기준: [5/6]에서 <code>Agent Card</code>가 조회되고 실제 서버와 통신한다.</span></p></div><div class="store">A2A</div></div>
+<div class="row"><div class="code">c</div><div class="copy"><strong>최종 산출물 열기</strong><p><code>cat workspace/verified_brief.md</code><br><span style="color:var(--muted)">성공 기준: 브리프 + 외부 검증 도장(PASS)이 한 파일에.</span></p></div><div class="store">완성</div></div>
 </div>
 </div>
 
@@ -133,6 +145,16 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 
 </div>
 </div>
+
+<div class="ask" style="margin-top:18px"><strong>직접 해보기.</strong> 한 단계를 일부러 빼면(예: <code>run_okf()</code> 주석) 다음 단계가 어떻게 될까요? 그리고 <code>workspace/</code>를 지우고 다시 돌리면?</div>
+
+<details>
+<summary>관찰 포인트</summary>
+<div class="reveal">
+<p>okf를 빼면 brief의 "짚을 점"이 비거나 줄어듭니다. 브리프가 knowledge_base의 gap·subscription을 읽어 채우기 때문입니다. 한 부품을 빼면 그 부품의 산출물에 기대던 다음 단계가 티 나게 빈약해집니다 — 계약으로 이어져 있다는 증거입니다.</p>
+<p><code>workspace/</code>를 지우고 다시 돌리면 처음부터 똑같이 재생됩니다. 입력(sample_inbox)과 코드만 있으면 산출물 전체가 결정론적으로 복원됩니다. 재현성이 곧 신뢰입니다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">

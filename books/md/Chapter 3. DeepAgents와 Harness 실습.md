@@ -165,21 +165,64 @@ agent = create_deep_agent(
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 43분</div>
+<div class="eyebrow">핸즈온 ① · 코드 정독</div>
 
-## 직접 돌린다 — research_orchestrator.py
+## 한 갈래의 조사를 읽는다
 
 </div>
-<p class="section-note">Ch2가 떨군 classified 레코드를 읽어 세 갈래로 조사합니다. 키가 없으면 <code>--mock</code>으로 결정론적 대사를 돌려 같은 노트와 브리프를 만듭니다.<br>
-끝나면 research_notes에 세 개의 노트가, workspace에 brief_draft.md가 생깁니다.</p>
+<p class="section-note">조사 한 갈래는 결국 레코드를 맞대 보는 함수입니다. 카드 대사를 읽어 봅니다. 명세서 거래줄마다 금액이 같은 영수증을 찾고, 없으면 표시합니다.</p>
 </div>
 
-<div class="board">
-<div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
+<div class="panel">
+<div class="panel-head"><strong>ch3-deepagents/research_orchestrator.py — reconcile_card</strong><span>대사 한 갈래</span></div>
+<div class="panel-body">
+
+```python
+def reconcile_card(records: list[RecordV1]) -> str:
+    receipts = by_type(records, "영수증")
+    card = next((r for r in by_type(records, "명세서") if "카드" in r.merchant), None)
+    lines, unmatched = [], []
+    for item in card.items:                          # 명세서 거래줄을 하나씩
+        amt = item.amount or 0
+        hit = next((r for r in receipts if abs(r.total - amt) < 1.0), None)  # 금액 같은 영수증?
+        if hit:
+            lines.append(f"- ✅ {item.name} {amt:,.0f}원 ↔ 영수증 「{hit.merchant}」")
+        else:
+            lines.append(f"- ⚠️ {item.name} {amt:,.0f}원 — 매칭 영수증 없음")
+            unmatched.append((item.name, amt))       # 영수증 없는 줄을 모은다
+    # ... 쿠팡 89,000 · 넷플릭스 17,000이 여기 unmatched로 잡힌다
+```
+
+</div>
+</div>
+
+<div class="grid-2" style="margin-top:16px">
+<div class="panel"><div class="panel-head"><strong>fan-out은 어떻게 동시인가</strong></div><div class="panel-body"><div class="list">
+<p>세 갈래(<code>card</code>·<code>bank</code>·<code>spend</code>)는 서로의 결과가 필요 없습니다. 그래서 <code>ThreadPoolExecutor</code>로 한꺼번에 돌립니다.</p>
+<p>키가 있으면 같은 일을 <code>create_deep_agent</code>의 서브에이전트가 맡습니다. mock은 그 구조를 결정론적으로 재현합니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>왜 금액으로 매칭하나</strong></div><div class="panel-body"><div class="list">
+<p>가게 이름은 표기가 제각각이라(쿠팡 vs 쿠팡(주)) 흔들립니다. 금액은 정확히 떨어집니다.</p>
+<p>그래서 1원 오차 안에서 금액으로 잇고, 안 맞는 줄을 "확인 필요"로 남깁니다.</p>
+</div></div></div>
+</div>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ② · 단계별 실행</div>
+
+## 돌리고, 노트를 연다
+
+</div>
+<p class="section-note">Ch2 적재가 먼저 있어야 조사할 레코드가 있습니다. 없으면 gold에서 보충하지만, 순서대로 돌리는 게 정석입니다.</p>
+</div>
+
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>먼저 — Ch2 적재(없으면)</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code></p></div><div class="store">classified</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code></p></div><div class="store">노트 3</div></div>
-</div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>먼저 — Ch2 적재(없으면)</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>workspace/classified/</code>에 JSON 10개.</span></p></div><div class="store">classified</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[task]</code> 세 줄이 (순서가 뒤섞여) 뜨고 <code>research_notes/</code>에 노트 3개.</span></p></div><div class="store">노트 3</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>노트 열어 보기</strong><p><code>cat workspace/research_notes/card_reconcile.md</code><br><span style="color:var(--muted)">성공 기준: 쿠팡 89,000원이 ⚠️로 잡혀 있다.</span></p></div><div class="store">확인</div></div>
 </div>
 
 <div class="panel" style="margin-top:18px">
@@ -193,14 +236,46 @@ agent = create_deep_agent(
   [task] card_reconcile → research_notes/card_reconcile.md
   [task] spend_summary → research_notes/spend_summary.md
   [synthesize] → workspace/brief_draft.md
-
-## 짚어야 할 것
-- ⚠️ 쿠팡(주) 89,000원 — 매칭 영수증 없음
-- ⚠️ 넷플릭스 17,000원 — 매칭 영수증 없음
-- ⚠️ 월세 이체 -650,000원(출금) — 대응 문서 없음
 ```
 
 </div>
+</div>
+
+<div class="ask" style="margin-top:18px"><strong>관찰 포인트.</strong> 출력에서 <code>[task]</code> 세 줄의 순서가 실행할 때마다 뒤바뀝니다. 왜일까요?</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p>세 조사가 동시에(스레드로) 돌기 때문입니다. 먼저 끝난 갈래가 먼저 출력됩니다. 순서가 고정되지 않는다는 게 곧 병렬로 돌고 있다는 증거입니다.</p>
+<p>순차로 돌렸다면 늘 card→bank→spend 순서일 겁니다. fan-out의 효과는 갈래가 많아질수록 커집니다 — 열 갈래면 순차 대비 거의 열 배 빨라집니다.</p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">핸즈온 ③ · 트러블슈팅</div>
+
+## 막히면 여기부터
+
+</div>
+<p class="section-note">조사 결과가 비거나 이상하면 대개 입력(classified) 문제입니다.</p>
+</div>
+
+<div class="grid-2">
+<div class="panel"><div class="panel-head"><strong>노트가 비어 있음</strong><span>입력</span></div><div class="panel-body"><div class="list">
+<p><code>classified/</code>가 비었습니다. Ch2 intake를 먼저 돌리거나, 코드가 gold에서 보충하는 메시지를 확인하세요.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>쿠팡이 안 잡힘</strong><span>매칭</span></div><div class="panel-body"><div class="list">
+<p>분류가 금액을 잘못 읽었을 수 있습니다. classified의 카드 명세서 항목 금액을 확인하세요. mock이면 gold라 항상 잡힙니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>키 모드가 느림</strong><span>실호출</span></div><div class="panel-body"><div class="list">
+<p>키를 넣으면 <code>create_deep_agent</code>가 실제로 추론하며 도구를 부르므로 수십 초 걸립니다. 흐름 확인은 <code>--mock</code>이 빠릅니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>import 에러</strong><span>경로</span></div><div class="panel-body"><div class="list">
+<p>이 파일은 Ch1·analyst를 import합니다. 레포 루트에서 <code>uv run</code>으로 실행해야 경로가 잡힙니다.</p>
+</div></div></div>
 </div>
 
 <p class="section-note" style="margin-top:16px">전체 파일은 <code>ch3-deepagents/research_orchestrator.py</code>. mock은 스레드 동시 실행으로 fan-out을, 키가 있으면 <code>create_deep_agent</code>가 서브에이전트로 같은 조사를 맡습니다.</p>
