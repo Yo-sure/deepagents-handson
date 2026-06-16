@@ -41,13 +41,6 @@ export default withMermaid({
           { text: 'Ch6 · 통합 캡스톤', link: '/chapters/chapter-6' },
         ],
       },
-      {
-        text: '파이프라인 데모',
-        collapsed: true,
-        items: [
-          { text: 'Chapter 2 · Step 1 (샘플)', link: '/guide/chapter2-sample' },
-        ],
-      },
     ],
     search: { provider: 'local' },
     outline: { label: '목차', level: [2, 3] },
