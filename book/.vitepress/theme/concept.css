@@ -110,6 +110,25 @@
 }
 .lec div[class*="language-"] .lang,
 .lec div[class*="language-"] .copy { display: none; }
+/* 표도 마찬가지로 .vp-doc 스타일이 안 붙는다. 에디터리얼 팔레트로 직접 정의하고
+   폰에서 5열 표가 페이지 폭을 깨지 않도록 블록 가로 스크롤로 가둔다. */
+.lec table {
+  display: block; width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  border-collapse: collapse; margin: 14px 0; font-size: 13.5px; line-height: 1.5;
+}
+.lec thead th {
+  background: rgba(255,250,240,.92); color: var(--ink); font-weight: 900;
+  text-align: left; white-space: nowrap;
+}
+.lec th, .lec td {
+  border: 1px solid var(--line); padding: 9px 13px; vertical-align: top; word-break: keep-all;
+}
+.lec tbody tr:nth-child(even) td { background: rgba(255,255,255,.55); }
+.lec td code, .lec th code {
+  background: rgba(11,59,53,.06); padding: 1px 5px; border-radius: 4px;
+  font-family: var(--vp-font-family-mono); font-size: 12px;
+}
+
 .lec div[class*="language-"].line-numbers-mode { padding-left: 42px; }
 .lec div[class*="language-"] .line-numbers-wrapper {
   position: absolute; top: 0; bottom: 0; left: 0; width: 42px;
