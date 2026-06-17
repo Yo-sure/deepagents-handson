@@ -58,7 +58,7 @@
 .lec .code { display:grid; place-items:center; color:var(--white); background:var(--forest); border-radius:7px; font-family:Georgia,serif; font-size:26px; font-weight:900; }
 .lec .row:nth-child(2) .code { background: var(--blue); }
 .lec .row:nth-child(3) .code { background: var(--teal); }
-.lec .copy strong { display:block; font-size:15px; }
+.lec .copy > strong { display:block; font-size:15px; }   /* 행 제목만 블록; <p> 안 인라인 <strong>은 줄바꿈 안 되게 직접자식만 */
 .lec .copy p { margin-top:5px; color:var(--muted); font-size:13px; line-height:1.48; word-break:keep-all; }
 .lec .store { display:grid; place-items:center; padding:10px; color:var(--forest); background:rgba(148,210,189,.25); border:1px solid rgba(15,118,110,.24); border-radius:7px; font-size:12px; font-weight:900; text-align:center; }
 
