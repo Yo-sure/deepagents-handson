@@ -162,3 +162,14 @@
   color: var(--vp-code-line-number-color, rgba(235,235,245,.38));
   border-right: 1px solid rgba(255,255,255,.08);
 }
+
+/* mermaid — 박스 안 라벨이 회색으로 묻히는 문제 방지(명시적 진한 글자) */
+.lec .mermaid { margin: 6px 0 2px; }
+.lec .mermaid .nodeLabel,
+.lec .mermaid .edgeLabel,
+.lec .mermaid .label,
+.lec .mermaid foreignObject div,
+.lec .mermaid foreignObject span,
+.lec .mermaid p { color: #1b2a3a !important; fill: #1b2a3a !important; font-weight: 700; }
+.lec .mermaid .edgeLabel, .lec .mermaid .edgeLabel p { background: #ffffff !important; }
+.lec .mermaid .edgePaths path { stroke: #6b7a72 !important; }

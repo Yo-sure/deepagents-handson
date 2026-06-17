@@ -19,8 +19,22 @@ export default withMermaid({
   description: '인박스 리서치 애널리스트를 만드는 8시간 핸즈온 — 2026 Edition',
   lang: 'ko-KR',
   cleanUrls: true,
-  vite: { server: { port: 5174, strictPort: false } },
+  vite: {
+    server: { port: 5174, strictPort: false, allowedHosts: true },
+    preview: { port: 5174, host: true, allowedHosts: true },
+  },
   markdown: { config: obsidianEmbeds, lineNumbers: true },
+  mermaid: {
+    theme: 'base',
+    themeVariables: {
+      fontFamily: 'inherit',
+      fontSize: '15px',
+      primaryTextColor: '#1b2a3a',
+      nodeTextColor: '#1b2a3a',
+      lineColor: '#6b7a72',
+      edgeLabelBackground: '#ffffff',
+    },
+  },
   themeConfig: {
     nav: [
       { text: '홈', link: '/' },
