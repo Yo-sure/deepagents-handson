@@ -99,14 +99,14 @@
    코드 줄높이가 .lec(1.56)을 상속해 줄번호와 어긋나므로, 블록 스타일을 .lec 안에서 직접 정의한다. */
 .lec div[class*="language-"] {
   position: relative; margin: 18px 0; border-radius: var(--radius);
-  background: var(--vp-code-block-bg, #1b1b1f); border: 1px solid var(--line);
+  background: #1b2027; border: 1px solid var(--line);   /* OS 라이트/다크와 무관하게 항상 어두운 코드블록(에디터리얼 의도) */
   overflow-x: auto;
 }
 .lec div[class*="language-"] pre { margin: 0; padding: 18px 0; background: transparent; overflow-x: auto; }
 .lec div[class*="language-"] code {
   display: block; width: fit-content; min-width: 100%; padding: 0 20px;
   font-family: var(--vp-font-family-mono); font-size: 13.5px;
-  line-height: var(--vp-code-line-height, 1.7); color: var(--vp-code-block-color);
+  line-height: var(--vp-code-line-height, 1.7); color: #d6dae0;
 }
 .lec div[class*="language-"] .lang,
 .lec div[class*="language-"] .copy { display: none; }
@@ -173,3 +173,7 @@
 .lec .mermaid p { color: #1b2a3a !important; fill: #1b2a3a !important; font-weight: 700; }
 .lec .mermaid .edgeLabel, .lec .mermaid .edgeLabel p { background: #ffffff !important; }
 .lec .mermaid .edgePaths path { stroke: #6b7a72 !important; }
+
+/* .lec 코드블록은 어두운 배경(#1b1b1f) — 라이트 모드 shiki는 토큰을 어두운 색으로 칠해
+   검정-검정으로 묻힌다. 다크테마(github-dark, 밝은) 토큰 색을 강제해 가독성 확보. */
+.lec .vp-code span { color: var(--shiki-dark) !important; }
