@@ -15,21 +15,21 @@ pageClass: lec-page
 
 # 나눠서,<br>동시에 조사한다
 
-<p class="lead">정규화된 레코드 열 건이 손에 있습니다. 이제 서로 맞대 봐야 합니다. 카드 명세서의 거래마다 영수증이 있나, 은행 입출금은 계약과 이어지나.<br>
-한 사람이 순서대로 보면 느립니다. 조사 주제를 나눠 서브에이전트가 동시에 돕니다. 그 계획과 파일을 하네스가 관리합니다.</p>
+<p class="lead">정규화된 레코드 열 건이 손에 있습니다. 이제 서로 맞대 봐야 합니다. 카드 명세서의 거래마다 영수증이 있는지, 은행 입출금은 계약과 이어지는지.<br>
+한 사람이 순서대로 보면 느립니다. 조사 주제를 나눠 서브에이전트가 동시에 돌아갑니다. 그 계획과 파일을 하네스가 관리합니다.</p>
 
 <div class="kicker">
 <div class="metric"><span class="num">65</span><strong>분</strong><span>이론 22 · 핸즈온 43</span></div>
 <div class="metric"><span class="num">3</span><strong>번째 부품</strong><span>research_orchestrator.py</span></div>
-<div class="metric"><span class="num">1</span><strong>구멍 발견</strong><span>영수증 없는 89,000원</span></div>
+<div class="metric"><span class="num">1</span><strong>누락 발견</strong><span>영수증 없는 89,000원</span></div>
 </div>
 </div>
 
 <div class="board">
 <div class="board-header"><span>이 챕터가 끝나면</span><span class="status-pill">산출물</span></div>
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>fan-out 조사</strong><p>주제를 나눠 서브에이전트가 동시에 대사</p></div><div class="store">병렬</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>research_notes/</strong><p>긴 중간 결과를 컨텍스트 밖 파일로 퇴피</p></div><div class="store">파일</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>fan-out 조사</strong><p>주제를 나눠 서브에이전트가 동시에 맞대 봄</p></div><div class="store">병렬</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>research_notes/</strong><p>긴 중간 결과를 컨텍스트 밖 파일로 덜어냄</p></div><div class="store">파일</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>brief_draft.md</strong><p>짚을 점을 모은 브리프 초안</p></div><div class="store">종합</div></div>
 </div>
 </div>
@@ -56,25 +56,56 @@ pageClass: lec-page
 <div class="panel"><div class="panel-head"><strong>Harness — DeepAgents</strong><span>Ch3</span></div><div class="panel-body"><div class="list">
 <p>계획·위임·파일 관리를 기본 제공</p>
 <p>주제를 서브에이전트로 나눠 동시 처리</p>
-<p>모델은 그대로인데 할 수 있는 일이 커집니다</p>
+<p>모델은 그대로인데 다룰 수 있는 범위가 넓어집니다</p>
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">LangChain은 모델(gpt-5.2-codex)을 <strong>그대로 둔 채</strong> 이 하네스만 손봐 Terminal-Bench 2.0을 52.8%→66.5%로 올렸습니다(Top 30→Top 5). Ch1에서 본 "순위를 가르는 건 모델이 아니라 하네스"가 여기서 코드로 드러납니다.</p>
+<div class="panel" style="margin-top:18px">
+<div class="panel-head"><strong>하네스는 프레임워크 위에, 프레임워크는 런타임 위에</strong><span>3계층</span></div>
+<div class="panel-body">
+
+```mermaid
+flowchart TB
+    H["🧰 Harness · DeepAgents — 계획·위임·파일·요약을 기본 탑재"]
+    F["🔗 Framework · LangChain — 모델·도구·미들웨어 추상화"]
+    R["⚙️ Runtime · LangGraph — 상태·체크포인트·실행 루프 (Ch2)"]
+    H --> F --> R
+    style H fill:#fff3e0,stroke:#e09f3e
+    style F fill:#e3f2fd,stroke:#315f9c
+    style R fill:#e8f5e9,stroke:#0f766e
+```
+
+</div>
+</div>
+
+<div class="ask" style="margin-top:16px"><strong>하네스가 항상 정답은 아닙니다.</strong> 단계가 정해진 일은 Ch2의 StateGraph가 더 단순하고 빠릅니다. 하네스가 빛나는 건 <strong>몇 갈래로 볼지 미리 모르는</strong> 조사·롱러닝처럼, 계획과 위임을 모델에 맡겨야 할 때입니다.</div>
+
+<p class="section-note" style="margin-top:16px">LangChain은 모델(gpt-5.2-codex)을 <strong>그대로 둔 채</strong> 이 하네스만 반복해 손봐 Terminal-Bench 2.0 점수를 52.8%→66.5%(+13.7%p)로 올렸다고 보고했습니다. Ch1에서 본 "순위를 가르는 건 모델이 아니라 하네스"를 보여 주는 사례입니다. <span style="color:var(--muted)">(LangChain 자체 보고 — 제3자 재현은 아직. 발표 당시 리더보드 30위→5위.)</span></p>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>패러다임 전환 — 프롬프트에서 컨텍스트 엔지니어링으로</span><span class="status-pill">개념</span></div>
 <div class="panel-body"><div class="list">
-<p>좋은 <em>프롬프트 한 줄</em>을 찾던 시대에서, 모델이 풀 수 있게 <strong>필요한 맥락 전체를 구성</strong>하는 시대로 옮겨 갔습니다(Tobi Lütke·Karpathy가 대중화). 하네스가 하는 일이 정확히 이 컨텍스트 관리입니다.</p>
-<p>네 갈래로 다룹니다 — <strong>Write</strong>(밖에 적어 두기·파일/메모리) · <strong>Select</strong>(필요한 것만 불러오기·검색/Skill) · <strong>Compress</strong>(요약으로 줄이기) · <strong>Isolate</strong>(서브에이전트로 격리). DeepAgents의 파일시스템·Skill·Summarization·서브에이전트가 각각 이 넷에 대응합니다.</p>
-</div></div>
+<p>좋은 <em>프롬프트 한 줄</em>을 찾던 시대에서, 모델이 풀 수 있게 <strong>필요한 맥락 전체를 구성</strong>하는 시대로 옮겨 갔습니다(Tobi Lütke·Karpathy가 대중화). 하네스가 하는 일이 정확히 이 컨텍스트 관리입니다 — 아래 네 전략이 DeepAgents의 기본 장비에 그대로 대응합니다.</p>
+</div>
+
+```mermaid
+flowchart LR
+    CTX["🪟 컨텍스트 윈도우"]
+    CTX -- "Write 밖에 적어 두기" --> W["파일시스템"]
+    CTX -- "Select 필요한 것만" --> SE["검색 · Skill"]
+    CTX -- "Compress 요약으로 축소" --> CO["Summarization"]
+    CTX -- "Isolate 따로 떼어 격리" --> IS["서브에이전트 task"]
+    style CTX fill:#fff3e0,stroke:#e09f3e
+```
+
+</div>
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>하네스의 값 — 토큰으로 성능을 산다</span><span class="status-pill">트레이드오프</span></div>
+<div class="board-header"><span>하네스는 공짜가 아니다 — 토큰을 더 쓴다</span><span class="status-pill">트레이드오프</span></div>
 <div class="panel-body"><div class="list">
-<p>기본 미들웨어 스택은 매 호출에 <strong>~3,500 토큰</strong>을 고정으로 더합니다(기본 프롬프트·서브에이전트·할 일·파일·도구 스키마). 공짜가 아닙니다.</p>
-<p>대신 그 비용으로 계획·격리·퇴피를 사서 +13.7점을 얻었습니다 — 호출당 1센트 미만. 프리픽스 캐싱(Ch1)을 켜면 반복 프롬프트 비용을 다시 크게 줄입니다.</p>
+<p>기본 미들웨어 스택은 매 호출에 <strong>~3,500 토큰</strong>을 고정으로 더합니다(기본 프롬프트·서브에이전트·할 일·파일·도구 스키마 — deepagents 코드 기준 추정). 계획·위임·파일 관리를 거저 얻는 대신 내는 값입니다.</p>
+<p>성능은 또 다른 이야기입니다. 위의 +13.7%p는 토큰을 더 썼다고 저절로 따라온 게 아니라, 하네스를 <strong>반복해 다듬어(harness engineering)</strong> 얻은 결과입니다 — 토큰 비용과 성능 향상은 출처상 별개입니다. 반복되는 앞부분은 프롬프트 캐싱(Ch1)으로 비용을 다시 줄일 수 있습니다.</p>
 </div></div>
 </div>
 </section>
@@ -87,7 +118,7 @@ pageClass: lec-page
 ## create_deep_agent의 기본 장비
 
 </div>
-<p class="section-note">하네스 에이전트는 한 줄로 만듭니다. 만들면 도구 몇 개가 기본으로 따라옵니다. 계획을 적는 도구, 일을 위임하는 도구, 파일을 읽고 쓰는 도구입니다.<br>
+<p class="section-note">하네스 에이전트는 한 줄로 만듭니다. 만들면 장비 몇 개가 기본으로 따라옵니다. 계획을 적는 도구, 일을 위임하는 도구, 파일을 읽고 쓰는 도구, 그리고 긴 대화를 자동으로 줄이는 요약 장치입니다(앞 절 네 전략에 그대로 대응).<br>
 우리는 여기에 조사용 도구만 얹습니다. 레코드를 요약하는 도구, 노트를 저장하는 도구.</p>
 </div>
 
@@ -111,8 +142,8 @@ agent = create_deep_agent(
 <p>주제 하나를 하위 에이전트에 맡깁니다</p>
 <p>여러 개를 동시에 돌려 fan-out 합니다</p>
 </div></div></div>
-<div class="panel"><div class="panel-head"><strong>filesystem</strong><span>퇴피</span></div><div class="panel-body"><div class="list">
-<p>도구 출력이 20K 토큰을 넘으면 가상 파일로 빼고 경로+미리보기만 남깁니다</p>
+<div class="panel"><div class="panel-head"><strong>filesystem</strong><span>덜어내기</span></div><div class="panel-body"><div class="list">
+<p>도구 출력이 크면 가상 파일로 빼고 경로와 미리보기만 남깁니다</p>
 <p>한 번의 긴 출력이 윈도우를 채우는 걸 막습니다</p>
 </div></div></div>
 </div>
@@ -126,14 +157,40 @@ agent = create_deep_agent(
 ## 주제를 나눠 동시에
 
 </div>
-<p class="section-note">조사를 세 갈래로 나눕니다. 카드 대사, 은행 대사, 지출 요약. 서로 독립이라 동시에 돌 수 있습니다.<br>
-각 갈래가 끝나면 결과를 research_notes 아래 제 파일로 떨굽니다. 한 갈래의 긴 출력이 다른 갈래의 맥락을 밀어내지 않습니다.</p>
+<p class="section-note">조사를 세 갈래로 나눕니다. 카드 대조, 은행 대조, 지출 요약. 서로 독립이라 동시에 돌 수 있습니다.<br>
+각 갈래가 끝나면 결과를 research_notes 아래 각자의 파일로 저장합니다. 한 갈래의 긴 출력이 다른 갈래의 맥락을 밀어내지 않습니다.</p>
 </div>
 
-<div class="flow" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-<div class="flow-step"><small>thread 1</small><strong>카드 대사</strong><p>명세서 거래줄 ↔ 개별 영수증을 맞춰 빈 줄을 찾는다</p></div>
-<div class="flow-step"><small>thread 2</small><strong>은행 대사</strong><p>입출금 ↔ 계약·세금계산서·카드를 잇는다</p></div>
-<div class="flow-step"><small>thread 3</small><strong>지출 요약</strong><p>영수증을 식비·교통·생활로 모은다</p></div>
+<div class="panel">
+<div class="panel-head"><strong>오케스트레이터 하나가 셋으로 갈라졌다 다시 모인다</strong><span>fan-out → fan-in</span></div>
+<div class="panel-body">
+
+```mermaid
+flowchart TB
+    O["🧭 오케스트레이터<br/>write_todos로 3갈래 계획"]
+    O --> A["🧵 카드 대조<br/>card_reconcile"]
+    O --> B["🧵 은행 대조<br/>bank_reconcile"]
+    O --> C["🧵 지출 요약<br/>spend_summary"]
+    A --> A2[("research_notes/<br/>card_reconcile.md")]
+    B --> B2[("research_notes/<br/>bank_reconcile.md")]
+    C --> C2[("research_notes/<br/>spend_summary.md")]
+    A2 --> S["📋 종합<br/>brief_draft.md"]
+    B2 --> S
+    C2 --> S
+    style O fill:#fff3e0,stroke:#e09f3e
+    style S fill:#f3e5f5,stroke:#6b4fa3
+    style A2 fill:#e8f5e9,stroke:#0f766e
+    style B2 fill:#e8f5e9,stroke:#0f766e
+    style C2 fill:#e8f5e9,stroke:#0f766e
+```
+
+</div>
+</div>
+
+<div class="flow" style="grid-template-columns:repeat(3,minmax(0,1fr));margin-top:16px">
+<div class="flow-step"><small>갈래 1</small><strong>카드 대조</strong><p>명세서 거래 항목 ↔ 개별 영수증을 맞춰 짝 없는 항목을 찾는다</p></div>
+<div class="flow-step"><small>갈래 2</small><strong>은행 대조</strong><p>입출금 ↔ 계약·세금계산서·카드를 잇는다</p></div>
+<div class="flow-step"><small>갈래 3</small><strong>지출 요약</strong><p>영수증을 식비·교통·생활로 모은다</p></div>
 </div>
 
 <div class="board" style="margin-top:18px">
@@ -153,8 +210,8 @@ agent = create_deep_agent(
 ## 영수증 없는 89,000원
 
 </div>
-<p class="section-note">카드 대사가 흥미로운 걸 찾습니다. 명세서에는 일곱 줄이 있는데 영수증은 다섯 장뿐입니다. 두 줄이 비어 있습니다.<br>
-쿠팡 89,000원에는 영수증이 없습니다. 넷플릭스 17,000원도 없습니다. 하나는 분실 또는 미수령, 하나는 구독으로 추정됩니다. 이게 조사가 내놓는 실제 결과입니다.</p>
+<p class="section-note">카드 대조에서 불일치가 드러납니다. 명세서에는 일곱 건이 있는데 영수증은 다섯 장뿐입니다. 두 건이 비어 있습니다.<br>
+쿠팡 89,000원에는 영수증이 없습니다. 넷플릭스 17,000원도 없습니다. 쿠팡 건은 분실 또는 미수령, 넷플릭스 건은 구독으로 추정됩니다. 조사가 내놓는 실제 결과입니다.</p>
 </div>
 
 <div class="panel">
@@ -175,7 +232,7 @@ agent = create_deep_agent(
 </div>
 </div>
 
-<p class="section-note" style="margin-top:16px">Ch0에서 문서를 서로 연결해 둔 설계가 여기서 결실을 맺습니다. 카드 명세서와 영수증이 일부러 어긋나게 만들어졌고, 조사가 그 틈을 정확히 집어냅니다.</p>
+<p class="section-note" style="margin-top:16px">Ch0에서 문서를 서로 연결해 둔 설계가 여기서 효과를 냅니다. 카드 명세서와 영수증이 일부러 어긋나게 만들어졌고, 조사가 그 틈을 정확히 집어냅니다.</p>
 </section>
 
 <section class="slide">
@@ -215,7 +272,7 @@ def reconcile_card(records: list[RecordV1]) -> str:
 <div class="grid-2" style="margin-top:16px">
 <div class="panel"><div class="panel-head"><strong>fan-out은 어떻게 동시인가</strong></div><div class="panel-body"><div class="list">
 <p>세 갈래(<code>card</code>·<code>bank</code>·<code>spend</code>)는 서로의 결과가 필요 없습니다. 그래서 <code>ThreadPoolExecutor</code>로 한꺼번에 돌립니다.</p>
-<p>키가 있으면 같은 일을 <code>create_deep_agent</code>의 서브에이전트가 맡습니다. mock은 그 구조를 결정론적으로 재현합니다.</p>
+<p>키가 있으면 같은 일을 <code>create_deep_agent</code>의 서브에이전트가 맡습니다. mock의 스레드 병렬과 서브에이전트의 LLM 위임은 <strong>동작 원리가 다르지만</strong>, 갈래를 나눠 동시에 돌리고 결과를 모으는 <strong>구조는 같습니다</strong>.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>왜 금액으로 매칭하나</strong></div><div class="panel-body"><div class="list">
 <p>가게 이름은 표기가 제각각이라(쿠팡 vs 쿠팡(주)) 흔들립니다. 금액은 정확히 떨어집니다.</p>
@@ -263,7 +320,7 @@ def reconcile_card(records: list[RecordV1]) -> str:
 <summary>정답 확인</summary>
 <div class="reveal">
 <p>세 조사가 동시에(스레드로) 돌기 때문입니다. 먼저 끝난 갈래가 먼저 출력됩니다. 순서가 고정되지 않는다는 게 곧 병렬로 돌고 있다는 증거입니다.</p>
-<p>순차로 돌렸다면 늘 card→bank→spend 순서일 겁니다. fan-out의 효과는 갈래가 많아질수록 커집니다 — 열 갈래면 순차 대비 거의 열 배 빨라집니다.</p>
+<p>순차로 돌렸다면 늘 card→bank→spend 순서일 겁니다. fan-out의 효과는 갈래가 많아질수록 커집니다. 다만 갈래 수에 정비례해 빨라지진 않습니다 — API 동시 호출 한도, 가장 느린 갈래(꼬리 지연), 마지막 종합 단계가 상한을 정합니다.</p>
 </div>
 </details>
 </section>
