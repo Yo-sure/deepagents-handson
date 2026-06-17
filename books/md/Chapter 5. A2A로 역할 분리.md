@@ -142,6 +142,23 @@ async for resp in client.send_message(request=SendMessageRequest(message=msg)):
 ```
 
 <p class="section-note" style="margin-top:16px">두 곳이 함정입니다. <code>message_id</code>를 빼면 서버가 메시지를 식별 못 해 거절하고, protobuf <code>StreamResponse</code>는 네 칸 중 한 칸만 차서 <code>HasField</code>로 찬 칸을 골라 읽어야 합니다(빈 칸을 읽으면 기본값이라 조용히 틀립니다).</p>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>A2A 한눈에 — 바인딩·통신·상태</span><span class="status-pill">레퍼런스</span></div>
+<div class="panel-body">
+<div class="grid-3">
+<div class="panel"><div class="panel-head"><strong>3 바인딩</strong></div><div class="panel-body"><div class="list">
+<p>JSON-RPC(양방향·기본) · gRPC(protobuf 고성능) · REST(curl 호환). 에이전트는 하나 이상만 구현하면 됩니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>4 통신 패턴</strong></div><div class="panel-body"><div class="list">
+<p>블로킹(즉답) · 폴링(<code>tasks/get</code>) · 스트리밍(SSE) · 웹훅(<code>pushNotification</code>). 우리 검증은 블로킹입니다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>Task 상태</strong></div><div class="panel-body"><div class="list">
+<p>submitted→working→completed가 정상 경로. 그 외 <strong>failed·canceled·rejected·input-required·auth-required</strong>로 끝나거나 멈춥니다.</p>
+</div></div></div>
+</div>
+</div>
+</div>
 </section>
 
 <section class="slide">

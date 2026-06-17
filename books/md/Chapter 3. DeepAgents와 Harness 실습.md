@@ -60,7 +60,23 @@ pageClass: lec-page
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">LangChain은 같은 모델·런타임에 이 하네스만 더해 Terminal-Bench 52.8%를 66.5%로 올렸습니다. Ch1에서 본 "순위를 가르는 건 모델이 아니라 하네스"가 여기서 코드로 드러납니다.</p>
+<p class="section-note" style="margin-top:16px">LangChain은 모델(gpt-5.2-codex)을 <strong>그대로 둔 채</strong> 이 하네스만 손봐 Terminal-Bench 2.0을 52.8%→66.5%로 올렸습니다(Top 30→Top 5). Ch1에서 본 "순위를 가르는 건 모델이 아니라 하네스"가 여기서 코드로 드러납니다.</p>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>패러다임 전환 — 프롬프트에서 컨텍스트 엔지니어링으로</span><span class="status-pill">개념</span></div>
+<div class="panel-body"><div class="list">
+<p>좋은 <em>프롬프트 한 줄</em>을 찾던 시대에서, 모델이 풀 수 있게 <strong>필요한 맥락 전체를 구성</strong>하는 시대로 옮겨 갔습니다(Tobi Lütke·Karpathy가 대중화). 하네스가 하는 일이 정확히 이 컨텍스트 관리입니다.</p>
+<p>네 갈래로 다룹니다 — <strong>Write</strong>(밖에 적어 두기·파일/메모리) · <strong>Select</strong>(필요한 것만 불러오기·검색/Skill) · <strong>Compress</strong>(요약으로 줄이기) · <strong>Isolate</strong>(서브에이전트로 격리). DeepAgents의 파일시스템·Skill·Summarization·서브에이전트가 각각 이 넷에 대응합니다.</p>
+</div></div>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>하네스의 값 — 토큰으로 성능을 산다</span><span class="status-pill">트레이드오프</span></div>
+<div class="panel-body"><div class="list">
+<p>기본 미들웨어 스택은 매 호출에 <strong>~3,500 토큰</strong>을 고정으로 더합니다(기본 프롬프트·서브에이전트·할 일·파일·도구 스키마). 공짜가 아닙니다.</p>
+<p>대신 그 비용으로 계획·격리·퇴피를 사서 +13.7점을 얻었습니다 — 호출당 1센트 미만. 프리픽스 캐싱(Ch1)을 켜면 반복 프롬프트 비용을 다시 크게 줄입니다.</p>
+</div></div>
+</div>
 </section>
 
 <section class="slide">
@@ -83,7 +99,7 @@ agent = create_deep_agent(
     tools=[list_records, write_note],   # 우리가 얹는 조사 도구
     system_prompt="너는 인박스 리서치 애널리스트다 ...",
 )
-# 기본 장비: write_todos(계획) · task(서브에이전트 위임) · 파일시스템(read/write/ls)
+# 기본 장비: write_todos(계획) · task(서브에이전트 위임) · 파일시스템(ls·read_file·write_file·edit_file·glob·grep)
 ```
 
 <div class="grid-3">
@@ -96,8 +112,8 @@ agent = create_deep_agent(
 <p>여러 개를 동시에 돌려 fan-out 합니다</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>filesystem</strong><span>퇴피</span></div><div class="panel-body"><div class="list">
-<p>긴 결과를 컨텍스트 밖 파일로 뺍니다</p>
-<p>윈도우가 가득 차는 문제를 피합니다</p>
+<p>도구 출력이 20K 토큰을 넘으면 가상 파일로 빼고 경로+미리보기만 남깁니다</p>
+<p>한 번의 긴 출력이 윈도우를 채우는 걸 막습니다</p>
 </div></div></div>
 </div>
 </section>

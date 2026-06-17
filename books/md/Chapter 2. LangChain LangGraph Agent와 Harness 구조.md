@@ -69,7 +69,27 @@ agent = create_agent("openai:google/gemini-3.5-flash", tools=[...])
 # 다만 그 그래프는 ReAct 루프 모양으로 고정 — 흐름을 직접 그리려면 StateGraph를 손으로 짠다 ↓
 ```
 
-<p class="section-note" style="margin-top:16px"><code>create_agent</code>는 LangGraph 1.0 이전의 <code>create_react_agent</code>를 대체했습니다. 둘 다 같은 <code>CompiledStateGraph</code>를 돌려줍니다. 차이는 자유도입니다.</p>
+<p class="section-note" style="margin-top:16px"><code>create_agent</code>는 LangGraph 1.0 이전의 <code>create_react_agent</code>를 대체했습니다. 둘 다 같은 <code>CompiledStateGraph</code>를 돌려줍니다. 차이는 자유도이고, 그 자유도의 핵심은 LangChain 1.0이 더한 <strong>미들웨어</strong>(<code>before_model</code>·<code>after_model</code> 훅)입니다 — Ch3의 <code>create_deep_agent</code>는 바로 이 <code>create_agent</code>에 미들웨어를 기본 탑재한 확장입니다.</p>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>프레임워크가 지우는 것 — 손으로 짠 루프</span><span class="status-pill">왜 필요한가</span></div>
+<div class="panel-body">
+
+```python
+# create_agent 한 줄이 감춘 것: ReAct 루프를 직접 짜면 이렇다
+messages = [HumanMessage(prompt)]
+for _ in range(MAX_STEPS):
+    ai = llm.bind_tools(tools).invoke(messages)   # 모델 호출
+    messages.append(ai)
+    if not ai.tool_calls:                          # 도구 안 부르면 종료
+        break
+    for tc in ai.tool_calls:                       # 도구 실행 → 관측을 되돌림
+        messages.append(ToolMessage(run_tool(tc), tool_call_id=tc["id"]))
+```
+
+<p style="margin-top:8px">동작은 하지만 <strong>상태·에러·재시도·분기·중단점이 전부 내 몫</strong>입니다. 조건이 늘면 이 루프가 스파게티가 됩니다. 그래서 흐름을 1급 시민으로 다루는 StateGraph로 올라갑니다 — 그게 이 챕터입니다.</p>
+</div>
+</div>
 </section>
 
 <section class="slide">
@@ -359,6 +379,14 @@ def build_graph():
 </div>
 <p class="section-note">이제 인박스가 정규화된 레코드 열 건으로 정리됐습니다. StateGraph는 흐름을 또렷이 통제하지만 단계를 우리가 다 그려야 합니다.<br>
 Ch3에서는 한 단계 위로 올라갑니다. 여러 문서를 서브에이전트가 나눠 동시에 조사하고, 그 계획과 파일을 하네스가 알아서 관리합니다.</p>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>직접 만들면 — 하네스가 해결하는 것</span><span class="status-pill">Ch3 동기</span></div>
+<div class="panel-body"><div class="list">
+<p>이 그래프에 "문서 100건을 장기 실행으로 조사" 같은 일을 얹으려면 파일 입출력·할 일 목록·배치 처리·컨텍스트 관리 코드가 줄줄이 붙습니다 — 매 프로젝트 ~100줄의 보일러플레이트.</p>
+<p>그 반복을 미리 묶어 둔 게 <strong>하네스</strong>입니다. Ch3 DeepAgents는 계획(write_todos)·파일시스템·서브에이전트를 기본 제공해, 우리는 "무엇을 조사할지"만 적습니다.</p>
+</div></div>
 </div>
 
 <div class="grid-3">

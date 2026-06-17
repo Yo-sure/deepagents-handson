@@ -140,6 +140,7 @@ version: 0.1.0
 <div class="panel-body"><div class="list">
 <p><strong>Tool</strong> — 모델이 자율로 호출(부수효과 가능) · <strong>Resource</strong> — 클라이언트가 읽어가는 읽기전용 데이터 · <strong>Prompt</strong> — 사용자가 트리거하는 템플릿</p>
 <p>전송은 stdio(로컬, 에이전트가 subprocess로 붙음) 또는 HTTP 스트리밍(원격). 이 실습은 stdio입니다.</p>
+<p>그 위로 흐르는 메시지는 <strong>JSON-RPC 2.0</strong>입니다(LSP의 후예 — "M개 앱 × N개 도구"를 M+N으로 묶음). 에러는 HTTP 상태가 아니라 본문 <code>error</code> 객체로 옵니다: <code>-32601</code> 메서드 없음 · <code>-32602</code> 잘못된 파라미터 · <code>-32603</code> 내부 오류.</p>
 </div></div>
 </div>
 
@@ -255,6 +256,8 @@ if __name__ == "__main__":
 </div>
 </div>
 
+<div class="ask" style="margin-top:16px"><strong>주의 — stdio에선 <code>print()</code> 금지.</strong> stdout은 JSON-RPC 전용 채널입니다. 스펙이 "서버는 유효한 MCP 메시지 외 어떤 것도 stdout에 쓰면 안 된다"고 못박습니다. 디버그 출력은 <code>logging</code>(기본 stderr)으로 — <code>print()</code> 한 줄이 파싱 에러를 냅니다. 첫 MCP 서버를 깨먹는 가장 흔한 함정입니다.</div>
+
 <div class="grid-2" style="margin-top:16px">
 <div class="panel"><div class="panel-head"><strong>MCP 도구는 어떻게 노출되나</strong></div><div class="panel-body"><div class="list">
 <p><code>@mcp.tool()</code>를 붙이면 함수가 도구가 됩니다. 함수 이름이 도구 이름, docstring이 설명, 타입힌트가 입력 스키마입니다.</p>
@@ -262,7 +265,7 @@ if __name__ == "__main__":
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>점진 공개는 어디서 작동하나</strong></div><div class="panel-body"><div class="list">
 <p>① <code>name·description</code>만 늘 시스템 프롬프트에. ② 맞으면 SKILL.md 본문. ③ <code>reference/brief_format.md</code>는 본문이 가리킬 때만.</p>
-<p>토큰을 단계로 나눠 쓰는 셈입니다 — Skill이 100개여도 평소엔 description 100줄만 올라갑니다.</p>
+<p>토큰을 단계로 나눠 쓰는 셈입니다 — Skill이 100개여도 평소엔 description 100줄만 올라갑니다. MCP 서버 4개를 통째로 붙이면 도구 정의만 ~51,000 토큰(컨텍스트의 ~47%)이 시작부터 깔리는데, 점진 공개는 그걸 필요할 때만 펼쳐 막습니다(Ch3 Select 전략).</p>
 </div></div></div>
 </div>
 </section>

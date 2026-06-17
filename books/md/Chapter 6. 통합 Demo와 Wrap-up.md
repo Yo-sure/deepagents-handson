@@ -211,6 +211,18 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <div class="panel"><div class="panel-head"><strong>HITL</strong><span>Ch2</span></div><div class="panel-body"><div class="list"><p>고액·저신뢰 멈춤</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>A2A</strong><span>Ch5</span></div><div class="panel-body"><div class="list"><p>프로세스·팀 경계 검증</p></div></div></div>
 </div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>하루를 관통한 축 — 3계층</span><span class="status-pill">멘탈 모델</span></div>
+<div class="panel-body">
+<div class="flow" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+<div class="flow-step"><small>Framework</small><strong>LangChain</strong><p>LLM·도구 연결 — "도구 상자" <span class="badge">Ch2</span></p></div>
+<div class="flow-step"><small>Runtime</small><strong>LangGraph</strong><p>상태·분기·체크포인트 — "작업 공정표" <span class="badge">Ch2</span></p></div>
+<div class="flow-step"><small>Harness</small><strong>DeepAgents</strong><p>계획·파일·서브에이전트 — "현장 관리자" <span class="badge">Ch3</span></p></div>
+</div>
+<p style="margin-top:8px">그 위에 Skills(절차)·MCP(연결)·A2A(협업)를 얹어 검증된 브리프까지. 위 여덟 역량은 전부 이 축의 어느 칸에 속합니다.</p>
+</div>
+</div>
 </section>
 
 <section class="slide">
@@ -233,6 +245,37 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <p><strong>A2A 검증자 신뢰</strong> — 외부 에이전트의 PASS도 결국 하나의 판단입니다. Agent Card 서명·결과 재현 로그를 남겨야 "도장"이 감사 가능해집니다.</p>
 <p><strong>상태·재현</strong> — workspace를 지워도 복원되는 건 입력이 커밋돼 있어서입니다. 실선 메일·DB에선 입력이 흐르므로 체크포인터(SQLite·Postgres)와 멱등 적재가 필요합니다.</p>
 </div></div></div>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>오늘 실습 → 프로덕션</span><span class="status-pill">바뀌는 것</span></div>
+<div class="panel-body">
+
+| 항목 | 오늘 실습 | 프로덕션 |
+|---|---|---|
+| Checkpointer | InMemorySaver | Postgres/SQLite |
+| MCP 전송 | stdio(subprocess) | Streamable HTTP |
+| A2A | localhost:9610 | 서비스 디스커버리(k8s) |
+| 모니터링 | 콘솔 로그 | LangSmith/LangFuse |
+| 인증 | 없음 | OAuth2 / API Key |
+| 스케줄링 | 수동 실행 | Celery / Cloud Scheduler |
+
+</div>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>평가 최소 프레임 — "돌았다"를 넘어</span><span class="status-pill">측정자</span></div>
+<div class="panel-body">
+
+| 지표 | 정의 | 목표 예시 |
+|---|---|---|
+| 작업 완료율 | 요청 작업을 끝낸 비율 | 90%+ |
+| 도구 호출 정확도 | 올바른 도구·인자 선택 | 95%+ |
+| 환각률 | 근거 없는 응답 비율 | ≤5% |
+| 건당 지연 | 요청당 평균 처리 시간 | ≤5초 |
+| 건당 비용 | 요청당 평균 토큰·비용 | 예산 내 |
+
+</div>
 </div>
 </section>
 
@@ -261,6 +304,14 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <p><strong>평가·관측</strong> — "돌았다"를 넘어 산출물 품질을 자동 채점(LLM-as-judge·골든셋)하고 단계별 토큰·지연·실패율을 추적해야 회귀를 잡습니다(<a href="https://docs.smith.langchain.com/">LangSmith</a> 류 트레이싱).</p>
 <p><strong>워크플로 vs 에이전트 규율</strong> — 이 파이프라인은 대부분 워크플로(고정 단계)이고 자율 루프는 Ch3 한 곳뿐. 단계가 정해졌으면 자율성을 일부러 줄이는 게 더 싸고 안정적입니다.</p>
 </div></div></div>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>오늘의 한 줄</span><span class="status-pill">정리</span></div>
+<div class="panel-body"><div class="list">
+<p>LLM만으론 부족 → <strong>Agent</strong>. Agent만으론 부족 → <strong>Harness</strong>. Harness만으론 부족 → <strong>Skills·MCP·A2A 생태계</strong>. 오늘 이 사다리를 아래에서 위로 직접 밟았습니다.</p>
+<p style="font-weight:800">"에이전트 개발은 LLM을 호출하는 게 아니라, LLM이 효과적으로 일할 환경(Harness)을 설계하는 것이다."</p>
+</div></div>
 </div>
 
 <div class="board" style="margin-top:18px">
