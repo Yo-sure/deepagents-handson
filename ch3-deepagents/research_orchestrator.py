@@ -12,7 +12,7 @@ DeepAgents 하네스가 하는 일
 
 이 파일은 두 길로 돈다.
   - --mock : 키 없이 결정론적 대사 로직으로 같은 노트·브리프를 만든다(동시 실행).
-  - 키 있음 : create_deep_agent 가 같은 조사 도구로 fan-out 한다.
+  - 키 있음 : 메인이 task로 세 서브에이전트(card·bank·spend)에 위임해 진짜 fan-out.
 
 실행:
     uv run python3 ch3-deepagents/research_orchestrator.py --mock
@@ -165,13 +165,18 @@ def synthesize(notes: dict[str, str], records: list[RecordV1]) -> None:
 
 
 def build_agent(records: list[RecordV1]):
-    """키가 있을 때 — DeepAgents fan-out. 조사 도구를 서브에이전트에 위임한다."""
+    """키가 있을 때 — DeepAgents 진짜 fan-out.
+
+    메인 에이전트는 조사하지 않는다. write_todos로 계획하고 task로 세 서브에이전트
+    (card·bank·spend)에 한 번에 위임한다. 각 서브에이전트는 격리된 컨텍스트에서 돌고
+    write_note로 결과만 남긴다 — 메인은 요약만 돌려받아 종합한다(인지 부하의 외주).
+    """
     from deepagents import create_deep_agent
     from langchain_core.tools import tool
 
     @tool
     def list_records() -> str:
-        """분류된 모든 레코드를 요약해 돌려준다."""
+        """분류된 모든 레코드를 요약해 돌려준다(문서유형 | 판매처 | 총액)."""
         return "\n".join(f"{r.doc_type} | {r.merchant} | {r.total:,.0f}" for r in records)
 
     @tool
@@ -181,13 +186,49 @@ def build_agent(records: list[RecordV1]):
         (RESEARCH_NOTES / f"{name}.md").write_text(body, encoding="utf-8")
         return f"saved {name}.md"
 
+    shared_tools = [list_records, write_note]
+    subagents = [
+        {
+            "name": "card_reconcile",
+            "description": "카드 명세서 거래줄 ↔ 개별 영수증 대사. 영수증 없는 줄을 찾는다.",
+            "system_prompt": (
+                "너는 카드 대사 담당이다. list_records로 레코드를 받아 카드 명세서의 "
+                "거래줄마다 같은 금액의 영수증이 있는지 맞춰 본다. 영수증 없는 줄은 금액이 "
+                "3만원 미만이면 '구독 추정', 이상이면 '영수증 분실/미수령'으로 표시하고 "
+                "write_note('card_reconcile', ...)로 저장한다."
+            ),
+            "tools": shared_tools,
+        },
+        {
+            "name": "bank_reconcile",
+            "description": "은행 입출금 ↔ 계약·세금계산서 대사. 대응 문서 없는 거래를 찾는다.",
+            "system_prompt": (
+                "너는 은행 대사 담당이다. list_records로 레코드를 받아 은행 명세서의 "
+                "입출금 줄마다 같은 금액의 계약·세금계산서·카드가 있는지 맞춰 보고, "
+                "대응 문서 없는 줄을 표시해 write_note('bank_reconcile', ...)로 저장한다."
+            ),
+            "tools": shared_tools,
+        },
+        {
+            "name": "spend_summary",
+            "description": "영수증 지출을 카테고리(식비·교통·생활)로 집계한다.",
+            "system_prompt": (
+                "너는 지출 집계 담당이다. list_records로 영수증을 받아 식비·교통·생활로 "
+                "묶어 합계를 내고 write_note('spend_summary', ...)로 저장한다."
+            ),
+            "tools": shared_tools,
+        },
+    ]
+
     return create_deep_agent(
         model="openai:google/gemini-3.5-flash",
-        tools=[list_records, write_note],
+        tools=shared_tools,
+        subagents=subagents,
         system_prompt=(
-            "너는 인박스 리서치 애널리스트다. 분류된 레코드를 서로 대사해 "
-            "카드↔영수증, 은행↔계약을 맞춰 본다. 주제를 나눠 조사하고 각 결과를 "
-            "write_note 로 저장한 뒤, 짚을 점을 brief 초안으로 정리한다."
+            "너는 인박스 리서치 애널리스트의 오케스트레이터다. 직접 조사하지 말고, "
+            "write_todos로 세 조사를 계획한 뒤 task로 card_reconcile·bank_reconcile·"
+            "spend_summary 서브에이전트에 한 번에 위임해 fan-out 한다. 세 노트가 모이면 "
+            "⚠️ 표시된 줄을 모아 '짚어야 할 것'으로 brief 초안을 정리한다."
         ),
     )
 

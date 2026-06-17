@@ -44,7 +44,7 @@ pageClass: lec-page
 
 </div>
 <p class="section-note">Skill은 에이전트에게 절차적 지식을 주는 마크다운 파일입니다. 앞머리에 이름과 설명을 달고, 본문에 방법을 적습니다.<br>
-핵심은 점진 공개입니다. 평소엔 짧은 설명만 읽다가, 실제로 그 일을 할 때만 세부 형식 파일을 펼칩니다. 컨텍스트를 아낍니다.</p>
+핵심은 <strong>3단계 점진 공개</strong>입니다. ① 시작 시 모든 Skill의 <code>name·description</code>만 시스템 프롬프트에 올라갑니다(항상 켜지지만 쌉니다). ② description이 작업과 맞으면 그때 <strong>SKILL.md 본문</strong>을 읽습니다. ③ <code>reference/*.md</code>·스크립트는 본문이 가리킬 때만 펼칩니다. 그래서 <em>description 한 줄이 호출 여부를 정하는 가장 중요한 필드</em>입니다.</p>
 </div>
 
 <div class="grid-3">
@@ -142,6 +142,16 @@ version: 0.1.0
 <p>전송은 stdio(로컬, 에이전트가 subprocess로 붙음) 또는 HTTP 스트리밍(원격). 이 실습은 stdio입니다.</p>
 </div></div>
 </div>
+
+<div class="ask" style="margin-top:18px"><strong>판단해 보기.</strong> 우리 서버에서 <code>fetch_inbox</code>는 <code>@mcp.tool()</code>인데 <code>inbox_stats</code>는 <code>@mcp.resource("inbox://stats")</code>입니다. 왜 통계는 Tool이 아니라 Resource로 노출했을까요?</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p>Tool은 <em>모델이 자율로</em> 호출합니다 — 부수효과가 있을 수 있는 "행동". Resource는 <em>클라이언트(호스트)가</em> 읽어가는 읽기전용 컨텍스트입니다. 인박스 통계는 부작용 없는 순수 읽기라 Resource가 맞고, 봉투를 "가져오는" <code>fetch_inbox</code>는 호출 시점을 모델이 정하므로 Tool입니다.</p>
+<p>판단 기준 한 줄: <strong>"누가 언제 쓸지를 모델이 정하나(Tool), 호스트가 정하나(Resource), 사람이 정하나(Prompt)?"</strong> MCP는 이 세 통제 평면으로 나뉩니다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">
@@ -152,8 +162,8 @@ version: 0.1.0
 ## OKF — 사람도 읽고 에이전트도 읽는다
 
 </div>
-<p class="section-note">노트는 이번 달용 메모입니다. 다음 달에도 쓰려면 표준 형식으로 쌓아야 합니다. OKF는 YAML 프런트매터 + 마크다운 본문 구조이고 <code>type</code> 필드가 필수입니다.<br>
-조사에서 세 종류의 지식을 뽑습니다. 거래처, 구독, 확인 필요. 영수증 없는 89,000원이 gap 항목으로 남습니다.</p>
+<p class="section-note">노트는 이번 달용 메모입니다. 다음 달에도 쓰려면 표준 형식으로 쌓아야 합니다. OKF(Open Knowledge Format)는 Google Cloud가 2026-06 공개한 벤더 중립 표준으로, 압축도 런타임도 없이 <strong>YAML 프런트매터를 단 마크다운 파일</strong>이 곧 지식 항목입니다. 강제하는 건 <code>type</code> 하나뿐입니다(나머지 <code>title·description·tags</code>는 선택).<br>
+조사에서 세 종류의 지식을 뽑습니다 — 거래처, 구독, 확인 필요. 영수증 없는 89,000원이 gap 항목으로 남습니다.</p>
 </div>
 
 <div class="panel">
@@ -176,6 +186,16 @@ amount: 89000
 </div>
 
 <p class="section-note" style="margin-top:16px">Ch3 조사가 찾은 틈이 여기서 영속적인 지식 항목이 됩니다. 다음 달 인박스를 볼 때 이 지식베이스를 먼저 참조하면 같은 구독·같은 거래처를 다시 분석하지 않아도 됩니다.</p>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>넷을 언제 쓰나 — 결정 경계</span><span class="status-pill">정리</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>MCP 도구/리소스</strong> — 에이전트를 <em>외부 시스템</em>(파일·메일·DB)에 잇는 표준 통로. 한 번 꽂으면 어느 호스트에서나 같은 인터페이스. <em>연결</em>의 문제.</p>
+<p><strong>Skill</strong> — 에이전트에게 <em>절차적 지식</em>("브리프는 이렇게 쓴다")을 주는 SKILL.md+스크립트. 모델이 description을 보고 스스로 펼친다. <em>방법</em>의 문제.</p>
+<p><strong>OKF</strong> — 다음 달에도 재사용할 <em>사실 지식</em>(거래처·구독·확인필요)을 표준 마크다운으로 적재. <em>기억</em>의 문제.</p>
+<p>한 문장: <strong>MCP=어디에 닿나 · Skill=어떻게 하나 · OKF=무엇을 기억하나.</strong></p>
+</div></div>
+</div>
 </section>
 
 <section class="slide">
@@ -186,7 +206,7 @@ amount: 89000
 ## OKF 항목 하나가 만들어지는 법
 
 </div>
-<p class="section-note">OKF 항목은 YAML 머리말 + 마크다운 본문입니다. 코드는 레코드에서 값을 뽑아 이 틀에 끼웁니다. <code>type</code>이 필수라는 점만 지키면 됩니다.</p>
+<p class="section-note">OKF 항목은 YAML 머리말 + 마크다운 본문입니다. 코드는 레코드에서 값을 뽑아 이 틀에 끼웁니다. 표준이 강제하는 건 <code>type</code>뿐이고, 우리는 거기에 도메인 필드(<code>name·amount</code>)와 버전 표기(<code>schema_version</code>)를 <strong>덧붙였습니다</strong> — 표준은 이런 확장을 허용합니다. 표준 필드와 우리 확장을 구분해서 보세요.</p>
 </div>
 
 <div class="panel">
@@ -211,14 +231,38 @@ else:
 </div>
 </div>
 
+<div class="panel" style="margin-top:16px">
+<div class="panel-head"><strong>ch4-skills-mcp/mcp_inbox_server.py — 도구·리소스 등록</strong><span>FastMCP 데코레이터</span></div>
+<div class="panel-body">
+
+```python
+mcp = FastMCP("inbox-mcp-server")
+
+@mcp.tool()                              # 함수명=도구명, docstring=설명, name:str=입력 스키마
+def read_record(name: str) -> str:
+    """분류 레코드 하나를 읽어 JSON 문자열로 돌려준다. [실선 — 실제 파일]"""
+    ...
+
+@mcp.resource("inbox://stats")           # Tool이 아니라 Resource — 읽기전용 컨텍스트
+def inbox_stats() -> str:
+    """인박스 통계(읽기 전용 리소스)."""
+    ...
+
+if __name__ == "__main__":
+    mcp.run()                            # 인자 없으면 stdio 전송 — 에이전트가 subprocess로 붙는다
+```
+
+</div>
+</div>
+
 <div class="grid-2" style="margin-top:16px">
 <div class="panel"><div class="panel-head"><strong>MCP 도구는 어떻게 노출되나</strong></div><div class="panel-body"><div class="list">
 <p><code>@mcp.tool()</code>를 붙이면 함수가 도구가 됩니다. 함수 이름이 도구 이름, docstring이 설명, 타입힌트가 입력 스키마입니다.</p>
 <p>모델은 그 docstring을 읽고 어떤 도구를 부를지 정합니다 — 그래서 설명을 또렷이 씁니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>점진 공개는 어디서 작동하나</strong></div><div class="panel-body"><div class="list">
-<p>SKILL.md는 짧게(언제·무엇). 세부 형식은 <code>reference/brief_format.md</code>에 미뤄 둡니다.</p>
-<p>에이전트는 브리프를 실제로 쓸 때만 reference를 펼쳐 봅니다 — 평소 컨텍스트를 아낍니다.</p>
+<p>① <code>name·description</code>만 늘 시스템 프롬프트에. ② 맞으면 SKILL.md 본문. ③ <code>reference/brief_format.md</code>는 본문이 가리킬 때만.</p>
+<p>토큰을 단계로 나눠 쓰는 셈입니다 — Skill이 100개여도 평소엔 description 100줄만 올라갑니다.</p>
 </div></div></div>
 </div>
 </section>
@@ -261,7 +305,7 @@ else:
 <summary>관찰 포인트</summary>
 <div class="reveal">
 <p>쿠팡 89,000원은 여전히 gap입니다(5만 초과). 다만 만약 3만~5만 사이 결제가 있었다면 그게 subscription으로 재분류됩니다. 기준 하나가 "이건 구독이다 vs 확인이 필요하다"의 판단을 가릅니다.</p>
-<p>실무에서는 이런 임계값을 도메인 지식으로 정합니다. 코드에 박힌 숫자가 곧 정책입니다.</p>
+<p>실무에서는 이런 임계값을 도메인 전문가가 정합니다. <code>30000</code>이 "구독이냐 확인이냐"를 가르는 정책 그 자체 — 코드 한 줄에 회계 판단이 박혀 있다는 뜻입니다.</p>
 </div>
 </details>
 </section>
@@ -324,7 +368,7 @@ Ch5에서는 브리프를 외부 검증 에이전트에 A2A로 보냅니다. 다
 <div class="board-header"><span>참고 자료</span><span class="status-pill">출처</span></div>
 <div class="panel-body"><div class="list">
 <p><a href="https://modelcontextprotocol.io/">Model Context Protocol</a> · <a href="https://agentskills.io/">Agent Skills(오픈 표준)</a></p>
-<p><a href="https://github.com/google/open-knowledge-format">Open Knowledge Format v0.1</a> · <a href="https://anthropic.skilljar.com/">Anthropic Academy — Agent Skills</a></p>
+<p><a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf">Open Knowledge Format v0.1 — Google Cloud</a> · <a href="https://anthropic.skilljar.com/">Anthropic Academy — Agent Skills</a></p>
 </div></div>
 </div>
 </section>

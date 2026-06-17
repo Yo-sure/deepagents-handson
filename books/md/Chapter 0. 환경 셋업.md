@@ -43,8 +43,8 @@ Ch0에서는 그 바탕을 깝니다. 도구를 설치하고, 모델을 한 번 
 ## 도구는 한 번에 깐다
 
 </div>
-<p class="section-note">런타임은 WSL2 · Python 3.12 · uv · Node로 맞춥니다. 하나씩 직접 설치하지 않아도 됩니다.<br>
-setup.sh가 가상환경 생성과 의존성 설치, .env 템플릿까지 한 번에 처리합니다. 실행한 다음 키만 채우면 준비가 끝납니다.</p>
+<p class="section-note">런타임은 WSL2 · Python 3.12 · uv · Node로 맞춥니다. setup.sh가 가상환경 생성·의존성 설치·.env 템플릿까지 한 번에 처리하니, 실행한 뒤 키만 채우면 됩니다.<br>
+<strong>왜 pip이 아니라 uv?</strong> Ubuntu 24.04는 시스템 Python을 보호하려고 전역 <code>pip install</code>을 막습니다(PEP 668, <code>externally-managed-environment</code> 에러). uv는 레포 <code>.venv</code>에 격리 설치하고 <code>uv run</code>이 자동 활성화까지 해 줘서, 가상환경을 깜빡할 일이 없습니다 — 그래서 이 과정은 처음부터 uv만 씁니다.</p>
 </div>
 
 ```bash
@@ -58,9 +58,9 @@ bash scripts/setup.sh        # .venv 생성 · uv sync · .env 템플릿
 <p>레포-로컬 <code>.venv</code> (전역 오염 없음)</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>.env</strong><span>API 키 한 곳에</span></div><div class="panel-body"><div class="list">
-<p><code>OPENROUTER_API_KEY</code> 하나로 시작합니다</p>
-<p>레포-로컬 파일이라 <code>~/.bashrc</code>는 건드리지 않습니다</p>
-<p>git에는 올라가지 않습니다(<code>.gitignore</code>)</p>
+<p><code>OPENROUTER_API_KEY</code> 한 줄만 채우면 시작합니다 (<code>OPENAI_API_KEY</code>는 같은 값으로 자동 정렬)</p>
+<p><code>MAIL_BACKEND=mock</code> — 인박스는 목 봉투라 외부 메일 서버가 필요 없습니다</p>
+<p>레포-로컬 파일이라 <code>~/.bashrc</code>를 안 건드리고 git에도 안 올라갑니다(<code>.gitignore</code>)</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>검증</strong><span>준비됐을까</span></div><div class="panel-body"><div class="list">
 <p>Python 3.12 · uv 버전 확인</p>
@@ -74,9 +74,10 @@ bash scripts/setup.sh        # .venv 생성 · uv sync · .env 템플릿
 
 ```text
 ▶ Preflight 점검
-  ✅ Python 3.12+        ✅ langchain import
-  ✅ uv 설치됨           ✅ langgraph import
-  ❌ OPENROUTER_API_KEY  ✅ deepagents import
+  ✅ Python 3.12+        ✅ langgraph import
+  ✅ uv 설치됨           ✅ deepagents import
+  ❌ OPENROUTER_API_KEY  ✅ langchain_mcp_adapters
+  ✅ langchain import
   ── 결과: ✅ 6 / ❌ 1 ──
 ```
 </section>
@@ -122,6 +123,37 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 <div class="row"><div class="code">nb</div><div class="copy"><strong>노트북 — 셀 단위로</strong><p>실험과 비교는 <code>.ipynb</code>에서 합니다. 노트북을 열고 오른쪽 위 커널을 <code>.venv</code>로 맞춘 뒤 셀을 하나씩 돌려 결과를 눈으로 확인합니다.</p></div><div class="store">실험</div></div>
 </div>
 </div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>따라 하기 — 처음 한 번</span><span class="status-pill">5단계</span></div>
+<div class="stack">
+<div class="row"><div class="code">1</div><div class="copy"><strong>WSL 터미널 열기</strong><p>Windows 시작 메뉴 → <code>Ubuntu</code> 실행. 프롬프트가 <code>~$</code>면 리눅스 안입니다(윈도우 <code>C:\</code>가 아님).</p></div><div class="store">WSL</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>레포로 이동 → 셋업</strong><p><code>cd ~/lecture</code> 후 <code>bash scripts/setup.sh</code>. 프리플라이트가 ❌ OPENROUTER 한 줄만 남기면 정상입니다.</p></div><div class="store">.venv</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>VSCode를 WSL로 열기</strong><p>같은 폴더에서 <code>code .</code>. 첫 실행이면 VSCode가 WSL 서버를 자동 설치합니다(1분). 왼쪽 아래에 <code>WSL: Ubuntu</code>가 뜨면 성공.</p></div><div class="store">붙음</div></div>
+<div class="row"><div class="code">4</div><div class="copy"><strong>인터프리터 = .venv</strong><p><code>Ctrl+Shift+P</code> → <code>Python: Select Interpreter</code> → <code>./.venv/bin/python</code>. 안 보이면 <code>Developer: Reload Window</code> 한 번. 이걸 골라야 설치한 라이브러리가 잡힙니다.</p></div><div class="store">지정</div></div>
+<div class="row"><div class="code">5</div><div class="copy"><strong>첫 실행 — 키 채우고 호출</strong><p><code>.env</code>의 <code>OPENROUTER_API_KEY</code>를 채운 뒤, 다음 Step의 코드를 <code>.py</code>로 저장하고 <code>uv run python3 그파일.py</code>. 한 줄 응답이 뜨면 환경 완성입니다.</p></div><div class="store">✅</div></div>
+</div>
+</div>
+
+<div class="ask" style="margin-top:18px"><strong>생각해보기 (30초).</strong> 같은 코드를 그냥 <code>python3 first_call.py</code>로 돌렸더니 <code>ModuleNotFoundError: langchain_openai</code>가 났습니다. 무엇이 빠졌을까요?</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p>전역 Python으로 실행돼 레포 <code>.venv</code>를 안 거쳤기 때문입니다. 의존성은 <code>.venv</code>에만 깔려 있으므로 <code>uv run python3 ...</code>로 돌리거나, VSCode에서 인터프리터를 <code>.venv</code>로 지정한 뒤 실행해야 합니다.</p>
+<p><code>uv run</code>은 매번 자동으로 <code>.venv</code>를 활성화해 줍니다 — <code>source .venv/bin/activate</code>를 잊어도 됩니다. 그래서 이 과정의 실행 명령은 전부 <code>uv run</code>으로 시작합니다.</p>
+</div>
+</details>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>막히면 — 자주 나는 것</span><span class="status-pill">트러블슈팅</span></div>
+<div class="stack">
+<div class="row"><div class="code">!</div><div class="copy"><strong><code>code .</code>가 안 먹힘</strong><p>WSL 터미널이 아니라 Windows CMD에서 친 경우입니다. Ubuntu 앱 안에서 다시 실행하세요.</p></div><div class="store">WSL</div></div>
+<div class="row"><div class="code">!</div><div class="copy"><strong><code>uv: command not found</code></strong><p>설치 직후 PATH가 안 잡힌 것. <code>source ~/.bashrc</code> 또는 터미널을 새로 여세요(<code>~/.local/bin</code>).</p></div><div class="store">PATH</div></div>
+<div class="row"><div class="code">!</div><div class="copy"><strong>인터프리터에 <code>.venv</code>가 안 보임</strong><p><code>uv sync</code>가 끝나기 전 VSCode를 연 경우. 셋업 완료 후 <code>Developer: Reload Window</code>.</p></div><div class="store">새로고침</div></div>
+<div class="row"><div class="code">!</div><div class="copy"><strong><code>externally-managed-environment</code></strong><p><code>pip install</code>을 직접 친 경우(Ubuntu 24.04 차단). 항상 <code>uv add</code>/<code>uv sync</code>를 쓰세요.</p></div><div class="store">PEP668</div></div>
+</div>
+</div>
 </section>
 
 <section class="slide">
@@ -165,8 +197,8 @@ print(llm.invoke("한 문장으로 자기소개 해줘").content)
 ## 분석할 문서 더미를 받는다
 
 </div>
-<p class="section-note">실습 내내 같은 입력을 씁니다. 5월 한 사람의 인박스 열 건입니다.<br>
-이미지와 PDF가 섞여 있습니다. 이것이 우리가 다룰 멀티모달 입력입니다. 그래서 웹 검색을 따로 붙이지 않아도 됩니다.</p>
+<p class="section-note">실습 내내 같은 입력을 씁니다. 2026년 5월 한 사람의 인박스 열 건 — 이미지(png) 6 + PDF 4입니다.<br>
+멀티모달 입력이라 한 장(또는 한 PDF) 안에서 판매처·금액·항목을 그대로 읽어 냅니다.</p>
 </div>
 
 <div class="grid-4">
@@ -174,9 +206,10 @@ print(llm.invoke("한 문장으로 자기소개 해줘").content)
 <p>카페·편의점·택시·식당·드럭스토어</p>
 <p><span class="badge">멀티모달</span> 한 장에서 판매처·금액·항목을 읽어 냅니다</p>
 </div></div></div>
-<div class="panel"><div class="panel-head"><strong>명세서 ×3</strong><span>카드·은행·세금계산서</span></div><div class="panel-body"><div class="list">
-<p>카드와 은행 명세서는 PDF, 세금계산서는 사진입니다</p>
-<p>거래가 여러 줄이라 항목도 여러 개입니다</p>
+<div class="panel"><div class="panel-head"><strong>명세서 ×3</strong><span>카드·은행·세금계산서풍</span></div><div class="panel-body"><div class="list">
+<p>카드·은행 명세서는 PDF, 용역대금 청구(invoice_photo)는 사진입니다</p>
+<p>셋 다 <code>문서유형: 명세서</code>로 정규화됩니다 — RecordV1엔 "세금계산서" 유형이 따로 없습니다</p>
+<p>거래가 여러 줄이라 <code>항목</code>도 여러 개입니다</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>계약서 ×1</strong><span>PDF</span></div><div class="panel-body"><div class="list">
 <p>용역 계약. 발행처·계약금·날짜가 적혀 있습니다</p>
