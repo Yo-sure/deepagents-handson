@@ -66,11 +66,11 @@ pageClass: lec-page
 <p><strong>무엇인가.</strong> UIUC·UC버클리·Chroma가 <strong>gpt-oss-20B</strong> 위에 검색 하네스를 얹은 <em>리서치 검색 서브에이전트</em>입니다. 질문에 직접 답하지 않고, 근거가 될 문서를 찾아 추려 내는 일만 합니다(답은 뒤단의 다른 모델이 함).</p>
 <p><strong>어떻게 끌어올렸나.</strong> 핵심은 <strong>상태의 외부화</strong>입니다. 20B 모델은 "무엇을 검색할지·어느 문서를 남기고 버릴지·언제 멈출지" 같은 <em>의미 판단</em>만 하고, 후보 풀·추려낸 문서셋(최대 30건)·증거 그래프·검증 캐시 같은 <em>기록 관리</em>는 전부 하네스가 떠맡습니다. 모델은 한 번에 한 동작(검색·열람·추리기·검증·종료 등 8개 도구 중 하나)만 내고, 하네스가 실행해 다음 상태를 정리해 보여 줍니다. 이 하네스 <em>안에서</em> 강화학습으로 검색 습관을 훈련했고, 학습 데이터는 4,400여 건뿐이었습니다.</p>
 <p><strong>결과.</strong> 추려낸 문서의 적중률(curated recall) 0.730 — GPT-5.4(0.709)·Sonnet 4.6(0.688)을 앞섰고, Opus 4.6(0.764)에는 근소하게 밀렸습니다. 답을 맞히는 점수가 아니라 <em>근거를 잘 모았는지</em>를 재는 검색 지표라는 점, Opus엔 졌다는 점은 정확히 짚어 둡니다.</p>
-<p><strong>교훈.</strong> 20B가 프런티어급 검색과 겨루는 건 모델이 더 똑똑해서가 아니라 <strong>하네스 설계 + 환경 안에서의 학습</strong> 덕입니다. 기록을 모델 머릿속이 아니라 바깥에 두는 이 발상이, 이 과정 Ch2 체크포인터·Ch3 파일 퇴피의 큰 형님 격입니다.</p>
+<p><strong>교훈.</strong> 20B가 프런티어급 검색과 겨루는 건 모델이 더 똑똑해서가 아니라 <strong>하네스 설계 + 환경 안에서의 학습</strong> 덕입니다. 기록을 모델 머릿속이 아니라 바깥에 두는 이 발상을, 이 과정 Ch2 체크포인터·Ch3 파일 퇴피에서 더 작은 형태로 다시 만납니다.</p>
 </div></div>
 </div>
 
-<p class="section-note" style="margin-top:18px">Karpathy는 2025년을 영어만으로 프로그램을 짜는 임계점을 넘은 해로 평가했습니다. 코딩에서 먼저 터진 이 변화는 지금 리서치·운영·재무·법무·고객지원까지 지식 업무 전반으로 번지고 있습니다. "문서를 읽고 판단해 행동으로 옮긴다"는 골격이 같기 때문입니다. 우리가 만들 인박스 애널리스트는 그 넓은 흐름의 한 갈래일 뿐, 같은 패턴을 어디에든 옮겨 쓸 수 있습니다.</p>
+<p class="section-note" style="margin-top:18px">Karpathy는 2025년을 영어만으로 프로그램을 짜는 임계점을 넘은 해로 평가했습니다. 코딩에서 먼저 터진 이 변화는 "문서를 읽고 판단해 행동으로 옮긴다"는 같은 골격을 공유하는 지식 업무 전반으로 번지고 있습니다. 우리가 만들 인박스 애널리스트도 그 한 갈래이고, 같은 패턴을 다른 업무로 옮겨 쓸 수 있습니다.</p>
 </section>
 
 <section class="slide">
@@ -131,13 +131,13 @@ pageClass: lec-page
 ## 네 한계의 진짜 결
 
 </div>
-<p class="section-note">표는 지도일 뿐입니다. 각 한계는 한 줄로 끝나지 않고, "그래서 무엇을 어떻게"가 뒤에 붙습니다. 이게 이 과정 설계의 근거이기도 합니다.</p>
+<p class="section-note">앞 표가 "무엇"이라면, 여기선 "그래서 어떻게"를 폅니다. 각 한계가 이 과정의 어떤 설계로 이어지는지가 핵심입니다.</p>
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">S</div><div class="copy"><strong>Stateless — 그래서 캐시하고, 요약은 의심한다</strong><p>호출 사이에 상태가 없으니 같은 맥락을 매번 다시 계산합니다. 그래서 ① 바뀌지 않는 앞부분은 <strong>프리픽스(KV) 캐시</strong>로 재사용해 비용을 아끼고, ② 길어진 대화는 요약으로 줄입니다. 단 요약은 <strong>손실 압축</strong>이라 — 정보가 빠지고 없던 내용이 끼기도 해 — 원본을 그대로 대체하진 못합니다. "요약이 늘 정답"은 아니어서, 원본을 파일로 남겨 두는 설계(Ch3)가 함께 갑니다. <span class="badge blue">MemGPT 2310.08560</span> <span class="badge blue">Maynez 2020</span></p></div></div>
-<div class="row"><div class="code">C</div><div class="copy"><strong>Context Window — 담기느냐가 아니라 고르게 쓰느냐</strong><p>요즘 롱컨텍스트엔 문서 10건쯤은 그냥 들어갑니다. 문제는 다른 데 있습니다. 중간에 둔 정보일수록 모델이 덜 씁니다(<strong>Lost in the Middle</strong>, U자 곡선). 관련 없어 보이는 문단이 끼면 정답도 흔들립니다(<strong>distractor</strong>). 게다가 KV 캐시는 길이에 비례해 커져, 긴 맥락은 구조적으로 비쌉니다. 그래서 다 욱여넣기보다 <strong>필요한 것만 점진 로딩</strong>합니다(Ch3·4). <span class="badge blue">Liu 2307.03172</span> <span class="badge blue">Shi 2302.00093</span> <span class="badge blue">vLLM 2309.06180</span></p></div></div>
-<div class="row"><div class="code">H</div><div class="copy"><strong>Hallucination — 확률과 채점이 함께 만든다</strong><p>모델은 "모르겠다"가 기본이 아니라 늘 최상위 토큰을 골라 답을 냅니다(<code>logprobs</code>로 1.5절에서 눈으로 봅니다). 이진 채점 벤치마크가 <strong>"자신 있는 추측"을 보상</strong>해 그 습관이 학습 뒤에도 남습니다(Kalai). 샘플링 온도를 올리면 낮은 확률의 틀린 토큰을 뽑을 여지가 커지고요. 그래서 추출은 <code>temperature=0</code>, 그리고 Tool로 실제 값을 조회·검증합니다(Ch2·5). <span class="badge blue">Kalai 2509.04664</span></p></div></div>
+<div class="row"><div class="code">S</div><div class="copy"><strong>Stateless — 그래서 캐시하고, 요약은 의심한다</strong><p>호출 사이에 상태가 없으니 같은 맥락을 매번 다시 계산합니다. 그래서 ① 바뀌지 않는 앞부분은 <strong>프리픽스 캐싱</strong>으로 재사용해 비용을 아끼고, ② 길어진 대화는 요약으로 줄입니다. 단 요약은 <strong>손실 압축</strong>이라 — 정보가 빠지고 없던 내용이 끼기도 해 — 원본을 그대로 대체하진 못합니다. "요약이 늘 정답"은 아니어서, 원본을 파일로 남겨 두는 설계(Ch3)가 함께 갑니다. <span class="badge blue">MemGPT 2310.08560</span> <span class="badge blue">Maynez 2020</span></p></div></div>
+<div class="row"><div class="code">C</div><div class="copy"><strong>Context Window — 담기느냐가 아니라 고르게 쓰느냐</strong><p>요즘 롱컨텍스트엔 문서 10건쯤은 그냥 들어갑니다. 문제는 다른 데 있습니다. 중간에 둔 정보일수록 모델이 덜 씁니다(<strong>Lost in the Middle</strong>, U자 곡선). 관련 없어 보이는 문단이 끼면 정답도 흔들립니다(<strong>distractor</strong>). 게다가 <strong>KV 캐시 메모리</strong>는 길이에 비례해 커져, 긴 맥락은 구조적으로 비쌉니다(앞의 프리픽스 캐싱과 같은 KV 텐서의 다른 얼굴). 그래서 다 욱여넣기보다 <strong>필요한 것만 점진 로딩</strong>합니다(Ch3·4). <span class="badge blue">Liu 2307.03172</span> <span class="badge blue">Shi 2302.00093</span> <span class="badge blue">vLLM 2309.06180</span></p></div></div>
+<div class="row"><div class="code">H</div><div class="copy"><strong>Hallucination — 확률과 채점이 함께 만든다</strong><p>모델은 "모르겠다"가 기본이 아니라 늘 최상위 토큰을 골라 답을 냅니다. 이진 채점 벤치마크가 <strong>"자신 있는 추측"을 보상</strong>해 그 습관이 학습 뒤에도 남습니다(Kalai). 환각이 이렇게 <strong>다음-토큰 확률·샘플링</strong>과 이어진다는 걸 바로 다음 1.5절에서 <code>logprobs</code>로 직접 봅니다. 처방은 둘 — 추출은 온도를 낮춰 흔들림을 줄이고, Tool로 실제 값을 조회·검증합니다(Ch2·5). <span class="badge blue">Kalai 2509.04664</span></p></div></div>
 <div class="row"><div class="code">K</div><div class="copy"><strong>Knowledge Cutoff — 못 고치는 천장이라 도구를 쓴다</strong><p>가중치는 학습 시점에 얼어붙습니다. 그 뒤 사실(이번 달 영수증, 오늘 환율)은 파라미터에 없고, 이건 더 학습하기 전엔 못 고치는 천장입니다. 그래서 외부 저장소에서 그때그때 끌어오는 <strong>비파라미터 지식</strong>(검색·도구)이 필요합니다. RAG가 바로 이 "파라미터 vs 비파라미터" 분리를 정식화했습니다(Ch4 지식 연결). <span class="badge blue">Lewis 2005.11401</span></p></div></div>
 </div>
 </section>
@@ -167,8 +167,8 @@ pageClass: lec-page
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>주의 — 추론형 모델은 온도 손잡이가 없다</span><span class="status-pill">2026 함정</span></div>
 <div class="panel-body"><div class="list">
-<p>gpt-5 계열·o 시리즈 같은 <strong>추론형 모델</strong>은 내부에서 스스로 길게 사고하며 탐색하기 때문에 사용자가 <code>temperature</code>를 정하는 의미가 사라졌습니다. OpenAI Chat Completions에선 1이 아닌 값을 주면 <strong>400 에러</strong>, 사실상 1로 고정입니다(<code>logprobs</code>도 같은 이유로 미노출).</p>
-<p>함정은 게이트웨이입니다. <strong>OpenRouter를 거치면 <code>temperature=0</code>을 줘도 조용히 무시</strong>되고 기본값으로 돕니다 — 에러도 안 나서 "0으로 고정했다"고 착각하기 쉽습니다. 그래서 결정적 추출에는 온도 0이 실제로 먹히는 <strong>비추론 모델</strong>(예: <code>gpt-4o-mini</code>, 그리고 이 과정 기본 <code>gemini-3.5-flash</code>)을 씁니다.</p>
+<p>추론형 모델은 내부에서 스스로 길게 사고하며 탐색하기 때문에 사용자가 <code>temperature</code>로 무작위성을 정하는 의미가 옅어졌습니다. 특히 <strong>o 시리즈</strong>(o1·o3 등)는 OpenAI 직결 시 1이 아닌 값을 주면 <strong>400 에러</strong>로 거부합니다. <code>logprobs</code>도 추론형에선 대개 노출되지 않고요(온도와는 별개 제약). 그래서 토큰 확률을 직접 보는 1.5절 실험은 비추론 모델 <code>gpt-4o-mini</code>로 합니다.</p>
+<p>게다가 게이트웨이가 한 겹 더 가립니다. <strong>OpenRouter는 모델이 지원하지 않는 파라미터를 조용히 떨어뜨립니다</strong> — 추론형 모델에 <code>temperature=0</code>을 줘도 에러 없이 무시될 수 있어 "0으로 고정했다"고 착각하기 쉽습니다. 반대로 비추론 모델(이 과정 기본 <code>gemini-3.5-flash</code>)에선 <code>temperature=0</code>이 정상 적용되니, 결정적 추출은 그쪽을 씁니다.</p>
 </div></div>
 </div>
 
@@ -343,7 +343,7 @@ record = RecordV1.model_validate_json(strip_fences(msg.content))  # ⑥ 받은 J
 
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>왜 이렇게 쓰나 — ②③⑥</strong><span>설계 결정</span></div><div class="panel-body"><div class="list">
-<p><strong>② temperature=0</strong> — 같은 영수증은 늘 같은 값으로 읽혀야 합니다. 창의성은 분류의 적입니다.</p>
+<p><strong>② temperature=0</strong> — 같은 영수증은 늘 같은 값으로 읽혀야 합니다. 재현성이 추출의 기본 요구입니다.</p>
 <p><strong>③ 스키마를 프롬프트에</strong> — 모델이 RecordV1 한글 키(판매처·금액…)에 맞춰 JSON을 내도록 형식을 못 박습니다.</p>
 <p><strong>⑥ model_validate_json</strong> — 모델 출력을 믿지 않고 계약으로 검증합니다. 필드가 빠지거나 타입이 틀리면 여기서 걸립니다.</p>
 </div></div></div>
@@ -390,6 +390,7 @@ def extract_react(doc, model, max_steps=5):
                 messages.append(ToolMessage(obs, tool_call_id=tc["id"]))
             continue                                   # 관측을 들고 다시 모델에게
         return RecordV1.model_validate_json(strip_fences(ai.content))  # 도구 안 부름 = 최종
+    raise RuntimeError("max_steps 초과")                  # 무한 도구 호출 방지(하네스의 상한)
 ```
 
 </div>
@@ -425,7 +426,7 @@ def extract_react(doc, model, max_steps=5):
 <div class="row"><div class="code">3</div><div class="copy"><strong>모델 3종 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 세 모델의 정확도가 표로 나온다(비용 감각의 출발점).</span></p></div><div class="store">선택</div></div>
 </div>
 
-<div class="ask" style="margin-top:18px"><strong>직접 해보기.</strong> ① <code>--doc invoice_photo.png</code>로 바꿔 명세서를 뽑아 보세요(영수증이 아니라 합계 검증을 건너뜁니다). ② <code>verify_total</code>의 허용 오차 <code>1.0</code>을 <code>0.0</code>으로 바꾸면 어떤 영수증이 불일치로 떨어질까요?</div>
+<div class="ask" style="margin-top:18px"><strong>직접 해보기.</strong> ① <code>--doc invoice_photo.png</code>로 바꿔 명세서를 뽑아 보세요(영수증이 아니라 합계 검증을 건너뜁니다). ② 검산 도구 <code>check_receipt_sum</code>의 허용 오차 <code>1.0</code>을 <code>0.0</code>으로 바꾸면 어떤 영수증이 불일치로 떨어질까요?</div>
 
 <details>
 <summary>관찰 포인트</summary>
