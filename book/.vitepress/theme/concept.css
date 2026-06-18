@@ -215,3 +215,8 @@
 @media (max-width:860px){
   .lec .matrix { overflow-x:auto; grid-template-columns:130px repeat(4,150px); }
 }
+
+/* mermaid 노드 라벨 마지막 글자 잘림 방지 — foreignObject 폭 과소측정 보정(전 다이어그램 공통) */
+.lec .mermaid .nodeLabel, .lec .mermaid .edgeLabel, .lec .mermaid .actor-box { white-space: nowrap; }
+.lec .mermaid foreignObject { overflow: visible; }
+.lec .mermaid .node foreignObject { overflow: visible; }
