@@ -153,6 +153,27 @@
 }
 .lec .ask strong { color: #704a08; }
 
+/* 수업 큐 — 강사가 "여기서 직접 시켜라 / 결과를 기다려라 / 풀게 하라"를 한눈에 보는 인-플로우 마커.
+   학생에게도 그대로 행동 지시로 읽힌다. 좌측 색 바 + 타입 라벨 + 은근한 시간 칩(우측). */
+.lec .cue { margin:18px 0; padding:13px 16px 14px 17px; border-left:4px solid var(--forest);
+  background:rgba(15,118,110,.06); border-radius:0 8px 8px 0; }
+.lec .cue-head { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.lec .cue-label { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:900;
+  letter-spacing:.03em; color:var(--forest); }
+.lec .cue-time { margin-left:auto; display:inline-flex; align-items:center; min-height:22px; padding:0 9px;
+  font-size:11px; font-weight:800; color:var(--muted); background:var(--white);
+  border:1px solid var(--line); border-radius:99px; white-space:nowrap; }
+.lec .cue-body { font-size:14.5px; line-height:1.62; color:#3e4844; word-break:keep-all; }
+.lec .cue-body p { margin:0 0 7px; } .lec .cue-body p:last-child { margin-bottom:0; }
+.lec .cue-body strong { color:#243530; }
+/* 타입별 색 — do=초록 실행 · wait=앰버 대기 · solve=보라 풀이 · check=파랑 확인 */
+.lec .cue.wait  { border-color:var(--amber);  background:rgba(224,159,62,.09); }
+.lec .cue.wait  .cue-label { color:#9a6712; }
+.lec .cue.solve { border-color:var(--violet); background:rgba(123,79,163,.08); }
+.lec .cue.solve .cue-label { color:var(--violet); }
+.lec .cue.check { border-color:var(--blue);   background:rgba(40,90,160,.07); }
+.lec .cue.check .cue-label { color:var(--blue); }
+
 .lec div[class*="language-"].line-numbers-mode { padding-left: 42px; }
 .lec div[class*="language-"] .line-numbers-wrapper {
   position: absolute; top: 0; bottom: 0; left: 0; width: 42px;
@@ -218,8 +239,11 @@
   .lec .matrix .cell.axis { position:sticky; left:0; z-index:2; }
   .lec .matrix .cell.head:first-child { position:sticky; left:0; z-index:3; }
   /* 7열(역량×Ch1~6) 매트릭스: 핵심 payoff인 Ch6열(매 7번째 셀)을 우측에 고정 —
-     축은 좌측, Ch6 재사용 띠는 우측에 항상 보이고 가운데(Ch1~5)만 스크롤. */
-  .lec .matrix.matrix-7 .cell:nth-child(7n){ position:sticky; right:0; z-index:1; background-color:#1b2a27; }
+     축은 좌측, Ch6 재사용 띠는 우측에 항상 보이고 가운데(Ch1~5)만 스크롤.
+     폰에선 컬럼 폭을 고정(84px)해 긴 셀이 한 줄로 늘어나 고정열에 가려지지 않고 줄바꿈하게 한다. */
+  .lec .matrix.matrix-7 { grid-template-columns:108px repeat(6,84px) !important; }
+  .lec .matrix.matrix-7 .cell:nth-child(7n){ position:sticky; right:0; z-index:1; background-color:#1b2a27;
+    box-shadow:-10px 0 12px -6px rgba(0,0,0,.55); }
   .lec .matrix.matrix-7 .cell.head:nth-child(7n){ background-color:#20312d; z-index:3; }
   .lec .matrix.matrix-7 .cell.warn:nth-child(7n){ background-color:#3a3320; box-shadow:inset 0 0 0 1px rgba(240,180,80,.5); }
 }

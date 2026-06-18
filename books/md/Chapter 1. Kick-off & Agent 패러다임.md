@@ -316,6 +316,16 @@ xychart-beta
 <p>logprobs는 OpenAI 계열에서만 노출돼 <code>openai/gpt-4o-mini</code>로 관찰합니다. 확신해도 정답 보장이 아니라는 점, 추출은 0으로 고정한다는 점이 손에 잡힙니다.</p>
 </div></div>
 </div>
+
+<div class="cue do">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">노트북 · 5분</span></div>
+<div class="cue-body"><code>llm_internals.ipynb</code>를 열고 커널을 <code>.venv</code>로 맞춘 뒤 <strong>실험1</strong> 셀을 실행하세요. <code>openai/gpt-4o-mini</code>로 요청이 한 번 나갑니다.</div>
+</div>
+
+<div class="cue wait">
+<div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~15초</span></div>
+<div class="cue-body">응답이 오면 확률 막대가 그려집니다. <strong>'식비' 토큰에 확률이 몰려 있는지</strong>(약 98.6%) 눈으로 확인하고 넘어가세요 — 확신이 높아도 정답 보장은 아니라는 게 이 실험의 핵심입니다.</div>
+</div>
 </section>
 
 <section class="slide">
@@ -594,7 +604,10 @@ def extract_react(doc, model, max_steps=5):
 <div class="row"><div class="code">3</div><div class="copy"><strong>모델 3종 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 세 모델의 정확도가 표로 나온다(비용 감각의 출발점).</span></p></div><div class="store">선택</div></div>
 </div>
 
-<div class="ask" style="margin-top:18px"><strong>직접 해보기.</strong> ① <code>--doc invoice_photo.png</code>로 바꿔 명세서(고액 청구서)를 뽑아 보세요. 모델이 검산 도구 <code>check_receipt_sum</code>을 부를까요, 건너뛸까요? ② 검산 도구의 허용 오차 <code>1.0</code>을 <code>0.0</code>으로 바꾸면 어떤 영수증이 불일치로 떨어질까요?</div>
+<div class="cue solve" style="margin-top:18px">
+<div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~6분</span></div>
+<div class="cue-body"><p>① <code>--doc invoice_photo.png</code>로 바꿔 명세서(고액 청구서)를 뽑아 보세요. 모델이 검산 도구 <code>check_receipt_sum</code>을 부를까요, 건너뛸까요?</p><p>② 검산 도구의 허용 오차 <code>1.0</code>을 <code>0.0</code>으로 바꾸면 어떤 영수증이 불일치로 떨어질까요?</p></div>
+</div>
 
 <details>
 <summary>관찰 포인트</summary>
