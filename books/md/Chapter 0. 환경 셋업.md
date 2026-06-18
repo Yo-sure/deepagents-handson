@@ -16,7 +16,7 @@ pageClass: lec-page
 # 인박스 한 통,<br>열어볼 준비
 
 <p class="lead">앞으로 8시간 동안 만들 인박스 리서치 애널리스트는 메일과 스캔 폴더로 들어온 영수증·명세서·계약서를 스스로 읽고 정리합니다.<br>
-Ch0에서는 그 바탕을 깝니다. 도구를 설치하고, 모델을 한 번 불러 보고, 분석에 쓸 문서를 받아 둡니다.</p>
+Ch0에서는 그 바탕을 마련합니다. 도구를 설치하고, 모델을 한 번 불러 보고, 분석에 쓸 문서를 준비합니다.</p>
 
 <div class="kicker">
 <div class="metric"><span class="num">20</span><strong>분</strong><span>설치 · 작업공간 · 첫 호출</span></div>
@@ -43,8 +43,8 @@ Ch0에서는 그 바탕을 깝니다. 도구를 설치하고, 모델을 한 번 
 ## 도구는 한 번에 깐다
 
 </div>
-<p class="section-note">런타임은 WSL2 · Python 3.12 · uv · Node로 맞춥니다. setup.sh가 가상환경 생성·의존성 설치·.env 템플릿까지 한 번에 처리하니, 실행한 뒤 키만 채우면 됩니다.<br>
-<strong>왜 pip이 아니라 uv?</strong> Ubuntu 24.04는 시스템 Python을 보호하려고 전역 <code>pip install</code>을 막습니다(PEP 668, <code>externally-managed-environment</code> 에러). uv는 레포 <code>.venv</code>에 격리 설치하고 <code>uv run</code>이 자동 활성화까지 해 줘서, 가상환경을 깜빡할 일이 없습니다 — 그래서 이 과정은 처음부터 uv만 씁니다.</p>
+<p class="section-note">런타임은 WSL2(Ubuntu 24.04) · Python 3.12 · uv · Node입니다. setup.sh가 가상환경 생성·의존성 설치·.env 템플릿까지 한 번에 처리하니, 실행한 뒤 키만 채우면 됩니다.<br>
+<strong>왜 pip이 아니라 uv?</strong> Ubuntu 24.04는 시스템 Python을 보호하려고 전역 <code>pip install</code>을 막습니다(PEP 668, <code>externally-managed-environment</code> 에러). uv는 레포 <code>.venv</code>에 격리 설치하고 <code>uv run</code>이 자동으로 그 환경을 쓰므로, 가상환경을 깜빡할 일이 없습니다. 그래서 이 과정은 처음부터 uv만 씁니다.</p>
 </div>
 
 ```bash
@@ -58,8 +58,8 @@ bash scripts/setup.sh        # .venv 생성 · uv sync · .env 템플릿
 <p>레포-로컬 <code>.venv</code> (전역 오염 없음)</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>.env</strong><span>API 키 한 곳에</span></div><div class="panel-body"><div class="list">
-<p><code>OPENROUTER_API_KEY</code> 한 줄만 채우면 시작합니다 (<code>OPENAI_API_KEY</code>는 같은 값으로 자동 정렬)</p>
-<p><code>MAIL_BACKEND=mock</code> — 인박스는 목 봉투라 외부 메일 서버가 필요 없습니다</p>
+<p><code>OPENROUTER_API_KEY</code> 한 줄만 채우면 시작합니다. <code>OPENAI_API_KEY</code>·<code>OPENAI_API_BASE</code>도 같은 값으로 채워 두는데, deepagents가 OpenAI 호환 경로로 OpenRouter를 부를 때 이 변수를 읽기 때문입니다</p>
+<p><code>MAIL_BACKEND=mock</code> — 메일은 실제 서버 대신 미리 준비한 가짜(mock) 데이터를 쓰므로 외부 메일 서버가 필요 없습니다</p>
 <p>레포-로컬 파일이라 <code>~/.bashrc</code>를 안 건드리고 git에도 안 올라갑니다(<code>.gitignore</code>)</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>검증</strong><span>준비됐을까</span></div><div class="panel-body"><div class="list">
@@ -111,7 +111,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>③ 인터프리터</strong><span>.venv 지정</span></div><div class="panel-body"><div class="list">
 <p><code>Ctrl+Shift+P</code> → <code>Python: Select Interpreter</code></p>
-<p>레포 안 <code>.venv/bin/python</code>을 고릅니다</p>
+<p>레포 안 <code>.venv/bin/python</code>을 고릅니다(없으면 <code>Developer: Reload Window</code>)</p>
 <p>이걸 골라야 설치한 라이브러리가 잡힙니다</p>
 </div></div></div>
 </div>
@@ -131,7 +131,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 <div class="row"><div class="code">2</div><div class="copy"><strong>레포로 이동 → 셋업</strong><p><code>cd ~/lecture</code> 후 <code>bash scripts/setup.sh</code>. 프리플라이트가 ❌ OPENROUTER 한 줄만 남기면 정상입니다.</p></div><div class="store">.venv</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>VSCode를 WSL로 열기</strong><p>같은 폴더에서 <code>code .</code>. 첫 실행이면 VSCode가 WSL 서버를 자동 설치합니다(1분). 왼쪽 아래에 <code>WSL: Ubuntu</code>가 뜨면 성공.</p></div><div class="store">붙음</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>인터프리터 = .venv</strong><p><code>Ctrl+Shift+P</code> → <code>Python: Select Interpreter</code> → <code>./.venv/bin/python</code>. 안 보이면 <code>Developer: Reload Window</code> 한 번. 이걸 골라야 설치한 라이브러리가 잡힙니다.</p></div><div class="store">지정</div></div>
-<div class="row"><div class="code">5</div><div class="copy"><strong>첫 실행 — 키 채우고 호출</strong><p><code>.env</code>의 <code>OPENROUTER_API_KEY</code>를 채운 뒤, 다음 Step의 코드를 <code>.py</code>로 저장하고 <code>uv run python3 그파일.py</code>. 한 줄 응답이 뜨면 환경 완성입니다.</p></div><div class="store">✅</div></div>
+<div class="row"><div class="code">5</div><div class="copy"><strong>첫 실행 — 키 채우고 호출</strong><p><code>.env</code>의 <code>OPENROUTER_API_KEY</code>를 채운 뒤, 다음 Step의 코드를 <code>.py</code>로 저장하고 <code>uv run python3 그파일.py</code>. 한 줄 응답이 뜨면 환경 설정이 끝납니다.</p></div><div class="store">✅</div></div>
 </div>
 </div>
 
@@ -165,26 +165,31 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 
 </div>
 <p class="section-note">기본 실습 모델은 비용이 낮은 Gemini 3.5 Flash입니다. OpenRouter 게이트웨이로 한 번 불러 보면 키와 경로, 모델 라우팅이 제대로 잡혔는지 30초 안에 확인됩니다.<br>
-더 비싼 모델은 비교가 필요할 때만 꺼내 씁니다.</p>
+더 비싼 모델은 비교가 필요할 때만 사용합니다.</p>
 </div>
 
 ```python
+from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
 import os
+
+load_dotenv()                       # .env의 키를 환경에 올린다 (uv run은 .env를 자동 로드하지 않는다)
 
 llm = ChatOpenAI(
     model="google/gemini-3.5-flash",
     base_url="https://openrouter.ai/api/v1",
     api_key=os.environ["OPENROUTER_API_KEY"],
 )
-print(llm.invoke("한 문장으로 자기소개 해줘").content)
+resp = llm.invoke("한 문장으로 자기소개 해줘")
+print(resp.content)
+print("→ model:", resp.response_metadata.get("model_name"))   # 실제 라우팅된 모델 확인
 ```
 
 <div class="board">
-<div class="board-header"><span>응답이 오면 라우팅 정상</span><span class="status-pill">기대 출력</span></div>
+<div class="board-header"><span>응답이 오면 키·연결은 정상</span><span class="status-pill">기대 출력</span></div>
 <div class="panel-body"><div class="list">
-<p>응답 텍스트가 한 줄 출력되면 키 로드와 OpenRouter 연결, 모델 슬러그가 모두 맞다는 뜻입니다.</p>
-<p><span class="badge red">오류</span> 401이면 키를, 404면 모델 슬러그를, 빈 응답이면 네트워크를 살펴봅니다.</p>
+<p>응답 한 줄이 출력되면 키 로드와 OpenRouter 연결은 정상입니다. 다만 응답이 왔다고 슬러그까지 맞은 건 아니어서(게이트웨이가 다른 모델로 폴백할 수 있음), 실제 라우팅은 <code>response_metadata</code>의 <code>model</code>로 확인합니다.</p>
+<p><span class="badge red">오류</span> 401이면 키를, 404면 모델 슬러그를, 빈 응답이면 네트워크를 살펴봅니다. <code>load_dotenv()</code>를 빠뜨리면 <code>KeyError: 'OPENROUTER_API_KEY'</code>가 납니다.</p>
 </div></div>
 </div>
 </section>
@@ -206,9 +211,9 @@ print(llm.invoke("한 문장으로 자기소개 해줘").content)
 <p>카페·편의점·택시·식당·드럭스토어</p>
 <p><span class="badge">멀티모달</span> 한 장에서 판매처·금액·항목을 읽어 냅니다</p>
 </div></div></div>
-<div class="panel"><div class="panel-head"><strong>명세서 ×3</strong><span>카드·은행·세금계산서풍</span></div><div class="panel-body"><div class="list">
-<p>카드·은행 명세서는 PDF, 용역대금 청구(invoice_photo)는 사진입니다</p>
-<p>셋 다 <code>문서유형: 명세서</code>로 정규화됩니다 — RecordV1엔 "세금계산서" 유형이 따로 없습니다</p>
+<div class="panel"><div class="panel-head"><strong>명세서 ×3</strong><span>카드·은행·청구서</span></div><div class="panel-body"><div class="list">
+<p>카드·은행 명세서는 PDF, 용역대금 청구서(invoice_photo)는 사진입니다</p>
+<p>셋 다 <code>문서유형: 명세서</code>로 정규화됩니다 — RecordV1엔 청구서·세금계산서 같은 세부 유형이 따로 없습니다</p>
 <p>거래가 여러 줄이라 <code>항목</code>도 여러 개입니다</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>계약서 ×1</strong><span>PDF</span></div><div class="panel-body"><div class="list">
@@ -221,10 +226,21 @@ print(llm.invoke("한 문장으로 자기소개 해줘").content)
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>문서가 서로 연결된다</span><span class="status-pill">교차 참조</span></div>
-<div class="panel-body"><div class="list">
-<p>카드 명세서의 거래줄은 개별 영수증과 금액이 일치합니다. 은행 명세서는 계약서, 세금계산서와 이어집니다.</p>
-<p>그래서 Ch3에서 여러 에이전트가 문서를 나눠 조사할 때 명세서에는 있지만 영수증이 없는 89,000원처럼 실제로 따져 볼 거리가 드러납니다.</p>
-</div></div>
+<div class="panel-body">
+<p>카드 명세서의 거래 항목은 개별 영수증과 금액이 맞물리고, 은행 명세서는 계약서·청구서와 이어집니다. 일부러 짝이 어긋나게 설계돼 있어, 명세서엔 있지만 영수증이 없는 거래가 Ch3 조사의 표적이 됩니다.</p>
+
+```mermaid
+flowchart LR
+    CARD["💳 카드 명세서<br/>거래 7건"]
+    CARD --> M["🧾 영수증 5장 매칭<br/>스타벅스·GS25·택시·국밥·올리브영"]
+    CARD --> X1["⚠️ 쿠팡 89,000원<br/>영수증 없음"]
+    CARD --> X2["⚠️ 넷플릭스 17,000원<br/>영수증 없음"]
+    style M fill:#e8f5e9,stroke:#0f766e
+    style X1 fill:#fde8e8,stroke:#c0392b
+    style X2 fill:#fde8e8,stroke:#c0392b
+```
+
+</div>
 </div>
 </section>
 
@@ -237,7 +253,7 @@ print(llm.invoke("한 문장으로 자기소개 해줘").content)
 
 </div>
 <p class="section-note">문서가 영수증이든 계약서든 읽고 나면 모두 이 RecordV1 구조로 정규화됩니다. 그다음부터 모든 챕터는 파일 포맷이 아니라 이 계약 하나에만 기댑니다.<br>
-코드가 정본입니다. 교재는 그 파일을 그대로 가져와 보여 줍니다. 복사해 붙인 것이 아닙니다.</p>
+코드가 정본입니다. 교재는 그 파일을 그대로 가져와 임베드합니다. 복사해 붙인 게 아닙니다.</p>
 </div>
 
 <div class="panel">
@@ -250,11 +266,23 @@ print(llm.invoke("한 문장으로 자기소개 해줘").content)
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>파이프라인 경로</span><span class="status-pill">디렉터리 규약</span></div>
-<div class="panel-body"><div class="list">
-<p><code>sample_inbox/</code> → <code>classified/</code> → <code>research_notes/</code> → <code>brief.md</code> → <code>verified_brief.md</code></p>
-<p>입력만 저장소에 들어 있습니다. 만들어 내는 산출물은 모두 <code>workspace/</code> 아래에 쌓입니다. 각 챕터가 이 경로를 한 단계씩 채웁니다.</p>
-</div></div>
+<div class="board-header"><span>파이프라인 경로 — 각 챕터가 한 단계씩 채운다</span><span class="status-pill">디렉터리 규약</span></div>
+<div class="panel-body">
+
+```mermaid
+flowchart LR
+    I["📥 sample_inbox/<br/>문서 10건"] -->|"Ch1·2 추출·분류"| C["🗂 classified/<br/>RecordV1 10건"]
+    C -->|"Ch3 조사"| R["📝 research_notes/"]
+    R -->|"Ch4 지식·브리프"| B["📄 brief.md"]
+    B -->|"Ch5 검증"| V["✅ verified_brief.md"]
+    V -->|"Ch6 통합"| D["🎯 캡스톤"]
+    style I fill:#fff3e0,stroke:#e09f3e
+    style V fill:#e8f5e9,stroke:#0f766e
+    style D fill:#f3e5f5,stroke:#6b4fa3
+```
+
+<p style="margin-top:12px">입력(<code>sample_inbox/</code>)만 저장소에 들어 있고, 만들어 내는 산출물은 모두 <code>workspace/</code> 아래에 쌓입니다.</p>
+</div>
 </div>
 </section>
 
