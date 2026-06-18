@@ -201,7 +201,7 @@ flowchart LR
 ## OKF — 사람도 읽고 에이전트도 읽는다
 
 </div>
-<p class="section-note">노트는 이번 달용 메모입니다. 다음 달에도 쓰려면 표준 형식으로 쌓아야 합니다. OKF(Open Knowledge Format)는 Google Cloud가 공개한 벤더 중립 표준으로, 압축도 런타임도 없이 <strong>YAML 프런트매터를 단 마크다운 파일</strong>이 곧 지식 항목입니다. 강제하는 건 <code>type</code> 하나뿐이고 나머지 필드는 자유라, 우리는 도메인에 맞는 <code>name·amount</code>를 덧붙여 씁니다.<br>
+<p class="section-note">노트는 이번 달용 메모입니다. 다음 달에도 쓰려면 표준 형식으로 쌓아야 합니다. OKF(Open Knowledge Format)는 Google Cloud가 2026-06 공개한 벤더 중립 오픈 스펙(아직 채택 초기)으로, 압축도 런타임도 없이 <strong>YAML 프런트매터를 단 마크다운 파일</strong>이 곧 지식 항목입니다. 강제하는 건 <code>type</code> 하나뿐이고 나머지 필드는 자유라, 우리는 도메인에 맞는 <code>name·amount</code>를 덧붙여 씁니다.<br>
 조사에서 세 종류의 지식을 뽑습니다 — 거래처, 구독, 확인 필요. 영수증 없는 89,000원이 gap 항목으로 남습니다.</p>
 </div>
 
@@ -271,9 +271,9 @@ flowchart LR
 
 ```python
 def okf_entry(type_: str, name: str, body_lines: list[str], **meta) -> str:
-    fm = [f"type: {type_}", f"name: {name}", f"schema_version: {OKF_VERSION}"]  # type 필수
-    fm += [f"{k}: {v}" for k, v in meta.items()]
-    front = "\n".join(fm)
+    # 상호·품목명은 모델이 뽑은 자유 텍스트라 콜론·#이 섞일 수 있다 → safe_dump로 안전 직렬화
+    front_data = {"type": type_, "name": name, "schema_version": OKF_VERSION, **meta}
+    front = yaml.safe_dump(front_data, allow_unicode=True, sort_keys=False).strip()
     body = "\n".join(body_lines)
     return f"---\n{front}\n---\n\n# {name}\n\n{body}\n"   # 프런트매터 + 본문
 

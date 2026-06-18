@@ -20,6 +20,8 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 
+import yaml
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from analyst import RecordV1
 from analyst.paths import KNOWLEDGE_BASE, ensure_workspace
@@ -32,9 +34,10 @@ OKF_VERSION = "okf/0.1"
 
 def okf_entry(type_: str, name: str, body_lines: list[str], **meta) -> str:
     """OKF 항목 한 개를 직렬화한다 — YAML 프런트매터(type 필수) + 마크다운 본문."""
-    fm = [f"type: {type_}", f"name: {name}", f"schema_version: {OKF_VERSION}"]
-    fm += [f"{k}: {v}" for k, v in meta.items()]
-    front = "\n".join(fm)
+    # 값에 콜론·# 같은 YAML 메타문자가 와도 안전하게 직렬화한다 — 상호명·품목명은
+    # 모델이 뽑은 자유 텍스트라("강남R: 1호점" 등) 손조립하면 파싱이 깨진다.
+    front_data = {"type": type_, "name": name, "schema_version": OKF_VERSION, **meta}
+    front = yaml.safe_dump(front_data, allow_unicode=True, sort_keys=False).strip()
     body = "\n".join(body_lines)
     return f"---\n{front}\n---\n\n# {name}\n\n{body}\n"
 

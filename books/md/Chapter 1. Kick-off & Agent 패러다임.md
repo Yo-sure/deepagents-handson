@@ -66,9 +66,9 @@ pageClass: lec-page
 ```mermaid
 flowchart LR
   IN[("📥 sample_inbox/<br/>문서 10건")]
-  IN -->|Ch1 추출| C["classified/<br/>RecordV1"]
-  C -->|Ch2 분류·HITL| R["research_notes/<br/>fan-out 조사"]
-  R -->|Ch3·4 조사·지식| B["brief.md<br/>한 장 요약"]
+  IN -->|Ch1·2 추출·분류| C["classified/<br/>RecordV1"]
+  C -->|Ch3 조사| R["research_notes/<br/>fan-out 조사"]
+  R -->|Ch4 지식·브리프| B["brief.md<br/>한 장 요약"]
   B -->|Ch5 A2A 검증| V[["✅ verified_brief.md"]]
   classDef io fill:#0d9488,stroke:#0f766e,color:#fff;
   classDef here fill:#fde68a,stroke:#d97706,color:#7c2d12;
@@ -98,7 +98,7 @@ flowchart LR
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>성능은 평평해졌다</strong><span>SWE-bench Verified · 2026 중반</span></div><div class="panel-body"><div class="list">
 <p>상위 모델 정확도가 90% 안팎 한 덩어리로 몰렸습니다(아래 막대).</p>
-<p>저비용 <strong>Gemini 3.5 Flash(약 79%)</strong>도 상위권 바로 아래까지 따라붙었습니다 — 프런티어 모델끼리는 한 자릿수 %p 차로 몰려 있고요.</p>
+<p>저비용 <strong>Gemini 3.5 Flash(약 78%)</strong>도 그 바로 아래까지 따라붙었습니다 — 프런티어 주력(88~89%대)끼리는 한 자릿수 %p 차로 몰려 있고요.</p>
 <p>수치는 게이트웨이·시점마다 달라지는 <strong>대략·예시값</strong>입니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>그래서 하네스다</strong><span>이 과정의 무게중심</span></div><div class="panel-body"><div class="list">
@@ -117,10 +117,10 @@ xychart-beta
     title "SWE-bench Verified 정확도 (예시 · 2026 중반)"
     x-axis ["Gemini3.5Flash", "Opus4.8", "GPT-5.5", "Fable5"]
     y-axis "정확도 %" 0 --> 100
-    bar [78.8, 88.6, 82.6, 95]
+    bar [78, 88.6, 88.7, 95]
 ```
 
-<p style="margin-top:8px">상위 막대가 좁은 띠에 몰려 있고 저비용 모델도 그 바로 아래라는 게 핵심입니다 — 모델 단독 점수론 더는 크게 안 벌어집니다. 그래서 무게중심이 "어떤 모델이냐"에서 "<strong>어떤 하네스로 감싸느냐</strong>"로 옮겨 갔습니다.</p>
+<p style="margin-top:8px">주력 모델이 88~89%대에 빽빽이 모이고 최상위 프런티어가 95%, 저비용 Gemini Flash도 그 아래에서 바짝 좇는 게 핵심입니다 — 모델 단독 점수론 더는 크게 안 벌어집니다. 그래서 무게중심이 "어떤 모델이냐"에서 "<strong>어떤 하네스로 감싸느냐</strong>"로 옮겨 갔습니다.</p>
 </div>
 </div>
 
@@ -441,8 +441,8 @@ flowchart LR
 |---|---|---|---|---|
 | 프런티어급 | Fable 5 (`claude-fable-5`) | 최상위 추론·장기 코딩 (~95%) | ~$10 / ~$50 | 막판 난제 · 2026-06 비미국 제공 중단 |
 | 범용 주력 | Opus 4.8 (`claude-opus-4-8`) | 균형 잡힌 고성능 (88.6%) | ~$5 / ~$25 | 비교·심화 |
-| 범용 주력 | GPT-5.5 (`gpt-5.5`) | 강한 범용 추론 (~82.6%) | ~$5 / ~$30 | 비교축 |
-| 범용 주력 | **Gemini 3.5 Flash** (`google/gemini-3.5-flash`) | 빠르고 저렴 (~79%) | ~$1.5 / ~$9 | **이 과정 기본** |
+| 범용 주력 | GPT-5.5 (`gpt-5.5`) | 강한 범용 추론 (~88.7%, 자체보고) | ~$5 / ~$30 | 비교축 |
+| 범용 주력 | **Gemini 3.5 Flash** (`google/gemini-3.5-flash`) | 빠르고 저렴 (~78%) | ~$1.5 / ~$9 | **이 과정 기본** |
 | 경량 | Haiku 4.5 (`claude-haiku-4-5`) | 분류·대량 처리 | 최저가대 | 라우터·서브에이전트 |
 
 </div>

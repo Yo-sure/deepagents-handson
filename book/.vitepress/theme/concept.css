@@ -45,7 +45,7 @@
 .lec .metric strong { display:block; margin-top:9px; font-size:13px; }
 .lec .metric span { display:block; margin-top:4px; color:var(--muted); font-size:12px; line-height:1.45; }
 /* 예상 시각 — 9시 시작 기준, 아주 약하게. 운영 중 조율용 앵커(절대값이라 늦어지면 어긋남 — '예상'·흐릿함이 그 신호) */
-.lec .metric .clk { display:block; margin-top:6px; color:var(--muted); opacity:.62; font-size:11px; font-weight:700; letter-spacing:.01em; }
+.lec .metric .clk { display:block; margin-top:6px; color:var(--muted); opacity:.85; font-size:11px; font-weight:700; letter-spacing:.01em; }
 
 .lec .board { position:relative; padding:22px; background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
 .lec .board::before { content:""; position:absolute; inset:0; opacity:.34; pointer-events:none;
@@ -84,16 +84,17 @@
 .lec .badge.red { color:var(--red); background:rgba(166,61,64,.10); border-color:rgba(166,61,64,.26); }
 
 .lec .flow { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
+.lec .flow.flow-5 { grid-template-columns:repeat(5,minmax(0,1fr)); }  /* 5단계 흐름(고아 방지) */
 .lec .flow-step { position:relative; min-height:150px; padding:14px; background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:0 14px 32px rgba(27,31,29,.08); }
 .lec .flow-step::after { content:"›"; position:absolute; top:50%; right:-9px; transform:translateY(-50%); color:var(--forest); font-weight:900; font-size:18px; }
 .lec .flow-step:last-child::after { display:none; }
-.lec .flow-step small { color:var(--amber); font-size:11px; font-weight:900; text-transform:uppercase; }
+.lec .flow-step small { color:#704a08; font-size:11px; font-weight:900; text-transform:uppercase; }
 .lec .flow-step strong { display:block; margin-top:7px; font-size:14px; line-height:1.28; }
 .lec .flow-step p { margin-top:7px; color:var(--muted); font-size:12px; line-height:1.48; word-break:keep-all; }
 
 @media (max-width: 860px) {
   .lec .hero { grid-template-columns: 1fr; }
-  .lec .grid-4, .lec .grid-3, .lec .flow { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .lec .grid-4, .lec .grid-3, .lec .flow, .lec .flow.flow-5 { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .lec .section-head { grid-template-columns: 1fr; }
 }
 

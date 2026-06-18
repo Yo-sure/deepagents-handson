@@ -158,7 +158,7 @@ flowchart TD
 </div>
 </div>
 
-<div class="flow" style="margin-top:14px">
+<div class="flow flow-5" style="margin-top:14px">
 <div class="flow-step"><small>classify</small><strong>추출</strong><p>Ch1 부품을 그대로 불러 영수증→RecordV1</p></div>
 <div class="flow-step"><small>verify</small><strong>검증·분기</strong><p>합계를 보고, 어긋나면 retry로 되돌린다</p></div>
 <div class="flow-step"><small>retry</small><strong>재분류</strong><p>상한(2회)까지 classify로 되돌아간다</p></div>
