@@ -217,6 +217,11 @@
   /* 폰 가로스크롤 시 항목축(1열)을 고정해 어느 역량 행인지 놓치지 않게 */
   .lec .matrix .cell.axis { position:sticky; left:0; z-index:2; }
   .lec .matrix .cell.head:first-child { position:sticky; left:0; z-index:3; }
+  /* 7열(역량×Ch1~6) 매트릭스: 핵심 payoff인 Ch6열(매 7번째 셀)을 우측에 고정 —
+     축은 좌측, Ch6 재사용 띠는 우측에 항상 보이고 가운데(Ch1~5)만 스크롤. */
+  .lec .matrix.matrix-7 .cell:nth-child(7n){ position:sticky; right:0; z-index:1; background-color:#1b2a27; }
+  .lec .matrix.matrix-7 .cell.head:nth-child(7n){ background-color:#20312d; z-index:3; }
+  .lec .matrix.matrix-7 .cell.warn:nth-child(7n){ background-color:#3a3320; box-shadow:inset 0 0 0 1px rgba(240,180,80,.5); }
 }
 
 /* mermaid 노드 라벨 마지막 글자 잘림 방지 — foreignObject 폭 과소측정 보정(전 다이어그램 공통) */

@@ -187,7 +187,7 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <details>
 <summary>추적 답</summary>
 <div class="reveal">
-<p>같은 한 줄(쿠팡 89,000원)이 산출물마다 모양을 바꾸지만 계약(이름·금액)은 끝까지 보존됩니다:</p>
+<p>위 흐름도가 시스템의 길이라면, 아래는 <strong>같은 5단계를 한 레코드의 눈</strong>으로 본 것입니다 — 쿠팡 89,000원 한 줄이 산출물마다 모양을 바꾸지만 계약(이름·금액)은 끝까지 보존됩니다:</p>
 
 ```mermaid
 flowchart LR
@@ -224,7 +224,7 @@ flowchart LR
 <p class="section-note">하나의 인박스를 끝까지 처리하며 여덟 역량을 손으로 익혔습니다. 각 역량이 어느 부품에서 처음 나왔는지 돌아봅니다.</p>
 </div>
 
-<div class="matrix" style="grid-template-columns:116px repeat(6,minmax(84px,1fr))">
+<div class="matrix matrix-7" style="grid-template-columns:116px repeat(6,minmax(84px,1fr))">
 <div class="cell head"></div>
 <div class="cell head">Ch1</div><div class="cell head">Ch2</div><div class="cell head">Ch3</div><div class="cell head">Ch4</div><div class="cell head">Ch5</div><div class="cell head">Ch6</div>
 
@@ -306,7 +306,7 @@ flowchart TB
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>지금은 목이라 숨은 것</strong></div><div class="panel-body"><div class="list">
 <p><strong>추출 비결정성</strong> — <code>--mock</code>은 gold를 베껴 100% 재현됩니다. 실모델 멀티모달은 신뢰도가 흔들리고 같은 영수증을 넣어도 결과가 매번 달라져, 신뢰도 임계 HITL 멈춤(Ch2)이 진짜 안전장치가 됩니다.</p>
-<p><strong>검증의 진짜 값은 실모델에서</strong> — 목 구간에선 브리프도 검증자도 같은 gold에서 나와 PASS가 사실상 보장됩니다(검증이 "도는지" 확인용). 추출이 흔들리는 실모델에서야 브리프 누락 ↔ 검증자 반려가 실제로 갈려, 외부 검증이 값을 합니다.</p>
+<p><strong>검증의 진짜 값은 실모델에서</strong> — 목 구간에선 브리프도 검증자도 같은 gold에서 나와 PASS가 사실상 보장됩니다(검증이 "도는지" 확인용). 추출이 흔들리는 실모델에서야 브리프 누락 ↔ 검증자 반려가 실제로 갈려, 외부 검증이 제값을 합니다.</p>
 <p><strong>fan-out 비용·실패</strong> — 세 갈래가 실제 LLM 호출이면 토큰·지연·부분 실패가 곱해집니다. 한 갈래가 죽어도 나머지가 끝나게(부분 산출 허용) 설계해야 합니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>경계를 넘을 때</strong></div><div class="panel-body"><div class="list">
