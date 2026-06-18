@@ -164,7 +164,7 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
   [synthesize] → workspace/brief_draft.md
 [3/6] OKF 지식 적재 (Ch4 okf_store)
   지식 항목 12개
-[4/6] 브리프 작성 (Ch4 brief_skill 절차)
+[4/6] 브리프 작성 (Ch4 inbox-brief 절차)
   → workspace/brief.md
 [5/6] 외부 검증 (Ch5 A2A)
   → workspace/verified_brief.md

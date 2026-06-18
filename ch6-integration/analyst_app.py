@@ -135,7 +135,7 @@ def main() -> None:
     step(3, "OKF 지식 적재 (Ch4 okf_store)")
     n = run_okf()
     print(f"  지식 항목 {n}개")
-    step(4, "브리프 작성 (Ch4 brief_skill 절차)")
+    step(4, "브리프 작성 (Ch4 inbox-brief 절차)")
     write_brief()
     print(f"  → {BRIEF.relative_to(WORKSPACE.parent)}")
     step(5, "외부 검증 (Ch5 A2A)")

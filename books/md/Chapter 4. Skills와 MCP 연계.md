@@ -28,7 +28,7 @@ pageClass: lec-page
 <div class="board">
 <div class="board-header"><span>이 챕터가 끝나면</span><span class="status-pill">산출물</span></div>
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>brief_skill/</strong><p>SKILL.md(점진 공개) + 얇은 plugin 템플릿</p></div><div class="store">절차</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>inbox-brief/</strong><p>SKILL.md(점진 공개) + 얇은 plugin 템플릿</p></div><div class="store">절차</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>MCP 인박스 서버</strong><p>파일[실선] · 메일[목]을 도구로 노출</p></div><div class="store">연결</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>OKF 지식베이스</strong><p>거래처·구독·확인필요를 표준 항목으로</p></div><div class="store">지식</div></div>
 </div>
@@ -38,7 +38,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 절차 · 7분</div>
+<div class="eyebrow">1 · 절차 · 12분</div>
 
 ## SKILL.md — 점진 공개
 
@@ -89,6 +89,85 @@ version: 0.1.0
 # 인박스 브리프 작성
 ## 입력 ... ## 절차 ... ## 출력 형식 → reference/brief_format.md (필요할 때만)
 ```
+
+<p class="section-note" style="margin-top:18px">개념은 이렇고 — <strong>그럼 에이전트는 이 SKILL.md를 실제로 어떻게 읽을까요?</strong> deepagents는 이 점진 공개를 <code>SkillsMiddleware</code>로 구현합니다. 에이전트가 시작할 때(<code>before_agent</code>) 스킬 디렉터리를 훑어 <strong>앞머리의 name·description만</strong> 시스템 프롬프트의 "Skills System" 섹션에 싣고, 본문은 모델이 <code>read_file</code>로 필요할 때 가져옵니다. 손으로 토큰을 자르는 게 아니라 미들웨어가 단계로 펼쳐 줍니다.</p>
+
+<div class="panel">
+<div class="panel-head"><strong>ch4-skills-mcp/skill_agent.py — 붙이는 코드</strong><span>create_deep_agent + SkillsMiddleware</span></div>
+<div class="panel-body">
+
+```python
+from deepagents import create_deep_agent
+from deepagents.backends import FilesystemBackend
+from deepagents.middleware.skills import SkillsMiddleware
+
+# 스킬 소스 = 스킬들이 모인 디렉터리(그 하위 디렉터리 하나가 스킬 하나).
+skills_mw = SkillsMiddleware(
+    backend=FilesystemBackend(root_dir=".", virtual_mode=False),
+    sources=["ch4-skills-mcp"],          # inbox-brief/ 를 스킬로 발견
+)
+agent = create_deep_agent(model=..., middleware=[skills_mw])
+# 짧게는 create_deep_agent(model=..., skills=["ch4-skills-mcp"]) 한 줄로도 같다.
+```
+
+</div>
+</div>
+
+<div class="panel" style="margin-top:16px">
+<div class="panel-head"><strong>누가 언제 읽나 — 점진 공개의 실제 흐름</strong><span>SkillsMiddleware · read_file</span></div>
+<div class="panel-body">
+
+```mermaid
+sequenceDiagram
+    participant MW as SkillsMiddleware
+    participant SP as 시스템 프롬프트
+    participant M as 모델
+    participant FS as 파일
+    MW->>SP: ① 시작 시 name·description만 주입
+    Note over M: 사용자 작업이 description과 맞나?
+    M->>FS: ② read_file(SKILL.md, limit=1000)
+    FS-->>M: 본문(입력·절차·톤)
+    M->>FS: ③ read_file(reference/brief_format.md)
+    FS-->>M: 세부 형식 — 본문이 가리킬 때만
+```
+
+</div>
+</div>
+
+<div class="board" style="margin-top:16px">
+<div class="board-header"><span>--show — 미들웨어가 시작 시 싣는 것(키 불필요)</span><span class="status-pill">실제 출력</span></div>
+<div class="panel-body">
+
+```text
+[1단계] 시작 시 시스템 프롬프트에 오르는 것 — 메타데이터만
+
+  • inbox-brief  (dir: inbox-brief)
+    description: 분류된 인박스 레코드와 OKF 지식·조사 노트를 모아 월간 브리프(brief.md)를
+                 작성한다. 사용자가 "이번 달 인박스 정리", "지출 브리프"를 요청할 때 쓴다.
+    path: ch4-skills-mcp/inbox-brief/SKILL.md
+    (본문 27줄은 아직 안 읽음 — description이 작업과 맞을 때 read_file)
+
+[2단계] 모델이 'description이 내 작업과 맞다' → read_file(path, limit=1000)로 본문을 가져온다.
+[3단계] 본문이 reference/*.md를 가리키면 그때만 그 파일을 read_file 한다.
+```
+
+</div>
+</div>
+
+<p class="section-note" style="margin-top:14px"><strong>스펙 한 가지</strong> — 스킬 이름(<code>name</code>)은 디렉터리 이름과 같아야 합니다. 그래서 <code>inbox-brief/</code> 안 SKILL.md가 <code>name: inbox-brief</code>입니다(어긋나면 미들웨어가 경고). <code>--run</code>으로 키를 넣고 돌리면 에이전트의 행동 중 하나가 <code>read_file(.../SKILL.md, limit=1000)</code> — 메타만 보던 모델이 본문을 그때 가져오는 게 점진 공개의 증거입니다.</p>
+
+<div class="cue do">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~3분</span></div>
+<div class="cue-body"><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. 키 없이도 <strong>미들웨어가 시스템 프롬프트에 무엇을 싣는지</strong>(메타데이터만)와, 본문이 아직 안 읽혔다는 점을 직접 봅니다. 키가 있으면 <code>--run</code>으로 에이전트가 본문을 read_file 하는 것까지 확인하세요.</div>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>2026 최신 — 스킬을 더 멀리</span><span class="status-pill">동향</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>SKILLOPT (Microsoft, 2026)</strong> — 우리 SKILL.md는 손으로 쓴 <em>정적</em> 문서입니다. SKILLOPT는 이 스킬 문서 자체를 <strong>학습 가능한 산출물</strong>로 봅니다: 굴려 보고(rollout) → 채점된 결과로 문서를 조금씩 고치고(add/delete/replace) → <strong>검증 점수가 오를 때만 채택</strong> → <code>best_skill.md</code>로 내보냅니다. 모델 가중치는 안 건드리고 텍스트만 바꿔 GPT-5.5에서 무-스킬 대비 +23.5%p. 이 교재의 "자가개선 루프"를 스킬 한 장에 적용한 셈입니다. <span class="badge blue">arXiv 2605.23904</span></p>
+<p><strong>FORK (Anthropic, 2026)</strong> — Ch3의 서브에이전트는 부모 대화의 <em>압축 요약</em>만 물려받습니다. 반면 <strong>포크된 서브에이전트</strong>는 전체 컨텍스트를 그대로 물려받아 부모와 같은 맥락을 정확히 공유합니다 — 요약으로 잃기 쉬운 "지금 무슨 작업 중인지"를 보존해야 할 때. <em>위임(요약)이냐 포크(전체)냐</em>의 트레이드오프입니다.</p>
+</div></div>
+</div>
 </section>
 
 <section class="slide">
@@ -104,7 +183,7 @@ version: 0.1.0
 </div>
 
 <div class="panel">
-<div class="panel-head"><strong>brief_skill/plugin.json</strong><span>얇은 매니페스트</span></div>
+<div class="panel-head"><strong>inbox-brief/plugin.json</strong><span>얇은 매니페스트</span></div>
 <div class="panel-body">
 
 ```json
@@ -121,7 +200,7 @@ version: 0.1.0
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>brief_skill/ 구성</span><span class="status-pill">디렉터리</span></div>
+<div class="board-header"><span>inbox-brief/ 구성</span><span class="status-pill">디렉터리</span></div>
 <div class="panel-body"><div class="list">
 <p><code>SKILL.md</code> — 절차(1·2단계) · <code>reference/brief_format.md</code> — 세부 형식(3단계)</p>
 <p><code>plugin.json</code> — 배포 매니페스트. 세 파일이 한 봉투에 들어가 재사용됩니다.</p>
@@ -340,7 +419,8 @@ if __name__ == "__main__":
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code> + <code>knowledge_base/gap-쿠팡-주.md</code> 생성.</span></p></div><div class="store">지식</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 나온다(리소스 <code>inbox://stats</code>는 Tool과 별개로 노출).</span></p></div><div class="store">연결</div></div>
-<div class="row"><div class="code">3</div><div class="copy"><strong>Skill·지식 열어 보기</strong><p><code>cat workspace/knowledge_base/gap-쿠팡-주.md</code> · <code>cat ch4-skills-mcp/brief_skill/SKILL.md</code><br><span style="color:var(--muted)">성공 기준: gap 항목에 <code>type: gap</code> 머리말, SKILL.md에 name·description.</span></p></div><div class="store">절차</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>Skill·지식 열어 보기</strong><p><code>cat workspace/knowledge_base/gap-쿠팡-주.md</code> · <code>cat ch4-skills-mcp/inbox-brief/SKILL.md</code><br><span style="color:var(--muted)">성공 기준: gap 항목에 <code>type: gap</code> 머리말, SKILL.md에 name·description.</span></p></div><div class="store">절차</div></div>
+<div class="row"><div class="code">4</div><div class="copy"><strong>Skill 점진 공개 — 코드로</strong><p><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code><br><span style="color:var(--muted)">성공 기준: 미들웨어가 시스템 프롬프트에 싣는 건 name·description뿐, 본문 27줄은 "아직 안 읽음"으로 표시. 키가 있으면 <code>--run</code>으로 에이전트가 read_file 하는 것까지.</span></p></div><div class="store">절차</div></div>
 </div>
 
 <div class="cue do" style="margin-top:18px">
@@ -423,7 +503,7 @@ Ch5에서는 브리프를 외부 검증 에이전트에 A2A로 보냅니다. 다
 
 <div class="grid-3">
 <div class="panel"><div class="panel-head"><strong>지금 손에 든 것</strong></div><div class="panel-body"><div class="list">
-<p>brief_skill · MCP 서버 · OKF 지식</p>
+<p>inbox-brief · MCP 서버 · OKF 지식</p>
 <p>knowledge_base 12항목</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>Ch5에서 할 것</strong></div><div class="panel-body"><div class="list">
@@ -440,7 +520,9 @@ Ch5에서는 브리프를 외부 검증 에이전트에 A2A로 보냅니다. 다
 <div class="board-header"><span>참고 자료</span><span class="status-pill">출처</span></div>
 <div class="panel-body"><div class="list">
 <p><a href="https://modelcontextprotocol.io/">Model Context Protocol</a> · <a href="https://agentskills.io/">Agent Skills(오픈 표준)</a></p>
-<p><a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf">Open Knowledge Format v0.1 — Google Cloud</a> · <a href="https://anthropic.skilljar.com/">Anthropic Academy — Agent Skills</a></p>
+<p><a href="https://github.com/GoogleCloudPlatform/knowledge-catalog/tree/main/okf">Open Knowledge Format v0.1 — Google Cloud</a> · <a href="https://anthropic.skilljar.com/">Anthropic Academy — Agent Skills · 서브에이전트</a></p>
+<p><strong>Skill 심화</strong> · <a href="https://docs.langchain.com/oss/python/deepagents/skills">deepagents — Skills (SkillsMiddleware)</a> · <a href="https://arxiv.org/abs/2605.23904">SkillOpt — 자가개선 스킬 (Microsoft, 2026)</a></p>
+<p><strong>에이전트 일반</strong> · <a href="https://developers.openai.com/cookbook">OpenAI Cookbook</a> · <a href="https://www.kaggle.com/whitepaper-agents">Google·Kaggle — Agents 백서</a></p>
 </div></div>
 </div>
 </section>
