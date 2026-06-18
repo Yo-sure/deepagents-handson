@@ -62,6 +62,23 @@ pageClass: lec-page
 </div></div></div>
 </div>
 
+<div class="panel" style="margin-top:16px">
+<div class="panel-head"><strong>토큰은 단계로 펼쳐진다</strong><span>점진 공개 3단계</span></div>
+<div class="panel-body">
+
+```mermaid
+flowchart TB
+    A["① name · description — 항상 로드<br/>(Skill 100개여도 각 수십 토큰씩만)"]
+    B["② SKILL.md 본문 — description이 작업과 맞을 때"]
+    C["③ reference/*.md · 스크립트 — 본문이 가리킬 때만"]
+    A --> B --> C
+    style A fill:#e8f5e9,stroke:#0f766e
+    style C fill:#fff3e0,stroke:#e09f3e
+```
+
+</div>
+</div>
+
 ```markdown
 ---
 name: inbox-brief
@@ -83,7 +100,7 @@ version: 0.1.0
 
 </div>
 <p class="section-note">Skill 하나를 배포 단위로 묶으면 plugin입니다. 이 과정에서는 얇게 갑니다. 매니페스트 한 장으로 이름·버전·어떤 Skill을 담는지만 선언합니다.<br>
-무게는 SKILL.md와 MCP, OKF에 둡니다. 패키징은 그것들을 담는 봉투입니다.</p>
+핵심 내용은 SKILL.md와 MCP, OKF에 있습니다. 패키징은 그것들을 담는 봉투일 뿐입니다.</p>
 </div>
 
 <div class="panel">
@@ -120,8 +137,26 @@ version: 0.1.0
 ## MCP — 파일은 실선, 메일은 목
 
 </div>
-<p class="section-note">MCP는 에이전트가 외부에 닿는 통로를 표준화합니다. 이 과정의 외부 연결은 둘로 고정합니다. 파일은 진짜로 잇고, 메일은 목으로 둡니다.<br>
-도구 이름과 docstring이 곧 모델이 보는 설명입니다. 모델은 그걸 읽고 어떤 도구를 부를지 정합니다.</p>
+<p class="section-note">MCP는 에이전트가 외부에 닿는 통로를 표준화합니다. 이 과정의 외부 연결은 둘로 고정합니다 — 파일은 실제로 연결하고, 메일은 목(mock) 데이터로 대신합니다.<br>
+도구 이름과 docstring이 곧 모델이 보는 설명입니다. 모델은 이 이름과 설명을 읽고 어떤 도구를 부를지 정합니다.</p>
+</div>
+
+<div class="panel">
+<div class="panel-head"><strong>에이전트는 어떻게 외부에 닿나</strong><span>Host · Client · Server</span></div>
+<div class="panel-body">
+
+```mermaid
+flowchart LR
+    H["🤖 Host · 에이전트<br/>(MCP Client 내장)"]
+    H <-->|"JSON-RPC 2.0<br/>over stdio"| S["🔌 MCP 서버<br/>(subprocess)"]
+    S --> F["📁 classified/ · 실제 파일"]
+    S --> M["📧 fetch_inbox · 메일(목)"]
+    S --> R["📊 inbox://stats · Resource"]
+    style H fill:#fff3e0,stroke:#e09f3e
+    style S fill:#e3f2fd,stroke:#315f9c
+```
+
+</div>
 </div>
 
 <div class="grid-2">
@@ -139,7 +174,7 @@ version: 0.1.0
 <div class="board-header"><span>MCP 세 가지 기본 요소</span><span class="status-pill">primitives</span></div>
 <div class="panel-body"><div class="list">
 <p><strong>Tool</strong> — 모델이 자율로 호출(부수효과 가능) · <strong>Resource</strong> — 클라이언트가 읽어가는 읽기전용 데이터 · <strong>Prompt</strong> — 사용자가 트리거하는 템플릿</p>
-<p>전송은 stdio(로컬, 에이전트가 subprocess로 붙음) 또는 HTTP 스트리밍(원격). 이 실습은 stdio입니다.</p>
+<p>전송은 <strong>stdio</strong>(로컬·1:1, 에이전트가 subprocess로 붙음) 또는 <strong>Streamable HTTP</strong>(원격·다중 클라이언트; 옛 HTTP+SSE 전송은 2025-03 스펙에서 교체됨). 이 실습은 stdio입니다.</p>
 <p>그 위로 흐르는 메시지는 <strong>JSON-RPC 2.0</strong>입니다(LSP의 후예 — "M개 앱 × N개 도구"를 M+N으로 묶음). 에러는 HTTP 상태가 아니라 본문 <code>error</code> 객체로 옵니다: <code>-32601</code> 메서드 없음 · <code>-32602</code> 잘못된 파라미터 · <code>-32603</code> 내부 오류.</p>
 </div></div>
 </div>
@@ -163,7 +198,7 @@ version: 0.1.0
 ## OKF — 사람도 읽고 에이전트도 읽는다
 
 </div>
-<p class="section-note">노트는 이번 달용 메모입니다. 다음 달에도 쓰려면 표준 형식으로 쌓아야 합니다. OKF(Open Knowledge Format)는 Google Cloud가 2026-06 공개한 벤더 중립 표준으로, 압축도 런타임도 없이 <strong>YAML 프런트매터를 단 마크다운 파일</strong>이 곧 지식 항목입니다. 강제하는 건 <code>type</code> 하나뿐입니다(나머지 <code>title·description·tags</code>는 선택).<br>
+<p class="section-note">노트는 이번 달용 메모입니다. 다음 달에도 쓰려면 표준 형식으로 쌓아야 합니다. OKF(Open Knowledge Format)는 Google Cloud가 공개한 벤더 중립 표준으로, 압축도 런타임도 없이 <strong>YAML 프런트매터를 단 마크다운 파일</strong>이 곧 지식 항목입니다. 강제하는 건 <code>type</code> 하나뿐이고 나머지 필드는 자유라, 우리는 도메인에 맞는 <code>name·amount</code>를 덧붙여 씁니다.<br>
 조사에서 세 종류의 지식을 뽑습니다 — 거래처, 구독, 확인 필요. 영수증 없는 89,000원이 gap 항목으로 남습니다.</p>
 </div>
 
@@ -186,7 +221,7 @@ amount: 89000
 </div>
 </div>
 
-<p class="section-note" style="margin-top:16px">Ch3 조사가 찾은 틈이 여기서 영속적인 지식 항목이 됩니다. 다음 달 인박스를 볼 때 이 지식베이스를 먼저 참조하면 같은 구독·같은 거래처를 다시 분석하지 않아도 됩니다.</p>
+<p class="section-note" style="margin-top:16px">Ch3 조사가 찾은 틈이 여기서 다음 달에도 참조할 지식 항목이 됩니다(<code>workspace/knowledge_base/*.md</code>에 저장). 다음 달 인박스를 볼 때 이 지식베이스를 먼저 참조하면 같은 구독·같은 거래처를 다시 분석하지 않아도 됩니다.</p>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>넷을 언제 쓰나 — 결정 경계</span><span class="status-pill">정리</span></div>
@@ -196,6 +231,23 @@ amount: 89000
 <p><strong>OKF</strong> — 다음 달에도 재사용할 <em>사실 지식</em>(거래처·구독·확인필요)을 표준 마크다운으로 적재. <em>기억</em>의 문제.</p>
 <p>한 문장: <strong>MCP=어디에 닿나 · Skill=어떻게 하나 · OKF=무엇을 기억하나.</strong></p>
 </div></div>
+</div>
+
+<div class="panel" style="margin-top:18px">
+<div class="panel-head"><strong>세 겹이 에이전트를 가운데 두고 브리프를 만든다</strong><span>데이터 흐름</span></div>
+<div class="panel-body">
+
+```mermaid
+flowchart LR
+    SK["📘 Skill<br/>절차 · 어떻게"] --> AG(("🤖 에이전트"))
+    MCP["🔌 MCP<br/>연결 · 어디에 닿나"] --> AG
+    OKF["🧠 OKF<br/>기억 · 무엇을"] --> AG
+    AG --> BR["📄 월간 브리프"]
+    style AG fill:#fff3e0,stroke:#e09f3e
+    style BR fill:#e8f5e9,stroke:#0f766e
+```
+
+</div>
 </div>
 </section>
 
@@ -265,7 +317,8 @@ if __name__ == "__main__":
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>점진 공개는 어디서 작동하나</strong></div><div class="panel-body"><div class="list">
 <p>① <code>name·description</code>만 늘 시스템 프롬프트에. ② 맞으면 SKILL.md 본문. ③ <code>reference/brief_format.md</code>는 본문이 가리킬 때만.</p>
-<p>토큰을 단계로 나눠 쓰는 셈입니다 — Skill이 100개여도 평소엔 description 100줄만 올라갑니다. MCP 서버 4개를 통째로 붙이면 도구 정의만 ~51,000 토큰(컨텍스트의 ~47%)이 시작부터 깔리는데, 점진 공개는 그걸 필요할 때만 펼쳐 막습니다(Ch3 Select 전략).</p>
+<p>토큰을 단계로 나눠 쓰는 셈입니다 — Skill이 100개여도 평소엔 각 <code>description</code>(수십 토큰)만 올라가고, 본문·참조는 맞을 때만 펼칩니다.</p>
+<p>비슷한 압박이 MCP에도 있습니다. 서버 여러 개의 도구 정의를 통째로 붙이면 시작부터 도구 정의만 수만 토큰(예: ~51,000 토큰 — 108K 창이면 절반 가까이)이 깔립니다. 이건 <em>Skill의 점진 공개와는 다른 문제</em>로, 필요한 도구만 골라 올리는 선택적 로딩으로 줄입니다(Ch3 Select 전략).</p>
 </div></div></div>
 </div>
 </section>
@@ -278,12 +331,12 @@ if __name__ == "__main__":
 ## 지식·연결·절차를 묶는다
 
 </div>
-<p class="section-note">세 산출물을 각각 돌려 보고 결과를 확인합니다. 이게 Ch6 캡스톤에서 그대로 배선됩니다.</p>
+<p class="section-note">세 산출물을 각각 돌려 보고 결과를 확인합니다. 이게 Ch6 캡스톤에서 그대로 이어붙습니다.</p>
 </div>
 
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code> + <code>knowledge_base/gap-쿠팡-주.md</code> 생성.</span></p></div><div class="store">지식</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 나온다.</span></p></div><div class="store">연결</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 나온다(리소스 <code>inbox://stats</code>는 Tool과 별개로 노출).</span></p></div><div class="store">연결</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>Skill·지식 열어 보기</strong><p><code>cat workspace/knowledge_base/gap-쿠팡-주.md</code> · <code>cat ch4-skills-mcp/brief_skill/SKILL.md</code><br><span style="color:var(--muted)">성공 기준: gap 항목에 <code>type: gap</code> 머리말, SKILL.md에 name·description.</span></p></div><div class="store">절차</div></div>
 </div>
 
