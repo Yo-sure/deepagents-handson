@@ -35,6 +35,17 @@ export default withMermaid({
       nodeTextColor: '#1b2a3a',
       lineColor: '#6b7a72',
       edgeLabelBackground: '#ffffff',
+      // xychart(막대·꺾은선) 팔레트 — 기본 크림색(#FFF4DD)은 연배경에서 대비가 낮아
+      // 얇은 선이 폰에서 사라진다. .lec 청록 팔레트로 채도를 올려 폰 가독 확보.
+      xyChart: {
+        plotColorPalette: '#0d9488, #d97706, #6b4fa3',
+        backgroundColor: '#eef3f1',
+        titleColor: '#1b2a3a',
+        xAxisLabelColor: '#1b2a3a',
+        yAxisLabelColor: '#1b2a3a',
+        xAxisTitleColor: '#1b2a3a',
+        yAxisTitleColor: '#1b2a3a',
+      },
     },
   },
   themeConfig: {
