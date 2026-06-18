@@ -38,7 +38,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 절차</div>
+<div class="eyebrow">1 · 절차 · 7분</div>
 
 ## SKILL.md — 점진 공개
 
@@ -94,7 +94,7 @@ version: 0.1.0
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">2 · 패키징</div>
+<div class="eyebrow">2 · 패키징 · 8분</div>
 
 ## plugin은 얇게
 
@@ -132,7 +132,7 @@ version: 0.1.0
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">3 · 연결</div>
+<div class="eyebrow">3 · 연결 · 10분</div>
 
 ## MCP — 파일은 실선, 메일은 목
 
@@ -179,7 +179,10 @@ flowchart LR
 </div></div>
 </div>
 
-<div class="ask" style="margin-top:18px"><strong>판단해 보기.</strong> 우리 서버에서 <code>fetch_inbox</code>는 <code>@mcp.tool()</code>인데 <code>inbox_stats</code>는 <code>@mcp.resource("inbox://stats")</code>입니다. 왜 통계는 Tool이 아니라 Resource로 노출했을까요?</div>
+<div class="cue solve" style="margin-top:18px">
+<div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~4분</span></div>
+<div class="cue-body">우리 서버에서 <code>fetch_inbox</code>는 <code>@mcp.tool()</code>인데 <code>inbox_stats</code>는 <code>@mcp.resource("inbox://stats")</code>입니다. 왜 통계는 Tool이 아니라 Resource로 노출했을까요?</div>
+</div>
 
 <details>
 <summary>정답 확인</summary>
@@ -193,7 +196,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">4 · 지식</div>
+<div class="eyebrow">4 · 지식 · 9분</div>
 
 ## OKF — 사람도 읽고 에이전트도 읽는다
 
@@ -254,7 +257,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ① · 코드 정독</div>
+<div class="eyebrow">핸즈온 ① · 코드 정독 · 10분</div>
 
 ## OKF 항목 하나가 만들어지는 법
 
@@ -326,7 +329,7 @@ if __name__ == "__main__":
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ② · 단계별 실행</div>
+<div class="eyebrow">핸즈온 ② · 단계별 실행 · 25분</div>
 
 ## 지식·연결·절차를 묶는다
 
@@ -338,6 +341,16 @@ if __name__ == "__main__":
 <div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code> + <code>knowledge_base/gap-쿠팡-주.md</code> 생성.</span></p></div><div class="store">지식</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 나온다(리소스 <code>inbox://stats</code>는 Tool과 별개로 노출).</span></p></div><div class="store">연결</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>Skill·지식 열어 보기</strong><p><code>cat workspace/knowledge_base/gap-쿠팡-주.md</code> · <code>cat ch4-skills-mcp/brief_skill/SKILL.md</code><br><span style="color:var(--muted)">성공 기준: gap 항목에 <code>type: gap</code> 머리말, SKILL.md에 name·description.</span></p></div><div class="store">절차</div></div>
+</div>
+
+<div class="cue do" style="margin-top:18px">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~3분</span></div>
+<div class="cue-body">2단계의 MCP 서버를 직접 띄워 클라이언트를 붙여 봅니다. <code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code>를 실행하면 stdio로 서버가 뜨고 도구 목록을 받아옵니다.</div>
+</div>
+
+<div class="cue wait" style="margin-top:12px">
+<div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~2분</span></div>
+<div class="cue-body">서버가 떠서 도구 목록이 돌아올 때까지 기다립니다. 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 보이는지, 리소스 <code>inbox://stats</code>가 Tool과 별개로 노출되는지 확인하세요. 목록이 안 보이면 서버가 아직 초기화 중이거나 <code>mcp[cli]</code> 의존성이 빠진 것입니다.</div>
 </div>
 
 <div class="panel" style="margin-top:18px">
@@ -355,7 +368,10 @@ if __name__ == "__main__":
 </div>
 </div>
 
-<div class="ask" style="margin-top:18px"><strong>직접 해보기.</strong> <code>okf_store.py</code>에서 구독 판정 기준 <code>amt &lt; 30000</code>을 <code>50000</code>으로 올리면 어떤 항목이 gap에서 subscription으로 바뀔까요?</div>
+<div class="cue solve" style="margin-top:18px">
+<div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~5분</span></div>
+<div class="cue-body"><code>okf_store.py</code>에서 구독 판정 기준 <code>amt &lt; 30000</code>을 <code>50000</code>으로 올리면 어떤 항목이 gap에서 subscription으로 바뀔까요?</div>
+</div>
 
 <details>
 <summary>관찰 포인트</summary>
@@ -369,7 +385,7 @@ if __name__ == "__main__":
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ③ · 트러블슈팅</div>
+<div class="eyebrow">핸즈온 ③ · 트러블슈팅 · 참고</div>
 
 ## 막히면 여기부터
 
@@ -396,7 +412,7 @@ if __name__ == "__main__":
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">마무리</div>
+<div class="eyebrow">마무리 · 3분</div>
 
 ## 다음 — 밖에 검증을 맡긴다
 

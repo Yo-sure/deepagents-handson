@@ -38,7 +38,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 위로 한 칸</div>
+<div class="eyebrow">1 · 위로 한 칸 · 6분</div>
 
 ## StateGraph로는 버거운 일
 
@@ -113,7 +113,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">2 · 한 줄</div>
+<div class="eyebrow">2 · 한 줄 · 7분</div>
 
 ## create_deep_agent의 기본 장비
 
@@ -152,7 +152,7 @@ agent = create_deep_agent(
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">3 · fan-out</div>
+<div class="eyebrow">3 · fan-out · 9분</div>
 
 ## 주제를 나눠 동시에
 
@@ -205,7 +205,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">4 · 발견</div>
+<div class="eyebrow">4 · 발견 · 6분</div>
 
 ## 영수증 없는 89,000원
 
@@ -238,7 +238,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ① · 코드 정독</div>
+<div class="eyebrow">핸즈온 ① · 코드 정독 · 8분</div>
 
 ## 한 갈래의 조사를 읽는다
 
@@ -284,7 +284,7 @@ def reconcile_card(records: list[RecordV1]) -> str:
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ② · 단계별 실행</div>
+<div class="eyebrow">핸즈온 ② · 단계별 실행 · 18분</div>
 
 ## 돌리고, 노트를 연다
 
@@ -296,6 +296,16 @@ def reconcile_card(records: list[RecordV1]) -> str:
 <div class="row"><div class="code">1</div><div class="copy"><strong>먼저 — Ch2 적재(없으면)</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>workspace/classified/</code>에 JSON 10개.</span></p></div><div class="store">classified</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[task]</code> 세 줄이 (순서가 뒤섞여) 뜨고 <code>research_notes/</code>에 노트 3개.</span></p></div><div class="store">노트 3</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>노트 열어 보기</strong><p><code>cat workspace/research_notes/card_reconcile.md</code><br><span style="color:var(--muted)">성공 기준: 쿠팡 89,000원이 ⚠️로 잡혀 있다.</span></p></div><div class="store">확인</div></div>
+</div>
+
+<div class="cue do" style="margin-top:18px">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~2분</span></div>
+<div class="cue-body">위 2번을 직접 실행합니다. <code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code>를 레포 루트에서 돌려 fan-out 조사를 시작하세요.</div>
+</div>
+
+<div class="cue wait" style="margin-top:14px">
+<div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~1–3분</span></div>
+<div class="cue-body">여러 하위 에이전트가 동시에 도는 동안 기다립니다. 시간이 걸리고, 출력의 <code>[task]</code> 세 줄 순서는 실행마다 달라질 수 있습니다. 먼저 끝난 갈래가 먼저 찍힙니다.</div>
 </div>
 
 <div class="panel" style="margin-top:18px">
@@ -314,7 +324,10 @@ def reconcile_card(records: list[RecordV1]) -> str:
 </div>
 </div>
 
-<div class="ask" style="margin-top:18px"><strong>관찰 포인트.</strong> 출력에서 <code>[task]</code> 세 줄의 순서가 실행할 때마다 뒤바뀝니다. 왜일까요?</div>
+<div class="cue check" style="margin-top:18px">
+<div class="cue-head"><span class="cue-label">👁 확인</span><span class="cue-time">~1분</span></div>
+<div class="cue-body">출력에서 <code>[task]</code> 세 줄의 순서가 실행할 때마다 뒤바뀝니다. 왜일까요?</div>
+</div>
 
 <details>
 <summary>정답 확인</summary>
@@ -328,7 +341,7 @@ def reconcile_card(records: list[RecordV1]) -> str:
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ③ · 트러블슈팅</div>
+<div class="eyebrow">핸즈온 ③ · 트러블슈팅 · 참고</div>
 
 ## 막히면 여기부터
 
@@ -357,7 +370,7 @@ def reconcile_card(records: list[RecordV1]) -> str:
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">마무리</div>
+<div class="eyebrow">마무리 · 3분</div>
 
 ## 다음 — 조사를 지식으로 남긴다
 

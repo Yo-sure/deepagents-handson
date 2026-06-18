@@ -38,7 +38,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 원리</div>
+<div class="eyebrow">1 · 원리 · 5분</div>
 
 ## 새로 짜지 않는다
 
@@ -64,7 +64,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">2 · 흐름</div>
+<div class="eyebrow">2 · 흐름 · 5분</div>
 
 ## 봉투 한 통이 흐르는 길
 
@@ -132,6 +132,11 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 </div></div></div>
 </div>
 
+<div class="cue do">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~10분</span></div>
+<div class="cue-body">analyst_app.py로 전 구간을 직접 흘립니다. 먼저 <code>--mock</code>으로 키 없이 끝까지 돌려 <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍히는지 보고, 그다음 <code>--a2a</code>를 더해 검증 단계가 실제 A2A 서버로 나가는 실호출까지 확인합니다.</div>
+</div>
+
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
 <div class="stack">
@@ -172,7 +177,15 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 </div>
 </div>
 
-<div class="ask" style="margin-top:18px"><strong>직접 해보기.</strong> 한 단계를 일부러 빼면(예: <code>run_okf()</code> 주석) 다음 단계가 어떻게 될까요? 그리고 <code>workspace/</code>를 지우고 다시 돌리면?</div>
+<div class="cue wait">
+<div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~3분</span></div>
+<div class="cue-body"><code>--a2a</code> 실행은 9610 포트에 검증 에이전트를 띄워 통신하므로 목 실행보다 몇 분 더 걸립니다. [5/6]에서 <code>Agent Card</code> 조회와 실제 서버 응답이 끝날 때까지 기다린 뒤, <code>workspace/verified_brief.md</code>를 열어 브리프 본문과 외부 검증 도장(<strong>PASS</strong>)이 한 파일에 함께 담겼는지 확인합니다.</div>
+</div>
+
+<div class="cue solve" style="margin-top:18px">
+<div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~5분</span></div>
+<div class="cue-body">한 단계를 일부러 빼면(예: <code>run_okf()</code> 주석) 다음 단계가 어떻게 될까요? 그리고 <code>workspace/</code>를 지우고 다시 돌리면?</div>
+</div>
 
 <details>
 <summary>관찰 포인트</summary>
@@ -182,7 +195,10 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 </div>
 </details>
 
-<div class="ask" style="margin-top:14px"><strong>한 건을 끝까지 따라가기.</strong> 카드 명세서에만 있고 영수증이 없는 결제 한 줄(예: 쿠팡)을 골라, 그 항목이 ① classified ② research_notes ③ knowledge_base ④ brief ⑤ verified_brief 다섯 산출물에서 각각 어떤 모양으로 나타나는지 추적하세요.</div>
+<div class="cue solve" style="margin-top:14px">
+<div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~7분</span></div>
+<div class="cue-body">카드 명세서에만 있고 영수증이 없는 결제 한 줄(예: 쿠팡)을 골라, 그 항목이 ① classified ② research_notes ③ knowledge_base ④ brief ⑤ verified_brief 다섯 산출물에서 각각 어떤 모양으로 나타나는지 추적하세요.</div>
+</div>
 
 <details>
 <summary>추적 답</summary>
@@ -216,7 +232,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">Wrap-up</div>
+<div class="eyebrow">Wrap-up · 3분</div>
 
 ## 8시간이 남긴 것
 
@@ -353,7 +369,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">전이</div>
+<div class="eyebrow">전이 · 2분</div>
 
 ## 내 일에 가져갈 씨앗
 
