@@ -148,7 +148,7 @@ flowchart TD
     VE -->|"합계 불일치 & 재시도 남음"| RT["retry · 재분류"]
     RT -->|"다시 분류"| CL
     VE -->|"고액·저신뢰 플래그"| RV["review · interrupt() 멈춤"]
-    VE -->|"이상 없음"| PS["persist · classified/ 적재"]
+    VE -->|"이상 없음 · 또는 재시도 상한 도달"| PS["persist · classified/ 적재"]
     RV --> PS
     PS --> E([END])
     style RV fill:#fff3e0,stroke:#e09f3e
@@ -214,7 +214,8 @@ flowchart TD
 <div class="board-header"><span>재시도는 무한 루프가 아니다</span><span class="status-pill">상한</span></div>
 <div class="panel-body"><div class="list">
 <p>같은 실패를 계속 반복하면 비용만 듭니다. <code>MAX_RETRY</code>로 두 번까지만 되돌리고, 넘으면 사람이 볼 큐로 보냅니다.</p>
-<p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성). 다만 mock에선 gold가 고정이라 재시도해도 같은 값이 나옵니다 — 재시도 분기는 키 있는 라이브 추출에서 의미가 있습니다. 한계를 정해 두는 게 하네스의 일입니다.</p>
+<p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아, 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성).</p>
+<p>다만 mock에선 gold가 고정이라 재시도해도 같은 값이 나옵니다. 재시도 분기는 키 있는 라이브 추출에서 의미가 있고, 한계를 정해 두는 게 하네스의 일입니다.</p>
 </div></div>
 </div>
 </section>
