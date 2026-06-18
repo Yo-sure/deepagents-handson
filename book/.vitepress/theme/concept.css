@@ -248,7 +248,10 @@
   .lec .matrix.matrix-7 .cell.warn:nth-child(7n){ background-color:#3a3320; box-shadow:inset 0 0 0 1px rgba(240,180,80,.5); }
 }
 
-/* mermaid 노드 라벨 마지막 글자 잘림 방지 — foreignObject 폭 과소측정 보정(전 다이어그램 공통) */
-.lec .mermaid .nodeLabel, .lec .mermaid .edgeLabel, .lec .mermaid .actor-box { white-space: nowrap; }
+/* mermaid 노드 라벨: 줄바꿈 허용 — nowrap이면 mermaid가 '줄바꿈 기준'으로 잰 박스보다
+   렌더 텍스트가 넓어져 긴 라벨이 박스 밖으로 흘러 잘린다(폰에서 특히). 노드는 wrap,
+   짧은 엣지/액터 라벨만 nowrap 유지. 한국어는 공백·중점 기준으로만 끊기게 keep-all. */
+.lec .mermaid .nodeLabel { white-space: normal; word-break: keep-all; overflow-wrap: anywhere; }
+.lec .mermaid .edgeLabel, .lec .mermaid .actor-box { white-space: nowrap; }
 .lec .mermaid foreignObject { overflow: visible; }
 .lec .mermaid .node foreignObject { overflow: visible; }
