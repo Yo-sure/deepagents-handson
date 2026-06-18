@@ -177,6 +177,11 @@
 .lec .cue.check { border-color:var(--blue);   background:rgba(40,90,160,.07); }
 .lec .cue.check .cue-label { color:var(--blue); }
 
+/* 챕터 내비 링크 — 터치 타깃 44px 확보(접근성). 좌/중/우 배치는 유지. */
+.lec .chapnav a { display:inline-flex; align-items:center; min-height:44px; }
+.lec .chapnav a:nth-child(2) { justify-self:center; }
+.lec .chapnav a:last-child { justify-self:end; }
+
 .lec div[class*="language-"].line-numbers-mode { padding-left: 42px; }
 .lec div[class*="language-"] .line-numbers-wrapper {
   position: absolute; top: 0; bottom: 0; left: 0; width: 42px;

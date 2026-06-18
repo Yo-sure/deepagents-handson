@@ -99,6 +99,7 @@ flowchart LR
 <div class="panel"><div class="panel-head"><strong>성능은 평평해졌다</strong><span>SWE-bench Verified · 2026 중반</span></div><div class="panel-body"><div class="list">
 <p>주력 모델 정확도가 88~89%대에 빽빽이 몰렸습니다(아래 막대).</p>
 <p>저비용 <strong>Gemini 3.5 Flash(약 78%)</strong>도 그 바로 아래까지 따라붙었습니다 — 프런티어 주력(88~89%대)끼리는 한 자릿수 %p 차로 몰려 있고요.</p>
+<p>Verified가 포화에 가까워지자 OpenAI·Google은 더 어려운 <strong>SWE-bench Pro</strong>로 무게추를 옮기는 중입니다 — 벤치가 포화할수록 차이는 모델이 아니라 하네스에서 납니다.</p>
 <p>수치는 게이트웨이·시점마다 달라지는 <strong>대략·예시값</strong>입니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>그래서 하네스다</strong><span>이 과정의 무게중심</span></div><div class="panel-body"><div class="list">
@@ -250,7 +251,7 @@ xychart-beta
 <div class="panel-body"><div class="list">
 <p><strong>충돌은 딱 한 지점입니다.</strong> 캐시는 프리픽스가 <strong>글자 단위로 같아야</strong> 적중하는데, 요약은 그 앞부분을 고쳐 쓰니 <em>요약하는 순간 그 프리픽스의 캐시가 깨집니다</em>(다시 전체 요금 + 새 캐시 쓰기 비용). 충돌은 그 한 지점뿐 — "압축하지 마라"가 아닙니다.</p>
 <p>오히려 압축은 자주 <strong>필수</strong>입니다. 컨텍스트가 창을 넘으면 압축(또는 파일 퇴피·검색)은 선택이 아니고, 길어질수록 가운데를 흘려(lost-in-the-middle) 품질로도 줄이는 게 낫습니다. 비용도 — 긴 기록은 캐시 읽기(~10%)라도 길이에 비례해 매 턴 쌓이지만, 한 번 줄이면 그 작은 프리픽스를 다시 캐시할 수 있어 <strong>턴이 쌓이면 대개 압축이 이깁니다</strong>(게다가 캐시는 TTL 5분~1시간 지나면 어차피 만료).</p>
-<p>그래서 진짜 규칙은 "<strong>너무 자주 요약하지 마라</strong>"입니다 — 매 턴 요약하면 캐시가 본전을 뽑기 전에 계속 깨집니다. 안 바뀌는 머리(시스템 프롬프트·고정 문서)는 캐시로 얼리고, 휘발성 꼬리는 쌓일 때 <strong>한꺼번에(batch)</strong> 요약 — 둘은 적이 아니라 분업입니다. <span style="color:var(--muted)">(캐시 읽기 ~10% Anthropic·50~90%↓ OpenAI, 쓰기 1.25×~2×, 같은 프리픽스 TTL 안 2회 재사용이면 본전.)</span></p>
+<p>그래서 진짜 규칙은 "<strong>너무 자주 요약하지 마라</strong>"입니다 — 매 턴 요약하면 캐시가 본전을 뽑기 전에 계속 깨집니다. 안 바뀌는 머리(시스템 프롬프트·고정 문서)는 캐시로 얼리고, 휘발성 꼬리는 쌓일 때 <strong>한꺼번에(batch)</strong> 요약 — 둘은 적이 아니라 분업입니다. <span style="color:var(--muted)">(캐시 읽기 단가 ≈ 원본의 10% — Anthropic·OpenAI 현 세대 공통, 구형 GPT-4o 계열은 ~50%. 쓰기 1.25×~2×, 같은 프리픽스 TTL 안 2회 재사용이면 본전.)</span></p>
 </div></div>
 </div>
 </section>

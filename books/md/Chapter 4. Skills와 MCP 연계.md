@@ -137,7 +137,7 @@ version: 0.1.0
 ## MCP — 파일은 실선, 메일은 목
 
 </div>
-<p class="section-note">MCP는 에이전트가 외부에 닿는 통로를 표준화합니다. 이 과정의 외부 연결은 둘로 고정합니다 — 파일은 실제로 연결하고, 메일은 목(mock) 데이터로 대신합니다.<br>
+<p class="section-note">MCP는 에이전트가 외부에 닿는 통로를 표준화합니다(2024년 Anthropic이 공개해 2025-12 Linux Foundation 산하 AAIF로 이관, 벤더 중립으로 운영). 이 과정의 외부 연결은 둘로 고정합니다 — 파일은 실제로 연결하고, 메일은 목(mock) 데이터로 대신합니다.<br>
 도구 이름과 docstring이 곧 모델이 보는 설명입니다. 모델은 이 이름과 설명을 읽고 어떤 도구를 부를지 정합니다.</p>
 </div>
 
@@ -321,7 +321,7 @@ if __name__ == "__main__":
 <div class="panel"><div class="panel-head"><strong>점진 공개는 어디서 작동하나</strong></div><div class="panel-body"><div class="list">
 <p>① <code>name·description</code>만 늘 시스템 프롬프트에. ② 맞으면 SKILL.md 본문. ③ <code>reference/brief_format.md</code>는 본문이 가리킬 때만.</p>
 <p>토큰을 단계로 나눠 쓰는 셈입니다 — Skill이 100개여도 평소엔 각 <code>description</code>(수십 토큰)만 올라가고, 본문·참조는 맞을 때만 펼칩니다.</p>
-<p>비슷한 압박이 MCP에도 있습니다. 서버 여러 개의 도구 정의를 통째로 붙이면 시작부터 도구 정의만 수만 토큰(예: ~51,000 토큰 — 108K 창이면 절반 가까이)이 깔립니다. 이건 <em>Skill의 점진 공개와는 다른 문제</em>로, 필요한 도구만 골라 올리는 선택적 로딩으로 줄입니다(Ch3 Select 전략).</p>
+<p>비슷한 압박이 MCP에도 있습니다. 서버 여러 개의 도구 정의를 통째로 붙이면 시작부터 도구 정의만 수만 토큰(예: ~51,000 토큰 — 108K 창이면 절반 가까이)이 깔립니다. 이건 <em>Skill의 점진 공개와는 다른 문제</em>로, 필요한 도구만 골라 올리는 선택적 로딩으로 줄입니다(Ch3 Select 전략). MCP 공식 로드맵도 이 선택적 로딩을 <strong>Tool Search</strong>로 정식 채택했습니다.</p>
 </div></div></div>
 </div>
 </section>
