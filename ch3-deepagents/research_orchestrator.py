@@ -28,8 +28,8 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from analyst import RecordV1  # noqa: E402
-from analyst.paths import (  # noqa: E402
+from analyst import RecordV1
+from analyst.paths import (
     CLASSIFIED,
     MANIFEST,
     RESEARCH_NOTES,

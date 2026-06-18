@@ -395,7 +395,7 @@ if __name__ == "__main__":
 
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>지식이 비어 있음</strong><span>입력</span></div><div class="panel-body"><div class="list">
-<p>okf_store는 classified 레코드가 필요합니다. Ch2·Ch3을 먼저 돌렸는지 확인하세요(없으면 gold 보충).</p>
+<p>okf_store는 classified 레코드가 필요합니다. Ch2·Ch3을 먼저 실행해 두세요 — 없으면 매니페스트의 정답값으로 자동 보충합니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>MCP 도구가 안 뜸</strong><span>점검</span></div><div class="panel-body"><div class="list">
 <p><code>--list</code> 없이 실행하면 stdio 서버로 대기합니다(정상). 도구 목록만 보려면 <code>--list</code>를 붙입니다.</p>

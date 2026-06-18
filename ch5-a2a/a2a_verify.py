@@ -29,7 +29,7 @@ from pathlib import Path
 import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from analyst.paths import VERIFIED_BRIEF, WORKSPACE, ensure_workspace  # noqa: E402
+from analyst.paths import VERIFIED_BRIEF, WORKSPACE, ensure_workspace
 
 BRIEF_DRAFT = WORKSPACE / "brief_draft.md"
 VERIFIER_URL = "http://localhost:9610"

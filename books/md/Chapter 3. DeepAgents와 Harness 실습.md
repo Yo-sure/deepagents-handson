@@ -232,7 +232,7 @@ flowchart TB
 </div>
 </div>
 
-<p class="section-note" style="margin-top:16px">Ch0에서 문서를 서로 연결해 둔 설계가 여기서 효과를 냅니다. 카드 명세서와 영수증이 일부러 어긋나게 만들어졌고, 조사가 그 틈을 정확히 집어냅니다.</p>
+<p class="section-note" style="margin-top:16px">Ch0에서 문서를 서로 연결해 둔 설계가 여기서 효과를 냅니다. 카드 명세서와 영수증이 서로 어긋나는 항목이 섞여 있어, 조사가 그 틈을 정확히 집어냅니다.</p>
 </section>
 
 <section class="slide">

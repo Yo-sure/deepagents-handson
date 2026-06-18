@@ -28,3 +28,9 @@ build-backend = "hatchling.build"
 # 공유 데이터 계약 analyst/ 만 설치형 패키지(전 챕터가 어디서 실행되든 import). ch*/ 는 스크립트.
 [tool.hatch.build.targets.wheel]
 packages = ["analyst"]
+
+# 교재 코드는 그대로 학생에게 보여 주므로 본문에 린터 주석(# noqa)을 남기지 않는다.
+# 대신 의도된 두 패턴만 여기서 한 번에 끈다 — 다른 챕터 부품을 재사용하려 sys.path를
+# 손본 뒤 import(E402), mock 폴백을 위한 광역 except(BLE001).
+[tool.ruff.lint]
+ignore = ["E402", "BLE001"]

@@ -238,7 +238,7 @@ def main() -> None:
             try:
                 acc = score(extract_singleshot(args.doc, m), gold)
                 print(f"{m:32} {acc:>6.0%}")
-            except Exception as e:  # noqa: BLE001 — 키/네트워크 없으면 건너뜀
+            except Exception as e:  # 키/네트워크 없으면 건너뜀
                 print(f"{m:32} {'skip':>6}  ({type(e).__name__})")
         return
 

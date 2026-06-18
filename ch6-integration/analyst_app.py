@@ -26,7 +26,7 @@ for sub in ("", "ch1-llm-basics", "ch2-langgraph-agent", "ch3-deepagents",
             "ch4-skills-mcp", "ch5-a2a"):
     sys.path.insert(0, str(ROOT / sub))
 
-from analyst.paths import BRIEF, CLASSIFIED, MANIFEST, WORKSPACE, ensure_workspace  # noqa: E402
+from analyst.paths import BRIEF, CLASSIFIED, MANIFEST, WORKSPACE, ensure_workspace
 
 
 def step(n: int, title: str) -> None:

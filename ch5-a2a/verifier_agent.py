@@ -41,7 +41,7 @@ from starlette.applications import Starlette
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ch3-deepagents"))
-from research_orchestrator import by_type, load_records  # noqa: E402
+from research_orchestrator import by_type, load_records
 
 PORT = 9610
 URL = f"http://localhost:{PORT}"

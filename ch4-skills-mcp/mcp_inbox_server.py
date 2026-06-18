@@ -23,7 +23,7 @@ from pathlib import Path
 from mcp.server.fastmcp import FastMCP
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from analyst.paths import CLASSIFIED, KNOWLEDGE_BASE  # noqa: E402
+from analyst.paths import CLASSIFIED, KNOWLEDGE_BASE
 
 mcp = FastMCP("inbox-mcp-server")
 

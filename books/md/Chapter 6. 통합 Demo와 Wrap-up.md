@@ -11,7 +11,7 @@ pageClass: lec-page
 
 <section class="slide hero">
 <div>
-<div class="eyebrow">Chapter 6 · 통합 캡스톤 · Wrap-up</div>
+<div class="eyebrow">Chapter 6 · 통합 캡스톤 · 마무리</div>
 
 # 부품을,<br>한 줄기로 잇는다
 
@@ -232,7 +232,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">Wrap-up · 3분</div>
+<div class="eyebrow">마무리 · 3분</div>
 
 ## 8시간이 남긴 것
 

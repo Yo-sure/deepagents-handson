@@ -33,11 +33,11 @@ from langgraph.types import Command, interrupt
 
 # Ch1 부품을 그대로 재사용한다 — "부품은 갈아끼우고 계약은 재사용".
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from analyst import RecordV1  # noqa: E402
-from analyst.paths import CLASSIFIED, ensure_workspace  # noqa: E402
+from analyst import RecordV1
+from analyst.paths import CLASSIFIED, ensure_workspace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ch1-llm-basics"))
-from classify_one import extract, load_gold, verify_total  # noqa: E402
+from classify_one import extract, load_gold, verify_total
 
 HIGH_VALUE = 1_000_000  # 고액 기준(원)
 LOW_CONFIDENCE = 0.7    # 저신뢰 기준

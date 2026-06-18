@@ -21,11 +21,11 @@ from collections import defaultdict
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from analyst import RecordV1  # noqa: E402
-from analyst.paths import KNOWLEDGE_BASE, ensure_workspace  # noqa: E402
+from analyst import RecordV1
+from analyst.paths import KNOWLEDGE_BASE, ensure_workspace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ch3-deepagents"))
-from research_orchestrator import by_type, load_records  # noqa: E402
+from research_orchestrator import by_type, load_records
 
 OKF_VERSION = "okf/0.1"
 
