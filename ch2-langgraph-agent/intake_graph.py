@@ -89,11 +89,12 @@ def review(state: IntakeState) -> dict:
         "문서유형": rec["문서유형"],
         "질문": "이 분류를 그대로 적재할까요? (approve / reject)",
     })
-    if decision == "reject":
-        print("  [review] 반려 — 적재 보류")
-        return {"flagged": "rejected"}
-    print("  [review] 승인 — 적재 진행")
-    return {"flagged": ""}
+    if decision == "approve":
+        print("  [review] 승인 — 적재 진행")
+        return {"flagged": ""}
+    # approve가 아니면(reject·오타·빈 응답) 안전하게 보류한다 — 안전 게이트는 fail-closed
+    print(f"  [review] 보류 — 적재 안 함 (결정: {decision!r})")
+    return {"flagged": "rejected"}
 
 
 def persist(state: IntakeState) -> dict:
