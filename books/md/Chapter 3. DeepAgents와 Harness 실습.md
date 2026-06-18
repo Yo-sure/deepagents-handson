@@ -152,7 +152,7 @@ agent = create_deep_agent(
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">3 · fan-out · 9분</div>
+<div class="eyebrow">3 · fan-out · 12분</div>
 
 ## 주제를 나눠 동시에
 
@@ -198,6 +198,31 @@ flowchart TB
 <div class="panel-body"><div class="list">
 <p>세 조사는 서로의 결과를 기다리지 않습니다. 그래서 순서대로가 아니라 한꺼번에 돌립니다.</p>
 <p>실습 코드는 mock에서도 스레드로 동시에 실행해 fan-out을 그대로 보여 줍니다. 키가 있으면 같은 일을 서브에이전트가 맡습니다.</p>
+</div></div>
+</div>
+
+<p class="section-note" style="margin-top:18px">이 구조엔 이름이 있습니다 — <strong>오케스트레이터-워커(Orchestrator–Worker)</strong> 패턴. Anthropic이 멀티에이전트 리서치 시스템을 설명하며 정식화한 형태입니다. 리드(오케스트레이터)가 작업을 <em>런타임에</em> 쪼개 — <strong>몇 갈래가 될지 미리 모릅니다</strong> — 각 워커에 위임하고, 결과를 모아 종합합니다. 갈래 수가 입력마다 달라지는 게 정해진 파이프라인(프롬프트 체이닝)과의 차이입니다.</p>
+
+<div class="board" style="margin-top:16px">
+<div class="board-header"><span>오케스트레이터-워커 — 실제 메커니즘</span><span class="status-pill">Anthropic 리서치 시스템</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>① 계획을 메모리에 먼저 박는다</strong> — 리드가 계획을 세워 <em>외부 메모리에 저장</em>합니다. 컨텍스트가 한도에 가까워져 리셋돼도 계획을 잃지 않도록.</p>
+<p><strong>② 워커는 각자 격리된 컨텍스트</strong> — 3~5개를 병렬로 띄우되, 각 워커에 <em>목표·출력형식·도구·작업경계</em>를 명시해 줍니다. 위임이 모호하면 워커끼리 같은 걸 중복 조사합니다.</p>
+<p><strong>③ 노력을 규모에 맞춘다</strong> — "단순 사실=워커 1개·도구 3~10회, 복잡=워커 10+개로 범위 분할". 사소한 질문에 50개를 띄우는 게 대표적 실패입니다.</p>
+<p><strong>④ 종합은 한 에이전트가</strong> — 합치고 인용을 다는 마지막 글쓰기는 <em>쪼개지 않고</em> 한 곳에서. 병렬 작성자는 서로 충돌하기 때문입니다.</p>
+<p class="tiny" style="margin-top:6px;color:var(--muted)">한계: 워커는 동기적입니다 — 리드는 전원이 끝날 때까지 기다리며 중간에 방향을 못 바꿉니다. 그래서 토큰을 단일 채팅의 ~15배까지 쓰니, <strong>가치 높고 병렬 가능한 일</strong>에만 값을 합니다.</p>
+</div></div>
+</div>
+
+<div class="board" style="margin-top:16px">
+<div class="board-header"><span>패턴 지도 — 우리 파이프라인이 어디에 닿나</span><span class="status-pill">classify→research→verify→brief</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>프롬프트 체이닝</strong> — 고정 순서로 단계마다 출력을 넘김. <em>분류→브리프의 등뼈</em>가 이것.</p>
+<p><strong>라우팅</strong> — 입력을 분류해 전담 핸들러로 보냄. <em>뉴스레터/회의요청/조사필요로 가르고, 쉬운 건 싼 모델·어려운 건 강한 모델로.</em></p>
+<p><strong>병렬화</strong> — 쪼개기(독립 하위작업 동시 실행)와 투표(같은 작업 N번 후 다수결). <em>조사 fan-out은 쪼개기, 피싱 판정 3번 다수결은 투표.</em></p>
+<p><strong>오케스트레이터-워커</strong> — 갈래 수를 런타임에 정해 위임·종합. <em>이번 절의 조사가 이것.</em></p>
+<p><strong>평가자-최적화자</strong> — 생성기와 별도 비평가가 기준으로 채점→피드백→통과까지 반복. <em>다음 챕터의 "검증" 단계.</em></p>
+<p style="margin-top:6px"><strong>한 줄 원칙</strong>: 가장 단순한 것부터, 멀티에이전트는 <em>읽기·수집엔 강하고 쓰기·확정엔 약합니다</em>. 병렬로 모으되, 최종 글은 한 에이전트가 씁니다.</p>
 </div></div>
 </div>
 </section>

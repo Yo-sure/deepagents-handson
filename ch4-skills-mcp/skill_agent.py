@@ -3,7 +3,7 @@
 deepagents의 **SkillsMiddleware**가 핵심이다. 에이전트가 시작할 때(before_agent)
 스킬 디렉터리를 훑어 SKILL.md 앞머리(frontmatter)의 name·description만 시스템
 프롬프트에 싣는다(1단계). 본문은 모델이 "이 작업에 맞다"고 판단할 때 read_file로
-가져오고(2단계), reference/*.md는 본문이 가리킬 때만 펼친다(3단계). 이게 컨텍스트를
+가져오고(2단계), references/*.md는 본문이 가리킬 때만 펼친다(3단계). 이게 컨텍스트를
 아끼는 progressive disclosure다 — Skill이 100개여도 1단계는 각 수십 토큰뿐이다.
 
     uv run python3 ch4-skills-mcp/skill_agent.py --show   # 미들웨어가 무엇을 싣는지 (키 불필요)
@@ -42,11 +42,18 @@ def show_progressive_disclosure() -> None:
         fm = yaml.safe_load(text.split("---")[1])  # 미들웨어가 읽는 것도 이 앞머리다
         print(f"  • {fm['name']}  (dir: {skill_dir.name})")
         print(f"    description: {fm['description']}")
+        # 표준 스키마의 나머지 필드 — 있으면 그대로 보여 준다(없으면 건너뜀).
+        if fm.get("license"):
+            print(f"    license: {fm['license']}")
+        if fm.get("allowed-tools"):
+            print(f"    allowed-tools: {fm['allowed-tools']}  (실험적 — 제한이 아니라 사전승인)")
+        if fm.get("metadata"):
+            print(f"    metadata: {fm['metadata']}  (version·author는 표준상 여기 들어간다)")
         print(f"    path: {md.relative_to(REPO)}")
         print(f"    (본문 {len(text.splitlines())}줄은 아직 안 읽음 — description이 작업과 맞을 때 read_file)\n")
 
     print("[2단계] 모델이 'description이 내 작업과 맞다' → read_file(path, limit=1000)로 본문을 가져온다.")
-    print("[3단계] 본문이 reference/*.md를 가리키면 그때만 그 파일을 read_file 한다.\n")
+    print("[3단계] 본문이 references/*.md를 가리키면 그때만 그 파일을 read_file 한다.\n")
     print(f"미들웨어({type(skills_mw).__name__})가 시스템 프롬프트에 'Skills System' 섹션으로 위 목록을 싣고,")
     print("'필요할 때 read_file로 본문을 읽으라'는 사용법까지 함께 주입한다.")
 

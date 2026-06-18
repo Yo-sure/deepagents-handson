@@ -38,29 +38,31 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 절차 · 12분</div>
+<div class="eyebrow">1 · 절차 · 15분</div>
 
 ## SKILL.md — 점진 공개
 
 </div>
-<p class="section-note">Skill은 에이전트에게 절차적 지식을 주는 마크다운 파일입니다. 앞머리에 이름과 설명을 달고, 본문에 방법을 적습니다.<br>
-핵심은 <strong>3단계 점진 공개</strong>입니다. ① 시작 시 모든 Skill의 <code>name·description</code>만 시스템 프롬프트에 올라갑니다(항상 켜지지만 쌉니다). ② description이 작업과 맞으면 그때 <strong>SKILL.md 본문</strong>을 읽습니다. ③ <code>reference/*.md</code>·스크립트는 본문이 가리킬 때만 펼칩니다. 그래서 <em>description 한 줄이 호출 여부를 정하는 가장 중요한 필드</em>입니다.</p>
+<p class="section-note">Skill은 에이전트에게 절차적 지식을 주는 마크다운 파일입니다. 앞머리(YAML frontmatter)에 메타데이터를 달고, 본문에 방법을 적습니다. 포맷은 Anthropic이 만들어 <strong>오픈 표준(agentskills.io)</strong>으로 풀었고, 지금은 Claude Code·Cursor·Codex·Copilot 등이 같은 SKILL.md를 읽습니다.<br>
+핵심은 <strong>3단계 점진 공개</strong>입니다. ① 시작 시 모든 Skill의 <code>name·description</code>만 시스템 프롬프트에 올라갑니다(항상 켜지지만 쌉니다). ② description이 작업과 맞으면 그때 <strong>SKILL.md 본문</strong>을 읽습니다. ③ <code>references/*.md</code>·스크립트는 본문이 가리킬 때만 펼칩니다. 그래서 <em>description 한 줄이 호출 여부를 정하는 가장 중요한 필드</em>입니다.</p>
 </div>
 
 <div class="grid-3">
-<div class="panel"><div class="panel-head"><strong>1단계 — 메타</strong><span>name · description</span></div><div class="panel-body"><div class="list">
-<p>언제 이 Skill을 쓰는지 한 줄로</p>
-<p>에이전트는 이것만 보고 호출을 판단합니다</p>
+<div class="panel"><div class="panel-head"><strong>1단계 — 메타</strong><span>Skill당 ~100토큰</span></div><div class="panel-body"><div class="list">
+<p><code>name · description</code> — 언제 쓰는지 한 줄로</p>
+<p>에이전트는 이것만 보고 호출을 판단합니다(Skill 100개여도 각 ~100토큰)</p>
 </div></div></div>
-<div class="panel"><div class="panel-head"><strong>2단계 — 본문</strong><span>SKILL.md 절차</span></div><div class="panel-body"><div class="list">
+<div class="panel"><div class="panel-head"><strong>2단계 — 본문</strong><span>&lt;5k토큰 · &lt;500줄</span></div><div class="panel-body"><div class="list">
 <p>입력·절차·출력 형식·톤</p>
-<p>호출이 정해지면 이때 읽습니다</p>
+<p>호출이 정해지면 이때 read_file로 읽습니다</p>
 </div></div></div>
-<div class="panel"><div class="panel-head"><strong>3단계 — 참조</strong><span>reference/*.md</span></div><div class="panel-body"><div class="list">
-<p>세부 형식·예시는 따로 둡니다</p>
-<p>실제로 쓸 때만 펼쳐 봅니다</p>
+<div class="panel"><div class="panel-head"><strong>3단계 — 리소스</strong><span>사실상 무제한</span></div><div class="panel-body"><div class="list">
+<p><code>references/*.md</code> · <code>scripts/</code> · <code>assets/</code></p>
+<p>가리킬 때만 펼침. 스크립트는 <em>실행만</em> 하면 코드가 아니라 결과만 컨텍스트에 들어옵니다</p>
 </div></div></div>
 </div>
+
+<p class="section-note" style="margin-top:6px">표준이 단계마다 토큰 예산을 못 박아 둡니다 — 1단계는 Skill당 ~100토큰(항상 켜짐), 2단계 본문은 5,000토큰·500줄 미만 권장, 3단계 리소스는 제한 없음. agentskills.io는 이 셋을 <strong>Discovery → Activation → Execution</strong>, Anthropic은 <strong>Level 1 / 2 / 3</strong>이라 부릅니다 — 같은 개념입니다.</p>
 
 <div class="panel" style="margin-top:16px">
 <div class="panel-head"><strong>토큰은 단계로 펼쳐진다</strong><span>점진 공개 3단계</span></div>
@@ -70,7 +72,7 @@ pageClass: lec-page
 flowchart TB
     A["① name · description — 항상 로드<br/>(Skill 100개여도 각 수십 토큰씩만)"]
     B["② SKILL.md 본문 — description이 작업과 맞을 때"]
-    C["③ reference/*.md · 스크립트 — 본문이 가리킬 때만"]
+    C["③ references/*.md · 스크립트 — 본문이 가리킬 때만"]
     A --> B --> C
     style A fill:#e8f5e9,stroke:#0f766e
     style C fill:#fff3e0,stroke:#e09f3e
@@ -81,13 +83,17 @@ flowchart TB
 
 ```markdown
 ---
-name: inbox-brief
-description: 분류 레코드·OKF 지식·조사 노트를 모아 월간 브리프를 작성한다.
+name: inbox-brief                      # 1–64자 소문자+하이픈 · 디렉터리명과 일치(필수)
+description: 분류 레코드·OKF 지식·조사 노트를 모아 월간 브리프를 작성한다.   # 무엇+언제(필수)
   "이번 달 인박스 정리", "지출 브리프"를 요청할 때 쓴다.
-version: 0.1.0
+license: MIT                           # 선택 — 라이선스 이름/파일 참조
+allowed-tools: read_file write_file ls # 선택·실험적 — 공백 구분, 제한이 아니라 사전승인
+metadata:                              # 선택 — string 맵. version·author는 표준상 여기로
+  version: 0.2.0
+  author: deepagents-handson
 ---
 # 인박스 브리프 작성
-## 입력 ... ## 절차 ... ## 출력 형식 → reference/brief_format.md (필요할 때만)
+## 입력 ... ## 절차 ... ## 출력 형식 → references/brief_format.md (필요할 때만)
 ```
 
 <p class="section-note" style="margin-top:18px">개념은 이렇고 — <strong>그럼 에이전트는 이 SKILL.md를 실제로 어떻게 읽을까요?</strong> deepagents는 이 점진 공개를 <code>SkillsMiddleware</code>로 구현합니다. 에이전트가 시작할 때(<code>before_agent</code>) 스킬 디렉터리를 훑어 <strong>앞머리의 name·description만</strong> 시스템 프롬프트의 "Skills System" 섹션에 싣고, 본문은 모델이 <code>read_file</code>로 필요할 때 가져옵니다. 손으로 토큰을 자르는 게 아니라 미들웨어가 단계로 펼쳐 줍니다.</p>
@@ -127,7 +133,7 @@ sequenceDiagram
     Note over M: 사용자 작업이 description과 맞나?
     M->>FS: ② read_file(SKILL.md, limit=1000)
     FS-->>M: 본문(입력·절차·톤)
-    M->>FS: ③ read_file(reference/brief_format.md)
+    M->>FS: ③ read_file(references/brief_format.md)
     FS-->>M: 세부 형식 — 본문이 가리킬 때만
 ```
 
@@ -144,11 +150,14 @@ sequenceDiagram
   • inbox-brief  (dir: inbox-brief)
     description: 분류된 인박스 레코드와 OKF 지식·조사 노트를 모아 월간 브리프(brief.md)를
                  작성한다. 사용자가 "이번 달 인박스 정리", "지출 브리프"를 요청할 때 쓴다.
+    license: MIT
+    allowed-tools: read_file write_file ls  (실험적 — 제한이 아니라 사전승인)
+    metadata: {'version': '0.2.0', 'author': 'deepagents-handson'}  (version·author는 표준상 여기)
     path: ch4-skills-mcp/inbox-brief/SKILL.md
-    (본문 27줄은 아직 안 읽음 — description이 작업과 맞을 때 read_file)
+    (본문 31줄은 아직 안 읽음 — description이 작업과 맞을 때 read_file)
 
 [2단계] 모델이 'description이 내 작업과 맞다' → read_file(path, limit=1000)로 본문을 가져온다.
-[3단계] 본문이 reference/*.md를 가리키면 그때만 그 파일을 read_file 한다.
+[3단계] 본문이 references/*.md를 가리키면 그때만 그 파일을 read_file 한다.
 ```
 
 </div>
@@ -159,6 +168,29 @@ sequenceDiagram
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~3분</span></div>
 <div class="cue-body"><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. 키 없이도 <strong>미들웨어가 시스템 프롬프트에 무엇을 싣는지</strong>(메타데이터만)와, 본문이 아직 안 읽혔다는 점을 직접 봅니다. 키가 있으면 <code>--run</code>으로 에이전트가 본문을 read_file 하는 것까지 확인하세요.</div>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>SKILL.md 앞머리 — 표준 메타데이터 필드</span><span class="status-pill">agentskills.io 스펙</span></div>
+<div class="panel-body"><div class="list">
+<p><span class="badge">필수</span> <strong>name</strong> — 1–64자, 소문자·숫자·하이픈만(연속 <code>--</code>·앞뒤 하이픈 금지). <strong>디렉터리 이름과 일치</strong>해야 합니다. Anthropic 구현은 추가로 <code>claude·anthropic</code> 예약어와 XML 태그를 금지합니다.</p>
+<p><span class="badge">필수</span> <strong>description</strong> — 1–1024자. <em>무엇을 하는지 + 언제 쓰는지</em>를 한 문장에. 사용자가 실제로 칠 키워드를 넣습니다 — 이 한 줄로 모델이 호출을 정합니다.</p>
+<p><strong>license</strong> — 라이선스 이름 또는 번들 파일 참조(짧게).</p>
+<p><strong>compatibility</strong> — ≤500자. 필요한 제품·시스템 패키지·네트워크 등 환경 요건. 대부분 스킬엔 불필요합니다.</p>
+<p><strong>metadata</strong> — string→string 자유 맵. <strong>version·author는 여기 넣습니다</strong> — 표준엔 최상위 <code>version</code> 필드가 없습니다(흔한 오해).</p>
+<p><span class="badge amber">실험적</span> <strong>allowed-tools</strong> — 공백 구분 도구 목록. <strong>제한이 아니라 사전승인</strong>(권한 프롬프트를 건너뜀)이고, 지원은 구현마다 다릅니다.</p>
+</div></div>
+</div>
+
+<p class="section-note" style="margin-top:14px"><strong>description가 곧 라우터입니다</strong> — 1단계에서 모델은 본문을 안 보고 description만으로 펼칠지 정합니다. 그래서 <em>무엇 + 언제 + 키워드</em>가 다 들어가야 합니다.<br>
+<span class="badge">좋음</span> "PDF에서 텍스트·표를 추출하고 양식을 채운다. PDF·양식·문서 추출을 다룰 때 쓴다." &nbsp;·&nbsp; <span class="badge red">나쁨</span> "PDF를 돕는다."(언제 쓰는지가 없어 모델이 호출 판단을 못 합니다)</p>
+
+<div class="board" style="margin-top:16px">
+<div class="board-header"><span>벤더 슈퍼셋 — Claude Code가 더 얹는 필드</span><span class="status-pill">이식성 주의</span></div>
+<div class="panel-body"><div class="list">
+<p>표준 6필드는 어디서나 읽힙니다. Claude Code는 그 위에 <code>when_to_use</code>(트리거 예시) · <code>context: fork</code>(포크된 서브에이전트로 실행 — 아래 FORK) · <code>agent</code>(서브에이전트 종류) · <code>model</code> · <code>disable-model-invocation</code>(사용자만 호출)을 더 둡니다. 단, Claude Code는 <code>name</code>을 선택으로 두고 <em>디렉터리명</em>으로 명령을 만듭니다 — 표준과 갈리는 지점.</p>
+<p><strong>이식성 규칙</strong>: 핵심은 표준 6필드로 쓰고(name=디렉터리, version은 metadata 안, 본문 &lt;500줄), 벤더 전용 필드는 그 위 선택으로만 — 다른 런타임에선 무시될 뿐 깨지진 않습니다. 검증은 레퍼런스 도구 <code>skills-ref validate ./inbox-brief</code>로.</p>
+</div></div>
 </div>
 
 <div class="board" style="margin-top:18px">
@@ -189,7 +221,7 @@ sequenceDiagram
 ```json
 {
   "name": "inbox-brief",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "인박스 리서치 애널리스트의 월간 브리프 작성 스킬",
   "skills": ["./SKILL.md"],
   "tags": ["inbox", "brief", "okf"]
@@ -202,7 +234,7 @@ sequenceDiagram
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>inbox-brief/ 구성</span><span class="status-pill">디렉터리</span></div>
 <div class="panel-body"><div class="list">
-<p><code>SKILL.md</code> — 절차(1·2단계) · <code>reference/brief_format.md</code> — 세부 형식(3단계)</p>
+<p><code>SKILL.md</code> — 절차(1·2단계) · <code>references/brief_format.md</code> — 세부 형식(3단계)</p>
 <p><code>plugin.json</code> — 배포 매니페스트. 세 파일이 한 봉투에 들어가 재사용됩니다.</p>
 </div></div>
 </div>
@@ -398,7 +430,7 @@ if __name__ == "__main__":
 <p>모델은 그 docstring을 읽고 어떤 도구를 부를지 정합니다 — 그래서 설명을 또렷이 씁니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>점진 공개는 어디서 작동하나</strong></div><div class="panel-body"><div class="list">
-<p>① <code>name·description</code>만 늘 시스템 프롬프트에. ② 맞으면 SKILL.md 본문. ③ <code>reference/brief_format.md</code>는 본문이 가리킬 때만.</p>
+<p>① <code>name·description</code>만 늘 시스템 프롬프트에. ② 맞으면 SKILL.md 본문. ③ <code>references/brief_format.md</code>는 본문이 가리킬 때만.</p>
 <p>토큰을 단계로 나눠 쓰는 셈입니다 — Skill이 100개여도 평소엔 각 <code>description</code>(수십 토큰)만 올라가고, 본문·참조는 맞을 때만 펼칩니다.</p>
 <p>비슷한 압박이 MCP에도 있습니다. 서버 여러 개의 도구 정의를 통째로 붙이면 시작부터 도구 정의만 수만 토큰(예: ~51,000 토큰 — 108K 창이면 절반 가까이)이 깔립니다. 이건 <em>Skill의 점진 공개와는 다른 문제</em>로, 필요한 도구만 골라 올리는 선택적 로딩으로 줄입니다(Ch3 Select 전략). MCP 공식 로드맵도 이 선택적 로딩을 <strong>Tool Search</strong>로 정식 채택했습니다.</p>
 </div></div></div>
