@@ -346,6 +346,22 @@ flowchart TB
 여러분의 문서 더미가 계약서든 로그든 논문이든, 부품을 갈아끼우면 같은 골격이 돕니다.</p>
 </div>
 
+```mermaid
+flowchart LR
+  IN["문서 더미<br/>계약서·로그·논문"]:::swap --> N["계약으로 정규화<br/>RecordV1 → 내 스키마"]:::swap
+  N --> S["나눠 조사<br/>reconcile → 내 질문"]:::swap
+  S --> K["지식으로 적재<br/>OKF 표준"]:::keep
+  K --> V["외부에 검증<br/>A2A 경계"]:::keep
+  V --> OUT["검증된 산출물"]:::keep
+  classDef swap fill:#fef3c7,stroke:#d97706,color:#7c2d12;
+  classDef keep fill:#ccfbf1,stroke:#0f766e,color:#0f5132;
+```
+
+<div class="legend" style="margin-top:8px">
+<span class="lpill"><span class="ldot" style="background:#f59e0b"></span>바꿀 것 — 부품(도메인마다 다름)</span>
+<span class="lpill"><span class="ldot" style="background:#5eead4"></span>그대로 둘 것 — 골격(어디서나 같음)</span>
+</div>
+
 <div class="grid-3">
 <div class="panel"><div class="panel-head"><strong>바꿀 것</strong><span>부품</span></div><div class="panel-body"><div class="list">
 <p>RecordV1 필드를 내 도메인에 맞게</p>
