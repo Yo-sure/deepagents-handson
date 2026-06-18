@@ -19,7 +19,7 @@ pageClass: lec-page
 이 챕터에서 브리프 쓰는 절차를 SKILL.md로 정의하고, 파일과 메일을 MCP 한 겹으로 표준화하고, 조사 결과를 OKF 지식으로 적재합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">80</span><strong>분</strong><span>이론 30 · 핸즈온 50</span></div>
+<div class="metric"><span class="num">80</span><strong>분</strong><span>이론 30 · 핸즈온 50</span><span class="clk">예상 13:30–14:50 · 앞 🍽점심</span></div>
 <div class="metric"><span class="num">3</span><strong>겹의 능력</strong><span>Skill · MCP · OKF</span></div>
 <div class="metric"><span class="num">12</span><strong>지식 항목</strong><span>knowledge_base/*.md</span></div>
 </div>

@@ -19,7 +19,7 @@ pageClass: lec-page
 부품을 끼워, 메일 봉투 한 통이 분류부터 검증까지 한 번에 흐르는 엔드투엔드를 배선합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">90</span><strong>분</strong><span>이론 15 · 핸즈온 75</span></div>
+<div class="metric"><span class="num">90</span><strong>분</strong><span>이론 15 · 핸즈온 75</span><span class="clk">예상 16:10–17:40</span></div>
 <div class="metric"><span class="num">6</span><strong>부품 배선</strong><span>analyst_app.py</span></div>
 <div class="metric"><span class="num">1</span><strong>검증된 브리프</strong><span>verified_brief.md</span></div>
 </div>

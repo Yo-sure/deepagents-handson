@@ -19,7 +19,7 @@ pageClass: lec-page
 그 과정에서 LLM이 왜 혼자서는 부족한지, 에이전트가 무엇을 더하는지를 손으로 확인합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">45</span><strong>분</strong><span>이론 25 · 핸즈온 20</span></div>
+<div class="metric"><span class="num">45</span><strong>분</strong><span>이론 25 · 핸즈온 20</span><span class="clk">예상 9:20–10:05</span></div>
 <div class="metric"><span class="num">4</span><strong>한계</strong><span>LLM이 에이전트를 부르는 이유</span></div>
 <div class="metric"><span class="num">1</span><strong>첫 부품</strong><span>classify_one.py</span></div>
 </div>

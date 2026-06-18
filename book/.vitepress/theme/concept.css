@@ -44,6 +44,8 @@
 .lec .metric .num { display:block; color: var(--forest); font-family: Georgia, serif; font-size: 34px; font-weight: 900; line-height: 1; }
 .lec .metric strong { display:block; margin-top:9px; font-size:13px; }
 .lec .metric span { display:block; margin-top:4px; color:var(--muted); font-size:12px; line-height:1.45; }
+/* 예상 시각 — 9시 시작 기준, 아주 약하게. 운영 중 조율용 앵커(절대값이라 늦어지면 어긋남 — '예상'·흐릿함이 그 신호) */
+.lec .metric .clk { display:block; margin-top:6px; color:var(--muted); opacity:.62; font-size:11px; font-weight:700; letter-spacing:.01em; }
 
 .lec .board { position:relative; padding:22px; background:var(--white); border:1px solid var(--line); border-radius:var(--radius); box-shadow:var(--shadow); overflow:hidden; }
 .lec .board::before { content:""; position:absolute; inset:0; opacity:.34; pointer-events:none;

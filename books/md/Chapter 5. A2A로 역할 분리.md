@@ -19,7 +19,7 @@ pageClass: lec-page
 이 챕터에서 브리프를 외부 검증 에이전트에 A2A로 보냅니다. 그 에이전트는 서명 가능한 Agent Card로 자신을 밝히고, 원본 레코드를 독립으로 다시 계산해 PASS/FAIL을 답합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 28 · 핸즈온 42</span></div>
+<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 28 · 핸즈온 42</span><span class="clk">예상 15:00–16:10 · 앞 ☕10분</span></div>
 <div class="metric"><span class="num">5</span><strong>번째 부품</strong><span>a2a_verify.py</span></div>
 <div class="metric"><span class="num">1</span><strong>검증된 브리프</strong><span>verified_brief.md</span></div>
 </div>
