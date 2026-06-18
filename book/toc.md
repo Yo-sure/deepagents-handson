@@ -82,7 +82,6 @@ pageClass: lec-page
 <div class="store">90분</div></a>
 </div>
 
-<p class="section-note" style="margin-top:20px">디자인 시스템은 <a href="/deepagents-handson/concept">🎨 디자인 컨셉</a>에서 따로 볼 수 있습니다.</p>
 </section>
 
 </div>

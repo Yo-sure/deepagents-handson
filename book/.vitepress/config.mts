@@ -41,7 +41,6 @@ export default withMermaid({
     nav: [
       { text: '홈', link: '/' },
       { text: '교재', link: '/toc' },
-      { text: '🎨 디자인', link: '/concept' },
     ],
     sidebar: [
       {
