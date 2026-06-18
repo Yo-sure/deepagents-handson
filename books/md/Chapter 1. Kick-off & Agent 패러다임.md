@@ -91,13 +91,13 @@ flowchart LR
 ## 순위를 가르는 건 모델이 아니다
 
 </div>
-<p class="section-note">SWE-bench Verified는 실제 GitHub 이슈를 주고 코드를 고쳐 테스트를 통과시키는 벤치마크입니다. 1년 전 70%대였던 상위권이 지금은 90% 안팎에 몰려 있습니다.<br>
+<p class="section-note">SWE-bench Verified는 실제 GitHub 이슈를 주고 코드를 고쳐 테스트를 통과시키는 벤치마크입니다. 1년 전 70%대였던 주력 모델이 지금은 88~89%대에 몰려 있고, 최상위 프런티어가 90%대 중반입니다.<br>
 모델 단독 점수가 비슷해지면서 무게중심이 옮겨 갔습니다. 같은 모델이라도 어떤 실행 환경으로 감싸느냐가 결과를 가릅니다.</p>
 </div>
 
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>성능은 평평해졌다</strong><span>SWE-bench Verified · 2026 중반</span></div><div class="panel-body"><div class="list">
-<p>상위 모델 정확도가 90% 안팎 한 덩어리로 몰렸습니다(아래 막대).</p>
+<p>주력 모델 정확도가 88~89%대에 빽빽이 몰렸습니다(아래 막대).</p>
 <p>저비용 <strong>Gemini 3.5 Flash(약 78%)</strong>도 그 바로 아래까지 따라붙었습니다 — 프런티어 주력(88~89%대)끼리는 한 자릿수 %p 차로 몰려 있고요.</p>
 <p>수치는 게이트웨이·시점마다 달라지는 <strong>대략·예시값</strong>입니다.</p>
 </div></div></div>
@@ -109,7 +109,7 @@ flowchart LR
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>상위 모델이 90% 안팎에 몰렸다 — 그래서 모델보다 하네스</span><span class="status-pill">예시 수치</span></div>
+<div class="board-header"><span>주력 모델이 88~89%대에 몰렸다 — 그래서 모델보다 하네스</span><span class="status-pill">예시 수치</span></div>
 <div class="panel-body">
 
 ```mermaid
