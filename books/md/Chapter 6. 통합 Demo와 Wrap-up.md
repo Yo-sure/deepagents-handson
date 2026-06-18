@@ -58,7 +58,7 @@ pageClass: lec-page
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">분류 모델을 더 좋은 것으로 바꿔도, 검증자를 다른 팀 것으로 바꿔도 배선은 그대로입니다 — 단, <strong>새 부품이 RecordV1과 디렉터리 규약을 똑같이 지킬 때만</strong>입니다. 계약을 어기는 부품(다른 스키마·다른 경로)을 끼우면 그 경계에 어댑터가 필요합니다. "자유 교체"가 아니라 "계약을 지키는 한 교체"입니다.</p>
+<p class="section-note" style="margin-top:16px">분류 모델을 더 좋은 것으로 바꿔도, 검증자를 다른 팀 것으로 바꿔도 배선은 그대로입니다 — 단, <strong>새 부품이 RecordV1과 디렉터리 규약을 똑같이 지킬 때만</strong>입니다. 계약을 어기는 부품을 끼우면 그 경계에 어댑터가 필요합니다 — 예컨대 새 분류기가 금액을 <code>"11,500원"</code> 문자열로 주면 RecordV1의 <code>total: float</code>과 어긋나, 그 경계에 "쉼표·원 떼고 float으로" 어댑터 한 겹을 둡니다. "자유 교체"가 아니라 "계약을 지키는 한 교체"입니다.</p>
 </section>
 
 <section class="slide">
@@ -221,7 +221,8 @@ flowchart LR
 ## 8시간이 남긴 것
 
 </div>
-<p class="section-note">하나의 인박스를 끝까지 처리하며 여덟 역량을 손으로 익혔습니다. 각 역량이 어느 부품에서 처음 나왔는지 돌아봅니다.</p>
+<p class="section-note">하나의 인박스를 끝까지 처리하며 여덟 역량을 손으로 익혔습니다. 각 역량이 어느 부품에서 처음 나왔는지 돌아봅니다.<br>
+<strong>딱 두 가지만 가져가세요</strong> — ① <strong>계약(RecordV1)이 부품을 갈아끼울 자유를 준다</strong>, ② <strong>고정 단계는 워크플로로, 자율은 꼭 필요한 곳(Ch3)에만</strong>. 아래 표·스택은 그 두 문장의 근거입니다.</p>
 </div>
 
 <div class="matrix matrix-7" style="grid-template-columns:116px repeat(6,minmax(84px,1fr))">
