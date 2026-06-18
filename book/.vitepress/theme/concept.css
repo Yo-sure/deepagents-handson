@@ -213,7 +213,10 @@
 .lec .keyrow > div, .lec .keyrow > p { margin:0; color:var(--muted); font-size:13px; line-height:1.55; }
 
 @media (max-width:860px){
-  .lec .matrix { overflow-x:auto; grid-template-columns:130px repeat(4,150px); }
+  .lec .matrix { overflow-x:auto; }
+  /* 폰 가로스크롤 시 항목축(1열)을 고정해 어느 역량 행인지 놓치지 않게 */
+  .lec .matrix .cell.axis { position:sticky; left:0; z-index:2; }
+  .lec .matrix .cell.head:first-child { position:sticky; left:0; z-index:3; }
 }
 
 /* mermaid 노드 라벨 마지막 글자 잘림 방지 — foreignObject 폭 과소측정 보정(전 다이어그램 공통) */

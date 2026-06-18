@@ -77,7 +77,7 @@ pageClass: lec-page
 flowchart LR
   IN[("📥 봉투 한 통<br/>문서 10건")]
   IN -->|Ch2| C["분류·정규화<br/>classified/"]
-  C -->|Ch3| R["fan-out 대사<br/>research_notes/"]
+  C -->|Ch3| R["fan-out 교차조사<br/>research_notes/"]
   R -->|Ch4| K["OKF 적재<br/>knowledge_base/"]
   K -->|Ch4| B["브리프<br/>brief.md"]
   subgraph EXT ["프로세스 경계 · A2A (Ch5)"]
@@ -127,7 +127,7 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <p>그래서 함수끼리 인자를 길게 주고받지 않아도 됩니다 — 파일이 계약입니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>한 군데만 실선, 나머지는 목</strong></div><div class="panel-body"><div class="list">
-<p>봉투(메일)는 목, 검증(A2A)·파일(MCP)은 실선. 외부통합을 둘로 묶어 8시간에 소화합니다.</p>
+<p>봉투(메일)는 목(mock·가짜 봉투), 검증(A2A)·파일(MCP)은 실선(실제 연결). 외부통합을 둘로 묶어 8시간에 소화합니다.</p>
 <p><code>--a2a</code>를 빼면 검증도 목으로 돌아 키 없이 끝까지 돕니다.</p>
 </div></div></div>
 </div>
@@ -150,7 +150,7 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
   ▶ receipt_starbucks.png
     [classify] 스타벅스 강남R점 · 11,500원 · 신뢰도 1.00
     [verify] 통과  →  [persist] classified/receipt_starbucks.json
-  ... (고액 2건 invoice_photo·contract_freelance는 ⏸ interrupt 후 자동 승인) ...
+  ... (고액 2건 invoice_photo·contract_freelance는 ⏸ 멈춤(interrupt) 후 자동 승인) ...
 [2/6] fan-out 교차 조사 (Ch3 research_orchestrator)
   [plan] write_todos → card_reconcile / bank_reconcile / spend_summary
   [task] card_reconcile → research_notes/card_reconcile.md
@@ -187,7 +187,19 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <details>
 <summary>추적 답</summary>
 <div class="reveal">
-<p>① <strong>classified/</strong> — 카드 명세서 RecordV1의 <code>항목[]</code> 한 줄(이름·금액). ② <strong>research_notes/card_reconcile.md</strong> — 대응 영수증이 없어 ⚠️ 줄로 표시. ③ <strong>knowledge_base/</strong> — 3만원 미만이면 <code>type: subscription</code>, 이상이면 <code>type: gap</code> 항목으로 적재. ④ <strong>brief.md</strong> — write_brief가 그 프런트매터를 읽어 "짚을 점"에 <code>(gap) 쿠팡(주)</code> 한 줄로. ⑤ <strong>verified_brief.md</strong> — 검증자가 영수증 없는 거래를 <em>독립으로 다시 세서</em> 브리프가 그 항목을 포함하는지 대조 → 모두 짚었으면 PASS. 한 줄의 데이터가 다섯 번 모양을 바꾸지만 계약(이름·금액)은 끝까지 보존됩니다.</p>
+<p>같은 한 줄(쿠팡 89,000원)이 산출물마다 모양을 바꾸지만 계약(이름·금액)은 끝까지 보존됩니다:</p>
+
+```mermaid
+flowchart LR
+  A["① classified/<br/>항목: 쿠팡 89,000"] --> B["② research_notes/<br/>⚠️ 영수증 없음"]
+  B --> C["③ knowledge_base/<br/>type: gap"]
+  C --> D["④ brief.md<br/>(gap) 쿠팡(주)"]
+  D --> E["⑤ verified_brief.md<br/>독립 재계산 → 포함 ✓ PASS"]
+  classDef s fill:#ecfdf5,stroke:#5eead4,color:#0f5132;
+  class A,B,C,D,E s;
+```
+
+<p style="margin-top:6px">3만원 미만이면 ③에서 <code>type: subscription</code>(구독 추정), 이상이면 <code>type: gap</code>(확인 필요)으로 갈립니다. ⑤에서 검증자는 브리프를 믿지 않고 영수증 없는 거래를 <em>독립으로 다시 세서</em> 브리프가 빠짐없이 짚었는지 대조합니다.</p>
 </div>
 </details>
 
@@ -217,28 +229,28 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <div class="cell head">Ch1</div><div class="cell head">Ch2</div><div class="cell head">Ch3</div><div class="cell head">Ch4</div><div class="cell head">Ch5</div><div class="cell head">Ch6</div>
 
 <div class="cell axis">멀티모달</div>
-<div class="cell active">추출</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell warn">·</div>
+<div class="cell active">추출</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell warn">✓ 재사용</div>
 
 <div class="cell axis">HITL 멈춤</div>
-<div class="cell"></div><div class="cell active">고액·저신뢰</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell warn">·</div>
+<div class="cell"></div><div class="cell active">고액·저신뢰</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell warn">✓ 재사용</div>
 
 <div class="cell axis">멀티에이전트</div>
-<div class="cell"></div><div class="cell active">직렬</div><div class="cell active">fan-out</div><div class="cell"></div><div class="cell"></div><div class="cell warn">·</div>
+<div class="cell"></div><div class="cell active">직렬</div><div class="cell active">fan-out</div><div class="cell"></div><div class="cell"></div><div class="cell warn">✓ 재사용</div>
 
 <div class="cell axis">하네스 루프</div>
-<div class="cell"></div><div class="cell"></div><div class="cell active">계획·위임</div><div class="cell"></div><div class="cell"></div><div class="cell warn">·</div>
+<div class="cell"></div><div class="cell"></div><div class="cell active">계획·위임</div><div class="cell"></div><div class="cell"></div><div class="cell warn">✓ 재사용</div>
 
 <div class="cell axis">MCP</div>
-<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">파일·메일</div><div class="cell"></div><div class="cell warn">·</div>
+<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">파일·메일</div><div class="cell"></div><div class="cell warn">✓ 재사용</div>
 
 <div class="cell axis">Skill</div>
-<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">점진 공개</div><div class="cell"></div><div class="cell warn">·</div>
+<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">점진 공개</div><div class="cell"></div><div class="cell warn">✓ 재사용</div>
 
 <div class="cell axis">Plugin·OKF</div>
-<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">표준 지식</div><div class="cell"></div><div class="cell warn">·</div>
+<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">표준 지식</div><div class="cell"></div><div class="cell warn">✓ 재사용</div>
 
 <div class="cell axis">A2A</div>
-<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">경계 검증</div><div class="cell warn">·</div>
+<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">경계 검증</div><div class="cell warn">✓ 재사용</div>
 </div>
 
 <div class="legend" style="margin-top:10px">
@@ -268,14 +280,14 @@ flowchart TB
   subgraph L1 ["① Framework — LangChain · 도구 상자"]
     F["LLM · 도구 연결 · Ch1·Ch2"]:::fw
   end
-  L4 -->|얹힌다| L3 -->|얹힌다| L2 -->|얹힌다| L1
+  L1 -->|떠받친다| L2 -->|떠받친다| L3 -->|떠받친다| L4
   classDef eco fill:#0d9488,stroke:#0f766e,color:#fff;
   classDef harness fill:#5eead4,stroke:#0f766e,color:#0f5132;
   classDef run fill:#99f6e4,stroke:#0f766e,color:#0f5132;
   classDef fw fill:#ccfbf1,stroke:#0f766e,color:#0f5132;
 ```
 
-<p style="margin-top:8px">아래(①)가 위(④)를 떠받칩니다. LLM 호출(Framework) 위에 상태·분기(Runtime), 그 위에 계획·위임(Harness), 맨 위에 절차·연결·협업(생태계). 위 여덟 역량은 전부 이 네 층 어딘가에 속합니다.</p>
+<p style="margin-top:8px">아래(①)가 위(④)를 떠받칩니다 — 화살표는 "받친다" 방향. LLM 호출(Framework) 위에 상태·분기(Runtime), 그 위에 계획·위임(Harness), 맨 위에 절차·연결·협업(생태계). <strong>Ch2에서 LangChain(프레임워크)과 LangGraph(런타임)를 함께 익혔기에</strong> Ch2가 아래 두 층에 걸쳐 있습니다. 위 여덟 역량은 전부 이 네 층 어딘가에 속합니다.</p>
 </div>
 </div>
 </section>
@@ -293,7 +305,8 @@ flowchart TB
 
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>지금은 목이라 숨은 것</strong></div><div class="panel-body"><div class="list">
-<p><strong>추출 비결정성</strong> — <code>--mock</code>은 gold를 베껴 100% 재현됩니다. 실모델 멀티모달은 신뢰도가 흔들리고 같은 영수증도 매번 달라져, 신뢰도 임계 HITL 멈춤(Ch2)이 진짜 안전장치가 됩니다.</p>
+<p><strong>추출 비결정성</strong> — <code>--mock</code>은 gold를 베껴 100% 재현됩니다. 실모델 멀티모달은 신뢰도가 흔들리고 같은 영수증을 넣어도 결과가 매번 달라져, 신뢰도 임계 HITL 멈춤(Ch2)이 진짜 안전장치가 됩니다.</p>
+<p><strong>검증의 진짜 값은 실모델에서</strong> — 목 구간에선 브리프도 검증자도 같은 gold에서 나와 PASS가 사실상 보장됩니다(검증이 "도는지" 확인용). 추출이 흔들리는 실모델에서야 브리프 누락 ↔ 검증자 반려가 실제로 갈려, 외부 검증이 값을 합니다.</p>
 <p><strong>fan-out 비용·실패</strong> — 세 갈래가 실제 LLM 호출이면 토큰·지연·부분 실패가 곱해집니다. 한 갈래가 죽어도 나머지가 끝나게(부분 산출 허용) 설계해야 합니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>경계를 넘을 때</strong></div><div class="panel-body"><div class="list">
@@ -326,9 +339,11 @@ flowchart TB
 |---|---|---|
 | 작업 완료율 | 요청 작업을 끝낸 비율 | 90%+ |
 | 도구 호출 정확도 | 올바른 도구·인자 선택 | 95%+ |
-| 환각률 | 근거 없는 응답 비율 | ≤5% |
+| 환각률 | 근거 없는 응답 비율 (무엇을 환각으로 셀지부터 정의) | ≤5% |
 | 건당 지연 | 요청당 평균 처리 시간 | ≤5초 |
 | 건당 비용 | 요청당 평균 토큰·비용 | 예산 내 |
+
+<p class="section-note" style="margin-top:10px">오른쪽 수치는 <strong>업계 표준이 아니라 출발점</strong>입니다 — 도메인·태스크 난이도마다 직접 정해야 합니다. 핵심은 숫자가 아니라 "무엇을 어떻게 측정할지"를 먼저 합의하는 것입니다.</p>
 
 </div>
 </div>
