@@ -348,13 +348,15 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-  IN["문서 더미<br/>계약서·로그·논문"]:::swap --> N["계약으로 정규화<br/>RecordV1 → 내 스키마"]:::swap
-  N --> S["나눠 조사<br/>reconcile → 내 질문"]:::swap
-  S --> K["지식으로 적재<br/>OKF 표준"]:::keep
-  K --> V["외부에 검증<br/>A2A 경계"]:::keep
-  V --> OUT["검증된 산출물"]:::keep
+  IN["문서 더미<br/>계약서·로그·논문"] --> N["계약으로 정규화<br/>RecordV1 → 내 스키마"]
+  N --> S["나눠 조사<br/>reconcile → 내 질문"]
+  S --> K["지식으로 적재<br/>OKF 표준"]
+  K --> V["외부에 검증<br/>A2A 경계"]
+  V --> OUT["검증된 산출물"]
   classDef swap fill:#fef3c7,stroke:#d97706,color:#7c2d12;
   classDef keep fill:#ccfbf1,stroke:#0f766e,color:#0f5132;
+  class IN,N,S swap;
+  class K,V,OUT keep;
 ```
 
 <div class="legend" style="margin-top:8px">
