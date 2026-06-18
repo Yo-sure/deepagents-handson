@@ -21,3 +21,6 @@ book/chapters/
 
 # OS
 .DS_Store
+
+# 원본(개정 전) 교재 — 비공개 회귀비교용. studio/orig-pdf에 사본 보관.
+books/pdf/

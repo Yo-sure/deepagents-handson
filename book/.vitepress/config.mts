@@ -18,6 +18,8 @@ export default withMermaid({
   title: 'AI Agent 개발',
   description: '인박스 리서치 애널리스트를 만드는 8시간 핸즈온 — 2026 Edition',
   lang: 'ko-KR',
+  // GitHub Pages 프로젝트 페이지: https://yo-sure.github.io/deepagents-handson/
+  base: '/deepagents-handson/',
   cleanUrls: true,
   vite: {
     server: { port: 5174, strictPort: false, allowedHosts: true },
