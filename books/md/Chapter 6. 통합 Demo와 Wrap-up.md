@@ -212,7 +212,7 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <p class="section-note">하나의 인박스를 끝까지 처리하며 여덟 역량을 손으로 익혔습니다. 각 역량이 어느 부품에서 처음 나왔는지 돌아봅니다.</p>
 </div>
 
-<div class="matrix" style="grid-template-columns:128px repeat(6,1fr)">
+<div class="matrix" style="grid-template-columns:116px repeat(6,minmax(84px,1fr))">
 <div class="cell head"></div>
 <div class="cell head">Ch1</div><div class="cell head">Ch2</div><div class="cell head">Ch3</div><div class="cell head">Ch4</div><div class="cell head">Ch5</div><div class="cell head">Ch6</div>
 
