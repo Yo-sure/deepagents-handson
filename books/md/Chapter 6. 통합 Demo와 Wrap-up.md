@@ -58,7 +58,7 @@ pageClass: lec-page
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">분류 모델을 더 좋은 것으로 바꿔도, 검증자를 다른 팀 것으로 바꿔도 배선은 그대로입니다. 계약이 경계를 지켜 줍니다.</p>
+<p class="section-note" style="margin-top:16px">분류 모델을 더 좋은 것으로 바꿔도, 검증자를 다른 팀 것으로 바꿔도 배선은 그대로입니다 — 단, <strong>새 부품이 RecordV1과 디렉터리 규약을 똑같이 지킬 때만</strong>입니다. 계약을 어기는 부품(다른 스키마·다른 경로)을 끼우면 그 경계에 어댑터가 필요합니다. "자유 교체"가 아니라 "계약을 지키는 한 교체"입니다.</p>
 </section>
 
 <section class="slide">
@@ -73,14 +73,25 @@ pageClass: lec-page
 각 단계 옆에 그 일을 맡은 챕터를 적었습니다.</p>
 </div>
 
-<div class="flow" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-<div class="flow-step"><small>Ch2</small><strong>분류·정규화</strong><p>봉투의 문서를 RecordV1로 → classified/</p></div>
-<div class="flow-step"><small>Ch3</small><strong>fan-out 대사 3갈래</strong><p>카드·은행 명세서↔영수증 대사 + 지출 집계 → research_notes/</p></div>
-<div class="flow-step"><small>Ch4</small><strong>OKF 적재</strong><p>거래처·구독·gap → knowledge_base/</p></div>
-<div class="flow-step"><small>Ch4</small><strong>브리프</strong><p>지식을 모아 한 장 → brief.md</p></div>
-<div class="flow-step"><small>Ch5</small><strong>A2A 검증</strong><p>외부 에이전트에 제출 → verified_brief.md</p></div>
-<div class="flow-step"><small>완료</small><strong>최종 산출</strong><p>검증 도장이 찍힌 브리프</p></div>
-</div>
+```mermaid
+flowchart LR
+  IN[("📥 봉투 한 통<br/>문서 10건")]
+  IN -->|Ch2| C["분류·정규화<br/>classified/"]
+  C -->|Ch3| R["fan-out 대사<br/>research_notes/"]
+  R -->|Ch4| K["OKF 적재<br/>knowledge_base/"]
+  K -->|Ch4| B["브리프<br/>brief.md"]
+  subgraph EXT ["프로세스 경계 · A2A (Ch5)"]
+    V{{"검증 에이전트<br/>localhost:9610"}}
+  end
+  B -->|제출| V
+  V -->|검증 도장| OUT[["✅ verified_brief.md"]]
+  classDef io fill:#0d9488,stroke:#0f766e,color:#fff;
+  classDef step fill:#ecfdf5,stroke:#5eead4,color:#0f5132;
+  class IN,OUT io;
+  class C,R,K,B step;
+```
+
+<p class="section-note" style="margin-top:6px">앞 다섯 단계(분류→조사→지식→브리프)는 한 프로세스 안에서 디렉터리로 이어지고, <strong>마지막 검증만 점선 박스 밖</strong> — 다른 프로세스로 떠 있는 검증 에이전트에게 A2A로 건너갑니다. 화살표 위 배지가 그 일을 맡은 챕터입니다.</p>
 </section>
 
 <section class="slide">
@@ -124,7 +135,7 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
 <div class="stack">
-<div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — 오프라인</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍히고 <code>workspace/verified_brief.md</code>가 PASS로 끝난다.</span></p></div><div class="store">엔드투엔드</div></div>
+<div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — 오프라인</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍힌다. 기본 실행은 브리프가 gap을 모두 담아 <code>verified_brief.md</code>가 <strong>PASS</strong>로 끝난다(한 단계를 빼면 NEEDS_REVISION이 정상 — 아래 트러블슈팅·직접 해보기 참고).</span></p></div><div class="store">엔드투엔드</div></div>
 <div class="row"><div class="code">b</div><div class="copy"><strong>검증만 실제 A2A</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock --a2a</code><br><span style="color:var(--muted)">성공 기준: [5/6]에서 <code>Agent Card</code>가 조회되고 실제 서버와 통신한다.</span></p></div><div class="store">A2A</div></div>
 <div class="row"><div class="code">c</div><div class="copy"><strong>최종 산출물 열기</strong><p><code>cat workspace/verified_brief.md</code><br><span style="color:var(--muted)">성공 기준: 브리프 + 외부 검증 도장(PASS)이 한 파일에.</span></p></div><div class="store">완성</div></div>
 </div>
@@ -185,7 +196,7 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <div class="stack">
 <div class="row"><div class="code">!</div><div class="copy"><strong>ModuleNotFoundError: intake_graph</strong><p>레포 루트에서 <code>uv run</code> 하세요. analyst_app이 <code>sys.path</code>에 ch1~5를 끼우는데 cwd 기준이라 다른 폴더에서 돌리면 깨집니다.</p></div><div class="store">경로</div></div>
 <div class="row"><div class="code">!</div><div class="copy"><strong>[5/6]에서 멈춤(--a2a)</strong><p><code>--a2a</code>는 9610 포트에 verifier_agent를 띄웁니다. 포트 점유 시 기동 실패 — 이전 프로세스를 끄거나 <code>--a2a</code> 없이 목으로 돌립니다.</p></div><div class="store">A2A</div></div>
-<div class="row"><div class="code">!</div><div class="copy"><strong>verified_brief가 NEEDS_REVISION</strong><p>버그 아님 — 브리프가 gap을 빠뜨리면 검증자가 정직하게 반려합니다. brief.md "짚을 점"과 verified_brief의 "독립 재계산"을 비교하세요.</p></div><div class="store">정상</div></div>
+<div class="row"><div class="code">!</div><div class="copy"><strong>verified_brief가 NEEDS_REVISION</strong><p>버그 아님 — 기본 실행은 PASS지만, <code>run_okf()</code>를 빼는 등 한 단계를 건너뛰면 브리프가 gap을 빠뜨려 검증자가 정직하게 반려합니다. brief.md "짚을 점"과 verified_brief의 "독립 재계산"을 비교하세요. <strong>PASS도 NEEDS_REVISION도 검증이 제대로 돈 결과</strong>입니다.</p></div><div class="store">정상</div></div>
 </div>
 </div>
 </section>
@@ -201,26 +212,70 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <p class="section-note">하나의 인박스를 끝까지 처리하며 여덟 역량을 손으로 익혔습니다. 각 역량이 어느 부품에서 처음 나왔는지 돌아봅니다.</p>
 </div>
 
-<div class="grid-4">
-<div class="panel"><div class="panel-head"><strong>멀티모달</strong><span>Ch1</span></div><div class="panel-body"><div class="list"><p>영수증 이미지 → RecordV1</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>멀티에이전트</strong><span>Ch2·3</span></div><div class="panel-body"><div class="list"><p>직렬 파이프라인 · fan-out</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>하네스 루프</strong><span>Ch3</span></div><div class="panel-body"><div class="list"><p>계획·위임·파일 퇴피</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>MCP</strong><span>Ch4</span></div><div class="panel-body"><div class="list"><p>파일[실선]·메일[목]</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>Skill</strong><span>Ch4</span></div><div class="panel-body"><div class="list"><p>SKILL.md 점진 공개</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>Plugin · OKF</strong><span>Ch4</span></div><div class="panel-body"><div class="list"><p>얇은 패키징 · 표준 지식</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>HITL</strong><span>Ch2</span></div><div class="panel-body"><div class="list"><p>고액·저신뢰 멈춤</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>A2A</strong><span>Ch5</span></div><div class="panel-body"><div class="list"><p>프로세스·팀 경계 검증</p></div></div></div>
+<div class="matrix" style="grid-template-columns:128px repeat(6,1fr)">
+<div class="cell head"></div>
+<div class="cell head">Ch1</div><div class="cell head">Ch2</div><div class="cell head">Ch3</div><div class="cell head">Ch4</div><div class="cell head">Ch5</div><div class="cell head">Ch6</div>
+
+<div class="cell axis">멀티모달</div>
+<div class="cell active">추출</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell warn">·</div>
+
+<div class="cell axis">HITL 멈춤</div>
+<div class="cell"></div><div class="cell active">고액·저신뢰</div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell warn">·</div>
+
+<div class="cell axis">멀티에이전트</div>
+<div class="cell"></div><div class="cell active">직렬</div><div class="cell active">fan-out</div><div class="cell"></div><div class="cell"></div><div class="cell warn">·</div>
+
+<div class="cell axis">하네스 루프</div>
+<div class="cell"></div><div class="cell"></div><div class="cell active">계획·위임</div><div class="cell"></div><div class="cell"></div><div class="cell warn">·</div>
+
+<div class="cell axis">MCP</div>
+<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">파일·메일</div><div class="cell"></div><div class="cell warn">·</div>
+
+<div class="cell axis">Skill</div>
+<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">점진 공개</div><div class="cell"></div><div class="cell warn">·</div>
+
+<div class="cell axis">Plugin·OKF</div>
+<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">표준 지식</div><div class="cell"></div><div class="cell warn">·</div>
+
+<div class="cell axis">A2A</div>
+<div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell active">경계 검증</div><div class="cell warn">·</div>
 </div>
 
-<div class="board" style="margin-top:18px">
-<div class="board-header"><span>하루를 관통한 축 — 3계층</span><span class="status-pill">멘탈 모델</span></div>
-<div class="panel-body">
-<div class="flow" style="grid-template-columns:repeat(3,minmax(0,1fr))">
-<div class="flow-step"><small>Framework</small><strong>LangChain</strong><p>LLM·도구 연결 — "도구 상자" <span class="badge">Ch2</span></p></div>
-<div class="flow-step"><small>Runtime</small><strong>LangGraph</strong><p>상태·분기·체크포인트 — "작업 공정표" <span class="badge">Ch2</span></p></div>
-<div class="flow-step"><small>Harness</small><strong>DeepAgents</strong><p>계획·파일·서브에이전트 — "현장 관리자" <span class="badge">Ch3</span></p></div>
+<div class="legend" style="margin-top:10px">
+<span class="lpill"><span class="ldot" style="background:#34d399"></span>처음 익힌 곳</span>
+<span class="lpill"><span class="ldot" style="background:#f59e0b"></span>Ch6 캡스톤에서 재사용</span>
 </div>
-<p style="margin-top:8px">그 위에 Skills(절차)·MCP(연결)·A2A(협업)를 얹어 검증된 브리프까지. 위 여덟 역량은 전부 이 축의 어느 칸에 속합니다.</p>
+<p class="section-note" style="margin-top:8px">여덟 역량이 각자 다른 챕터에서 처음 나왔지만, <strong>오른쪽 Ch6 열의 앰버 띠</strong>처럼 캡스톤 한 줄기에서 전부 다시 쓰입니다 — 따로 배운 부품이 한 파이프라인으로 모인다는 뜻입니다.</p>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>하루를 관통한 축 — 층층이 쌓인 스택</span><span class="status-pill">멘탈 모델</span></div>
+<div class="panel-body">
+
+```mermaid
+flowchart TB
+  subgraph L4 ["④ 생태계 — 절차·연결·협업"]
+    direction LR
+    SK["Skills<br/>절차 · Ch4"]:::eco
+    MC["MCP<br/>연결 · Ch4"]:::eco
+    A2["A2A<br/>협업 · Ch5"]:::eco
+  end
+  subgraph L3 ["③ Harness — DeepAgents · 현장 관리자"]
+    H["계획 · 파일 퇴피 · 서브에이전트 · Ch3"]:::harness
+  end
+  subgraph L2 ["② Runtime — LangGraph · 작업 공정표"]
+    R["상태 · 분기 · 체크포인트 · Ch2"]:::run
+  end
+  subgraph L1 ["① Framework — LangChain · 도구 상자"]
+    F["LLM · 도구 연결 · Ch1·Ch2"]:::fw
+  end
+  L4 -->|얹힌다| L3 -->|얹힌다| L2 -->|얹힌다| L1
+  classDef eco fill:#0d9488,stroke:#0f766e,color:#fff;
+  classDef harness fill:#5eead4,stroke:#0f766e,color:#0f5132;
+  classDef run fill:#99f6e4,stroke:#0f766e,color:#0f5132;
+  classDef fw fill:#ccfbf1,stroke:#0f766e,color:#0f5132;
+```
+
+<p style="margin-top:8px">아래(①)가 위(④)를 떠받칩니다. LLM 호출(Framework) 위에 상태·분기(Runtime), 그 위에 계획·위임(Harness), 맨 위에 절차·연결·협업(생태계). 위 여덟 역량은 전부 이 네 층 어딘가에 속합니다.</p>
 </div>
 </div>
 </section>
