@@ -177,3 +177,41 @@
 /* .lec 코드블록은 어두운 배경(#1b1b1f) — 라이트 모드 shiki는 토큰을 어두운 색으로 칠해
    검정-검정으로 묻힌다. 다크테마(github-dark, 밝은) 토큰 색을 강제해 가독성 확보. */
 .lec .vp-code span { color: var(--shiki-dark) !important; }
+
+/* ════════════════════════════════════════════════════════════════════
+   책임 매트릭스 · 범례 · 요약 key-row  (레퍼런스: studio/design/ref-*.html)
+   "표로 보여주는"(matrix) + "묶어주는"(keyrows) 패턴. .lec 팔레트로 이식.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 책임 매트릭스 — 행=항목축, 열=단계. 강조 셀(active/warn)로 "어디서 일어나나"를 한눈에.
+   사용: <div class="matrix" style="grid-template-columns:160px repeat(N,1fr)"> ... cell ... */
+.lec .matrix { margin-top:16px; display:grid; border:1px solid #2f3b38; border-radius:var(--radius);
+  overflow:hidden; box-shadow:var(--shadow); background:#17211f; font-size:12px;
+  grid-template-columns:160px repeat(4,minmax(0,1fr)); }
+.lec .matrix .cell { padding:10px 12px; border-right:1px solid #34423e; border-bottom:1px solid #34423e;
+  color:#dce7e2; line-height:1.45; min-height:52px; }
+.lec .matrix .cell.head { color:#fff; font-weight:800; background:#20312d; }
+.lec .matrix .cell.axis { color:#8fe0ca; font-weight:800; background:#1b2a27; }
+.lec .matrix .cell.active { background:rgba(20,160,120,.20); box-shadow:inset 0 0 0 1px rgba(120,225,190,.55); color:#eafaf4; }
+.lec .matrix .cell.warn { background:rgba(190,130,30,.22); box-shadow:inset 0 0 0 1px rgba(240,180,80,.5); color:#fbe7cf; }
+.lec .matrix code { background:#26332f; color:#cfe7df; padding:1px 4px; border-radius:4px; }
+
+/* 범례 — 색 dot pill */
+.lec .legend { display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+.lec .lpill { display:inline-flex; gap:7px; align-items:center; border:1px solid var(--line);
+  background:var(--white); padding:5px 10px; border-radius:99px; font-size:11px; color:var(--ink); font-weight:700; }
+.lec .ldot { width:9px; height:9px; border-radius:99px; background:var(--forest); flex:0 0 auto; }
+.lec .ldot.blue{ background:var(--blue); } .lec .ldot.amber{ background:var(--amber); }
+.lec .ldot.red{ background:var(--red); } .lec .ldot.violet{ background:var(--violet); }
+
+/* 요약 key-row — 좁은 라벨 | 내용으로 핵심을 "묶어" 보여주기 */
+.lec .keyrows { display:grid; gap:0; }
+.lec .keyrow { display:grid; grid-template-columns:84px minmax(0,1fr); gap:12px; padding:11px 0;
+  border-top:1px solid var(--line); align-items:start; }
+.lec .keyrow:first-child { border-top:0; padding-top:0; }
+.lec .keyrow > strong { font-size:12px; color:var(--ink); font-weight:800; }
+.lec .keyrow > div, .lec .keyrow > p { margin:0; color:var(--muted); font-size:13px; line-height:1.55; }
+
+@media (max-width:860px){
+  .lec .matrix { overflow-x:auto; grid-template-columns:130px repeat(4,150px); }
+}
