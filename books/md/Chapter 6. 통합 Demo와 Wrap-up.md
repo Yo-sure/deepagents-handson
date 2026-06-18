@@ -327,8 +327,8 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <nav class="chapnav">
 <div class="board" style="margin-top:8px">
 <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center">
-<a href="/chapters/chapter-5" style="color:inherit;text-decoration:none;font-weight:900;font-size:14px">← Ch5 · A2A 역할 분리</a>
-<a href="/toc" style="color:var(--forest);text-decoration:none;font-weight:900;font-size:13px;background:rgba(148,210,189,.3);border:1px solid rgba(15,118,110,.24);border-radius:99px;padding:7px 16px">목차</a>
+<a href="/deepagents-handson/chapters/chapter-5" style="color:inherit;text-decoration:none;font-weight:900;font-size:14px">← Ch5 · A2A 역할 분리</a>
+<a href="/deepagents-handson/toc" style="color:var(--forest);text-decoration:none;font-weight:900;font-size:13px;background:rgba(148,210,189,.3);border:1px solid rgba(15,118,110,.24);border-radius:99px;padding:7px 16px">목차</a>
 <span></span>
 </div>
 </div>

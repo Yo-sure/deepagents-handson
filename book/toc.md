@@ -46,43 +46,43 @@ pageClass: lec-page
 </div>
 
 <div class="stack">
-<a class="row" href="/chapters/chapter-0" style="text-decoration:none;color:inherit">
+<a class="row" href="/deepagents-handson/chapters/chapter-0" style="text-decoration:none;color:inherit">
 <div class="code">0</div>
 <div class="copy"><strong>환경 셋업 — 인박스 한 통 열어볼 준비</strong><p>WSL·uv·.env·OpenRouter · VSCode 작업공간 · sample_inbox 10건 · RecordV1 미리보기</p></div>
 <div class="store">20분</div></a>
 
-<a class="row" href="/chapters/chapter-1" style="text-decoration:none;color:inherit">
+<a class="row" href="/deepagents-handson/chapters/chapter-1" style="text-decoration:none;color:inherit">
 <div class="code">1</div>
 <div class="copy"><strong>에이전트 패러다임 — 영수증을 읽고 판단</strong><p>LLM 4한계 · ReAct · 모델 자리표 · classify_one.py(영수증→RecordV1, 단발 vs ReAct)</p></div>
 <div class="store">45분</div></a>
 
-<a class="row" href="/chapters/chapter-2" style="text-decoration:none;color:inherit">
+<a class="row" href="/deepagents-handson/chapters/chapter-2" style="text-decoration:none;color:inherit">
 <div class="code">2</div>
 <div class="copy"><strong>LangGraph 하네스 — 분류·정규화 파이프라인</strong><p>StateGraph · checkpointer 재개 · 고액·저신뢰 interrupt() HITL · intake_graph.py</p></div>
 <div class="store">70분</div></a>
 
-<a class="row" href="/chapters/chapter-3" style="text-decoration:none;color:inherit">
+<a class="row" href="/deepagents-handson/chapters/chapter-3" style="text-decoration:none;color:inherit">
 <div class="code">3</div>
 <div class="copy"><strong>DeepAgents 하네스 — fan-out 동시 조사</strong><p>create_deep_agent · write_todos · 파일 퇴피 · 영수증 없는 89,000원 발견 · research_orchestrator.py</p></div>
 <div class="store">65분</div></a>
 
-<a class="row" href="/chapters/chapter-4" style="text-decoration:none;color:inherit">
+<a class="row" href="/deepagents-handson/chapters/chapter-4" style="text-decoration:none;color:inherit">
 <div class="code">4</div>
 <div class="copy"><strong>Skills · MCP · 지식 레이어</strong><p>SKILL.md 점진 공개 · plugin 얇게 · MCP 파일[실선]·메일[목] · OKF 지식 적재</p></div>
 <div class="store">80분</div></a>
 
-<a class="row" href="/chapters/chapter-5" style="text-decoration:none;color:inherit">
+<a class="row" href="/deepagents-handson/chapters/chapter-5" style="text-decoration:none;color:inherit">
 <div class="code">5</div>
 <div class="copy"><strong>A2A 역할 분리 — 밖에 검증을 맡긴다</strong><p>서명 Agent Card · SendMessage · Task 라이프사이클 · verified_brief.md · a2a-sdk 1.1.0</p></div>
 <div class="store">70분</div></a>
 
-<a class="row" href="/chapters/chapter-6" style="text-decoration:none;color:inherit">
+<a class="row" href="/deepagents-handson/chapters/chapter-6" style="text-decoration:none;color:inherit">
 <div class="code">6</div>
 <div class="copy"><strong>통합 캡스톤 + Wrap-up</strong><p>봉투→분류→조사→지식→브리프→검증 엔드투엔드 배선 · 8역량 회고 · analyst_app.py</p></div>
 <div class="store">90분</div></a>
 </div>
 
-<p class="section-note" style="margin-top:20px">디자인 시스템은 <a href="/concept">🎨 디자인 컨셉</a>에서 따로 볼 수 있습니다.</p>
+<p class="section-note" style="margin-top:20px">디자인 시스템은 <a href="/deepagents-handson/concept">🎨 디자인 컨셉</a>에서 따로 볼 수 있습니다.</p>
 </section>
 
 </div>
