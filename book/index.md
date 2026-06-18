@@ -9,8 +9,8 @@ hero:
       text: Ch0부터 시작
       link: /chapters/chapter-0
     - theme: alt
-      text: 디자인 컨셉 보기
-      link: /concept
+      text: 전체 목차
+      link: /toc
 features:
   - title: 🧩 산출물 우선
     details: 매 챕터가 손에 잡히는 부품 하나로 끝나고, Ch6에서 한 줄기로 조립된다. 이론은 그 부품에 필요한 만큼만.
