@@ -131,7 +131,7 @@ def bump_retry(state: IntakeState) -> dict:
     return {"retries": state["retries"] + 1}
 
 
-# #region build-graph
+#pragma region build-graph
 def build_graph():
     g = StateGraph(IntakeState)
     g.add_node("classify", classify)     # 추출(Ch1 부품)
@@ -147,7 +147,7 @@ def build_graph():
     g.add_edge("review", "persist")
     g.add_edge("persist", END)
     return g.compile(checkpointer=InMemorySaver())            # ← interrupt에 필수
-# #endregion build-graph
+#pragma endregion build-graph
 
 
 def run_one(graph, doc: str, mock: bool, auto: str = "approve") -> None:
