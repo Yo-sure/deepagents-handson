@@ -68,6 +68,7 @@ def _image_data_url(path: Path) -> str:
     return f"data:image/png;base64,{b64}"
 
 
+#pragma region singleshot
 def extract_singleshot(doc: str, model: str) -> RecordV1:
     """모델에 이미지 한 장을 보여 주고 RecordV1 JSON을 한 번에 받는다."""
     from langchain_openai import ChatOpenAI
@@ -98,6 +99,7 @@ def extract_singleshot(doc: str, model: str) -> RecordV1:
     )
     raw = msg.content if isinstance(msg.content, str) else str(msg.content)
     return RecordV1.model_validate_json(_strip_fences(raw))
+#pragma endregion singleshot
 
 
 def _strip_fences(text: str) -> str:
@@ -128,6 +130,7 @@ def verify_total(rec: RecordV1) -> tuple[bool, float]:
 def _check_sum_tool():
     from langchain_core.tools import tool
 
+#pragma region react-tool
     @tool
     def check_receipt_sum(items: list[dict], total: float) -> str:
         """영수증 항목 합계가 총액과 맞는지 검산한다. 추출한 직후 반드시 호출해 확인하라.
@@ -142,6 +145,7 @@ def _check_sum_tool():
         return (f"항목합={s:,.0f}원, 총액={total:,.0f}원 → "
                 + ("일치. 이 추출을 그대로 최종 JSON으로 출력하라."
                    if ok else "불일치. 이미지를 다시 보고 항목이나 수량을 고쳐 재검산하라."))
+#pragma endregion react-tool
 
     return check_receipt_sum
 
@@ -167,6 +171,7 @@ def extract_react(doc: str, model: str, max_steps: int = 5) -> RecordV1:
 
     from langchain_openai import ChatOpenAI
 
+#pragma region react-loop
     tool_fn = _check_sum_tool()
     llm = ChatOpenAI(model=model, base_url="https://openrouter.ai/api/v1",
                      api_key=key, temperature=0).bind_tools([tool_fn])
@@ -195,6 +200,7 @@ def extract_react(doc: str, model: str, max_steps: int = 5) -> RecordV1:
         print("  [Final] 검산 통과 — 최종 JSON 출력")        # tool_calls 없음 = 종료
         return RecordV1.model_validate_json(_strip_fences(_as_text(ai.content)))
     raise RuntimeError("ReAct 루프가 max_steps 안에 끝나지 않았다")
+#pragma endregion react-loop
 
 
 def _as_text(content) -> str:

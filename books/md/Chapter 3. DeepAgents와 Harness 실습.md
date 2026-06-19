@@ -19,7 +19,7 @@ pageClass: lec-page
 한 사람이 순서대로 보면 느립니다. 조사 주제를 나눠 서브에이전트가 동시에 돌아갑니다. 그 계획과 파일을 하네스가 관리합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">65</span><strong>분</strong><span>이론 22 · 핸즈온 43</span><span class="clk">예상 11:25–12:30 · 앞 ☕10분</span></div>
+<div class="metric"><span class="num">65</span><strong>분</strong><span>이론 31 · 핸즈온 31</span><span class="clk">예상 11:25–12:30 · 앞 ☕10분</span></div>
 <div class="metric"><span class="num">3</span><strong>번째 부품</strong><span>research_orchestrator.py</span></div>
 <div class="metric"><span class="num">1</span><strong>누락 발견</strong><span>영수증 없는 89,000원</span></div>
 </div>

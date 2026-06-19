@@ -19,7 +19,7 @@ pageClass: lec-page
 이 챕터에서는 분류와 정규화를 상태·재시도·중단점이 있는 파이프라인으로 묶습니다. 고액이나 저신뢰 건은 자동으로 통과시키지 않고 사람에게 멈춰 묻습니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 30 · 핸즈온 40</span><span class="clk">예상 10:05–11:15</span></div>
+<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 37 · 핸즈온 30</span><span class="clk">예상 10:05–11:15</span></div>
 <div class="metric"><span class="num">2</span><strong>번째 부품</strong><span>intake_graph.py</span></div>
 <div class="metric"><span class="num">10</span><strong>건 적재</strong><span>classified/*.json</span></div>
 </div>
@@ -262,7 +262,8 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>이게 왜 중요한가 — 지속 실행</span><span class="status-pill">durable execution</span></div>
 <div class="panel-body"><div class="list">
-<p>checkpointer는 각 <strong>superstep</strong>(LangGraph가 노드를 실행하는 단위)이 끝날 때마다 상태를 저장합니다. 그래서 interrupt뿐 아니라 <strong>중간에 죽어도</strong> 같은 thread로 다시 부르면 마지막 superstep부터 이어집니다 — 처음부터 다시 안 합니다.</p>
+<p>checkpointer는 각 <strong>superstep</strong>(LangGraph가 노드를 실행하는 단위)이 끝날 때마다 상태를 저장합니다. 그래서 interrupt뿐 아니라 <strong>중간에 끊겨도</strong> 같은 thread로 다시 부르면 마지막 superstep부터 이어집니다 — 처음부터 다시 안 합니다.</p>
+<p class="muted" style="margin-top:6px">단, 우리 데모의 <code>InMemorySaver</code>는 <strong>같은 프로세스 안에서만</strong> 상태를 들고 있습니다(예외를 잡고 재시도, 같은 런 안의 재개). 프로세스가 정말 죽었다 살아나도 복구하려면 디스크에 쓰는 영속 체크포인터(<code>SqliteSaver</code>·<code>PostgresSaver</code>)가 필요합니다 — 인터페이스는 같고 저장소만 바뀝니다.</p>
 <p>Ch3에서 여러 문서를 동시에 조사할 때 이 성질이 비용을 아낍니다. 여러 갈래 중 일부가 끝난 뒤 끊겨도, 재개는 남은 것만 처리합니다.</p>
 </div></div>
 </div>
@@ -312,7 +313,7 @@ sequenceDiagram
     G->>G: classify → verify (고액 플래그)
     G->>CP: review 진입 직전 상태 저장
     G-->>U: ⏸ interrupt(사유·판매처·금액) — 실행 중단
-    Note over G,CP: 프로세스가 죽어도 thread_id로 이 자리 복구
+    Note over G,CP: thread_id로 이 자리 복구 (프로세스 영속은 Sqlite·Postgres Saver)
     U->>G: Command(resume="approve")
     G->>G: review 노드를 위에서부터 재실행
     G->>G: persist → classified/ 적재
@@ -337,7 +338,7 @@ sequenceDiagram
 <details>
 <summary>정답 확인</summary>
 <div class="reveal">
-<p>checkpointer 없이 interrupt를 쓰면 조용히 통과하는 게 아니라 <strong>LangGraph가 에러로 막습니다</strong> — 멈춘 순간의 상태를 저장할 곳이 없으면 재개가 불가능하기 때문입니다. 그래서 HITL에는 checkpointer가 필수입니다.</p>
+<p>checkpointer 없이도 <code>interrupt()</code> <strong>자체는 동작합니다</strong> — <code>invoke</code>가 에러 없이 결과에 <code>__interrupt__</code>를 담아 반환하고 그 자리에서 멈춥니다. 막히는 건 <strong>재개할 때</strong>입니다. 멈춘 실행을 <code>Command(resume=...)</code>로 이어가려 하면 그때 <code>RuntimeError: Cannot use Command(resume=...) without checkpointer</code>가 납니다 — 멈춘 상태를 저장한 곳이 없어 어디로 돌아갈지 모르기 때문입니다. 즉 <em>멈출 순 있어도 사람 결정을 받아 이어갈 수 없으니</em>, HITL에는 checkpointer가 필수입니다.</p>
 <p>같은 <code>thread_id</code>로 다시 부르면 저장된 그 자리부터 이어집니다. <code>Command(resume="approve")</code>가 멈춘 review 노드로 결정을 흘려보내 다음 단계(persist)로 넘어갑니다. 다른 thread_id면 처음부터 새 실행입니다.</p>
 </div>
 </details>

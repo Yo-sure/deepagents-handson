@@ -19,7 +19,7 @@ pageClass: lec-page
 이 챕터에서 브리프를 외부 검증 에이전트에 A2A로 보냅니다. 그 에이전트는 서명 가능한 Agent Card로 자신을 밝히고, 원본 레코드를 독립으로 다시 계산해 PASS/FAIL을 답합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 28 · 핸즈온 42</span><span class="clk">예상 15:00–16:10 · 앞 ☕10분</span></div>
+<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 34 · 핸즈온 33</span><span class="clk">예상 15:00–16:10 · 앞 ☕10분</span></div>
 <div class="metric"><span class="num">5</span><strong>번째 부품</strong><span>a2a_verify.py</span></div>
 <div class="metric"><span class="num">1</span><strong>검증된 브리프</strong><span>verified_brief.md</span></div>
 </div>
@@ -188,19 +188,13 @@ stateDiagram-v2
 </div>
 </div>
 
-```python
-# 클라이언트 — Agent Card 조회 후 SendMessage
-card = await A2ACardResolver(httpx_client=http, base_url=URL).get_agent_card()
-client = ClientFactory(config=ClientConfig(httpx_client=http, streaming=False)).create(card=card)
-msg = Message(role=Role.ROLE_USER, message_id=str(uuid.uuid4()),  # id 없으면 서버가 거절
-              parts=[Part(text=brief)])
-async for resp in client.send_message(request=SendMessageRequest(message=msg)):
-    # 응답(StreamResponse)은 task/message/status_update/artifact_update 중 하나가 담긴 oneof
-    if resp.HasField("artifact_update"):              # oneof 중 설정된 필드만 골라 읽는다
-        ...  # 아티팩트에서 검증 결과(verdict)를 모은다
-```
+<<< ../../ch5-a2a/a2a_verify.py#a2a-client{python}
 
-<p class="section-note" style="margin-top:16px">두 곳이 함정입니다. <code>message_id</code>를 빼면 서버가 메시지를 식별 못 해 거절하고, protobuf <code>StreamResponse</code>는 <strong>oneof</strong>라 네 필드 중 하나만 설정됩니다 — <code>HasField</code>로 그 필드를 골라 읽어야 합니다(엉뚱한 필드를 읽으면 기본값이 나와 오류 없이 잘못된 값을 씁니다).</p>
+<p class="section-note" style="margin-top:16px">함정 둘. ① <code>message_id</code>를 빼면 서버가 메시지를 식별 못 해 거절합니다. ② <code>send_message</code> 스트림은 응답을 <strong>튜플</strong>로 흘려보내므로 <code>resp[0]</code>로 벗겨 읽습니다. 그 안의 <code>StreamResponse</code>는 <strong>oneof</strong>(task·message·status_update·artifact_update 중 하나만 설정)라, 설정된 필드만 골라 읽어야 합니다.</p>
+
+<p class="section-note" style="margin-top:12px"><code>HasField</code>를 그냥 부르면 안 됩니다 — 미설정·스칼라 oneof 필드에선 예외(<code>ValueError</code>/<code>AttributeError</code>)를 던지기 때문에, 아래처럼 <code>_has()</code>로 감싸 안전하게 검사한 뒤 설정된 필드에서만 텍스트를 모읍니다.</p>
+
+<<< ../../ch5-a2a/a2a_verify.py#a2a-stream{python}
 
 <div class="panel" style="margin-top:16px">
 <div class="panel-head"><strong>한 번의 검증 왕복</strong><span>카드 조회 → 전송 → 결과 수신</span></div>
@@ -279,6 +273,8 @@ sequenceDiagram
 
 <p class="section-note" style="margin-top:16px">검증자가 다시 세어도 쿠팡 89,000원과 넷플릭스 17,000원이 나옵니다. 브리프가 둘 다 짚었으면 통과입니다. 검증자는 내 코드를 신뢰하지 않고 데이터를 봅니다.</p>
 
+<p class="section-note" style="margin-top:10px"><strong>한 발 더.</strong> 여기서 '영수증 없는 거래'를 골라내는 재계산은 금액 대조라 진짜 독립적이지만, 브리프가 그걸 <em>짚었는지</em>를 보는 건 상호명 부분문자열 매칭(<code>name.split("(")[0] not in brief_text</code>)입니다 — 동의어·오타·금액 누락은 못 잡습니다. 실무 검증자는 여기서 금액·날짜 교차대조나 LLM 판정으로 한 겹 더 단단히 합니다.</p>
+
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>왜 독립 검증인가</span><span class="status-pill">설계 근거</span></div>
 <div class="panel-body"><div class="list">
@@ -351,6 +347,7 @@ flowchart TB
 </div>
 
 <div class="stack">
+<div class="row"><div class="code">0</div><div class="copy"><strong>먼저 — 브리프를 만들어 둔다(Ch3)</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>workspace/brief_draft.md</code> 생성. 이게 없으면 검증자가 빈 브리프를 받아 <code>NEEDS_REVISION</code>이 납니다 — PASS를 보려면 선행 필수.</span></p></div><div class="store">선행</div></div>
 <div class="row"><div class="code">a</div><div class="copy"><strong>한 번에 — 자동 기동 + 검증</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --serve</code><br><span style="color:var(--muted)">성공 기준: <code>Agent Card: 세무·정합성 검증 에이전트</code> → <code>검증 결과 수신 (A2A)</code> → verified_brief.md.</span></p></div><div class="store">A2A</div></div>
 <div class="row"><div class="code">b</div><div class="copy"><strong>따로 — 서버 먼저(다른 터미널)</strong><p><code>uv run python3 ch5-a2a/verifier_agent.py</code> 후 <code>... a2a_verify.py</code><br><span style="color:var(--muted)">성공 기준: 브라우저로 <code>localhost:9610/.well-known/agent-card.json</code> 카드가 보인다.</span></p></div><div class="store">서버</div></div>
 <div class="row"><div class="code">c</div><div class="copy"><strong>오프라인 — 네트워크 없이</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --mock</code><br><span style="color:var(--muted)">성공 기준: 같은 PASS 결과가 네트워크 없이 나온다.</span></p></div><div class="store">목</div></div>
@@ -376,6 +373,8 @@ flowchart TB
   검증 결과 수신 (A2A)
 
 ## 외부 검증 결과 — PASS
+검증 주체: 세무·정합성 검증 에이전트 (A2A)
+
 - 독립 재계산: 영수증 없는 거래 2건 (쿠팡(주) 89,000원, 넷플릭스 17,000원)
 - 브리프가 빠짐 없이 모두 짚었습니다 — 검증 통과
 ```

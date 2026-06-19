@@ -128,6 +128,7 @@ def main() -> None:
     print("=== 인박스 리서치 애널리스트 — 엔드투엔드 ===")
     print(f"봉투(목)가 도착했습니다. 분류부터 검증까지 한 줄기로 흘립니다.")
 
+#pragma region wiring
     step(1, "분류·정규화 (Ch2 intake_graph)")
     run_intake(args.mock)
     step(2, "fan-out 교차 조사 (Ch3 research_orchestrator)")
@@ -143,6 +144,7 @@ def main() -> None:
     step(6, "완료")
     print(f"\n분류 {len(list(CLASSIFIED.glob('*.json')))}건 · 조사 {len(ctx['notes'])}갈래")
     print(f"최종 산출물: {WORKSPACE / 'verified_brief.md'}")
+#pragma endregion wiring
 
 
 if __name__ == "__main__":

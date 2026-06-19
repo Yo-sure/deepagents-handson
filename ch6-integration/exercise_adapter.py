@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 
+#pragma region coerce
 def coerce_amount(raw: object) -> float:
     """바깥 금액 표기 → 계약의 float.
 
@@ -25,6 +26,7 @@ def coerce_amount(raw: object) -> float:
              정규식 re.sub(r"[^0-9.]", "", s) 가 한 줄로 해결한다.
     """
     raise NotImplementedError("coerce_amount를 채우세요 — 위 docstring의 힌트를 보라")
+#pragma endregion coerce
 
 
 # ── 검증 케이스(고치지 마세요) — 경계에서 실제로 마주치는 표기들 ──

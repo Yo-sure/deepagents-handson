@@ -47,6 +47,7 @@ def write_verified(brief: str, verdict_block: str) -> None:
     print(f"  → {VERIFIED_BRIEF.relative_to(WORKSPACE.parent)}")
 
 
+#pragma region a2a-stream
 def _has(msg, field: str) -> bool:
     try:
         return msg.HasField(field)
@@ -69,8 +70,10 @@ def _texts_from_stream(resp) -> list[str]:
     if _has(resp, "status_update") and resp.status_update.status.message.parts:
         out += [p.text for p in resp.status_update.status.message.parts if p.text]
     return out
+#pragma endregion a2a-stream
 
 
+#pragma region a2a-client
 async def verify_via_a2a(brief: str) -> str:
     """Agent Card 조회 → ClientFactory → SendMessage. 검증 결과 텍스트를 돌려준다."""
     from a2a.client import A2ACardResolver, ClientConfig, ClientFactory
@@ -87,6 +90,7 @@ async def verify_via_a2a(brief: str) -> str:
             out += _texts_from_stream(resp[0] if isinstance(resp, tuple) else resp)
         # 진행 메시지는 빼고 검증 결과만
         return "\n".join(t for t in out if t and "대사하는 중" not in t).strip()
+#pragma endregion a2a-client
 
 
 def wait_for_server(url: str, timeout: float = 15.0) -> bool:

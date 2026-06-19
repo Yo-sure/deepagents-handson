@@ -19,7 +19,7 @@ pageClass: lec-page
 이 챕터에서 브리프 쓰는 절차를 SKILL.md로 정의하고, 파일과 메일을 MCP 한 겹으로 표준화하고, 조사 결과를 OKF 지식으로 적재합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">80</span><strong>분</strong><span>이론 30 · 핸즈온 50</span><span class="clk">예상 13:30–14:50 · 앞 🍽점심</span></div>
+<div class="metric"><span class="num">80</span><strong>분</strong><span>이론 42 · 핸즈온 35</span><span class="clk">예상 13:30–14:50 · 앞 🍽점심</span></div>
 <div class="metric"><span class="num">3</span><strong>겹의 능력</strong><span>Skill · MCP · OKF</span></div>
 <div class="metric"><span class="num">12</span><strong>지식 항목</strong><span>knowledge_base/*.md</span></div>
 </div>
@@ -448,7 +448,7 @@ if __name__ == "__main__":
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code> + <code>knowledge_base/gap-쿠팡-주.md</code> 생성.</span></p></div><div class="store">지식</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code>(클린 워크스페이스 또는 Ch2 <code>--mock</code> 기준) + <code>knowledge_base/gap-쿠팡-주.md</code> 생성.</span></p></div><div class="store">지식</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 나온다(리소스 <code>inbox://stats</code>는 Tool과 별개로 노출).</span></p></div><div class="store">연결</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>Skill·지식 열어 보기</strong><p><code>cat workspace/knowledge_base/gap-쿠팡-주.md</code> · <code>cat ch4-skills-mcp/inbox-brief/SKILL.md</code><br><span style="color:var(--muted)">성공 기준: gap 항목에 <code>type: gap</code> 머리말, SKILL.md에 name·description.</span></p></div><div class="store">절차</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>Skill 점진 공개 — 코드로</strong><p><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code><br><span style="color:var(--muted)">성공 기준: 미들웨어가 시스템 프롬프트에 싣는 건 name·description뿐, 본문은 "아직 안 읽음"으로 표시. 키가 있으면 <code>--run</code>으로 에이전트가 read_file 하는 것까지.</span></p></div><div class="store">절차</div></div>
@@ -478,6 +478,8 @@ if __name__ == "__main__":
 
 </div>
 </div>
+
+<p class="section-note" style="margin-top:14px">항목 수는 <strong>(거래처 수 + 영수증 없는 카드 항목)</strong>으로 정해집니다 — gold 전체나 <code>--mock</code> 파이프라인이면 10거래처 + gap(쿠팡) + 구독(넷플릭스) = <strong>12개로 고정</strong>입니다. 실제 API로 Ch2를 돌렸다가 일부 이미지가 분류에 실패해 레코드가 빠지면, 그 거래처만큼 항목이 줄어듭니다 — 숫자가 12가 아니라 파이프라인 <em>상태를 그대로</em> 비춘다는 뜻입니다.</p>
 
 <div class="cue solve" style="margin-top:18px">
 <div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~5분</span></div>

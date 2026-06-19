@@ -19,7 +19,7 @@ pageClass: lec-page
 부품을 끼워, 메일 봉투 한 통이 분류부터 검증까지 한 번에 흐르는 엔드투엔드를 배선합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">90</span><strong>분</strong><span>이론 15 · 핸즈온 75</span><span class="clk">예상 16:10–17:40</span></div>
+<div class="metric"><span class="num">90</span><strong>분</strong><span>이론 10 · 핸즈온 75</span><span class="clk">예상 16:10–17:40</span></div>
 <div class="metric"><span class="num">6</span><strong>부품 배선</strong><span>analyst_app.py</span></div>
 <div class="metric"><span class="num">1</span><strong>검증된 브리프</strong><span>verified_brief.md</span></div>
 </div>
@@ -110,13 +110,7 @@ flowchart LR
 <div class="panel-head"><strong>analyst_app.py — 배선의 모양</strong><span>새 로직 없이 부품 호출</span></div>
 <div class="panel-body">
 
-```python
-run_intake(mock)          # Ch2 — 봉투 문서 → classified/
-ctx = run_research()      # Ch3 — fan-out → research_notes/ + brief_draft
-run_okf()                 # Ch4 — OKF 지식 적재 → knowledge_base/
-write_brief()             # Ch4 — 지식 모아 brief.md
-run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
-```
+<<< ../../ch6-integration/analyst_app.py#wiring{python}
 
 </div>
 </div>
@@ -200,13 +194,7 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <div class="panel-body">
 <p class="section-note">"계약이 부품 교체의 자유를 준다"는 명제의 <strong>핵심 도구가 경계 어댑터</strong>입니다 — 바깥세상의 제멋대로인 표기(<code>"11,500원"·"₩1,650,000"</code>)를 계약의 타입(<code>total: float</code>)으로 바꾸는 얇은 코드. 이 <code>coerce_amount</code>를 직접 채워 그 원리를 손으로 익힙니다. <span style="color:var(--muted)">(이건 개념을 익히는 <strong>독립 연습</strong>입니다 — analyst_app 본체는 이미 계약을 지키는 부품들로 돌고 있고, 새 입력 표기를 붙일 때 이런 어댑터 한 겹만 더하면 됩니다.)</span></p>
 
-```python
-def coerce_amount(raw):
-    """ "11,500원" · "₩1,650,000" · 8400 → float. (지금은 NotImplementedError로 끊겨 있다)"""
-    # TODO: 너의 5~10줄. 힌트 — 이미 숫자면 float(raw),
-    #       문자열이면 숫자·소수점만 남기고: float(re.sub(r"[^0-9.]", "", str(raw)))
-    raise NotImplementedError("coerce_amount를 채우세요")
-```
+<<< ../../ch6-integration/exercise_adapter.py#coerce{python}
 
 </div>
 </div>
@@ -236,14 +224,14 @@ flowchart LR
   class A,B,C,D,E s;
 ```
 
-<p style="margin-top:6px">3만원 미만이면 ③에서 <code>type: subscription</code>(구독 추정), 이상이면 <code>type: gap</code>(확인 필요)으로 갈립니다. ⑤에서 검증자는 브리프를 믿지 않고 영수증 없는 거래를 <em>독립으로 다시 세서</em> 브리프가 빠짐없이 짚었는지 대조합니다.</p>
+<p style="margin-top:6px">3만원 미만이면 ③에서 <code>type: subscription</code>(구독 추정), 이상이면 <code>type: gap</code>(확인 필요)으로 갈립니다. ⑤에서 검증자는 브리프 문장을 믿지 않고, <em>같은 레코드를 브리프와 다른 코드 경로로</em> 다시 세서 영수증 없는 거래가 빠짐없이 짚였는지 대조합니다(데이터원은 같고, 판정 경로가 독립입니다 — 자세한 한계는 마무리 슬라이드).</p>
 </div>
 </details>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>막히면</span><span class="status-pill">트러블슈팅</span></div>
 <div class="stack">
-<div class="row"><div class="code">!</div><div class="copy"><strong>ModuleNotFoundError: intake_graph</strong><p>레포 루트에서 <code>uv run</code> 하세요. analyst_app이 <code>sys.path</code>에 ch1~5를 끼우는데 cwd 기준이라 다른 폴더에서 돌리면 깨집니다.</p></div><div class="store">경로</div></div>
+<div class="row"><div class="code">!</div><div class="copy"><strong>ModuleNotFoundError (deepagents·langchain 등)</strong><p>레포 루트에서 <code>uv run</code> 하세요. <code>uv</code>는 실행 폴더(또는 상위)에서 <code>pyproject.toml</code>을 찾아 이 프로젝트의 의존성·가상환경을 잡는데, 레포 밖에서 돌리면 그걸 못 찾아 import가 깨집니다. (앱이 ch1~5를 <code>sys.path</code>에 넣는 건 <code>__file__</code> 위치 기준이라 cwd와는 무관합니다.)</p></div><div class="store">경로</div></div>
 <div class="row"><div class="code">!</div><div class="copy"><strong>[5/6]에서 멈춤(--a2a)</strong><p><code>--a2a</code>는 9610 포트에 verifier_agent를 띄웁니다. 포트 점유 시 기동 실패 — 이전 프로세스를 끄거나 <code>--a2a</code> 없이 목으로 돌립니다.</p></div><div class="store">A2A</div></div>
 <div class="row"><div class="code">!</div><div class="copy"><strong>verified_brief가 NEEDS_REVISION</strong><p>버그 아님 — 기본 실행은 PASS지만, <code>run_okf()</code>를 빼는 등 한 단계를 건너뛰면 브리프가 gap을 빠뜨려 검증자가 정직하게 반려합니다. brief.md "짚을 점"과 verified_brief의 "독립 재계산"을 비교하세요. <strong>PASS도 NEEDS_REVISION도 검증이 제대로 돈 결과</strong>입니다.</p></div><div class="store">정상</div></div>
 </div>

@@ -19,7 +19,7 @@ pageClass: lec-page
 그 과정에서 LLM이 왜 혼자서는 부족한지, 에이전트가 무엇을 더하는지를 손으로 확인합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">45</span><strong>분</strong><span>이론 25 · 핸즈온 20</span><span class="clk">예상 9:20–10:05</span></div>
+<div class="metric"><span class="num">45</span><strong>분</strong><span>이론 26 · 핸즈온 17</span><span class="clk">예상 9:20–10:05</span></div>
 <div class="metric"><span class="num">4</span><strong>한계</strong><span>LLM이 에이전트를 부르는 이유</span></div>
 <div class="metric"><span class="num">1</span><strong>첫 부품</strong><span>classify_one.py</span></div>
 </div>
@@ -513,10 +513,12 @@ flowchart TB
 
 ```json
 {
-  "판매처": "GS25 강남점", "금액": 8400, "문서유형": "영수증",
-  "날짜": "2026-05-14", "신뢰도": 0.95,
-  "항목": [{"이름": "삼각김밥", "금액": 1500, "수량": 2},
-          {"이름": "아메리카노", "금액": 2700, "수량": 2}]
+  "판매처": "GS25 역삼점", "금액": 8400, "문서유형": "영수증",
+  "날짜": "2026-05-13", "신뢰도": 0.95,
+  "항목": [{"이름": "도시락(제육)", "금액": 4900, "수량": 1},
+          {"이름": "삼각김밥", "금액": 1200, "수량": 1},
+          {"이름": "컵라면", "금액": 1500, "수량": 1},
+          {"이름": "생수 500ml", "금액": 800, "수량": 1}]
 }
 ```
 
@@ -524,30 +526,15 @@ flowchart TB
 </div>
 </div>
 
-```python
-key = os.environ["OPENROUTER_API_KEY"]          # ① 키는 .env에서 (코드에 안 박는다)
-llm = ChatOpenAI(model="google/gemini-3.5-flash",
-                 base_url="https://openrouter.ai/api/v1",
-                 api_key=key, temperature=0)     # ② temperature=0 — 추출은 매번 같아야 한다
-
-prompt = EXTRACT_PROMPT.format(schema=schema_json(), source_path=...)  # ③ RecordV1 스키마를 지시에 끼움
-msg = llm.invoke([{
-    "role": "user",
-    "content": [
-        {"type": "text", "text": prompt},                       # ④ 무엇을 뽑을지
-        {"type": "image_url", "image_url": {"url": data_url}},   # ⑤ 영수증 이미지(base64 data URL)
-    ],
-}])
-record = RecordV1.model_validate_json(strip_fences(msg.content))  # ⑥ 받은 JSON을 계약으로 검증
-```
+<<< ../../ch1-llm-basics/classify_one.py#singleshot{python}
 
 <div class="grid-2">
-<div class="panel"><div class="panel-head"><strong>왜 이렇게 쓰나 — ②③⑥</strong><span>설계 결정</span></div><div class="panel-body"><div class="list">
-<p><strong>② temperature=0</strong> — 같은 영수증은 늘 같은 값으로 읽혀야 합니다. 재현성이 추출의 기본 요구입니다.</p>
-<p><strong>③ 스키마를 프롬프트에</strong> — 모델이 RecordV1 한글 키(판매처·금액…)에 맞춰 JSON을 내도록 형식을 못 박습니다.</p>
-<p><strong>⑥ model_validate_json</strong> — 모델 출력을 믿지 않고 계약으로 검증합니다. 필드가 빠지거나 타입이 틀리면 여기서 걸립니다.</p>
+<div class="panel"><div class="panel-head"><strong>왜 이렇게 쓰나</strong><span>설계 결정</span></div><div class="panel-body"><div class="list">
+<p><strong><code>temperature=0</code></strong> — 같은 영수증은 늘 같은 값으로 읽혀야 합니다. 재현성이 추출의 기본 요구입니다.</p>
+<p><strong>스키마를 프롬프트에</strong>(<code>schema_json()</code>) — 모델이 RecordV1 한글 키(판매처·금액…)에 맞춰 JSON을 내도록 형식을 못 박습니다.</p>
+<p><strong><code>model_validate_json</code></strong> — 모델 출력을 믿지 않고 계약으로 검증합니다. 필드가 빠지거나 타입이 틀리면 여기서 걸립니다.</p>
 </div></div></div>
-<div class="panel"><div class="panel-head"><strong>두 가지 함정 — ④⑤⑥</strong><span>자주 막히는 곳</span></div><div class="panel-body"><div class="list">
+<div class="panel"><div class="panel-head"><strong>두 가지 함정</strong><span>자주 막히는 곳</span></div><div class="panel-body"><div class="list">
 <p>이미지는 <code>data:image/png;base64,...</code> 형태의 data URL로 넣습니다. 경로 문자열이 아닙니다.</p>
 <p>모델이 <code>```json … ```</code> 울타리를 붙여 답할 때가 있어 <code>strip_fences</code>로 벗긴 뒤 파싱합니다.</p>
 </div></div></div>
@@ -566,32 +553,19 @@ record = RecordV1.model_validate_json(strip_fences(msg.content))  # ⑥ 받은 J
 </div>
 
 <div class="panel">
-<div class="panel-head"><strong>ch1-llm-basics/classify_one.py <em>(발췌)</em></strong><span>모델이 도구를 직접 호출하는 ReAct 루프</span></div>
+<div class="panel-head"><strong>classify_one.py — check_receipt_sum</strong><span>모델이 손에 쥐는 검산 도구</span></div>
 <div class="panel-body">
 
-```python
-@tool
-def check_receipt_sum(items: list[dict], total: float) -> str:
-    """영수증 항목 합계가 총액과 맞는지 검산한다. 추출 직후 반드시 호출하라."""
-    s = sum((it.get("amount") or 0) * (it.get("qty") or 1)
-            for it in items if (it.get("amount") or 0) > 0)
-    ok = abs(s - total) < 1.0
-    return f"항목합={s:,.0f} 총액={total:,.0f} → " + ("일치" if ok else "불일치. 다시 보라")
+<<< ../../ch1-llm-basics/classify_one.py#react-tool{python}
 
-def extract_react(doc, model, max_steps=5):
-    llm = ChatOpenAI(model=model, ...).bind_tools([check_receipt_sum])  # 도구를 쥐여 준다
-    messages = [SystemMessage(REACT_SYSTEM), HumanMessage([text, image])]
-    for _ in range(max_steps):
-        ai = llm.invoke(messages); messages.append(ai)
-        if ai.tool_calls:                              # Action — 모델이 호출을 결정
-            for tc in ai.tool_calls:
-                obs = check_receipt_sum.invoke(tc["args"])   # 런타임이 실제 실행
-                print(f"  [Observation] {obs}")
-                messages.append(ToolMessage(obs, tool_call_id=tc["id"]))
-            continue                                   # 관측을 들고 다시 모델에게
-        return RecordV1.model_validate_json(strip_fences(ai.content))  # 도구 안 부름 = 최종
-    raise RuntimeError("max_steps 초과")                  # 무한 도구 호출 방지(하네스의 상한)
-```
+</div>
+</div>
+
+<div class="panel" style="margin-top:16px">
+<div class="panel-head"><strong>classify_one.py — extract_react 루프</strong><span>Thought → Action → Observation → Final</span></div>
+<div class="panel-body">
+
+<<< ../../ch1-llm-basics/classify_one.py#react-loop{python}
 
 </div>
 </div>
@@ -634,8 +608,8 @@ def extract_react(doc, model, max_steps=5):
 <details>
 <summary>관찰 포인트</summary>
 <div class="reveal">
-<p>① 이 경우 모델은 <strong><code>check_receipt_sum</code>을 부릅니다</strong>. invoice_photo는 명세서지만 항목 2개가 총액(1,650,000원)과 정확히 맞아떨어지는 구조라, 모델이 "검산할 수 있는 문서"로 보고 도구를 부른 뒤 통과시킵니다. 핵심은 <code>extract_react</code>에 <em>doc_type을 보는 강제 <code>if</code>는 없다</em>는 점입니다 — 무엇을·언제 검산할지는 모델이 문서 구조를 보고 정합니다(ReAct의 성질). 시스템 프롬프트는 "항목합이 총액과 무관한 문서면 검산을 건너뛰라"고 일러두므로, 항목이 총액과 안 맞물리는 문서였다면 모델은 검산 없이 바로 냈을 것입니다.</p>
-<p>② 모델이 항목을 살짝 다르게 읽으면 1원 단위 오차가 생길 수 있습니다. 허용 오차는 "얼마나 깐깐하게 볼까"의 손잡이입니다. 너무 0에 가까우면 정상도 불일치로 떨어지고, 너무 크면 진짜 오류를 놓칩니다.</p>
+<p>① 정답은 <strong>"모델이 정한다"</strong>입니다 — 부를 수도, 건너뛸 수도 있습니다. <code>extract_react</code>엔 <em>doc_type을 보고 강제하는 <code>if</code>가 없어서</em>(ReAct의 성질) 무엇을·언제 검산할지는 모델이 문서를 보고 결정합니다. 시스템 프롬프트는 "명세서·계약서처럼 항목합이 총액과 무관한 문서면 검산을 건너뛰라"고 일러두는데, invoice_photo는 <em>명세서로 분류되지만</em> 항목 2개(공급가액 1,500,000 + 부가세 150,000)가 총액 1,650,000원과 정확히 맞아떨어지는 경계 사례라, 모델에 따라 "검산할 수 있는 문서"로 보고 도구를 부르기도 합니다. 어느 쪽이 나오든 — 분기를 코드가 아니라 모델이 정한다는 게 핵심이고, 그래서 같은 입력도 모델·실행에 따라 갈릴 수 있습니다.</p>
+<p>② 정답은 <strong>"전부"</strong>입니다 — 정확히 맞아떨어지는 영수증조차 불일치로 떨어집니다. 검산은 <code>abs(항목합 − 총액) &lt; tol</code>인데, <code>tol=0.0</code>이면 절댓값(항상 0 이상)이 <code>0.0</code>보다 작을 수 없어서(완전 일치라도 <code>abs(0) &lt; 0.0</code>은 거짓) 어떤 영수증도 통과하지 못합니다. 즉 허용 오차는 "얼마나 깐깐하게 볼까"의 손잡이인데, 0으로 두면 '완벽히 일치'마저 못 통과시키는 과조임입니다. 반대로 너무 크면 진짜 오류를 놓칩니다. (정수 원화라 기본값 <code>1.0</code>은 사실상 "1원이라도 어긋나면 불일치, 정확히 맞으면 통과"로 작동합니다.)</p>
 </div>
 </details>
 </section>
