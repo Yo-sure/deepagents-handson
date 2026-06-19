@@ -279,17 +279,22 @@ flowchart TB
 def reconcile_card(records: list[RecordV1]) -> str:
     receipts = by_type(records, "영수증")
     card = next((r for r in by_type(records, "명세서") if "카드" in r.merchant), None)
+    if not card:                                     # 카드 명세서 없으면 일찍 반환(없으면 아래서 터진다)
+        return "# 카드 대사\n\n카드 명세서를 찾지 못했습니다.\n"
     lines, unmatched = [], []
     for item in card.items:                          # 명세서 거래줄을 하나씩
         amt = item.amount or 0
-        hit = next((r for r in receipts if abs(r.total - amt) < 1.0), None)  # 금액 같은 영수증?
+        hit = next((r for r in receipts if abs(r.total - amt) < MATCH_TOL), None)  # 금액 같은 영수증?
         if hit:
             lines.append(f"- ✅ {item.name} {amt:,.0f}원 ↔ 영수증 「{hit.merchant}」")
         else:
             lines.append(f"- ⚠️ {item.name} {amt:,.0f}원 — 매칭 영수증 없음")
             unmatched.append((item.name, amt))       # 영수증 없는 줄을 모은다
-    # ... 쿠팡 89,000 · 넷플릭스 17,000이 여기 unmatched로 잡힌다
+    # 영수증 없는 줄 분류: kind = "구독 추정" if amt < 30000 else "영수증 분실/미수령"
+    # (노트 조립부 생략 — 정본은 research_orchestrator.py) → 쿠팡 89,000·넷플릭스 17,000이 unmatched
 ```
+
+<p class="section-note" style="margin-top:12px">두 가지 짚을 점 — ① <code>if not card</code> 가드가 없으면 카드 명세서가 없을 때 <code>card.items</code>에서 터집니다. ② 금액 단독 매칭(<code>next(...)</code>, first-match)은 <em>같은 금액 영수증이 둘이면 깨집니다</em> — 실무 대사는 (금액·날짜·가맹점) 다중키로 풉니다. 여기선 교육용으로 금액만 봅니다.</p>
 
 </div>
 </div>

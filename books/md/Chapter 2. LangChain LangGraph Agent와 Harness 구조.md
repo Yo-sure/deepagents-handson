@@ -131,6 +131,7 @@ for _ in range(MAX_STEPS):
 ```python
 class IntakeState(TypedDict, total=False):
     doc: str        # sample_inbox 파일명
+    mock: bool      # --mock 플래그(gold로 추출, 키 불필요)
     record: dict    # 추출한 RecordV1 (노드 사이로 운반)
     retries: int    # 재분류 횟수
     flagged: str    # 사람 검토 사유("" 면 자동 통과)
@@ -236,10 +237,14 @@ flowchart TD
 graph = g.compile(checkpointer=InMemorySaver())
 config = {"configurable": {"thread_id": f"intake-{doc}"}}
 
-result = graph.invoke(state, config=config)     # review에서 멈춤
-# ... 사람의 결정을 받은 뒤 ...
-graph.invoke(Command(resume="approve"), config=config)  # 같은 자리에서 재개
+result = graph.invoke(state, config=config)
+if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라 반환값 안에 온다
+    payload = result["__interrupt__"][0].value   # 멈춘 사유(고액·저신뢰)
+    # ... 사람의 결정을 받은 뒤 ...
+    graph.invoke(Command(resume="approve"), config=config)  # 같은 자리에서 재개
 ```
+
+<p class="section-note" style="margin-top:12px">핵심: <strong>멈춤은 예외가 아니라 반환값 안의 <code>__interrupt__</code></strong>로 옵니다. <code>graph.invoke</code>가 정상 반환하되 결과에 <code>__interrupt__</code> 키가 있으면 거기서 멈춘 것이고, <code>[0].value</code>가 <code>interrupt()</code>에 넘긴 사유 페이로드입니다.</p>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>왜 메모리에 저장하나</span><span class="status-pill">InMemorySaver</span></div>
@@ -327,7 +332,7 @@ sequenceDiagram
 <details>
 <summary>정답 확인</summary>
 <div class="reveal">
-<p>checkpointer 없이는 interrupt가 동작하지 않습니다. 멈춘 순간의 상태를 저장할 곳이 없으니 재개 지점을 잃습니다. 그래서 HITL에는 checkpointer가 필수입니다.</p>
+<p>checkpointer 없이 interrupt를 쓰면 조용히 통과하는 게 아니라 <strong>LangGraph가 에러로 막습니다</strong> — 멈춘 순간의 상태를 저장할 곳이 없으면 재개가 불가능하기 때문입니다. 그래서 HITL에는 checkpointer가 필수입니다.</p>
 <p>같은 <code>thread_id</code>로 다시 부르면 저장된 그 자리부터 이어집니다. <code>Command(resume="approve")</code>가 멈춘 review 노드로 결정을 흘려보내 다음 단계(persist)로 넘어갑니다. 다른 thread_id면 처음부터 새 실행입니다.</p>
 </div>
 </details>

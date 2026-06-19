@@ -223,7 +223,9 @@ sequenceDiagram
   "name": "inbox-brief",
   "version": "0.2.0",
   "description": "인박스 리서치 애널리스트의 월간 브리프 작성 스킬",
+  "author": "deepagents-handson",
   "skills": ["./SKILL.md"],
+  "entry": "SKILL.md",
   "tags": ["inbox", "brief", "okf"]
 }
 ```
@@ -452,7 +454,7 @@ if __name__ == "__main__":
 <div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code> + <code>knowledge_base/gap-쿠팡-주.md</code> 생성.</span></p></div><div class="store">지식</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 나온다(리소스 <code>inbox://stats</code>는 Tool과 별개로 노출).</span></p></div><div class="store">연결</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>Skill·지식 열어 보기</strong><p><code>cat workspace/knowledge_base/gap-쿠팡-주.md</code> · <code>cat ch4-skills-mcp/inbox-brief/SKILL.md</code><br><span style="color:var(--muted)">성공 기준: gap 항목에 <code>type: gap</code> 머리말, SKILL.md에 name·description.</span></p></div><div class="store">절차</div></div>
-<div class="row"><div class="code">4</div><div class="copy"><strong>Skill 점진 공개 — 코드로</strong><p><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code><br><span style="color:var(--muted)">성공 기준: 미들웨어가 시스템 프롬프트에 싣는 건 name·description뿐, 본문 27줄은 "아직 안 읽음"으로 표시. 키가 있으면 <code>--run</code>으로 에이전트가 read_file 하는 것까지.</span></p></div><div class="store">절차</div></div>
+<div class="row"><div class="code">4</div><div class="copy"><strong>Skill 점진 공개 — 코드로</strong><p><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code><br><span style="color:var(--muted)">성공 기준: 미들웨어가 시스템 프롬프트에 싣는 건 name·description뿐, 본문은 "아직 안 읽음"으로 표시. 키가 있으면 <code>--run</code>으로 에이전트가 read_file 하는 것까지.</span></p></div><div class="store">절차</div></div>
 </div>
 
 <div class="cue do" style="margin-top:18px">

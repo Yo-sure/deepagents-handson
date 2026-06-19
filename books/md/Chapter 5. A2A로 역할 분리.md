@@ -254,11 +254,13 @@ sequenceDiagram
 def verify_brief(brief_text: str) -> tuple[bool, list[str]]:
     records = load_records()                       # 레코드를 직접 읽는다
     receipts = by_type(records, "영수증")
-    card = next(r for r in by_type(records, "명세서") if "카드" in r.merchant)
+    card = next((r for r in by_type(records, "명세서") if "카드" in r.merchant), None)
+    if not card:                                   # 기본값 None + 가드 — 없으면 StopIteration 대신 안전 반환
+        return False, ["카드 명세서를 찾지 못해 검증 불가"]
     real_gaps = [(i.name, i.amount or 0) for i in card.items
                  if not any(abs(r.total - (i.amount or 0)) < 1 for r in receipts)]
     missing = [n for n, _ in real_gaps if n.split("(")[0] not in brief_text]
-    return (not missing), [...]                    # 브리프가 빠뜨린 게 있나
+    return (not missing), notes                    # notes 조립 생략 — 정본은 verifier_agent.py
 ```
 
 </div>

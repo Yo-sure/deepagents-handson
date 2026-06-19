@@ -127,7 +127,7 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <p>그래서 함수끼리 인자를 길게 주고받지 않아도 됩니다 — 파일이 계약입니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>한 군데만 실선, 나머지는 목</strong></div><div class="panel-body"><div class="list">
-<p>봉투(메일)는 목(mock·가짜 봉투), 검증(A2A)·파일(MCP)은 실선(실제 연결). 외부통합을 둘로 묶어 8시간에 소화합니다.</p>
+<p>봉투(메일)는 목(mock·가짜 봉투), 검증(A2A)은 실선(실제 외부 서버 연결). 파일·지식 적재는 캡스톤에선 직접 쓰기로 단순화합니다(Ch4의 MCP 개념을 여기선 한 겹 줄임).</p>
 <p><code>--a2a</code>를 빼면 검증도 목으로 돌아 키 없이 끝까지 돕니다.</p>
 </div></div></div>
 </div>
@@ -178,8 +178,8 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 </div>
 
 <div class="cue wait">
-<div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~3분</span></div>
-<div class="cue-body"><code>--a2a</code> 실행은 9610 포트에 검증 에이전트를 띄워 통신하므로 목 실행보다 몇 분 더 걸립니다. [5/6]에서 <code>Agent Card</code> 조회와 실제 서버 응답이 끝날 때까지 기다린 뒤, <code>workspace/verified_brief.md</code>를 열어 브리프 본문과 외부 검증 도장(<strong>PASS</strong>)이 한 파일에 함께 담겼는지 확인합니다.</div>
+<div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~십여 초</span></div>
+<div class="cue-body"><code>--a2a</code> 실행은 9610 포트에 검증 에이전트를 띄워 통신하므로 목 실행보다 서버 기동 한 박자(십여 초)만큼 더 걸립니다(verifier는 LLM 없이 규칙으로 즉답). [5/6]에서 <code>Agent Card</code> 조회와 실제 서버 응답이 끝날 때까지 기다린 뒤, <code>workspace/verified_brief.md</code>를 열어 브리프 본문과 외부 검증 도장(<strong>PASS</strong>)이 한 파일에 함께 담겼는지 확인합니다.</div>
 </div>
 
 <div class="cue solve" style="margin-top:18px">
