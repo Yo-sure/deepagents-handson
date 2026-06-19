@@ -47,6 +47,7 @@ PORT = 9610
 URL = f"http://localhost:{PORT}"
 
 
+#pragma region verify-brief
 def verify_brief(brief_text: str) -> tuple[bool, list[str]]:
     """브리프를 레코드와 대사한다 — (통과여부, 근거 목록). 독립 재계산이라 편향이 없다."""
     records = load_records()
@@ -67,11 +68,13 @@ def verify_brief(brief_text: str) -> tuple[bool, list[str]]:
         return False, notes
     notes.append("브리프가 빠짐 없이 모두 짚었습니다 — 검증 통과")
     return True, notes
+#pragma endregion verify-brief
 
 
 class VerifierExecutor(AgentExecutor):
     """A2A 요청(브리프 텍스트)을 받아 검증 결과를 아티팩트로 돌려준다."""
 
+#pragma region execute
     async def execute(self, context: RequestContext, event_queue: EventQueue) -> None:
         brief = context.get_user_input()
         ok, notes = verify_brief(brief)
@@ -92,6 +95,7 @@ class VerifierExecutor(AgentExecutor):
             parts=[Part(text="브리프를 레코드와 대사하는 중...")]))
         await updater.add_artifact(parts=[Part(text=body)], name="verdict", last_chunk=True)
         await updater.complete()
+#pragma endregion execute
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
         raise NotImplementedError("취소는 지원하지 않습니다")

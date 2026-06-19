@@ -272,18 +272,7 @@ sequenceDiagram
 <div class="panel-head"><strong>verifier_agent.py — verify_brief</strong><span>편향 없는 재계산</span></div>
 <div class="panel-body">
 
-```python
-def verify_brief(brief_text: str) -> tuple[bool, list[str]]:
-    records = load_records()                       # 레코드를 직접 읽는다
-    receipts = by_type(records, "영수증")
-    card = next((r for r in by_type(records, "명세서") if "카드" in r.merchant), None)
-    if not card:                                   # 기본값 None + 가드 — 없으면 StopIteration 대신 안전 반환
-        return False, ["카드 명세서를 찾지 못해 검증 불가"]
-    real_gaps = [(i.name, i.amount or 0) for i in card.items
-                 if not any(abs(r.total - (i.amount or 0)) < 1 for r in receipts)]
-    missing = [n for n, _ in real_gaps if n.split("(")[0] not in brief_text]
-    return (not missing), notes                    # notes 조립 생략 — 정본은 verifier_agent.py
-```
+<<< ../../ch5-a2a/verifier_agent.py#verify-brief{python}
 
 </div>
 </div>
@@ -326,20 +315,9 @@ flowchart TB
 <div class="panel-head"><strong>ch5-a2a/verifier_agent.py — execute</strong><span>요청 → 검증 → 결과</span></div>
 <div class="panel-body">
 
-```python
-async def execute(self, context: RequestContext, event_queue: EventQueue) -> None:
-    brief = context.get_user_input()              # ① 들어온 메시지에서 텍스트
-    ok, notes = verify_brief(brief)               # ② 독립 재계산
-    body = f"## 외부 검증 결과 — {'PASS' if ok else 'NEEDS_REVISION'}\n..."
+<<< ../../ch5-a2a/verifier_agent.py#execute{python}
 
-    await event_queue.enqueue_event(Task(         # ③ A2A 규칙: Task를 먼저 등록
-        id=context.task_id, context_id=context.context_id,
-        status=TaskStatus(state=TaskState.TASK_STATE_SUBMITTED)))
-    updater = TaskUpdater(event_queue, context.task_id, context.context_id)
-    await updater.start_work(...)                 # working
-    await updater.add_artifact(parts=[Part(text=body)], name="verdict")  # 결과 첨부
-    await updater.complete()                      # completed
-```
+<p class="section-note" style="margin-top:12px">읽는 순서 — <strong>①</strong> <code>get_user_input()</code>로 들어온 브리프 텍스트 → <strong>②</strong> <code>verify_brief</code>로 독립 재계산 → <strong>③</strong> <code>enqueue_event(Task(...))</code>로 <em>상태 갱신 전에 Task를 먼저 등록</em>(A2A 규칙) → <code>start_work → add_artifact(verdict) → complete</code>로 상태를 단계로 올립니다.</p>
 
 </div>
 </div>
