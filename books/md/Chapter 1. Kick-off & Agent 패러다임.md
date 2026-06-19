@@ -566,7 +566,7 @@ record = RecordV1.model_validate_json(strip_fences(msg.content))  # ⑥ 받은 J
 </div>
 
 <div class="panel">
-<div class="panel-head"><strong>ch1-llm-basics/classify_one.py</strong><span>모델이 도구를 직접 호출하는 ReAct 루프</span></div>
+<div class="panel-head"><strong>ch1-llm-basics/classify_one.py <em>(발췌)</em></strong><span>모델이 도구를 직접 호출하는 ReAct 루프</span></div>
 <div class="panel-body">
 
 ```python
