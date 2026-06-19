@@ -131,21 +131,23 @@ def bump_retry(state: IntakeState) -> dict:
     return {"retries": state["retries"] + 1}
 
 
+# #region build-graph
 def build_graph():
     g = StateGraph(IntakeState)
-    g.add_node("classify", classify)
-    g.add_node("verify", verify)
-    g.add_node("retry", bump_retry)
-    g.add_node("review", review)
-    g.add_node("persist", persist)
+    g.add_node("classify", classify)     # 추출(Ch1 부품)
+    g.add_node("verify", verify)         # 합계·플래그
+    g.add_node("retry", bump_retry)      # 재분류 카운터
+    g.add_node("review", review)         # interrupt() 멈춤
+    g.add_node("persist", persist)       # classified/ 적재
     g.add_edge(START, "classify")
     g.add_edge("classify", "verify")
-    g.add_conditional_edges("verify", after_verify,
+    g.add_conditional_edges("verify", after_verify,          # ← 유일한 분기
                             {"retry": "retry", "review": "review", "persist": "persist"})
-    g.add_edge("retry", "classify")
+    g.add_edge("retry", "classify")      # 재시도는 classify로 되돌림
     g.add_edge("review", "persist")
     g.add_edge("persist", END)
-    return g.compile(checkpointer=InMemorySaver())
+    return g.compile(checkpointer=InMemorySaver())            # ← interrupt에 필수
+# #endregion build-graph
 
 
 def run_one(graph, doc: str, mock: bool, auto: str = "approve") -> None:

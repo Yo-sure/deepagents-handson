@@ -358,23 +358,7 @@ sequenceDiagram
 <div class="panel-head"><strong>ch2-langgraph-agent/intake_graph.py — build_graph</strong><span>노드·엣지·체크포인터</span></div>
 <div class="panel-body">
 
-```python
-def build_graph():
-    g = StateGraph(IntakeState)
-    g.add_node("classify", classify)     # 추출(Ch1 부품)
-    g.add_node("verify", verify)         # 합계·플래그
-    g.add_node("retry", bump_retry)      # 재분류 카운터
-    g.add_node("review", review)         # interrupt() 멈춤
-    g.add_node("persist", persist)       # classified/ 적재
-    g.add_edge(START, "classify")
-    g.add_edge("classify", "verify")
-    g.add_conditional_edges("verify", after_verify,          # ← 유일한 분기
-                            {"retry": "retry", "review": "review", "persist": "persist"})
-    g.add_edge("retry", "classify")      # 재시도는 classify로 되돌림
-    g.add_edge("review", "persist")
-    g.add_edge("persist", END)
-    return g.compile(checkpointer=InMemorySaver())            # ← interrupt에 필수
-```
+<<< ../../ch2-langgraph-agent/intake_graph.py#build-graph{python}
 
 </div>
 </div>

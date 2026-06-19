@@ -384,15 +384,10 @@ flowchart LR
 <div class="panel-head"><strong>ch4-skills-mcp/okf_store.py — okf_entry</strong><span>지식 항목 직렬화</span></div>
 <div class="panel-body">
 
-```python
-def okf_entry(type_: str, name: str, body_lines: list[str], **meta) -> str:
-    # 상호·품목명은 모델이 뽑은 자유 텍스트라 콜론·#이 섞일 수 있다 → safe_dump로 안전 직렬화
-    front_data = {"type": type_, "name": name, "schema_version": OKF_VERSION, **meta}
-    front = yaml.safe_dump(front_data, allow_unicode=True, sort_keys=False).strip()
-    body = "\n".join(body_lines)
-    return f"---\n{front}\n---\n\n# {name}\n\n{body}\n"   # 프런트매터 + 본문
+<<< ../../ch4-skills-mcp/okf_store.py#okf-entry{python}
 
-# 카드 대사에서 영수증 없는 줄을 gap/subscription 항목으로:
+```python
+# 카드 대사에서 영수증 없는 줄을 gap/subscription 항목으로(개념 예시):
 if amt < 30000:
     out[f"subscription-{slug(item.name)}"] = okf_entry("subscription", item.name, [...])
 else:

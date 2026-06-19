@@ -32,6 +32,7 @@ from research_orchestrator import by_type, load_records
 OKF_VERSION = "okf/0.1"
 
 
+# #region okf-entry
 def okf_entry(type_: str, name: str, body_lines: list[str], **meta) -> str:
     """OKF 항목 한 개를 직렬화한다 — YAML 프런트매터(type 필수) + 마크다운 본문."""
     # 값에 콜론·# 같은 YAML 메타문자가 와도 안전하게 직렬화한다 — 상호명·품목명은
@@ -40,6 +41,7 @@ def okf_entry(type_: str, name: str, body_lines: list[str], **meta) -> str:
     front = yaml.safe_dump(front_data, allow_unicode=True, sort_keys=False).strip()
     body = "\n".join(body_lines)
     return f"---\n{front}\n---\n\n# {name}\n\n{body}\n"
+# #endregion okf-entry
 
 
 def slug(name: str) -> str:
