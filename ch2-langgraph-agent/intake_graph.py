@@ -56,11 +56,17 @@ class IntakeState(TypedDict, total=False):
 # ── 노드 ─────────────────────────────────────────────────────────
 
 
+BREAK_SUM = False  # --break-sum: 영수증 합계를 일부러 1원 어긋나게 해 retry 분기를 눈으로 본다(교육용).
+
+
 def classify(state: IntakeState) -> dict:
     """문서 한 장을 RecordV1로 추출한다(Ch1 부품 재사용)."""
     rec = extract(state["doc"], model="google/gemini-3.5-flash", mock=state["mock"], react=False)
     print(f"  [classify] {rec.merchant} · {rec.total:,.0f}원 · 신뢰도 {rec.confidence:.2f}")
-    return {"record": rec.model_dump(by_alias=True, mode="json")}  # classified/*.json = 한글 키
+    dump = rec.model_dump(by_alias=True, mode="json")  # classified/*.json = 한글 키
+    if BREAK_SUM and rec.doc_type == "영수증":
+        dump["금액"] = (dump.get("금액") or 0) + 1       # 합계를 1원 깨 retry를 발화시킨다
+    return {"record": dump}
 
 
 def verify(state: IntakeState) -> dict:
@@ -114,10 +120,9 @@ def persist(state: IntakeState) -> dict:
 
 
 def after_verify(state: IntakeState) -> str:
-    if state.get("sum_ok", True) is False:
-        if state["retries"] < MAX_RETRY:
-            return "retry"
-        return "persist"  # 상한 도달 — 일단 적재하고 검토 큐로
+    if state.get("sum_ok", True) is False and state["retries"] < MAX_RETRY:
+        return "retry"                          # 합계 불일치 — 상한까지 재분류
+    # 합계가 끝내 안 맞아도, flagged(고액·저신뢰)면 사람 검토를 거친다 — 안전 약속을 코드로 보장.
     return "review" if state["flagged"] else "persist"
 
 
@@ -161,8 +166,11 @@ def main() -> None:
     ap.add_argument("--doc", help="한 건만 처리(미지정 시 sample_inbox 전체)")
     ap.add_argument("--mock", action="store_true", help="키 없이 gold로 적재")
     ap.add_argument("--reject-flagged", action="store_true", help="검토건을 자동 반려")
+    ap.add_argument("--break-sum", action="store_true", help="영수증 합계를 일부러 깨 retry 분기를 본다")
     args = ap.parse_args()
 
+    global BREAK_SUM
+    BREAK_SUM = args.break_sum
     graph = build_graph()
     auto = "reject" if args.reject_flagged else "approve"
 

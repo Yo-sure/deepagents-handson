@@ -93,6 +93,8 @@ agent = create_agent("openai:google/gemini-3.5-flash", tools=[...])
 # 다만 그 그래프는 ReAct 루프 모양으로 고정 — 흐름을 직접 그리려면 StateGraph를 손으로 짠다 ↓
 ```
 
+<p class="section-note" style="margin-top:10px"><code>"openai:google/gemini-3.5-flash"</code>가 오타처럼 보이지만 맞습니다 — <code>openai:</code> 접두사는 <strong>OpenAI 호환 게이트웨이(OpenRouter)</strong>로 부른다는 표시이고, 실제 모델은 <code>google/gemini-3.5-flash</code>입니다(Ch0의 게이트웨이 설정 그대로). 이후 챕터의 <code>openai:</code>도 모두 같은 뜻입니다.</p>
+
 <p class="section-note" style="margin-top:16px"><code>create_agent</code>는 LangGraph 1.0 이전의 <code>create_react_agent</code>를 대체했습니다. 둘 다 같은 <code>CompiledStateGraph</code>를 돌려줍니다. 차이는 자유도이고, 그 자유도의 핵심은 LangChain 1.0이 더한 <strong>미들웨어</strong>(<code>before_model</code>·<code>after_model</code> 훅)입니다 — Ch3의 <code>create_deep_agent</code>는 바로 이 <code>create_agent</code>에 미들웨어를 기본 탑재한 확장입니다.</p>
 
 <div class="board" style="margin-top:18px">
@@ -149,7 +151,7 @@ flowchart TD
     VE -->|"합계 불일치 & 재시도 남음"| RT["retry · 재분류"]
     RT -->|"다시 분류"| CL
     VE -->|"고액·저신뢰 플래그"| RV["review · interrupt() 멈춤"]
-    VE -->|"이상 없음 · 또는 재시도 상한 도달"| PS["persist · classified/ 적재"]
+    VE -->|"플래그 없음 (상한 도달 포함)"| PS["persist · classified/ 적재"]
     RV --> PS
     PS --> E([END])
     style RV fill:#fff3e0,stroke:#e09f3e
@@ -179,15 +181,14 @@ flowchart TD
 
 </div>
 <p class="section-note">verify가 영수증 합계를 봅니다. 항목 금액에 수량을 곱해 더한 값이 총액과 어긋나면 잘못 읽은 것입니다.<br>
-이때 조건부 엣지가 흐름을 classify로 되돌립니다. 상한까지 다시 읽고, 그래도 안 맞으면 검토 큐로 넘겨 일단 적재합니다.</p>
+이때 조건부 엣지가 흐름을 classify로 되돌립니다. 상한까지 다시 읽고, <strong>합계가 끝내 안 맞아도 고액·저신뢰(flagged)면 사람 검토를 거쳐</strong> 적재합니다 — 안전 약속을 코드로 보장합니다.</p>
 </div>
 
 ```python
 def after_verify(state: IntakeState) -> str:
-    if state.get("sum_ok", True) is False:          # 합계 불일치
-        if state["retries"] < MAX_RETRY:
-            return "retry"                          # classify로 되돌림
-        return "persist"                            # 상한 도달 — 검토 큐로
+    if state.get("sum_ok", True) is False and state["retries"] < MAX_RETRY:
+        return "retry"                          # 합계 불일치 — 상한까지 재분류
+    # 합계가 끝내 안 맞아도, flagged(고액·저신뢰)면 사람 검토를 거친다 — 안전 약속을 코드로 보장.
     return "review" if state["flagged"] else "persist"
 
 g.add_conditional_edges("verify", after_verify,
@@ -195,16 +196,15 @@ g.add_conditional_edges("verify", after_verify,
 ```
 
 <div class="panel" style="margin-top:16px">
-<div class="panel-head"><strong>after_verify가 고르는 네 갈래</strong><span>조건부 분기</span></div>
+<div class="panel-head"><strong>after_verify가 고르는 세 갈래</strong><span>조건부 분기</span></div>
 <div class="panel-body">
 
 ```mermaid
 flowchart TD
-    V{"합계 일치?"}
+    V{"합계 일치 & 재시도 남음?"}
     V -->|"불일치 & 재시도 < 2"| R["retry → classify"]
-    V -->|"불일치 & 상한 도달"| P1["persist · 검토 큐로"]
-    V -->|"일치 & 플래그 있음"| RV["review · 사람 확인"]
-    V -->|"일치 & 플래그 없음"| P2["persist · 자동 적재"]
+    V -->|"flagged(고액·저신뢰)"| RV["review · 사람 확인"]
+    V -->|"flagged 없음"| P2["persist · 자동 적재"]
     style RV fill:#fff3e0,stroke:#e09f3e
 ```
 
@@ -218,6 +218,11 @@ flowchart TD
 <p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아, 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성).</p>
 <p>다만 mock에선 gold가 고정이라 재시도해도 같은 값이 나옵니다. 재시도 분기는 키 있는 라이브 추출에서 의미가 있고, 한계를 정해 두는 게 하네스의 일입니다.</p>
 </div></div>
+</div>
+
+<div class="cue do" style="margin-top:14px">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기 — retry를 눈으로</span><span class="cue-time">~3분</span></div>
+<div class="cue-body">평소 mock은 합계가 맞아 retry가 안 뜹니다. <code>--break-sum</code>으로 합계를 일부러 1원 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. <code>[verify] 합계 불일치 → [retry] 재분류 1/2 → 2/2 → persist</code>가 차례로 찍힙니다 — 조건부 엣지가 실제로 도는 걸 직접 봅니다(상한 2회에서 멈추는 것도).</div>
 </div>
 </section>
 
