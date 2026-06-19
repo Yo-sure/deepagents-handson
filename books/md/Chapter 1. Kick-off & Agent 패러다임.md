@@ -506,6 +506,24 @@ flowchart TB
 <p class="section-note">영수증 이미지 한 장을 모델에 보여 주고 RecordV1로 받습니다. 먼저 호출의 모양을 한 줄씩 읽습니다. 텍스트 프롬프트와 이미지를 <strong>한 메시지에 함께</strong> 실어 보내는 게 핵심입니다.</p>
 </div>
 
+<div class="board">
+<div class="board-header"><span>먼저 — 만들 물건과 처음 보는 말</span><span class="status-pill">RecordV1 · 용어</span></div>
+<div class="panel-body">
+<p class="section-note" style="margin-top:0">이 코드가 뽑아내는 <strong>RecordV1</strong>은 이렇게 생긴 한 덩어리입니다(한글 키 = 계약, Ch0 데이터 계약). 지금은 한 줄씩 이해할 필요 없이 <em>판매처·금액·항목·문서유형 칸이 정해져 있다</em>는 것만 보세요:</p>
+
+```json
+{
+  "판매처": "GS25 강남점", "금액": 8400, "문서유형": "영수증",
+  "날짜": "2026-05-14", "신뢰도": 0.95,
+  "항목": [{"이름": "삼각김밥", "금액": 1500, "수량": 2},
+          {"이름": "아메리카노", "금액": 2700, "수량": 2}]
+}
+```
+
+<p class="section-note" style="margin-top:10px">코드에 처음 나오는 말 — <code>data_url</code> 이미지를 <code>data:image/png;base64,…</code> 문자열로 인코딩한 것(파일 경로 아님) · <code>schema_json()</code> 위 RecordV1의 칸 형식을 JSON으로 적어 프롬프트에 끼우는 함수 · <code>strip_fences</code> 모델이 답에 붙이는 <code>```json</code> 울타리를 벗기는 함수 · <code>model_validate_json</code> 받은 JSON이 계약(RecordV1)에 맞는지 검증.</p>
+</div>
+</div>
+
 ```python
 key = os.environ["OPENROUTER_API_KEY"]          # ① 키는 .env에서 (코드에 안 박는다)
 llm = ChatOpenAI(model="google/gemini-3.5-flash",

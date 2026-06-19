@@ -133,10 +133,10 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 <div class="board-header"><span>따라 하기 — 처음 한 번</span><span class="status-pill">5단계</span></div>
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>WSL 터미널 열기</strong><p>Windows 시작 메뉴 → <code>Ubuntu</code> 실행. 프롬프트가 <code>~$</code>면 리눅스 안입니다(윈도우 <code>C:\</code>가 아님).</p></div><div class="store">WSL</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>레포로 이동 → 셋업</strong><p><code>cd ~/lecture</code> 후 <code>bash scripts/setup.sh</code>. 프리플라이트가 ❌ OPENROUTER 한 줄만 남기면 정상입니다.</p></div><div class="store">.venv</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>레포 받기 → 셋업</strong><p><code>git clone https://github.com/Yo-sure/deepagents-handson ~/lecture</code> → <code>cd ~/lecture</code> → <code>bash scripts/setup.sh</code>. 프리플라이트가 ❌ OPENROUTER 한 줄만 남기면 정상입니다.</p></div><div class="store">.venv</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>VSCode를 WSL로 열기</strong><p>같은 폴더에서 <code>code .</code>. 첫 실행이면 VSCode가 WSL 서버를 자동 설치합니다(1분). 왼쪽 아래에 <code>WSL: Ubuntu</code>가 뜨면 성공.</p></div><div class="store">붙음</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>인터프리터 = .venv</strong><p><code>Ctrl+Shift+P</code> → <code>Python: Select Interpreter</code> → <code>./.venv/bin/python</code>. 안 보이면 <code>Developer: Reload Window</code> 한 번. 이걸 골라야 설치한 라이브러리가 잡힙니다.</p></div><div class="store">지정</div></div>
-<div class="row"><div class="code">5</div><div class="copy"><strong>첫 실행 — 키 채우고 호출</strong><p><code>.env</code>의 <code>OPENROUTER_API_KEY</code>를 채운 뒤, 다음 Step의 코드를 <code>.py</code>로 저장하고 <code>uv run python3 그파일.py</code>. 한 줄 응답이 뜨면 환경 설정이 끝납니다.</p></div><div class="store">✅</div></div>
+<div class="row"><div class="code">5</div><div class="copy"><strong>키 발급 → 채우기 → 첫 실행</strong><p><code>openrouter.ai</code> 가입 → <strong>Keys</strong>에서 키 발급 → <code>.env</code>의 <code>OPENROUTER_API_KEY=</code> 줄 뒤에 붙여넣기. 그다음 VSCode에서 <strong>새 파일을 만들어 <code>first_call.py</code>로 저장</strong>(다음 Step 코드)하고 <code>uv run python3 first_call.py</code>. 한 줄 응답이 뜨면 환경 설정 끝.</p></div><div class="store">✅</div></div>
 </div>
 </div>
 
