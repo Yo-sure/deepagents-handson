@@ -63,6 +63,7 @@ def by_type(records: list[RecordV1], t: str) -> list[RecordV1]:
 # ── 조사 주제(서브에이전트가 하나씩 맡는다) ──────────────────────
 
 
+# #region reconcile-card
 def reconcile_card(records: list[RecordV1]) -> str:
     """카드 명세서 거래줄 ↔ 개별 영수증 대사. 영수증 없는 줄을 찾는다."""
     receipts = by_type(records, "영수증")
@@ -90,6 +91,7 @@ def reconcile_card(records: list[RecordV1]) -> str:
     else:
         note.append("- 모든 거래줄에 대응 영수증 있음")
     return "\n".join(note) + "\n"
+# #endregion reconcile-card
 
 
 def reconcile_bank(records: list[RecordV1]) -> str:
