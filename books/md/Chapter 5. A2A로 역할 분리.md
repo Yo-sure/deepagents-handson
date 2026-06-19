@@ -332,6 +332,11 @@ async def execute(self, context: RequestContext, event_queue: EventQueue) -> Non
 <p>순서를 어기면 <code>InvalidAgentResponseError</code>가 납니다 — 실제로 만나는 함정입니다.</p>
 </div></div></div>
 </div>
+
+<div class="cue solve" style="margin-top:18px">
+<div class="cue-head"><span class="cue-label">✏️ 깨뜨려 보기 — 코드 수정</span><span class="cue-time">~5분</span></div>
+<div class="cue-body">규칙을 직접 어겨 봅니다 — <code>verifier_agent.py</code>의 <code>execute</code>에서 <strong>③ <code>enqueue_event(Task(...))</code> 블록을 주석 처리</strong>한 뒤, 핸즈온 ②로 서버를 띄워 검증을 보내세요. 다음 줄 <code>updater.start_work(...)</code>가 <em>등록되지 않은</em> Task를 갱신하려다 <code>InvalidAgentResponseError</code>로 막힙니다. 에러를 눈으로 본 뒤 주석을 풀어 되살리세요 — "상태 갱신 전 Task 먼저"가 왜 강제 규칙인지 손으로 압니다.</div>
+</div>
 </section>
 
 <section class="slide">

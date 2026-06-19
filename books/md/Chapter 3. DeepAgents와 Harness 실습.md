@@ -128,7 +128,12 @@ from deepagents import create_deep_agent
 agent = create_deep_agent(
     model="openai:google/gemini-3.5-flash",
     tools=[list_records, write_note],   # 우리가 얹는 조사 도구
-    system_prompt="너는 인박스 리서치 애널리스트다 ...",
+    subagents=[                         # task가 위임할 워커 — 빈손으론 못 맡긴다
+        {"name": "card_reconcile", "description": "카드↔영수증 대사",
+         "system_prompt": "너는 카드 대사 담당이다 ...", "tools": [list_records, write_note]},
+        # bank_reconcile · spend_summary 도 같은 꼴 (전체 구성은 --trace로 확인)
+    ],
+    system_prompt="너는 오케스트레이터다. write_todos로 계획하고 task로 위임해 fan-out 한다 ...",
 )
 # 기본 장비: write_todos(계획) · task(서브에이전트 위임) · 파일시스템(ls·read_file·write_file·edit_file·glob·grep)
 ```
@@ -324,18 +329,19 @@ def reconcile_card(records: list[RecordV1]) -> str:
 
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>먼저 — Ch2 적재(없으면)</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>workspace/classified/</code>에 JSON 10개.</span></p></div><div class="store">classified</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[task]</code> 세 줄이 (순서가 뒤섞여) 뜨고 <code>research_notes/</code>에 노트 3개.</span></p></div><div class="store">노트 3</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[plan]</code> 1줄 + <code>[task]</code> 세 줄(순서 뒤섞임) + <code>[synthesize]</code> 1줄. mock은 즉시 끝난다(속도 이득은 키 모드 LLM 호출에서 체감).</span></p></div><div class="store">노트 3</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>노트 열어 보기</strong><p><code>cat workspace/research_notes/card_reconcile.md</code><br><span style="color:var(--muted)">성공 기준: 쿠팡 89,000원이 ⚠️로 잡혀 있다.</span></p></div><div class="store">확인</div></div>
+<div class="row"><div class="code">4</div><div class="copy"><strong>하네스 내부 열어 보기</strong><p><code>... research_orchestrator.py --trace</code><br><span style="color:var(--muted)">성공 기준(키 불필요): <code>create_deep_agent</code>에 배선되는 기본 장비·오케스트레이터 프롬프트·서브에이전트 3개 구성이 출력된다.</span></p></div><div class="store">하네스</div></div>
 </div>
 
 <div class="cue do" style="margin-top:18px">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~2분</span></div>
-<div class="cue-body">위 2번을 직접 실행합니다. <code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code>를 레포 루트에서 돌려 fan-out 조사를 시작하세요.</div>
+<div class="cue-body">위 2번을 실행해 fan-out 조사를 돌린 뒤, <strong>4번 <code>--trace</code></strong>로 하네스 내부를 직접 엽니다 — <code>create_deep_agent</code>에 <em>무엇이 배선되는지</em>(서브에이전트 3개의 name·description·system_prompt, 기본 장비 write_todos·task)를 키 없이 봅니다. mock은 스레드로 fan-out <em>구조</em>만 보여 주고, 그 구조가 실제로 어떻게 배선되는지는 <code>--trace</code>가 보여 줍니다.</div>
 </div>
 
-<div class="cue wait" style="margin-top:14px">
-<div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~1–3분</span></div>
-<div class="cue-body">여러 하위 에이전트가 동시에 도는 동안 기다립니다. 시간이 걸리고, 출력의 <code>[task]</code> 세 줄 순서는 실행마다 달라질 수 있습니다. 먼저 끝난 갈래가 먼저 찍힙니다.</div>
+<div class="cue check" style="margin-top:14px">
+<div class="cue-head"><span class="cue-label">👁 확인</span><span class="cue-time">~1분</span></div>
+<div class="cue-body">출력의 <code>[task]</code> 세 줄 순서는 실행마다 달라질 수 있습니다(먼저 끝난 갈래가 먼저 찍힘). mock은 함수가 즉시 끝나 속도 이득은 안 보입니다 — 순서 뒤섞임은 병렬 <em>구조</em>의 신호일 뿐, 실제 속도 이득은 키 모드의 LLM 호출에서 납니다.</div>
 </div>
 
 <div class="panel" style="margin-top:18px">

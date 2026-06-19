@@ -195,6 +195,27 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 </div>
 </details>
 
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>직접 채운다 — 경계 어댑터</span><span class="status-pill">스캐폴드</span></div>
+<div class="panel-body">
+<p class="section-note">"계약이 부품 교체의 자유를 준다"는 이 캡스톤의 명제를 <strong>말로 듣지 말고 손으로 증명</strong>합니다. 바깥세상의 금액은 <code>"11,500원"·"₩1,650,000"</code> 같은 제멋대로인 문자열인데 계약은 <code>total: float</code>을 요구합니다. 이 경계를 잇는 <code>coerce_amount</code>를 당신이 5~10줄로 채워야 파이프가 <code>[PASS]</code>로 살아납니다.</p>
+
+```python
+def coerce_amount(raw):
+    """ "11,500원" · "₩1,650,000" · 8400 → float. (지금은 NotImplementedError로 끊겨 있다)"""
+    # TODO: 너의 5~10줄. 힌트 — 이미 숫자면 float(raw),
+    #       문자열이면 숫자·소수점만 남기고: float(re.sub(r"[^0-9.]", "", str(raw)))
+    raise NotImplementedError("coerce_amount를 채우세요")
+```
+
+</div>
+</div>
+
+<div class="cue do" style="margin-top:14px">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기 — 코드 작성</span><span class="cue-time">~8분</span></div>
+<div class="cue-body"><code>ch6-integration/exercise_adapter.py</code>의 <code>coerce_amount</code>를 채우고 <code>uv run python3 ch6-integration/exercise_adapter.py</code>를 돌리세요. 다섯 케이스가 ✅로 바뀌고 <strong>[PASS]</strong>가 뜨면 성공 — 부품(목·실선)을 바꿔도 이 한 겹만 맞으면 파이프 전체가 그대로 돕니다. 이게 "계약이 주는 교체 자유"의 실체입니다.</div>
+</div>
+
 <div class="cue solve" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~7분</span></div>
 <div class="cue-body">카드 명세서에만 있고 영수증이 없는 결제 한 줄(예: 쿠팡)을 골라, 그 항목이 ① classified ② research_notes ③ knowledge_base ④ brief ⑤ verified_brief 다섯 산출물에서 각각 어떤 모양으로 나타나는지 추적하세요.</div>

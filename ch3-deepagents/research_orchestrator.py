@@ -164,6 +164,58 @@ def synthesize(notes: dict[str, str], records: list[RecordV1]) -> None:
     print(f"  [synthesize] → {BRIEF_DRAFT.relative_to(WORKSPACE.parent)}")
 
 
+# 서브에이전트 명세 — create_deep_agent에 그대로 배선되는 하네스 구성(--trace로 열어 본다).
+SUBAGENT_SPECS = [
+    {
+        "name": "card_reconcile",
+        "description": "카드 명세서 거래줄 ↔ 개별 영수증 대사. 영수증 없는 줄을 찾는다.",
+        "system_prompt": (
+            "너는 카드 대사 담당이다. list_records로 레코드를 받아 카드 명세서의 "
+            "거래줄마다 같은 금액의 영수증이 있는지 맞춰 본다. 영수증 없는 줄은 금액이 "
+            "3만원 미만이면 '구독 추정', 이상이면 '영수증 분실/미수령'으로 표시하고 "
+            "write_note('card_reconcile', ...)로 저장한다."
+        ),
+    },
+    {
+        "name": "bank_reconcile",
+        "description": "은행 입출금 ↔ 계약·세금계산서 대사. 대응 문서 없는 거래를 찾는다.",
+        "system_prompt": (
+            "너는 은행 대사 담당이다. list_records로 레코드를 받아 은행 명세서의 "
+            "입출금 줄마다 같은 금액의 계약·세금계산서·카드가 있는지 맞춰 보고, "
+            "대응 문서 없는 줄을 표시해 write_note('bank_reconcile', ...)로 저장한다."
+        ),
+    },
+    {
+        "name": "spend_summary",
+        "description": "영수증 지출을 카테고리(식비·교통·생활)로 집계한다.",
+        "system_prompt": (
+            "너는 지출 집계 담당이다. list_records로 영수증을 받아 식비·교통·생활로 "
+            "묶어 합계를 내고 write_note('spend_summary', ...)로 저장한다."
+        ),
+    },
+]
+ORCHESTRATOR_PROMPT = (
+    "너는 인박스 리서치 애널리스트의 오케스트레이터다. 직접 조사하지 말고, "
+    "write_todos로 세 조사를 계획한 뒤 task로 card_reconcile·bank_reconcile·"
+    "spend_summary 서브에이전트에 한 번에 위임해 fan-out 한다. 세 노트가 모이면 "
+    "⚠️ 표시된 줄을 모아 '짚어야 할 것'으로 brief 초안을 정리한다."
+)
+
+
+def trace_harness() -> None:
+    """create_deep_agent에 무엇이 배선되는지 연다 — 키 불필요(구성만 출력, 호출 안 함)."""
+    print("create_deep_agent에 배선되는 하네스 구성 (키 없이 보는 내부):\n")
+    print("  [기본 장비] write_todos(계획) · task(서브에이전트 위임)")
+    print("             · 파일시스템(ls·read_file·write_file·edit_file·glob·grep)\n")
+    print("  [오케스트레이터 system_prompt]")
+    print(f"    {ORCHESTRATOR_PROMPT}\n")
+    print(f"  [서브에이전트 {len(SUBAGENT_SPECS)}개 — task로 fan-out 위임, 각자 격리 컨텍스트]")
+    for s in SUBAGENT_SPECS:
+        print(f"    • {s['name']}: {s['description']}")
+    print("\n  핵심: 메인은 직접 조사하지 않는다 — task로 세 워커에 위임하고 요약만 돌려받아 종합한다.")
+    print("  task는 빈손으로 위임 못 한다 — 워커마다 name·description·system_prompt·tools를 미리 정의해 줘야 한다.")
+
+
 def build_agent(records: list[RecordV1]):
     """키가 있을 때 — DeepAgents 진짜 fan-out.
 
@@ -187,56 +239,26 @@ def build_agent(records: list[RecordV1]):
         return f"saved {name}.md"
 
     shared_tools = [list_records, write_note]
-    subagents = [
-        {
-            "name": "card_reconcile",
-            "description": "카드 명세서 거래줄 ↔ 개별 영수증 대사. 영수증 없는 줄을 찾는다.",
-            "system_prompt": (
-                "너는 카드 대사 담당이다. list_records로 레코드를 받아 카드 명세서의 "
-                "거래줄마다 같은 금액의 영수증이 있는지 맞춰 본다. 영수증 없는 줄은 금액이 "
-                "3만원 미만이면 '구독 추정', 이상이면 '영수증 분실/미수령'으로 표시하고 "
-                "write_note('card_reconcile', ...)로 저장한다."
-            ),
-            "tools": shared_tools,
-        },
-        {
-            "name": "bank_reconcile",
-            "description": "은행 입출금 ↔ 계약·세금계산서 대사. 대응 문서 없는 거래를 찾는다.",
-            "system_prompt": (
-                "너는 은행 대사 담당이다. list_records로 레코드를 받아 은행 명세서의 "
-                "입출금 줄마다 같은 금액의 계약·세금계산서·카드가 있는지 맞춰 보고, "
-                "대응 문서 없는 줄을 표시해 write_note('bank_reconcile', ...)로 저장한다."
-            ),
-            "tools": shared_tools,
-        },
-        {
-            "name": "spend_summary",
-            "description": "영수증 지출을 카테고리(식비·교통·생활)로 집계한다.",
-            "system_prompt": (
-                "너는 지출 집계 담당이다. list_records로 영수증을 받아 식비·교통·생활로 "
-                "묶어 합계를 내고 write_note('spend_summary', ...)로 저장한다."
-            ),
-            "tools": shared_tools,
-        },
-    ]
+    # 위 SUBAGENT_SPECS(정적 구성)에 이 실행 도구를 붙여 배선한다.
+    subagents = [{**spec, "tools": shared_tools} for spec in SUBAGENT_SPECS]
 
     return create_deep_agent(
         model="openai:google/gemini-3.5-flash",
         tools=shared_tools,
         subagents=subagents,
-        system_prompt=(
-            "너는 인박스 리서치 애널리스트의 오케스트레이터다. 직접 조사하지 말고, "
-            "write_todos로 세 조사를 계획한 뒤 task로 card_reconcile·bank_reconcile·"
-            "spend_summary 서브에이전트에 한 번에 위임해 fan-out 한다. 세 노트가 모이면 "
-            "⚠️ 표시된 줄을 모아 '짚어야 할 것'으로 brief 초안을 정리한다."
-        ),
+        system_prompt=ORCHESTRATOR_PROMPT,
     )
 
 
 def main() -> None:
     ap = argparse.ArgumentParser(description="fan-out 리서치 오케스트레이터")
     ap.add_argument("--mock", action="store_true", help="키 없이 결정론적 대사")
+    ap.add_argument("--trace", action="store_true", help="하네스 구성을 열어 본다(키 불필요, 호출 안 함)")
     args = ap.parse_args()
+
+    if args.trace:
+        trace_harness()
+        return
 
     records = load_records()
     print(f"▶ 조사 대상 {len(records)}건")
