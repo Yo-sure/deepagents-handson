@@ -100,6 +100,12 @@
   .lec .grid-4, .lec .grid-3, .lec .flow, .lec .flow.flow-5 { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .lec .section-head { grid-template-columns: 1fr; }
 }
+/* 폰: .row 고정 컬럼(코드뱃지·store)이 390px에선 가운데 칸을 눌러 행이 10px 넘쳤다 —
+   고정폭을 줄여 가로 스크롤 0(영문 한계 글로서리·핸즈온 스택 공통). */
+@media (max-width: 460px) {
+  .lec .row { grid-template-columns: 54px 1fr 104px; gap:10px; padding:13px; }
+  .lec .code { font-size:21px; }
+}
 
 /* layout:page(.lec)에는 default theme의 .vp-doc 코드블록 CSS가 안 붙는다(배경·거터·줄번호).
    코드 줄높이가 .lec(1.56)을 상속해 줄번호와 어긋나므로, 블록 스타일을 .lec 안에서 직접 정의한다. */
