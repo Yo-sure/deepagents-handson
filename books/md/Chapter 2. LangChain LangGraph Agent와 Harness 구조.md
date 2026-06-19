@@ -181,14 +181,14 @@ flowchart TD
 
 </div>
 <p class="section-note">verify가 영수증 합계를 봅니다. 항목 금액에 수량을 곱해 더한 값이 총액과 어긋나면 잘못 읽은 것입니다.<br>
-이때 조건부 엣지가 흐름을 classify로 되돌립니다. 상한까지 다시 읽고, <strong>합계가 끝내 안 맞아도 고액·저신뢰(flagged)면 사람 검토를 거쳐</strong> 적재합니다 — 안전 약속을 코드로 보장합니다.</p>
+이때 조건부 엣지가 흐름을 classify로 되돌립니다. 상한까지 다시 읽고, <strong>합계가 끝내 안 맞아도 고액·저신뢰(flagged)면 사람 검토(review)를 거쳐</strong> 적재합니다. 단 <em>flagged가 아닌 소액</em>은 합계가 틀린 채로 그냥 적재됩니다 — 사람 검토는 "고액·저신뢰에만 건다"는 <strong>의도된 트레이드오프</strong>이지, 모든 불일치를 막는 보장이 아닙니다.</p>
 </div>
 
 ```python
 def after_verify(state: IntakeState) -> str:
     if state.get("sum_ok", True) is False and state["retries"] < MAX_RETRY:
         return "retry"                          # 합계 불일치 — 상한까지 재분류
-    # 합계가 끝내 안 맞아도, flagged(고액·저신뢰)면 사람 검토를 거친다 — 안전 약속을 코드로 보장.
+    # flagged(고액·저신뢰)면 항상 review 경유. 그 외(소액)는 합계 틀려도 적재 — 의도된 트레이드오프.
     return "review" if state["flagged"] else "persist"
 
 g.add_conditional_edges("verify", after_verify,
@@ -216,13 +216,13 @@ flowchart TD
 <div class="panel-body"><div class="list">
 <p>같은 실패를 계속 반복하면 비용만 듭니다. <code>MAX_RETRY</code>로 두 번까지만 되돌리고, 넘으면 사람이 볼 큐로 보냅니다.</p>
 <p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아, 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성).</p>
-<p>다만 mock에선 gold가 고정이라 재시도해도 같은 값이 나옵니다. 재시도 분기는 키 있는 라이브 추출에서 의미가 있고, 한계를 정해 두는 게 하네스의 일입니다.</p>
+<p>평소 mock은 gold가 고정이라 합계가 맞아 retry가 안 뜹니다(라이브 추출에선 비결정성으로 흔들려 의미가 있습니다). 그래서 <strong>아래 <code>--break-sum</code>으로 일부러 깨</strong> retry 루프를 눈으로 봅니다 — 한계를 정해 두는 게 하네스의 일입니다.</p>
 </div></div>
 </div>
 
 <div class="cue do" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기 — retry를 눈으로</span><span class="cue-time">~3분</span></div>
-<div class="cue-body">평소 mock은 합계가 맞아 retry가 안 뜹니다. <code>--break-sum</code>으로 합계를 일부러 1원 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. <code>[verify] 합계 불일치 → [retry] 재분류 1/2 → 2/2 → persist</code>가 차례로 찍힙니다 — 조건부 엣지가 실제로 도는 걸 직접 봅니다(상한 2회에서 멈추는 것도).</div>
+<div class="cue-body"><code>--break-sum</code>으로 합계를 일부러 1원 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. 이 플래그는 <em>매 재분류마다</em> 합계를 다시 깨므로 끝내 안 맞은 채 <code>[verify] 불일치 → [retry] 1/2 → 2/2 → persist</code>로 흘러, <strong>retry 루프가 도는 것과 상한(2회)에서 끊기는 것을 한 번에</strong> 봅니다(스스로 못 고치니 상한이 안전장치).</div>
 </div>
 </section>
 

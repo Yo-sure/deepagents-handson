@@ -198,7 +198,7 @@ run_verify(use_a2a)       # Ch5 — A2A 외부 검증 → verified_brief.md
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>직접 채운다 — 경계 어댑터</span><span class="status-pill">스캐폴드</span></div>
 <div class="panel-body">
-<p class="section-note">"계약이 부품 교체의 자유를 준다"는 이 캡스톤의 명제를 <strong>말로 듣지 말고 손으로 증명</strong>합니다. 바깥세상의 금액은 <code>"11,500원"·"₩1,650,000"</code> 같은 제멋대로인 문자열인데 계약은 <code>total: float</code>을 요구합니다. 이 경계를 잇는 <code>coerce_amount</code>를 당신이 5~10줄로 채워야 파이프가 <code>[PASS]</code>로 살아납니다.</p>
+<p class="section-note">"계약이 부품 교체의 자유를 준다"는 명제의 <strong>핵심 도구가 경계 어댑터</strong>입니다 — 바깥세상의 제멋대로인 표기(<code>"11,500원"·"₩1,650,000"</code>)를 계약의 타입(<code>total: float</code>)으로 바꾸는 얇은 코드. 이 <code>coerce_amount</code>를 직접 채워 그 원리를 손으로 익힙니다. <span style="color:var(--muted)">(이건 개념을 익히는 <strong>독립 연습</strong>입니다 — analyst_app 본체는 이미 계약을 지키는 부품들로 돌고 있고, 새 입력 표기를 붙일 때 이런 어댑터 한 겹만 더하면 됩니다.)</span></p>
 
 ```python
 def coerce_amount(raw):
@@ -213,7 +213,7 @@ def coerce_amount(raw):
 
 <div class="cue do" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기 — 코드 작성</span><span class="cue-time">~8분</span></div>
-<div class="cue-body"><code>ch6-integration/exercise_adapter.py</code>의 <code>coerce_amount</code>를 채우고 <code>uv run python3 ch6-integration/exercise_adapter.py</code>를 돌리세요. 다섯 케이스가 ✅로 바뀌고 <strong>[PASS]</strong>가 뜨면 성공 — 부품(목·실선)을 바꿔도 이 한 겹만 맞으면 파이프 전체가 그대로 돕니다. 이게 "계약이 주는 교체 자유"의 실체입니다.</div>
+<div class="cue-body"><code>ch6-integration/exercise_adapter.py</code>의 <code>coerce_amount</code>를 채우고 <code>uv run python3 ch6-integration/exercise_adapter.py</code>를 돌리세요. 이 연습의 다섯 케이스가 ✅로 바뀌고 <strong>[PASS]</strong>가 뜨면 성공입니다. 새 입력원(다른 표기의 금액)을 붙일 때 <em>이런 어댑터 한 겹</em>만 더하면 본체 파이프는 손대지 않고 계약을 그대로 지킨다 — 그게 "계약이 주는 교체 자유"입니다.</div>
 </div>
 
 <div class="cue solve" style="margin-top:14px">

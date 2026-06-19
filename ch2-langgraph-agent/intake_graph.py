@@ -122,7 +122,7 @@ def persist(state: IntakeState) -> dict:
 def after_verify(state: IntakeState) -> str:
     if state.get("sum_ok", True) is False and state["retries"] < MAX_RETRY:
         return "retry"                          # 합계 불일치 — 상한까지 재분류
-    # 합계가 끝내 안 맞아도, flagged(고액·저신뢰)면 사람 검토를 거친다 — 안전 약속을 코드로 보장.
+    # flagged(고액·저신뢰)면 항상 사람 검토(review) 경유. 그 외(소액)는 합계 틀려도 적재 — 의도된 트레이드오프.
     return "review" if state["flagged"] else "persist"
 
 
