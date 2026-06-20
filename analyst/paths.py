@@ -1,4 +1,4 @@
-"""파이프라인 경로 규약 — 챕터가 부품을 주고받는 디렉터리 단일 출처.
+"""파이프라인 경로 규약 — 챕터가 모듈 산출물을 주고받는 디렉터리 단일 출처.
 
     sample_inbox/  →  classified/  →  research_notes/  →  brief.md  →  verified_brief.md
        (입력)          (Ch2)            (Ch3)              (Ch4)        (Ch5)

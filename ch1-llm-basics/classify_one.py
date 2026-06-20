@@ -1,4 +1,4 @@
-"""Ch1 산출물 — 영수증 한 장을 RecordV1으로 읽어 내는 첫 부품.
+"""Ch1 산출물 — 영수증 한 장을 RecordV1으로 읽어 내는 첫 모듈.
 
 애널리스트의 첫 단계는 "문서를 읽고 판단"하는 것이다. 여기서는 영수증 이미지
 한 장을 멀티모달 모델에 보여 주고, Ch0에서 못박은 RecordV1 구조로 뽑아낸다.
@@ -123,9 +123,9 @@ def verify_total(rec: RecordV1) -> tuple[bool, float]:
     return abs(item_sum - rec.total) < 1.0, item_sum
 
 
-# ── ReAct 에이전트: 모델이 스스로 도구를 호출하고 관측해 보정한다 ──
+# ── ReAct 에이전트: 모델이 도구 호출 여부를 정하고 관측해 보정한다 ──
 #
-# 진짜 ReAct는 우리가 검증 함수를 부르는 게 아니라, 모델이 추론 끝에 도구 호출을
+# ReAct는 우리가 검증 함수를 직접 부르는 게 아니라, 모델이 추론 끝에 도구 호출을
 # 결정하고(Action) 그 결과를 보고(Observation) 다음 행동을 정한다. 아래는 그 루프다.
 
 
@@ -161,8 +161,8 @@ RecordV1 JSON만 출력한다(설명·도구호출 없이)."""
 
 
 def extract_react(doc: str, model: str, max_steps: int = 5) -> RecordV1:
-    """진짜 ReAct 루프 — 모델이 check_receipt_sum을 직접 호출(Action)하고
-    관측(Observation)해 스스로 보정한 뒤 최종 JSON을 낸다."""
+    """ReAct 루프 — 모델이 check_receipt_sum 호출(Action)을 결정하고
+    관측(Observation) 결과를 반영해 최종 JSON을 낸다."""
     from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 
     from analyst.schema import schema_json

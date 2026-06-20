@@ -197,7 +197,7 @@ sequenceDiagram
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>2026 최신 — 스킬을 더 멀리</span><span class="status-pill">동향</span></div>
 <div class="panel-body"><div class="list">
-<p><strong>SKILLOPT (Microsoft, 2026)</strong> — 우리 SKILL.md는 손으로 쓴 <em>정적</em> 문서입니다. SKILLOPT는 이 스킬 문서 자체를 <strong>학습 가능한 산출물</strong>로 봅니다: rollout 실행 → 채점된 결과로 문서를 수정(add/delete/replace) → <strong>검증 점수가 오를 때만 채택</strong> → <code>best_skill.md</code>로 내보냅니다. 모델 가중치는 바꾸지 않고 텍스트만 수정해 GPT-5.5에서 무-스킬 대비 +23.5%p를 보고했습니다. 이 교재의 자가개선 루프를 스킬 문서에 적용한 사례로 볼 수 있습니다. <span class="badge blue">arXiv 2605.23904</span></p>
+<p><strong>SKILLOPT (Microsoft, 2026)</strong> — 우리 SKILL.md는 손으로 쓴 <em>정적</em> 문서입니다. SKILLOPT는 이 스킬 문서 자체를 <strong>학습 가능한 산출물</strong>로 봅니다: rollout 실행 → 채점된 결과로 문서를 수정(add/delete/replace) → <strong>검증 점수가 오를 때만 채택</strong> → <code>best_skill.md</code>로 내보냅니다. 모델 가중치는 바꾸지 않고 텍스트만 수정해 GPT-5.5에서 무-스킬 대비 +23.5%p를 보고했습니다. 이 교재의 자가개선 루프를 스킬 문서에 적용한 사례로 볼 수 있습니다. <span class="badge blue">arXiv 2605.23904 · 검증일 2026-06-19</span></p>
 <p><strong>FORK (Anthropic, 2026)</strong> — Ch3의 서브에이전트는 부모 대화의 <em>압축 요약</em>만 물려받습니다. 반면 <strong>포크된 서브에이전트</strong>는 전체 컨텍스트를 그대로 물려받아 부모와 같은 맥락을 정확히 공유합니다 — 요약으로 잃기 쉬운 "지금 무슨 작업 중인지"를 보존해야 할 때. <em>위임(요약)이냐 포크(전체)냐</em>의 트레이드오프입니다.</p>
 </div></div>
 </div>

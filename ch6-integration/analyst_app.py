@@ -1,13 +1,13 @@
-"""Ch6 캡스톤 — 부품을 한 줄기로 잇는 엔드투엔드.
+"""Ch6 캡스톤 — 모듈을 하나의 파이프라인으로 잇는 엔드투엔드.
 
-지금까지 만든 부품을 새로 짜지 않고 그대로 끼운다. 메일 봉투가 도착하면 분류부터
-외부 검증까지 한 번에 흐른다. 계약(RecordV1)과 디렉터리 규약이 같아서 가능하다.
+지금까지 만든 모듈을 새로 짜지 않고 그대로 연결한다. 샘플 메일 입력을 분류부터
+외부 검증까지 순서대로 처리한다. 계약(RecordV1)과 디렉터리 규약이 같아서 가능하다.
 
-    봉투(목) → 분류·정규화(Ch2) → fan-out 조사(Ch3) → OKF 적재(Ch4)
+    샘플 메일 입력(목) → 분류·정규화(Ch2) → fan-out 조사(Ch3) → OKF 적재(Ch4)
             → 브리프(Ch4 skill) → A2A 외부 검증(Ch5) → verified_brief.md
 
 각 단계는 해당 챕터의 모듈을 import 해 그 함수를 부른다. 이 파일에 새 로직은 거의 없다.
-"부품은 갈아끼우고, 계약은 재사용".
+"계약을 지키면 모듈을 교체할 수 있다".
 
 실행:
     uv run python3 ch6-integration/analyst_app.py --mock           # 전 구간 오프라인
@@ -34,7 +34,7 @@ def step(n: int, title: str) -> None:
 
 
 def run_intake(mock: bool) -> None:
-    """Ch2 — 봉투의 문서를 분류·정규화해 classified/ 에 적재."""
+    """Ch2 — 샘플 입력의 문서를 분류·정규화해 classified/ 에 적재."""
     import yaml
     from intake_graph import build_graph, run_one
 
@@ -126,7 +126,7 @@ def main() -> None:
     args = ap.parse_args()
 
     print("=== 인박스 리서치 애널리스트 — 엔드투엔드 ===")
-    print(f"봉투(목)가 도착했습니다. 분류부터 검증까지 한 줄기로 흘립니다.")
+    print("샘플 메일 입력(목)을 분류부터 검증까지 순서대로 처리합니다.")
 
 #pragma region wiring
     step(1, "분류·정규화 (Ch2 intake_graph)")

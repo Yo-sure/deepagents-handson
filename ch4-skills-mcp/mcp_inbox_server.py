@@ -2,8 +2,8 @@
 
 에이전트가 파일과 메일에 닿는 통로를 MCP 한 겹으로 표준화한다. 이 과정의 외부 연결은
 둘로 고정한다.
-  - 파일 [실선] : classified/·knowledge_base/ 를 실제로 읽는다. 진짜 연결.
-  - 메일 [목]   : 인박스 봉투는 목 데이터. 외부 메일 서버 없이 재현된다.
+  - 파일 [실선] : classified/·knowledge_base/ 를 실제로 읽는다. 실제 연결.
+  - 메일 [목]   : 샘플 메일 목록은 목 데이터. 외부 메일 서버 없이 재현된다.
 
 FastMCP 데코레이터 규칙
   - 함수 이름 → Tool 이름, docstring → 설명(LLM이 보고 호출 판단), 타입힌트 → 입력 스키마.
@@ -29,7 +29,7 @@ from analyst.paths import CLASSIFIED, KNOWLEDGE_BASE
 mcp = FastMCP("inbox-mcp-server")
 SAFE_RECORD = re.compile(r"^[A-Za-z0-9_.-]+\.json$")
 
-# 메일 봉투(목) — 외부 메일 서버 대신 이번 달 인박스에 도착한 문서 목록.
+# 샘플 메일 목록(목) — 외부 메일 서버 대신 이번 달 인박스에 도착한 문서 목록.
 MOCK_ENVELOPE = [
     {"id": 1, "from": "scan@home", "subject": "영수증 스캔 5건", "kind": "receipt"},
     {"id": 2, "from": "신한카드", "subject": "5월 카드 명세서", "kind": "statement"},
@@ -88,9 +88,9 @@ def search_knowledge(type: str = "gap") -> str:
 
 @mcp.tool()
 def fetch_inbox() -> str:
-    """이번 달 인박스 봉투 목록을 돌려준다. [목 — 외부 메일 서버 없이 재현]"""
+    """이번 달 샘플 메일 목록을 돌려준다. [목 — 외부 메일 서버 없이 재현]"""
     lines = [f"  [{e['id']}] {e['from']} — {e['subject']} ({e['kind']})" for e in MOCK_ENVELOPE]
-    return "이번 달 인박스 봉투:\n" + "\n".join(lines)
+    return "이번 달 샘플 메일:\n" + "\n".join(lines)
 
 
 @mcp.resource("inbox://stats")

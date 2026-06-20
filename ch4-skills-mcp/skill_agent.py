@@ -84,7 +84,7 @@ def show_progressive_disclosure() -> None:
 
 
 def run_agent() -> None:
-    """진짜 deep agent에 스킬을 붙여 돌린다 — read_file(SKILL.md)가 곧 점진 공개의 증거다."""
+    """실제 deep agent에 스킬을 붙여 돌린다 — read_file(SKILL.md)가 점진 공개의 증거다."""
     import os
 
     sys.path.insert(0, str(REPO))
