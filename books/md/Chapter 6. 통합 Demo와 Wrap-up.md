@@ -134,7 +134,7 @@ flowchart LR
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
 <div class="stack">
-<div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — 오프라인</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍힌다. 기본 실행은 브리프가 gap을 모두 담아 <code>verified_brief.md</code>가 <strong>PASS</strong>로 끝난다(한 단계를 빼면 NEEDS_REVISION이 정상 — 아래 트러블슈팅·직접 해보기 참고).</span></p></div><div class="store">엔드투엔드</div></div>
+<div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — 오프라인</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍힌다. 기본 실행은 브리프가 gap을 모두 담아 <code>verified_brief.md</code>가 <strong>PASS</strong>로 끝난다(<code>workspace/</code>를 비우고 한 단계를 빼면 NEEDS_REVISION이 정상 — 아래 트러블슈팅·직접 해보기 참고).</span></p></div><div class="store">엔드투엔드</div></div>
 <div class="row"><div class="code">b</div><div class="copy"><strong>검증만 실제 A2A</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock --a2a</code><br><span style="color:var(--muted)">성공 기준: [5/6]에서 <code>Agent Card</code>가 조회되고 실제 서버와 통신한다.</span></p></div><div class="store">A2A</div></div>
 <div class="row"><div class="code">c</div><div class="copy"><strong>최종 산출물 열기</strong><p><code>cat workspace/verified_brief.md</code><br><span style="color:var(--muted)">성공 기준: 브리프 + 외부 검증 판정(PASS)이 한 파일에.</span></p></div><div class="store">완성</div></div>
 </div>
@@ -184,7 +184,7 @@ flowchart LR
 <details>
 <summary>관찰 포인트</summary>
 <div class="reveal">
-<p>okf를 빼면 brief의 "짚을 점"이 비거나 줄어듭니다. 브리프가 knowledge_base의 gap·subscription을 읽어 채우기 때문입니다. 한 모듈을 빼면 그 산출물에 의존하던 다음 단계가 빈약해집니다. 계약으로 단계가 이어져 있음을 확인하는 실습입니다.</p>
+<p>okf를 빼면 brief의 "짚을 점"이 비거나 줄어듭니다. 브리프가 knowledge_base의 gap·subscription을 읽어 채우기 때문입니다. 단, <code>run_okf()</code>만 주석 처리하고 <code>workspace/</code>를 그대로 두면 이전 실행의 <code>knowledge_base/</code>가 남아 있어 브리프가 여전히 채워지고 <strong>PASS</strong>가 납니다. 효과를 보려면 <code>rm -rf workspace</code> 후 okf 없이 처음부터 돌리세요 — 그러면 브리프가 gap을 빠뜨리고, 검증자가 레코드에서 그 gap을 다시 찾아 <strong>NEEDS_REVISION</strong>으로 반려합니다. 한 모듈을 빼면 그 산출물에 의존하던 다음 단계가 빈약해진다는 걸, 계약으로 단계가 이어져 있음을 통해 확인하는 실습입니다.</p>
 <p><code>workspace/</code>를 지우고 다시 돌리면 처음부터 같은 순서로 재생됩니다. 입력(sample_inbox)과 코드만 커밋돼 있으면 누가 돌려도 같은 산출물이 나옵니다. 감사 가능한 실행의 조건입니다.</p>
 </div>
 </details>
@@ -224,7 +224,7 @@ flowchart LR
   class A,B,C,D,E s;
 ```
 
-<p style="margin-top:6px">3만원 미만이면 ③에서 <code>type: subscription</code>(구독 추정), 이상이면 <code>type: gap</code>(확인 필요)으로 갈립니다. ⑤에서 검증자는 브리프 문장을 믿지 않고, <em>같은 레코드를 브리프와 다른 코드 경로로</em> 다시 세서 영수증 없는 거래가 빠짐없이 짚였는지 대조합니다(데이터원은 같고, 판정 경로가 독립입니다 — 자세한 한계는 마무리 슬라이드).</p>
+<p style="margin-top:6px">3만원 미만이면 ③에서 <code>type: subscription</code>(구독 추정), 이상이면 <code>type: gap</code>(확인 필요)으로 갈립니다. ⑤에서 검증자는 브리프 문장을 믿지 않고, <em>레코드에서 영수증 없는 거래를 다시 계산해</em> 브리프가 빠짐없이 짚었는지 대조합니다. 브리프 <em>문장</em>과는 독립이라, 브리프가 gap을 누락·변조하면 잡아냅니다. 다만 영수증 매칭 함수(<code>by_type</code>·<code>abs&lt;1.0</code>)는 producer와 같은 코드를 import해 쓰므로 그 매칭 <em>로직 자체</em>의 버그는 공유합니다 — 자세한 한계는 마무리 슬라이드.</p>
 </div>
 </details>
 
@@ -233,7 +233,7 @@ flowchart LR
 <div class="stack">
 <div class="row"><div class="code">!</div><div class="copy"><strong>ModuleNotFoundError (deepagents·langchain 등)</strong><p>레포 루트에서 <code>uv run</code> 하세요. <code>uv</code>는 실행 폴더(또는 상위)에서 <code>pyproject.toml</code>을 찾아 이 프로젝트의 의존성·가상환경을 잡는데, 레포 밖에서 돌리면 그걸 못 찾아 import가 깨집니다. (앱이 ch1~5를 <code>sys.path</code>에 넣는 건 <code>__file__</code> 위치 기준이라 cwd와는 무관합니다.)</p></div><div class="store">경로</div></div>
 <div class="row"><div class="code">!</div><div class="copy"><strong>[5/6]에서 멈춤(--a2a)</strong><p><code>--a2a</code>는 9610 포트에 verifier_agent를 띄웁니다. 포트 점유 시 기동 실패가 납니다. 이전 프로세스를 끄거나 <code>--a2a</code> 없이 목으로 돌립니다.</p></div><div class="store">A2A</div></div>
-<div class="row"><div class="code">!</div><div class="copy"><strong>verified_brief가 NEEDS_REVISION</strong><p>버그가 아닙니다. 기본 실행은 PASS지만, <code>run_okf()</code>를 빼는 등 한 단계를 건너뛰면 브리프가 gap을 빠뜨려 검증자가 반려합니다. brief.md "짚을 점"과 verified_brief의 "독립 재계산"을 비교하세요. <strong>PASS도 NEEDS_REVISION도 검증 로직이 돈 결과</strong>입니다.</p></div><div class="store">정상</div></div>
+<div class="row"><div class="code">!</div><div class="copy"><strong>verified_brief가 NEEDS_REVISION</strong><p>버그가 아닙니다. 기본 실행은 PASS지만, <code>workspace/</code>를 비우고 <code>run_okf()</code>를 건너뛰면 브리프가 gap을 빠뜨려 검증자가 반려합니다(<code>workspace/</code>를 안 비우면 이전 <code>knowledge_base/</code>가 남아 PASS가 납니다). brief.md "짚을 점"과 verified_brief의 재계산을 비교하세요. <strong>PASS도 NEEDS_REVISION도 검증 로직이 돈 결과</strong>입니다.</p></div><div class="store">정상</div></div>
 </div>
 </div>
 </section>

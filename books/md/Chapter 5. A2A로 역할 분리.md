@@ -129,6 +129,7 @@ stateDiagram-v2
 </div>
 <p class="section-note">A2A 에이전트는 자신을 well-known 경로에 카드로 밝힙니다. 이름, 버전, 무슨 기술(skill)을 제공하는지, 어디로 보내야 하는지가 담깁니다.<br>
 상대를 부르기 전에 이 카드를 먼저 읽습니다. 누구인지 확인하고 통신을 시작합니다. A2A 스펙(현재 v1.0 GA)은 카드를 <strong>JWS</strong>(<em>JSON Web Signature, RFC 7515</em>)로 서명할 수 있게 합니다(0.3.0에서 도입). 서명은 카드가 변조되지 않았고 서명자가 그 키를 가졌음을 증명합니다. 다만 그 키를 누구 것으로 믿을지는 공개키 배포·도메인 바인딩 같은 별도 신뢰 설정의 문제라, 서명만으로 신원이 보장되진 않습니다.</p>
+<p class="section-note" style="margin-top:14px"><strong>신뢰 경계가 다르면 위험도 따라옵니다.</strong> A2A는 <em>대화 방식</em>을 표준화할 뿐, 누가 누구를 부르는지의 <em>제어</em>는 호출자 몫으로 남습니다. 그래서 외부 에이전트로 엮을 때 두 가지를 직접 막아야 합니다 — ① <strong>순환 호출</strong>: A와 B가 서로를 부르며 도는 걸 프로토콜이 대신 끊어 주지 않으니 hop 수 제한·Task 타임아웃·완료(REJECTED) 재진입 거부를 둡니다. ② <strong>카드 스푸핑·프롬프트 인젝션</strong>: 카드나 메시지 본문이 악의적일 수 있어, 서명 검증만으로 끝이 아니라 받은 지시를 그대로 신뢰하지 않는 경계가 필요합니다. 이 실습은 같은 소유자의 로컬 에이전트라 위험이 약하지만, 다른 벤더를 붙이는 순간 1순위 고려사항이 됩니다.</p>
 </div>
 
 <div class="panel">
@@ -138,15 +139,17 @@ stateDiagram-v2
 ```json
 {
   "name": "세무·정합성 검증 에이전트",
-  "description": "브리프를 독립 재계산으로 검증하는 에이전트",
-  "version": "1.0.0",
-  "protocolVersion": "1.0",
-  "defaultInputModes": ["text/plain"],
-  "defaultOutputModes": ["text/plain"],
+  "description": "제출된 인박스 브리프를 분류 레코드와 대사해 누락·불일치를 검증한다.",
   "supportedInterfaces": [{ "url": "http://localhost:9610",
                             "protocolBinding": "JSONRPC", "protocolVersion": "1.0" }],
+  "version": "1.0.0",
+  "capabilities": { "streaming": false },
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"],
   "skills": [{ "id": "verify-brief", "name": "브리프 검증",
-              "description": "브리프의 지적 사항이 실제 레코드와 맞는지 독립 재계산으로 확인" }]
+              "description": "브리프의 '짚을 점'이 실제 레코드와 맞는지 독립 재계산으로 확인한다.",
+              "tags": ["verify", "reconcile", "audit"],
+              "examples": ["이 브리프를 검증해줘", "짚을 점이 빠지지 않았는지 확인"] }]
 }
 ```
 
@@ -347,7 +350,7 @@ flowchart TB
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">0</div><div class="copy"><strong>먼저 — 브리프를 만들어 둔다(Ch3→Ch4)</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code> 후 <code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>workspace/brief.md</code> 또는 <code>workspace/brief_draft.md</code> 생성. Ch5는 Ch4의 <code>brief.md</code>를 우선 보내고, 없으면 Ch3 초안으로 fallback합니다.</span></p></div><div class="store">선행</div></div>
+<div class="row"><div class="code">0</div><div class="copy"><strong>먼저 — 검증할 브리프를 만들어 둔다(Ch3)</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>workspace/brief_draft.md</code> 생성(키 없이 보장). Ch4의 키 있는 <code>skill_agent.py --run</code>으로 <code>brief.md</code>를 만들어 뒀다면 Ch5가 그걸 우선 보내고, 없으면 이 <code>brief_draft.md</code>로 fallback합니다. (<code>okf_store.py</code>는 브리프가 아니라 <code>knowledge_base/</code>를 적재하므로 검증 선행으로는 선택입니다.)</span></p></div><div class="store">선행</div></div>
 <div class="row"><div class="code">a</div><div class="copy"><strong>한 번에 — 자동 기동 + 검증</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --serve</code><br><span style="color:var(--muted)">성공 기준: <code>Agent Card: 세무·정합성 검증 에이전트</code> → <code>검증 결과 수신 (A2A)</code> → verified_brief.md.</span></p></div><div class="store">A2A</div></div>
 <div class="row"><div class="code">b</div><div class="copy"><strong>따로 — 서버 먼저(다른 터미널)</strong><p><code>uv run python3 ch5-a2a/verifier_agent.py</code> 후 <code>uv run python3 ch5-a2a/a2a_verify.py</code><br><span style="color:var(--muted)">성공 기준: 브라우저로 <code>localhost:9610/.well-known/agent-card.json</code> 카드가 보인다.</span></p></div><div class="store">서버</div></div>
 <div class="row"><div class="code">c</div><div class="copy"><strong>오프라인 — 네트워크 없이</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --mock</code><br><span style="color:var(--muted)">성공 기준: 같은 PASS 결과가 네트워크 없이 나온다.</span></p></div><div class="store">목</div></div>

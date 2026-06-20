@@ -148,9 +148,23 @@ agent = create_deep_agent(
 <p>여러 개를 동시에 돌려 fan-out 합니다</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>filesystem</strong><span>덜어내기</span></div><div class="panel-body"><div class="list">
-<p>도구 출력이 크면 가상 파일로 빼고 경로와 미리보기만 남깁니다</p>
+<p>도구 출력이 크면 파일로 빼고 경로와 미리보기만 남깁니다</p>
 <p>한 번의 긴 출력이 윈도우를 채우는 걸 막습니다</p>
 </div></div></div>
+</div>
+
+<div class="board" style="margin-top:20px">
+<div class="board-header"><span>덜어낸 파일은 어디 사는가 — 백엔드를 갈아끼운다</span><span class="status-pill">deepagents</span></div>
+<div class="panel-body">
+<p><code>filesystem</code> 장치가 파일을 어디에 두는지는 <strong>백엔드</strong>가 정합니다. 코드는 그대로 두고 저장 위치만 바꿉니다.</p>
+<div class="grid" style="grid-template-columns:repeat(2,1fr);gap:12px;margin-top:10px">
+<div class="panel"><div class="panel-head"><strong>StateBackend</strong><span>기본 · 휘발</span></div><div class="panel-body"><div class="list"><p>파일이 에이전트 <em>상태</em>에 산다. 실행이 끝나면 사라진다 — 컨텍스트 창만 비울 뿐 영구 저장은 아니다</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>FilesystemBackend</strong><span>디스크</span></div><div class="panel-body"><div class="list"><p><code>root_dir</code> 아래 실제 파일로 쓴다. 실행 뒤에도 남아 다시 읽거나 감사할 수 있다</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>StoreBackend</strong><span>세션 간</span></div><div class="panel-body"><div class="list"><p>LangGraph Store에 둬 스레드·세션을 넘어 남는다</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>CompositeBackend</strong><span>경로별 분배</span></div><div class="panel-body"><div class="list"><p>경로 접두사로 갈라 라우팅 — 임시는 state, 산출물은 disk로</p></div></div></div>
+</div>
+<p class="section-note" style="margin-top:12px">기본은 <strong>StateBackend</strong>라 덜어낸 파일도 기본은 휘발입니다 — "컨텍스트 밖으로 뺀다"가 "디스크에 영구 저장"과 같은 말이 아니라는 게 요점입니다. 이 랩의 재현성은 별개로, 입력(<code>sample_inbox</code>)과 산출물을 <code>workspace/</code> 디스크에 남겨 누가 돌려도 같은 결과가 나오게 하는 데서 옵니다.</p>
+</div>
 </div>
 </section>
 

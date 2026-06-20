@@ -79,11 +79,11 @@ bash scripts/setup.sh        # .venv 생성 · uv sync · .env 템플릿
 
 ```text
 ▶ Preflight 점검
-  ✅ Python 3.12+        ✅ langgraph import
-  ✅ uv 설치됨           ✅ deepagents import
-  ❌ OPENROUTER_API_KEY  ✅ langchain_mcp_adapters
-  ✅ langchain import
-  ── 결과: ✅ 6 / ❌ 1 ──
+  ✅ Python 3.12+         ✅ langchain import
+  ✅ uv 설치됨            ✅ langgraph import
+  ❌ OPENROUTER_API_KEY   ✅ deepagents import
+  ✅ OpenAI 호환 라우팅   ✅ langchain_mcp_adapters
+  ── 결과: ✅ 7 / ❌ 1 ──
 ```
 </section>
 

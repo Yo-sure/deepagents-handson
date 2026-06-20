@@ -84,8 +84,8 @@ flowchart TB
 ```markdown
 ---
 name: inbox-brief                      # 1–64자 소문자+하이픈 · 디렉터리명과 일치(필수)
-description: 분류 레코드·OKF 지식·조사 노트를 모아 월간 브리프를 작성한다.   # 무엇+언제(필수)
-  "이번 달 인박스 정리", "지출 브리프"를 요청할 때 쓴다.
+description: 분류된 인박스 레코드와 OKF 지식·조사 노트를 모아 월간 브리프(brief.md)를 작성한다.   # 무엇+언제(필수)
+  사용자가 "이번 달 인박스 정리", "지출 브리프", "월간 요약"을 요청할 때 쓴다.
 license: MIT                           # 선택 — 라이선스 이름/파일 참조
 allowed-tools: read_file write_file ls # 선택·실험적 — 공백 구분, 제한이 아니라 사전승인
 metadata:                              # 선택 — string 맵. version·author는 표준상 여기로
@@ -150,10 +150,10 @@ sequenceDiagram
 
   • inbox-brief  (dir: inbox-brief)
     description: 분류된 인박스 레코드와 OKF 지식·조사 노트를 모아 월간 브리프(brief.md)를
-                 작성한다. 사용자가 "이번 달 인박스 정리", "지출 브리프"를 요청할 때 쓴다.
+                 작성한다. 사용자가 "이번 달 인박스 정리", "지출 브리프", "월간 요약"을 요청할 때 쓴다.
     license: MIT
     allowed-tools: read_file write_file ls  (실험적 — 제한이 아니라 사전승인)
-    metadata: {'version': '0.2.0', 'author': 'deepagents-handson'}  (version·author는 표준상 여기)
+    metadata: {'version': '0.2.0', 'author': 'deepagents-handson'}  (version·author는 표준상 여기 들어간다)
     path: ch4-skills-mcp/inbox-brief/SKILL.md
     (본문 31줄은 아직 안 읽음 — description이 작업과 맞을 때 read_file)
 

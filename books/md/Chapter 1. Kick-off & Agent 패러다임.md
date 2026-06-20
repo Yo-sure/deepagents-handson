@@ -275,6 +275,7 @@ xychart-beta
 <div class="panel"><div class="panel-head"><strong>temperature — 왜 0인가</strong><span>추출의 재현성</span></div><div class="panel-body"><div class="list">
 <p>온도가 0이면 늘 최상위 토큰, 높을수록 아래 후보도 뽑힙니다.</p>
 <p>같은 영수증 → 같은 RecordV1이어야 하니 <code>classify_one</code>은 <code>temperature=0</code>. 창의가 필요한 글쓰기에서만 온도를 올립니다.</p>
+<p>디코딩 손잡이는 둘입니다 — 다른 하나가 <code>top_p</code>(누적확률 상위 토큰만 후보로 남기는 nucleus 샘플링). 보통 <code>temperature</code>나 <code>top_p</code> 중 하나만 조절하며, 결정적 추출은 <code>temperature=0</code>으로 충분합니다.</p>
 </div></div></div>
 </div>
 
@@ -595,7 +596,7 @@ flowchart TB
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>키 없이 — 파이프라인 확인</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_starbucks.png --mock</code><br><span style="color:var(--muted)">성공 기준: 판매처·금액·항목이 든 RecordV1 JSON이 한글 키로 출력된다.</span></p></div><div class="store">mock</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>키 없이 — 파이프라인 확인</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_starbucks.png --mock</code><br><span style="color:var(--muted)">성공 기준: 판매처 "스타벅스 강남R점"·금액 11,500·항목 2개가 든 RecordV1 JSON이 한글 키로 출력된다(최상위 <code>금액</code>은 총액, 항목 안 <code>금액</code>은 품목가).</span></p></div><div class="store">mock</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>키 넣고 — ReAct 추출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code><br><span style="color:var(--muted)">성공 기준: <code>[Action] check_receipt_sum 호출</code> → <code>[Observation] 항목합=8,400원 총액=8,400원 → 일치</code> → <code>[Final]</code>. live 모델은 게이트웨이 상태에 따라 표현이 조금 달라질 수 있으니, 결정론적 채점은 1번 mock으로 확인합니다.</span></p></div><div class="store">실호출</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>모델 3종 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 세 모델의 정확도가 표로 나온다(비용 감각의 출발점).</span></p></div><div class="store">선택</div></div>
 </div>
