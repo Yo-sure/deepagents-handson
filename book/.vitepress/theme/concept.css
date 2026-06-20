@@ -20,7 +20,21 @@
   padding: 8px 0 64px;
 }
 .lec * { box-sizing: border-box; }
-.lec .deck { width: min(1320px, calc(100vw - 40px)); margin: 0 auto; }
+.lec .deck { width: min(1320px, calc(100vw - 40px)); max-width: 100%; margin: 0 auto; }
+.lec .deck,
+.lec .hero,
+.lec .hero > *,
+.lec .board,
+.lec .panel,
+.lec .metric,
+.lec .row,
+.lec .copy,
+.lec .store,
+.lec .section-head > *,
+.lec .grid-2 > *,
+.lec .grid-3 > *,
+.lec .grid-4 > *,
+.lec .flow > * { min-width: 0; }
 
 /* 디자인 페이지: 사이드바 없이 풀폭 (layout:page + sidebar:false 와 함께) */
 .lec-page .VPPage { padding: 0 !important; }
@@ -37,7 +51,7 @@
 .lec h1 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(40px,6vw,82px); line-height:.95; }
 .lec h2 { font-family: Georgia, "Times New Roman", serif; font-size: clamp(30px,4vw,54px); line-height:1; }
 .lec h3 { font-size: 20px; line-height: 1.2; }
-.lec .lead { max-width: 790px; margin-top: 22px; color:#3f4744; font-size: clamp(17px,1.7vw,22px); line-height:1.55; word-break: keep-all; }
+.lec .lead { max-width: 790px; margin-top: 22px; color:#3f4744; font-size: clamp(17px,1.7vw,22px); line-height:1.55; word-break: keep-all; overflow-wrap:anywhere; }
 
 .lec .kicker { margin-top: 26px; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
 .lec .metric { min-height: 112px; padding: 16px; background: rgba(255,253,247,.82); border:1px solid var(--line); border-radius: var(--radius); box-shadow: 0 10px 28px rgba(27,31,29,.08); }
@@ -61,14 +75,14 @@
 .lec .row:nth-child(2) .code { background: var(--blue); }
 .lec .row:nth-child(3) .code { background: var(--teal); }
 .lec .copy > strong { display:block; font-size:15px; }   /* 행 제목만 블록; <p> 안 인라인 <strong>은 줄바꿈 안 되게 직접자식만 */
-.lec .copy p { margin-top:5px; color:var(--muted); font-size:13px; line-height:1.48; word-break:keep-all; }
+.lec .copy p { margin-top:5px; color:var(--muted); font-size:13px; line-height:1.48; word-break:keep-all; overflow-wrap:anywhere; }
 /* 긴 명령·경로 토큰(공백 없는 ch3-deepagents/...py)이 행을 가로로 늘려 폰에서 페이지가
    가로 스크롤되던 것 방지 — keep-all이 못 끊는 토큰만 마지막 수단으로 끊는다(전 챕터 공통). */
 .lec .copy p code, .lec .cue-body code, .lec .list p code { overflow-wrap:anywhere; }
 .lec .store { display:grid; place-items:center; padding:10px; color:var(--forest); background:rgba(148,210,189,.25); border:1px solid rgba(15,118,110,.24); border-radius:7px; font-size:12px; font-weight:900; text-align:center; }
 
 .lec .section-head { display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,360px); gap:28px; align-items:end; margin-bottom:26px; }
-.lec .section-note { color:var(--muted); font-size:15px; line-height:1.72; word-break:keep-all; }
+.lec .section-note { color:var(--muted); font-size:15px; line-height:1.72; word-break:keep-all; overflow-wrap:anywhere; }
 
 .lec .grid-4 { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
 .lec .grid-3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
@@ -79,7 +93,7 @@
 .lec .panel-head span { display:block; margin-top:4px; color:var(--muted); font-size:12px; line-height:1.45; }
 .lec .panel-body { padding:18px; }
 .lec .list { display:grid; gap:9px; }
-.lec .list p { padding-left:14px; border-left:3px solid var(--mint); color:#3e4844; font-size:13px; line-height:1.56; word-break:keep-all; }
+.lec .list p { padding-left:14px; border-left:3px solid var(--mint); color:#3e4844; font-size:13px; line-height:1.56; word-break:keep-all; overflow-wrap:anywhere; }
 
 .lec .badge { display:inline-flex; align-items:center; min-height:24px; padding:3px 8px; color:var(--forest); background:rgba(148,210,189,.32); border:1px solid rgba(15,118,110,.24); border-radius:999px; font-size:11px; font-weight:900; white-space:nowrap; }
 .lec .badge.amber { color:#704a08; background:rgba(224,159,62,.22); border-color:rgba(224,159,62,.42); }
@@ -93,18 +107,31 @@
 .lec .flow-step:last-child::after { display:none; }
 .lec .flow-step small { color:#704a08; font-size:11px; font-weight:900; text-transform:uppercase; }
 .lec .flow-step strong { display:block; margin-top:7px; font-size:14px; line-height:1.28; }
-.lec .flow-step p { margin-top:7px; color:var(--muted); font-size:12px; line-height:1.48; word-break:keep-all; }
+.lec .flow-step p { margin-top:7px; color:var(--muted); font-size:12px; line-height:1.48; word-break:keep-all; overflow-wrap:anywhere; }
 
 @media (max-width: 860px) {
   .lec .hero { grid-template-columns: 1fr; }
   .lec .grid-4, .lec .grid-3, .lec .flow, .lec .flow.flow-5 { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .lec .section-head { grid-template-columns: 1fr; }
 }
-/* 폰: .row 고정 컬럼(코드뱃지·store)이 390px에선 가운데 칸을 눌러 행이 10px 넘쳤다 —
-   고정폭을 줄여 가로 스크롤 0(영문 한계 글로서리·핸즈온 스택 공통). */
+/* 폰: hero의 3열 metric과 row의 우측 store를 그대로 두면 390px에서 카드가 오른쪽으로 밀린다.
+   metric은 세로로 읽히게 하고, store는 copy 아래로 내려 좁은 화면에서 본문 폭을 확보한다. */
 @media (max-width: 460px) {
-  .lec .row { grid-template-columns: 54px 1fr 104px; gap:10px; padding:13px; }
+  .lec { padding-bottom: 48px; }
+  .lec .deck { width: min(100%, calc(100vw - 32px)); }
+  .lec h1 { font-size: clamp(38px, 15vw, 56px); }
+  .lec h2 { font-size: clamp(30px, 12vw, 44px); }
+  .lec .kicker,
+  .lec .grid-4,
+  .lec .grid-3,
+  .lec .grid-2,
+  .lec .flow,
+  .lec .flow.flow-5 { grid-template-columns: 1fr; }
+  .lec .board { padding:18px; }
+  .lec .board-header { align-items:flex-start; flex-wrap:wrap; }
+  .lec .row { grid-template-columns: 48px minmax(0,1fr); gap:10px; padding:12px; }
   .lec .code { font-size:21px; }
+  .lec .store { grid-column: 2; min-height: 34px; justify-self:start; padding:8px 12px; }
 }
 
 /* layout:page(.lec)에는 default theme의 .vp-doc 코드블록 CSS가 안 붙는다(배경·거터·줄번호).
