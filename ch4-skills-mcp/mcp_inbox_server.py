@@ -17,6 +17,7 @@ FastMCP 데코레이터 규칙
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -26,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from analyst.paths import CLASSIFIED, KNOWLEDGE_BASE
 
 mcp = FastMCP("inbox-mcp-server")
+SAFE_RECORD = re.compile(r"^[A-Za-z0-9_.-]+\.json$")
 
 # 메일 봉투(목) — 외부 메일 서버 대신 이번 달 인박스에 도착한 문서 목록.
 MOCK_ENVELOPE = [
@@ -55,7 +57,13 @@ def read_record(name: str) -> str:
     Args:
         name: classified 안 파일명(예: receipt_starbucks.json)
     """
-    path = CLASSIFIED / name
+    if Path(name).name != name or not SAFE_RECORD.fullmatch(name):
+        return f"잘못된 레코드 이름: {name}"
+    path = (CLASSIFIED / name).resolve()
+    try:
+        path.relative_to(CLASSIFIED.resolve())
+    except ValueError:
+        return f"잘못된 레코드 이름: {name}"
     if not path.exists():
         return f"없는 레코드: {name}"
     return path.read_text(encoding="utf-8")

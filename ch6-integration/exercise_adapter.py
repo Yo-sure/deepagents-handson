@@ -48,7 +48,7 @@ def main() -> None:
         except NotImplementedError as e:
             print(f"  ✗ {e}")
             print("\n[FAIL] 아직 채우지 않았습니다 — coerce_amount의 TODO를 채우고 다시 실행하세요.")
-            return
+            raise SystemExit(1)
         ok = isinstance(got, float) and abs(got - want) < 1e-6
         all_ok = all_ok and ok
         print(f"  {'✅' if ok else '❌'} coerce_amount({raw!r}) = {got!r}   (기대 {want})")
@@ -57,6 +57,7 @@ def main() -> None:
         print("       부품(목·실선)을 바꿔도 이 한 겹만 맞으면 파이프 전체가 그대로 돈다.")
     else:
         print("\n[FAIL] 일부 케이스가 어긋납니다 — 콤마·₩·원·공백을 모두 제거했는지 확인하세요.")
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

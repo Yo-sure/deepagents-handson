@@ -9,6 +9,7 @@ echo "▶ Preflight 점검"
 chk "Python 3.12+"            'uv run python -c "import sys; raise SystemExit(0 if sys.version_info[:2]>=(3,12) else 1)"'
 chk "uv 설치됨"               'command -v uv'
 chk "OPENROUTER_API_KEY"      '[ -n "${OPENROUTER_API_KEY:-}" ] && [ "${OPENROUTER_API_KEY}" != "sk-or-..." ]'
+chk "OpenAI 호환 라우팅"       'uv run python -c "import os, analyst; raise SystemExit(0 if os.environ.get(\"OPENAI_API_KEY\") and os.environ.get(\"OPENAI_API_BASE\") else 1)"'
 chk "langchain import"        'uv run python -c "import langchain"'
 chk "langgraph import"        'uv run python -c "import langgraph"'
 chk "deepagents import"       'uv run python -c "import deepagents"'

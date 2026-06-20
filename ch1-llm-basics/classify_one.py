@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import mimetypes
 import os
 from pathlib import Path
 
@@ -63,9 +64,10 @@ EXTRACT_PROMPT = """너는 영수증·명세서를 읽어 구조화하는 회계
 """
 
 
-def _image_data_url(path: Path) -> str:
+def _document_data_url(path: Path) -> str:
+    mime = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
     b64 = base64.b64encode(path.read_bytes()).decode()
-    return f"data:image/png;base64,{b64}"
+    return f"data:{mime};base64,{b64}"
 
 
 #pragma region singleshot
@@ -92,7 +94,7 @@ def extract_singleshot(doc: str, model: str) -> RecordV1:
                 "role": "user",
                 "content": [
                     {"type": "text", "text": prompt},
-                    {"type": "image_url", "image_url": {"url": _image_data_url(path)}},
+            {"type": "image_url", "image_url": {"url": _document_data_url(path)}},
                 ],
             }
         ]
@@ -181,7 +183,7 @@ def extract_react(doc: str, model: str, max_steps: int = 5) -> RecordV1:
         SystemMessage(content=REACT_SYSTEM),
         HumanMessage(content=[
             {"type": "text", "text": prompt},
-            {"type": "image_url", "image_url": {"url": _image_data_url(SAMPLE_INBOX / doc)}},
+            {"type": "image_url", "image_url": {"url": _document_data_url(SAMPLE_INBOX / doc)}},
         ]),
     ]
 

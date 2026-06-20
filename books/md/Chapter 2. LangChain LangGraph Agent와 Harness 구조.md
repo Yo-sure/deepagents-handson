@@ -222,7 +222,7 @@ flowchart TD
 
 <div class="cue do" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기 — retry를 눈으로</span><span class="cue-time">~3분</span></div>
-<div class="cue-body"><code>--break-sum</code>으로 합계를 일부러 1원 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. 이 플래그는 <em>매 재분류마다</em> 합계를 다시 깨므로 끝내 안 맞은 채 <code>[verify] 불일치 → [retry] 1/2 → 2/2 → persist</code>로 흘러, <strong>retry 루프가 도는 것과 상한(2회)에서 끊기는 것을 한 번에</strong> 봅니다(스스로 못 고치니 상한이 안전장치).</div>
+<div class="cue-body"><code>--break-sum</code>으로 합계를 일부러 1원 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. 이 플래그는 <em>매 재분류마다</em> 합계를 다시 깨므로 끝내 안 맞은 채 <code>[verify] 불일치 → [retry] 1/2 → 2/2 → dry-run</code>으로 흐릅니다. retry 루프와 상한(2회)을 보되, 다음 장 산출물을 오염시키지 않도록 JSON은 쓰지 않습니다.</div>
 </div>
 </section>
 
@@ -389,8 +389,8 @@ sequenceDiagram
 
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>전체 적재 — 자동 승인</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><span style="color:var(--muted)">성공 기준: 10건이 흐르고 고액 2건(invoice_photo·contract_freelance)에서 ⏸ interrupt 뒤 자동 승인 → <code>workspace/classified/</code>에 JSON 10개. (신뢰도는 mock에서 1.0이라 저신뢰 멈춤은 없습니다.)</span></p></div><div class="store">10건</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>한 건만 — 멈춤 관찰</strong><p><code>... --mock --doc invoice_photo.png</code><br><span style="color:var(--muted)">성공 기준: <code>⏸ interrupt — 고액(1,650,000원)</code> 줄이 보이고 review→persist로 이어진다.</span></p></div><div class="store">interrupt</div></div>
-<div class="row"><div class="code">3</div><div class="copy"><strong>검토건 반려</strong><p><code>... --mock --reject-flagged</code><br><span style="color:var(--muted)">성공 기준: 고액 건이 <code>[review] 반려 — 적재 보류</code>로 빠지고 그 JSON은 안 생긴다.</span></p></div><div class="store">보류</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>한 건만 — 멈춤 관찰</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --doc invoice_photo.png</code><br><span style="color:var(--muted)">성공 기준: <code>⏸ interrupt — 고액(1,650,000원)</code> 줄이 보이고 review→persist로 이어진다.</span></p></div><div class="store">interrupt</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>검토건 반려</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --reject-flagged</code><br><span style="color:var(--muted)">성공 기준: 고액 건이 <code>[review] 보류 — 적재 안 함</code>으로 빠지고, 기존 JSON이 있으면 제거된다. 다시 정상 산출물을 만들려면 1번 전체 적재를 한 번 더 실행한다.</span></p></div><div class="store">보류</div></div>
 </div>
 
 <div class="cue do">

@@ -107,9 +107,10 @@ from deepagents import create_deep_agent
 from deepagents.backends import FilesystemBackend
 from deepagents.middleware.skills import SkillsMiddleware
 
-# 스킬 소스 = 스킬들이 모인 디렉터리(그 하위 디렉터리 하나가 스킬 하나).
+# 에이전트에는 workspace 산출물과 스킬 패키지만 보이는 좁은 runtime view를 준다.
+runtime_root = prepare_runtime_view()
 skills_mw = SkillsMiddleware(
-    backend=FilesystemBackend(root_dir=".", virtual_mode=False),
+    backend=FilesystemBackend(root_dir=runtime_root, virtual_mode=True),
     sources=["ch4-skills-mcp"],          # inbox-brief/ 를 스킬로 발견
 )
 agent = create_deep_agent(model=..., middleware=[skills_mw])
@@ -163,11 +164,11 @@ sequenceDiagram
 </div>
 </div>
 
-<p class="section-note" style="margin-top:14px"><strong>스펙 한 가지</strong> — 스킬 이름(<code>name</code>)은 디렉터리 이름과 같아야 합니다. 그래서 <code>inbox-brief/</code> 안 SKILL.md가 <code>name: inbox-brief</code>입니다(어긋나면 미들웨어가 경고). <code>--run</code>으로 키를 넣고 돌리면 에이전트의 행동 중 하나가 <code>read_file(.../SKILL.md, limit=1000)</code> — 메타만 보던 모델이 본문을 그때 가져오는 게 점진 공개의 증거입니다.</p>
+<p class="section-note" style="margin-top:14px"><strong>스펙 한 가지</strong> — 스킬 이름(<code>name</code>)은 디렉터리 이름과 같아야 합니다. 그래서 <code>inbox-brief/</code> 안 SKILL.md가 <code>name: inbox-brief</code>입니다(어긋나면 미들웨어가 경고). <code>--run</code>으로 키를 넣고 돌리면 에이전트의 행동 중 하나가 <code>read_file(.../SKILL.md, limit=1000)</code> — 메타만 보던 모델이 본문을 그때 가져오는 게 점진 공개의 증거입니다. 파일 백엔드는 레포 전체가 아니라 <code>workspace/_skill_runtime</code> 아래의 실습 산출물과 스킬 파일만 보게 둡니다.</p>
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~3분</span></div>
-<div class="cue-body"><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. 키 없이도 <strong>미들웨어가 시스템 프롬프트에 무엇을 싣는지</strong>(메타데이터만)와, 본문이 아직 안 읽혔다는 점을 직접 봅니다. 키가 있으면 <code>--run</code>으로 에이전트가 본문을 read_file 하는 것까지 확인하세요.</div>
+<div class="cue-body"><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. 키 없이도 <strong>미들웨어가 시스템 프롬프트에 무엇을 싣는지</strong>(메타데이터만)와, 본문이 아직 안 읽혔다는 점을 직접 봅니다. 키가 있으면 <code>--run</code>으로 에이전트가 본문을 read_file 하는 것까지 볼 수 있지만, live 호출은 몇 분 걸릴 수 있으므로 기본 성공 기준은 <code>--show</code>입니다.</div>
 </div>
 
 <div class="board" style="margin-top:18px">
@@ -451,12 +452,12 @@ if __name__ == "__main__":
 <div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code>(클린 워크스페이스 또는 Ch2 <code>--mock</code> 기준) + <code>knowledge_base/gap-쿠팡-주.md</code> 생성.</span></p></div><div class="store">지식</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 나온다(리소스 <code>inbox://stats</code>는 Tool과 별개로 노출).</span></p></div><div class="store">연결</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>Skill·지식 열어 보기</strong><p><code>cat workspace/knowledge_base/gap-쿠팡-주.md</code> · <code>cat ch4-skills-mcp/inbox-brief/SKILL.md</code><br><span style="color:var(--muted)">성공 기준: gap 항목에 <code>type: gap</code> 머리말, SKILL.md에 name·description.</span></p></div><div class="store">절차</div></div>
-<div class="row"><div class="code">4</div><div class="copy"><strong>Skill 점진 공개 — 코드로</strong><p><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code><br><span style="color:var(--muted)">성공 기준: 미들웨어가 시스템 프롬프트에 싣는 건 name·description뿐, 본문은 "아직 안 읽음"으로 표시. 키가 있으면 <code>--run</code>으로 에이전트가 read_file 하는 것까지.</span></p></div><div class="store">절차</div></div>
+<div class="row"><div class="code">4</div><div class="copy"><strong>Skill 점진 공개 — 코드로</strong><p><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code><br><span style="color:var(--muted)">성공 기준: 미들웨어가 시스템 프롬프트에 싣는 건 name·description뿐, 본문은 "아직 안 읽음"으로 표시. <code>--run</code>은 키가 있을 때 선택으로만 실행합니다.</span></p></div><div class="store">절차</div></div>
 </div>
 
 <div class="cue do" style="margin-top:18px">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~3분</span></div>
-<div class="cue-body">2단계의 MCP 서버를 직접 띄워 클라이언트를 붙여 봅니다. <code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code>를 실행하면 stdio로 서버가 뜨고 도구 목록을 받아옵니다.</div>
+<div class="cue-body">2단계의 MCP 서버가 노출할 도구 목록을 먼저 확인합니다. <code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code>는 stdio 서버를 오래 띄우지 않고 등록된 도구 설명만 출력합니다. 실제 stdio 대기는 <code>--list</code> 없이 실행할 때 시작됩니다.</div>
 </div>
 
 <div class="cue wait" style="margin-top:12px">

@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -39,6 +40,7 @@ from analyst.paths import (
 
 MATCH_TOL = 1.0
 BRIEF_DRAFT = WORKSPACE / "brief_draft.md"
+SAFE_NOTE = re.compile(r"^[a-z0-9_-]{1,64}$")
 
 
 # ── 입력: classified 레코드(없으면 gold로 보충) ──────────────────
@@ -236,8 +238,15 @@ def build_agent(records: list[RecordV1]):
     @tool
     def write_note(name: str, body: str) -> str:
         """조사 노트를 research_notes/<name>.md 로 저장한다."""
+        if not SAFE_NOTE.fullmatch(name):
+            return f"invalid note name: {name}"
         ensure_workspace()
-        (RESEARCH_NOTES / f"{name}.md").write_text(body, encoding="utf-8")
+        path = (RESEARCH_NOTES / f"{name}.md").resolve()
+        try:
+            path.relative_to(RESEARCH_NOTES.resolve())
+        except ValueError:
+            return f"invalid note name: {name}"
+        path.write_text(body, encoding="utf-8")
         return f"saved {name}.md"
 
     shared_tools = [list_records, write_note]

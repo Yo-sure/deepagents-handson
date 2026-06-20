@@ -105,10 +105,16 @@ def review(state: IntakeState) -> dict:
 
 def persist(state: IntakeState) -> dict:
     """검증된 레코드를 classified/<문서>.json 으로 떨군다."""
+    out = CLASSIFIED / (Path(state["doc"]).stem + ".json")
     if state.get("flagged") == "rejected":
+        if out.exists():
+            out.unlink()
+            print(f"  [persist] 기존 파일 제거 → {out.relative_to(out.parents[2])}")
         return {}
     ensure_workspace()
-    out = CLASSIFIED / (Path(state["doc"]).stem + ".json")
+    if BREAK_SUM:
+        print(f"  [persist] dry-run — retry 관찰용이라 {out.relative_to(out.parents[2])}에 쓰지 않음")
+        return {}
     out.write_text(
         json.dumps(state["record"], ensure_ascii=False, indent=2), encoding="utf-8"
     )

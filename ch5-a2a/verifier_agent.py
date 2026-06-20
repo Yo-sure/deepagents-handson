@@ -49,7 +49,7 @@ URL = f"http://localhost:{PORT}"
 
 #pragma region verify-brief
 def verify_brief(brief_text: str) -> tuple[bool, list[str]]:
-    """브리프를 레코드와 대사한다 — (통과여부, 근거 목록). 독립 재계산이라 편향이 없다."""
+    """브리프를 레코드와 다시 대사한다 — (통과여부, 근거 목록)."""
     records = load_records()
     receipts = by_type(records, "영수증")
     card = next((r for r in by_type(records, "명세서") if "카드" in r.merchant), None)

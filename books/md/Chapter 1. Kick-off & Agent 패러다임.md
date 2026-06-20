@@ -535,7 +535,7 @@ flowchart TB
 <p><strong><code>model_validate_json</code></strong> — 모델 출력을 믿지 않고 계약으로 검증합니다. 필드가 빠지거나 타입이 틀리면 여기서 걸립니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>두 가지 함정</strong><span>자주 막히는 곳</span></div><div class="panel-body"><div class="list">
-<p>이미지는 <code>data:image/png;base64,...</code> 형태의 data URL로 넣습니다. 경로 문자열이 아닙니다.</p>
+<p>문서는 확장자에 맞는 <code>data:&lt;mime&gt;;base64,...</code> 형태의 data URL로 넣습니다. 경로 문자열이 아닙니다.</p>
 <p>모델이 <code>```json … ```</code> 울타리를 붙여 답할 때가 있어 <code>strip_fences</code>로 벗긴 뒤 파싱합니다.</p>
 </div></div></div>
 </div>
@@ -596,7 +596,7 @@ flowchart TB
 
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>키 없이 — 파이프라인 확인</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_starbucks.png --mock</code><br><span style="color:var(--muted)">성공 기준: 판매처·금액·항목이 든 RecordV1 JSON이 한글 키로 출력된다.</span></p></div><div class="store">mock</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>키 넣고 — ReAct 추출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code><br><span style="color:var(--muted)">성공 기준: <code>[Action] check_receipt_sum 호출</code> → <code>[Observation] 항목합=8,400원 총액=8,400원 → 일치</code> → <code>[Final]</code>, "정확도 100%". 모델이 도구를 스스로 부른 것.</span></p></div><div class="store">실호출</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>키 넣고 — ReAct 추출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code><br><span style="color:var(--muted)">성공 기준: <code>[Action] check_receipt_sum 호출</code> → <code>[Observation] 항목합=8,400원 총액=8,400원 → 일치</code> → <code>[Final]</code>. live 모델은 게이트웨이 상태에 따라 표현이 조금 달라질 수 있으니, 결정론적 채점은 1번 mock으로 확인합니다.</span></p></div><div class="store">실호출</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>모델 3종 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 세 모델의 정확도가 표로 나온다(비용 감각의 출발점).</span></p></div><div class="store">선택</div></div>
 </div>
 

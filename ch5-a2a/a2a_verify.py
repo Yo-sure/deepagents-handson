@@ -1,6 +1,6 @@
 """Ch5 산출물 — 브리프를 외부 검증 에이전트에 A2A로 보내 검증받는다(a2a-sdk 1.1.0).
 
-흐름: brief_draft.md 를 읽어 → Agent Card 조회 → SendMessage 로 제출 →
+흐름: brief.md(없으면 brief_draft.md) 를 읽어 → Agent Card 조회 → SendMessage 로 제출 →
 검증 결과를 받아 → verified_brief.md 로 떨군다.
 
 서브에이전트(인프로세스 위임, Ch3)와 A2A(프로세스·팀 경계)의 차이가 여기서 드러난다.
@@ -29,16 +29,18 @@ from pathlib import Path
 import httpx
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from analyst.paths import VERIFIED_BRIEF, WORKSPACE, ensure_workspace
+from analyst.paths import BRIEF, VERIFIED_BRIEF, WORKSPACE, ensure_workspace
 
 BRIEF_DRAFT = WORKSPACE / "brief_draft.md"
 VERIFIER_URL = "http://localhost:9610"
 
 
 def read_brief() -> str:
+    if BRIEF.exists():
+        return BRIEF.read_text(encoding="utf-8")
     if BRIEF_DRAFT.exists():
         return BRIEF_DRAFT.read_text(encoding="utf-8")
-    return "# 인박스 브리프 (초안)\n(brief_draft.md 없음 — 먼저 Ch3 research_orchestrator 실행)\n"
+    return "# 인박스 브리프\n(brief.md 없음 — 먼저 Ch4 okf_store/brief 절차 또는 Ch3 research_orchestrator 실행)\n"
 
 
 def write_verified(brief: str, verdict_block: str) -> None:

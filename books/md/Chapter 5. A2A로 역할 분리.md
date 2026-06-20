@@ -347,9 +347,9 @@ flowchart TB
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">0</div><div class="copy"><strong>먼저 — 브리프를 만들어 둔다(Ch3)</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>workspace/brief_draft.md</code> 생성. 이게 없으면 검증자가 빈 브리프를 받아 <code>NEEDS_REVISION</code>이 납니다 — PASS를 보려면 선행 필수.</span></p></div><div class="store">선행</div></div>
+<div class="row"><div class="code">0</div><div class="copy"><strong>먼저 — 브리프를 만들어 둔다(Ch3→Ch4)</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code> 후 <code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>workspace/brief.md</code> 또는 <code>workspace/brief_draft.md</code> 생성. Ch5는 Ch4의 <code>brief.md</code>를 우선 보내고, 없으면 Ch3 초안으로 fallback합니다.</span></p></div><div class="store">선행</div></div>
 <div class="row"><div class="code">a</div><div class="copy"><strong>한 번에 — 자동 기동 + 검증</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --serve</code><br><span style="color:var(--muted)">성공 기준: <code>Agent Card: 세무·정합성 검증 에이전트</code> → <code>검증 결과 수신 (A2A)</code> → verified_brief.md.</span></p></div><div class="store">A2A</div></div>
-<div class="row"><div class="code">b</div><div class="copy"><strong>따로 — 서버 먼저(다른 터미널)</strong><p><code>uv run python3 ch5-a2a/verifier_agent.py</code> 후 <code>... a2a_verify.py</code><br><span style="color:var(--muted)">성공 기준: 브라우저로 <code>localhost:9610/.well-known/agent-card.json</code> 카드가 보인다.</span></p></div><div class="store">서버</div></div>
+<div class="row"><div class="code">b</div><div class="copy"><strong>따로 — 서버 먼저(다른 터미널)</strong><p><code>uv run python3 ch5-a2a/verifier_agent.py</code> 후 <code>uv run python3 ch5-a2a/a2a_verify.py</code><br><span style="color:var(--muted)">성공 기준: 브라우저로 <code>localhost:9610/.well-known/agent-card.json</code> 카드가 보인다.</span></p></div><div class="store">서버</div></div>
 <div class="row"><div class="code">c</div><div class="copy"><strong>오프라인 — 네트워크 없이</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --mock</code><br><span style="color:var(--muted)">성공 기준: 같은 PASS 결과가 네트워크 없이 나온다.</span></p></div><div class="store">목</div></div>
 </div>
 
@@ -412,7 +412,7 @@ flowchart TB
 <p>검증 에이전트가 아직 안 떴습니다. <code>--serve</code>는 기동을 기다렸다 보내지만, 따로 띄울 땐 서버가 먼저 올라온 뒤 클라이언트를 실행하세요.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>포트 9610 사용 중</strong><span>포트</span></div><div class="panel-body"><div class="list">
-<p>이전 서버가 안 죽었습니다. 프로세스를 정리하거나 <code>PORT</code>를 바꿉니다.</p>
+<p>이전 서버가 안 죽었습니다. 실행 중인 <code>verifier_agent.py</code> 프로세스를 Ctrl-C로 종료한 뒤 다시 띄웁니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>InvalidAgentResponseError</strong><span>응답 순서</span></div><div class="panel-body"><div class="list">
 <p>상태 갱신 전에 Task를 먼저 enqueue해야 합니다(executor 순서). 고치면 클라이언트에 <code>검증 결과 수신 (A2A)</code>이 정상 출력됩니다.</p>

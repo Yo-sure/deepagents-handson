@@ -35,6 +35,7 @@ if [ ! -f .env ]; then
     printf 'OPENROUTER_API_KEY=sk-or-...\nOPENAI_API_KEY=sk-or-...\nOPENAI_API_BASE=https://openrouter.ai/api/v1\nMAIL_BACKEND=mock\n' > .env
   fi
   echo "· .env 생성됨 — OPENROUTER_API_KEY 를 입력하세요: https://openrouter.ai/keys"
+  echo "  (OPENAI_API_KEY가 placeholder여도 실습 코드는 OPENROUTER_API_KEY로 보정합니다.)"
 fi
 
 # 4) 프리플라이트

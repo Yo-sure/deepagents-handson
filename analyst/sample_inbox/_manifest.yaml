@@ -1,4 +1,4 @@
-# sample_inbox 정답 매니페스트 (RecordV1 gold). 생성: studio/tools/gen_samples.py
+# sample_inbox 정답 매니페스트 (RecordV1 gold).
 # gold = 멀티모달 추출이 재현해야 할 값. 신뢰도(confidence)는 모델 산출이라 제외.
 # 교차참조: 카드명세서 거래줄 ↔ 개별 영수증, 은행명세서 ↔ 계약/세금계산서.
 schema_version: "1.0"
