@@ -315,10 +315,10 @@ flowchart LR
 // 응답 — 서버가 결과를 돌려준다
 { "jsonrpc": "2.0", "id": 7,
   "result": { "content": [ { "type": "text",
-    "text": "{\"문서종류\":\"영수증\",\"판매처\":\"GS25 역삼점\",\"금액\":8400, ...}" } ] } }
+    "text": "{\"판매처\":\"GS25 역삼점\",\"금액\":8400,\"문서유형\":\"영수증\", ...}" } ] } }
 ```
 
-<p style="margin-top:8px"><code>tools/list</code>로 서버가 가진 도구 목록을, <code>tools/call</code>로 그중 하나를 호출합니다 — 위 <code>--list</code>가 보여 준 도구 4개가 곧 <code>tools/list</code> 결과입니다. 결과는 <code>result.content</code>에 담겨 오고, 도구 이름을 틀리면 같은 <code>id</code>로 <code>result</code> 대신 <code>error</code>(<code>-32601</code>)가 돌아옵니다. <code>read_record(name)</code>의 <code>name</code>이 곧 위 <code>arguments</code>입니다.</p>
+<p style="margin-top:8px"><code>tools/list</code>로 서버가 가진 도구 목록을, <code>tools/call</code>로 그중 하나를 호출합니다 — 위 <code>--list</code>가 보여 준 도구 4개가 곧 <code>tools/list</code> 결과입니다. 결과는 <code>result.content</code>에 담겨 오고, 없는 도구 이름을 넘기면 같은 <code>id</code>로 <code>result</code> 대신 <code>error</code>(<code>-32602</code> 잘못된 파라미터)가 돌아옵니다. <code>read_record(name)</code>의 <code>name</code>이 곧 위 <code>arguments</code>입니다.</p>
 </div>
 </div>
 

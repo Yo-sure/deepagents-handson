@@ -80,6 +80,20 @@ flowchart TB
 
 <div class="ask" style="margin-top:16px"><strong>하네스가 항상 정답은 아닙니다.</strong> 단계가 정해진 일은 Ch2의 StateGraph가 더 단순하고 빠릅니다. 하네스가 필요한 경우는 <strong>몇 갈래로 볼지 미리 모르는</strong> 조사·롱러닝처럼, 계획과 위임을 모델에 맡겨야 할 때입니다.</div>
 
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>Ch2에서 손으로 짠 것 → Ch3 기본 제공</span><span class="status-pill">보일러플레이트 대체</span></div>
+<div class="panel-body">
+<p>하네스가 "무엇을 대신해 주나"는 Ch2와 나란히 보면 또렷합니다. 같은 일을 Ch2에선 직접 짰고, <code>create_deep_agent</code> 한 줄은 그걸 기본으로 깝니다.</p>
+<div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+<div class="panel"><div class="panel-head"><strong>계획 세우기</strong><span>계획</span></div><div class="panel-body"><div class="list"><p>Ch2: 노드·엣지를 손으로 배치 → Ch3: <code>write_todos</code>(TodoListMiddleware)가 계획을 파일로</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>위임·병렬</strong><span>위임</span></div><div class="panel-body"><div class="list"><p>Ch2: 직접 분기·반복 → Ch3: <code>task</code> 도구가 서브에이전트로 fan-out</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>큰 출력 덜어내기</strong><span>파일</span></div><div class="panel-body"><div class="list"><p>Ch2: 상태에 다 이고 감 → Ch3: filesystem 장치가 파일로 빼고 경로만 남김</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>긴 대화 줄이기</strong><span>압축</span></div><div class="panel-body"><div class="list"><p>Ch2: <code>MAX_RETRY</code>로 길이를 손수 제한 → Ch3: SummarizationMiddleware가 자동 요약</p></div></div></div>
+</div>
+<p class="section-note" style="margin-top:10px">대신 그만큼 토큰을 더 씁니다(아래 트레이드오프) — 그래서 단계가 정해진 일엔 Ch2가, 갈래를 모르는 일엔 Ch3가 맞습니다.</p>
+</div>
+</div>
+
 <p class="section-note" style="margin-top:16px">LangChain은 모델(gpt-5.2-codex)을 <strong>그대로 둔 채</strong> 하네스를 반복 개선해 Terminal-Bench 2.0 점수를 52.8%→66.5%(+13.7%p)로 올렸다고 보고했습니다. Ch1에서 본 "순위를 가르는 건 모델이 아니라 하네스"를 보여 주는 사례입니다. <span style="color:var(--muted)">(LangChain 자체 보고 — 제3자 재현은 아직. 발표 당시 리더보드 30위→5위.)</span></p>
 
 <div class="board" style="margin-top:18px">

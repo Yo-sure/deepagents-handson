@@ -245,7 +245,7 @@ flowchart TD
 
 <div class="cue do" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기 — retry를 눈으로</span><span class="cue-time">~3분</span></div>
-<div class="cue-body"><code>--break-sum</code>으로 합계를 일부러 1원 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. 이 플래그는 <em>매 재분류마다</em> 합계를 다시 깨므로 끝내 안 맞은 채 <code>[verify] 불일치 → [retry] 1/2 → 2/2 → dry-run</code>으로 흐릅니다. retry 루프와 상한(2회)을 보되, 다음 장 산출물을 오염시키지 않도록 JSON은 쓰지 않습니다.</div>
+<div class="cue-body"><code>--break-sum</code>으로 합계를 일부러 1원 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. 이 플래그는 <em>매 재분류마다</em> 합계를 다시 깨므로 끝내 안 맞은 채 <code>[verify] 합계 불일치(항목합 8,400 ≠ 8,401) → [retry] 1/2 → 2/2 → dry-run</code>으로 흐릅니다. retry 루프와 상한(2회)을 보되, 다음 장 산출물을 오염시키지 않도록 JSON은 쓰지 않습니다.</div>
 </div>
 </section>
 
@@ -282,7 +282,7 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="panel"><div class="panel-head"><strong>channel_values</strong><span>상태 본문</span></div><div class="panel-body"><div class="list"><p>지금 상태의 실제 값 — 분류 중인 문서·추출 레코드·재시도 횟수 같은 State 필드</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>channel_versions</strong><span>버전</span></div><div class="panel-body"><div class="list"><p>각 채널이 몇 번 갱신됐는지 — 무엇이 바뀌었는지 추적</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>versions_seen</strong><span>진행 위치</span></div><div class="panel-body"><div class="list"><p>각 노드가 어디까지 봤는지 — 재개 시 어느 노드를 다시 돌릴지 판단</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>pending_writes</strong><span>내고장성</span></div><div class="panel-body"><div class="list"><p>아직 반영 안 된 쓰기 — superstep 도중 죽어도 재개 시 잃지 않게 하는 fault tolerance의 핵심</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>pending_writes</strong><span>내고장성</span></div><div class="panel-body"><div class="list"><p>아직 반영 안 된 쓰기 — 스냅샷과는 <em>별도로</em> 보존돼, superstep 도중 죽어도 재개 시 잃지 않게 하는 fault tolerance의 핵심</p></div></div></div>
 </div>
 <p class="section-note" style="margin-top:10px">위 코드의 <code>thread_id="intake-{doc}"</code>가 이 스냅샷들의 키입니다. <code>InMemorySaver</code>는 이걸 프로세스 메모리에 두고, <code>SqliteSaver</code>/<code>PostgresSaver</code>로 바꾸면 <strong>같은 구조</strong>가 디스크·DB에 남아 프로세스를 넘어 재개됩니다.</p>
 </div>
