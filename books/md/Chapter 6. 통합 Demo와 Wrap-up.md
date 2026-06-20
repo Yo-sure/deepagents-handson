@@ -13,14 +13,14 @@ pageClass: lec-page
 <div>
 <div class="eyebrow">Chapter 6 · 통합 캡스톤 · 마무리</div>
 
-# 부품을,<br>한 줄기로 잇는다
+# 모듈을,<br>하나로 연결한다
 
-<p class="lead">앞 다섯 챕터에서 부품을 따로 만들어 봤습니다. 이 챕터에서는 새로 짜지 않습니다.<br>
-부품을 끼워, 메일 봉투 한 통이 분류부터 검증까지 한 번에 흐르는 엔드투엔드를 배선합니다.</p>
+<p class="lead">앞 다섯 챕터에서 모듈을 따로 만들어 봤습니다. 이 챕터에서는 새로 짜지 않습니다.<br>
+기존 모듈을 연결해 샘플 메일 입력이 분류부터 검증까지 이어지는 엔드투엔드를 배선합니다.</p>
 
 <div class="kicker">
 <div class="metric"><span class="num">90</span><strong>분</strong><span>이론 10 · 핸즈온 75</span><span class="clk">예상 16:10–17:40</span></div>
-<div class="metric"><span class="num">6</span><strong>부품 배선</strong><span>analyst_app.py</span></div>
+<div class="metric"><span class="num">6</span><strong>모듈 배선</strong><span>analyst_app.py</span></div>
 <div class="metric"><span class="num">1</span><strong>검증된 브리프</strong><span>verified_brief.md</span></div>
 </div>
 </div>
@@ -28,9 +28,9 @@ pageClass: lec-page
 <div class="board">
 <div class="board-header"><span>이 챕터가 끝나면</span><span class="status-pill">완성</span></div>
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>엔드투엔드 1회</strong><p>봉투 → 분류 → 조사 → 지식 → 브리프 → 검증</p></div><div class="store">전체</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>부품 배선의 원리</strong><p>계약을 재사용해 새로 짜지 않는다</p></div><div class="store">조립</div></div>
-<div class="row"><div class="code">3</div><div class="copy"><strong>적용 메모</strong><p>내 일에 가져갈 씨앗 정리</p></div><div class="store">전이</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>엔드투엔드 1회</strong><p>샘플 메일 → 분류 → 조사 → 지식 → 브리프 → 검증</p></div><div class="store">전체</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>모듈 배선 원리</strong><p>계약을 재사용해 새로 짜지 않는다</p></div><div class="store">조립</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>적용 메모</strong><p>내 업무에 옮길 항목 정리</p></div><div class="store">전이</div></div>
 </div>
 </div>
 </section>
@@ -44,7 +44,7 @@ pageClass: lec-page
 
 </div>
 <p class="section-note">캡스톤의 핵심은 절제입니다. 각 챕터의 모듈을 import 해 그 함수를 부릅니다. analyst_app.py에는 새 로직이 거의 없습니다.<br>
-이게 가능한 이유는 처음부터 계약을 맞춰 뒀기 때문입니다. 모두 RecordV1을 주고받고, 같은 디렉터리 규약을 씁니다. 부품을 갈아끼워도 계약은 그대로입니다.</p>
+이게 가능한 이유는 처음부터 계약을 맞춰 뒀기 때문입니다. 모두 RecordV1을 주고받고, 같은 디렉터리 규약을 씁니다. 모듈을 바꿔도 계약은 그대로입니다.</p>
 </div>
 
 <div class="grid-2">
@@ -58,24 +58,24 @@ pageClass: lec-page
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">분류 모델을 더 좋은 것으로 바꿔도, 검증자를 다른 팀 것으로 바꿔도 배선은 그대로입니다 — 단, <strong>새 부품이 RecordV1과 디렉터리 규약을 똑같이 지킬 때만</strong>입니다. 계약을 어기는 부품을 끼우면 그 경계에 어댑터가 필요합니다 — 예컨대 새 분류기가 금액을 <code>"11,500원"</code> 문자열로 주면 RecordV1의 <code>total: float</code>과 어긋나, 그 경계에 "쉼표·원 떼고 float으로" 어댑터 한 겹을 둡니다. "자유 교체"가 아니라 "계약을 지키는 한 교체"입니다.</p>
+<p class="section-note" style="margin-top:16px">분류 모델을 더 좋은 것으로 바꿔도, 검증자를 다른 팀 것으로 바꿔도 배선은 그대로입니다. 단, <strong>새 모듈이 RecordV1과 디렉터리 규약을 똑같이 지킬 때만</strong>입니다. 계약을 어기는 모듈을 붙이면 그 경계에 어댑터가 필요합니다. 예컨대 새 분류기가 금액을 <code>"11,500원"</code> 문자열로 주면 RecordV1의 <code>total: float</code>과 어긋나므로, 그 경계에서 "쉼표·원 제거 후 float 변환" 어댑터를 둡니다. "자유 교체"가 아니라 "계약을 지키는 한 교체"입니다.</p>
 </section>
 
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">2 · 흐름 · 5분</div>
+<div class="eyebrow">2 · 경로 · 5분</div>
 
-## 봉투 한 통이 흐르는 길
+## 샘플 입력이 처리되는 경로
 
 </div>
-<p class="section-note">메일 봉투가 도착하면 여섯 단계를 지납니다. 앞 다섯은 한 프로세스 안에서, 마지막 검증은 프로세스 경계를 넘어 A2A로 나갑니다.<br>
+<p class="section-note">샘플 메일 입력은 여섯 단계를 지납니다. 앞 다섯은 한 프로세스 안에서, 마지막 검증은 프로세스 경계를 넘어 A2A로 나갑니다.<br>
 각 단계 옆에 그 일을 맡은 챕터를 적었습니다.</p>
 </div>
 
 ```mermaid
 flowchart LR
-  IN[("📥 봉투 한 통<br/>문서 10건")]
+  IN[("📥 샘플 메일 입력<br/>문서 10건")]
   IN -->|Ch2| C["분류·정규화<br/>classified/"]
   C -->|Ch3| R["fan-out 교차조사<br/>research_notes/"]
   R -->|Ch4| K["OKF 적재<br/>knowledge_base/"]
@@ -84,7 +84,7 @@ flowchart LR
     V{{"검증 에이전트<br/>localhost:9610"}}
   end
   B -->|제출| V
-  V -->|검증 도장| OUT[["✅ verified_brief.md"]]
+  V -->|검증 판정| OUT[["✅ verified_brief.md"]]
   classDef io fill:#0d9488,stroke:#0f766e,color:#fff;
   classDef step fill:#ecfdf5,stroke:#5eead4,color:#0f5132;
   class IN,OUT io;
@@ -107,7 +107,7 @@ flowchart LR
 </div>
 
 <div class="panel">
-<div class="panel-head"><strong>analyst_app.py — 배선의 모양</strong><span>새 로직 없이 부품 호출</span></div>
+<div class="panel-head"><strong>analyst_app.py — 배선의 모양</strong><span>새 로직 없이 모듈 호출</span></div>
 <div class="panel-body">
 
 <<< ../../ch6-integration/analyst_app.py#wiring{python}
@@ -121,14 +121,14 @@ flowchart LR
 <p>그래서 함수끼리 인자를 길게 주고받지 않아도 됩니다 — 파일이 계약입니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>한 군데만 실선, 나머지는 목</strong></div><div class="panel-body"><div class="list">
-<p>봉투(메일)는 목(mock·가짜 봉투), 검증(A2A)은 실선(실제 외부 서버 연결). 파일·지식 적재는 캡스톤에선 직접 쓰기로 단순화합니다(Ch4의 MCP 개념을 여기선 한 겹 줄임).</p>
-<p><code>--a2a</code>를 빼면 검증도 목으로 돌아 키 없이 끝까지 돕니다.</p>
+<p>메일 입력은 목(mock), 검증(A2A)은 실선(실제 외부 서버 연결)입니다. 파일·지식 적재는 캡스톤에선 직접 쓰기로 단순화합니다(Ch4의 MCP 개념을 여기선 한 겹 줄임).</p>
+<p><code>--a2a</code>를 빼면 검증도 목으로 돌아 키 없이 끝까지 실행됩니다.</p>
 </div></div></div>
 </div>
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~10분</span></div>
-<div class="cue-body">analyst_app.py로 전 구간을 직접 흘립니다. 먼저 <code>--mock</code>으로 키 없이 끝까지 돌려 <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍히는지 보고, 그다음 <code>--a2a</code>를 더해 검증 단계가 실제 A2A 서버로 나가는 실호출까지 확인합니다.</div>
+<div class="cue-body">analyst_app.py로 전 구간을 실행합니다. 먼저 <code>--mock</code>으로 키 없이 끝까지 돌려 <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍히는지 보고, 그다음 <code>--a2a</code>를 더해 검증 단계가 실제 A2A 서버로 나가는 실호출까지 확인합니다.</div>
 </div>
 
 <div class="board" style="margin-top:18px">
@@ -136,12 +136,12 @@ flowchart LR
 <div class="stack">
 <div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — 오프라인</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍힌다. 기본 실행은 브리프가 gap을 모두 담아 <code>verified_brief.md</code>가 <strong>PASS</strong>로 끝난다(한 단계를 빼면 NEEDS_REVISION이 정상 — 아래 트러블슈팅·직접 해보기 참고).</span></p></div><div class="store">엔드투엔드</div></div>
 <div class="row"><div class="code">b</div><div class="copy"><strong>검증만 실제 A2A</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock --a2a</code><br><span style="color:var(--muted)">성공 기준: [5/6]에서 <code>Agent Card</code>가 조회되고 실제 서버와 통신한다.</span></p></div><div class="store">A2A</div></div>
-<div class="row"><div class="code">c</div><div class="copy"><strong>최종 산출물 열기</strong><p><code>cat workspace/verified_brief.md</code><br><span style="color:var(--muted)">성공 기준: 브리프 + 외부 검증 도장(PASS)이 한 파일에.</span></p></div><div class="store">완성</div></div>
+<div class="row"><div class="code">c</div><div class="copy"><strong>최종 산출물 열기</strong><p><code>cat workspace/verified_brief.md</code><br><span style="color:var(--muted)">성공 기준: 브리프 + 외부 검증 판정(PASS)이 한 파일에.</span></p></div><div class="store">완성</div></div>
 </div>
 </div>
 
 <div class="panel" style="margin-top:18px">
-<div class="panel-head"><strong>출력 — 한 줄기로 흐른 결과</strong><span>실제 stdout · 들여쓰기 줄은 각 모듈이 찍는다</span></div>
+<div class="panel-head"><strong>출력 — 파이프라인 실행 결과</strong><span>실제 stdout · 들여쓰기 줄은 각 모듈이 찍는다</span></div>
 <div class="panel-body">
 
 ```text
@@ -173,7 +173,7 @@ flowchart LR
 
 <div class="cue wait">
 <div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~십여 초</span></div>
-<div class="cue-body"><code>--a2a</code> 실행은 9610 포트에 검증 에이전트를 띄워 통신하므로 목 실행보다 서버 기동 한 박자(십여 초)만큼 더 걸립니다(verifier는 LLM 없이 규칙으로 즉답). [5/6]에서 <code>Agent Card</code> 조회와 실제 서버 응답이 끝날 때까지 기다린 뒤, <code>workspace/verified_brief.md</code>를 열어 브리프 본문과 외부 검증 도장(<strong>PASS</strong>)이 한 파일에 함께 담겼는지 확인합니다.</div>
+<div class="cue-body"><code>--a2a</code> 실행은 9610 포트에 검증 에이전트를 띄워 통신하므로 목 실행보다 서버 기동 한 박자(십여 초)만큼 더 걸립니다(verifier는 LLM 없이 규칙으로 즉답). [5/6]에서 <code>Agent Card</code> 조회와 실제 서버 응답이 끝날 때까지 기다린 뒤, <code>workspace/verified_brief.md</code>를 열어 브리프 본문과 외부 검증 판정(<strong>PASS</strong>)이 한 파일에 함께 담겼는지 확인합니다.</div>
 </div>
 
 <div class="cue solve" style="margin-top:18px">
@@ -184,15 +184,15 @@ flowchart LR
 <details>
 <summary>관찰 포인트</summary>
 <div class="reveal">
-<p>okf를 빼면 brief의 "짚을 점"이 비거나 줄어듭니다. 브리프가 knowledge_base의 gap·subscription을 읽어 채우기 때문입니다. 한 부품을 빼면 그 부품의 산출물에 기대던 다음 단계가 티 나게 빈약해집니다 — 계약으로 이어져 있다는 증거입니다.</p>
-<p><code>workspace/</code>를 지우고 다시 돌리면 처음부터 똑같이 재생됩니다. 입력(sample_inbox)과 코드만 커밋돼 있으면 누가 돌려도 같은 산출물이 나옵니다 — 감사 가능하다는 뜻입니다.</p>
+<p>okf를 빼면 brief의 "짚을 점"이 비거나 줄어듭니다. 브리프가 knowledge_base의 gap·subscription을 읽어 채우기 때문입니다. 한 모듈을 빼면 그 산출물에 의존하던 다음 단계가 빈약해집니다. 계약으로 단계가 이어져 있음을 확인하는 실습입니다.</p>
+<p><code>workspace/</code>를 지우고 다시 돌리면 처음부터 같은 순서로 재생됩니다. 입력(sample_inbox)과 코드만 커밋돼 있으면 누가 돌려도 같은 산출물이 나옵니다. 감사 가능한 실행의 조건입니다.</p>
 </div>
 </details>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>직접 채운다 — 경계 어댑터</span><span class="status-pill">스캐폴드</span></div>
 <div class="panel-body">
-<p class="section-note">"계약이 부품 교체의 자유를 준다"는 명제의 <strong>핵심 도구가 경계 어댑터</strong>입니다 — 바깥세상의 제멋대로인 표기(<code>"11,500원"·"₩1,650,000"</code>)를 계약의 타입(<code>total: float</code>)으로 바꾸는 얇은 코드. 이 <code>coerce_amount</code>를 직접 채워 그 원리를 손으로 익힙니다. <span style="color:var(--muted)">(이건 개념을 익히는 <strong>독립 연습</strong>입니다 — analyst_app 본체는 이미 계약을 지키는 부품들로 돌고 있고, 새 입력 표기를 붙일 때 이런 어댑터 한 겹만 더하면 됩니다.)</span></p>
+<p class="section-note">"계약을 지키면 모듈을 바꿀 수 있다"는 원칙에서 <strong>경계 어댑터</strong>가 중요합니다. 바깥세상의 표기(<code>"11,500원"·"₩1,650,000"</code>)를 계약의 타입(<code>total: float</code>)으로 바꾸는 얇은 코드입니다. 이 <code>coerce_amount</code>를 직접 채워 원리를 확인합니다. <span style="color:var(--muted)">(이건 개념을 익히는 <strong>독립 연습</strong>입니다. analyst_app 본체는 이미 계약을 지키는 모듈들로 돌고 있고, 새 입력 표기를 붙일 때 이런 어댑터를 경계에 추가합니다.)</span></p>
 
 <<< ../../ch6-integration/exercise_adapter.py#coerce{python}
 
@@ -201,7 +201,7 @@ flowchart LR
 
 <div class="cue do" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기 — 코드 작성</span><span class="cue-time">~8분</span></div>
-<div class="cue-body"><code>ch6-integration/exercise_adapter.py</code>의 <code>coerce_amount</code>를 채우고 <code>uv run python3 ch6-integration/exercise_adapter.py</code>를 돌리세요. 이 연습의 다섯 케이스가 ✅로 바뀌고 <strong>[PASS]</strong>가 뜨면 성공입니다. 새 입력원(다른 표기의 금액)을 붙일 때 <em>이런 어댑터 한 겹</em>만 더하면 본체 파이프는 손대지 않고 계약을 그대로 지킨다 — 그게 "계약이 주는 교체 자유"입니다.</div>
+<div class="cue-body"><code>ch6-integration/exercise_adapter.py</code>의 <code>coerce_amount</code>를 채우고 <code>uv run python3 ch6-integration/exercise_adapter.py</code>를 돌리세요. 이 연습의 다섯 케이스가 ✅로 바뀌고 <strong>[PASS]</strong>가 뜨면 성공입니다. 새 입력원(다른 표기의 금액)을 붙일 때 경계 어댑터를 두면 본체 파이프라인은 그대로 두고 계약을 맞출 수 있습니다.</div>
 </div>
 
 <div class="cue solve" style="margin-top:14px">
@@ -212,7 +212,7 @@ flowchart LR
 <details>
 <summary>추적 답</summary>
 <div class="reveal">
-<p>위 흐름도가 시스템의 길이라면, 아래는 <strong>같은 5단계를 한 레코드의 눈</strong>으로 본 것입니다 — 쿠팡 89,000원 한 줄이 산출물마다 모양을 바꾸지만 계약(이름·금액)은 끝까지 보존됩니다:</p>
+<p>위 그림이 시스템 전체 경로라면, 아래는 <strong>쿠팡 89,000원 레코드 하나</strong>가 다섯 산출물에서 어떻게 표현되는지 보여 줍니다. 산출물마다 형식은 달라지지만 계약의 핵심 값(이름·금액)은 유지됩니다:</p>
 
 ```mermaid
 flowchart LR
@@ -232,8 +232,8 @@ flowchart LR
 <div class="board-header"><span>막히면</span><span class="status-pill">트러블슈팅</span></div>
 <div class="stack">
 <div class="row"><div class="code">!</div><div class="copy"><strong>ModuleNotFoundError (deepagents·langchain 등)</strong><p>레포 루트에서 <code>uv run</code> 하세요. <code>uv</code>는 실행 폴더(또는 상위)에서 <code>pyproject.toml</code>을 찾아 이 프로젝트의 의존성·가상환경을 잡는데, 레포 밖에서 돌리면 그걸 못 찾아 import가 깨집니다. (앱이 ch1~5를 <code>sys.path</code>에 넣는 건 <code>__file__</code> 위치 기준이라 cwd와는 무관합니다.)</p></div><div class="store">경로</div></div>
-<div class="row"><div class="code">!</div><div class="copy"><strong>[5/6]에서 멈춤(--a2a)</strong><p><code>--a2a</code>는 9610 포트에 verifier_agent를 띄웁니다. 포트 점유 시 기동 실패 — 이전 프로세스를 끄거나 <code>--a2a</code> 없이 목으로 돌립니다.</p></div><div class="store">A2A</div></div>
-<div class="row"><div class="code">!</div><div class="copy"><strong>verified_brief가 NEEDS_REVISION</strong><p>버그 아님 — 기본 실행은 PASS지만, <code>run_okf()</code>를 빼는 등 한 단계를 건너뛰면 브리프가 gap을 빠뜨려 검증자가 정직하게 반려합니다. brief.md "짚을 점"과 verified_brief의 "독립 재계산"을 비교하세요. <strong>PASS도 NEEDS_REVISION도 검증이 제대로 돈 결과</strong>입니다.</p></div><div class="store">정상</div></div>
+<div class="row"><div class="code">!</div><div class="copy"><strong>[5/6]에서 멈춤(--a2a)</strong><p><code>--a2a</code>는 9610 포트에 verifier_agent를 띄웁니다. 포트 점유 시 기동 실패가 납니다. 이전 프로세스를 끄거나 <code>--a2a</code> 없이 목으로 돌립니다.</p></div><div class="store">A2A</div></div>
+<div class="row"><div class="code">!</div><div class="copy"><strong>verified_brief가 NEEDS_REVISION</strong><p>버그가 아닙니다. 기본 실행은 PASS지만, <code>run_okf()</code>를 빼는 등 한 단계를 건너뛰면 브리프가 gap을 빠뜨려 검증자가 반려합니다. brief.md "짚을 점"과 verified_brief의 "독립 재계산"을 비교하세요. <strong>PASS도 NEEDS_REVISION도 검증 로직이 돈 결과</strong>입니다.</p></div><div class="store">정상</div></div>
 </div>
 </div>
 </section>
@@ -246,8 +246,8 @@ flowchart LR
 ## 8시간이 남긴 것
 
 </div>
-<p class="section-note">하나의 인박스를 끝까지 처리하며 여덟 역량을 손으로 익혔습니다. 각 역량이 어느 부품에서 처음 나왔는지 돌아봅니다.<br>
-<strong>딱 두 가지만 가져가세요</strong> — ① <strong>계약(RecordV1)이 부품을 갈아끼울 자유를 준다</strong>, ② <strong>고정 단계는 워크플로로, 자율은 꼭 필요한 곳(Ch3)에만</strong>. 아래 표·스택은 그 두 문장의 근거입니다.</p>
+<p class="section-note">하나의 인박스를 끝까지 처리하며 여덟 역량을 실습했습니다. 각 역량이 어느 모듈에서 처음 나왔는지 돌아봅니다.<br>
+<strong>정리할 원칙은 두 가지입니다</strong>. ① <strong>계약(RecordV1)을 지키면 모듈을 교체할 수 있다</strong>. ② <strong>고정 단계는 워크플로로 두고, 자율은 꼭 필요한 곳(Ch3)에만 둔다</strong>. 아래 표·스택은 그 두 원칙의 근거입니다.</p>
 </div>
 
 <div class="matrix matrix-7" style="grid-template-columns:116px repeat(6,minmax(84px,1fr))">
@@ -283,10 +283,10 @@ flowchart LR
 <span class="lpill"><span class="ldot" style="background:#34d399"></span>처음 익힌 곳</span>
 <span class="lpill"><span class="ldot" style="background:#f59e0b"></span>Ch6 캡스톤에서 재사용</span>
 </div>
-<p class="section-note" style="margin-top:8px">여덟 역량이 각자 다른 챕터에서 처음 나왔지만, <strong>오른쪽 Ch6 열의 앰버 띠</strong>처럼 캡스톤 한 줄기에서 전부 다시 쓰입니다 — 따로 배운 부품이 한 파이프라인으로 모인다는 뜻입니다.</p>
+<p class="section-note" style="margin-top:8px">여덟 역량은 각자 다른 챕터에서 처음 나왔지만, <strong>오른쪽 Ch6 열의 앰버 띠</strong>처럼 캡스톤에서 전부 다시 쓰입니다. 따로 배운 모듈이 하나의 파이프라인으로 합쳐진다는 뜻입니다.</p>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>하루를 관통한 축 — 층층이 쌓인 스택</span><span class="status-pill">멘탈 모델</span></div>
+<div class="board-header"><span>하루를 관통한 축 — 네 계층</span><span class="status-pill">멘탈 모델</span></div>
 <div class="panel-body">
 
 ```mermaid
@@ -306,14 +306,14 @@ flowchart TB
   subgraph L1 ["① Framework — LangChain · 도구 상자"]
     F["LLM · 도구 연결 · Ch1·Ch2"]:::fw
   end
-  L1 -->|떠받친다| L2 -->|떠받친다| L3 -->|떠받친다| L4
+  L1 -->|기반| L2 -->|기반| L3 -->|기반| L4
   classDef eco fill:#0d9488,stroke:#0f766e,color:#fff;
   classDef harness fill:#5eead4,stroke:#0f766e,color:#0f5132;
   classDef run fill:#99f6e4,stroke:#0f766e,color:#0f5132;
   classDef fw fill:#ccfbf1,stroke:#0f766e,color:#0f5132;
 ```
 
-<p style="margin-top:8px">아래(①)가 위(④)를 떠받칩니다 — 화살표는 "받친다" 방향. LLM 호출(Framework) 위에 상태·분기(Runtime), 그 위에 계획·위임(Harness), 맨 위에 절차·연결·협업(생태계). <strong>Ch2에서 LangChain(프레임워크)과 LangGraph(런타임)를 함께 익혔기에</strong> Ch2가 아래 두 층에 걸쳐 있습니다. 위 여덟 역량은 전부 이 네 층 어딘가에 속합니다.</p>
+<p style="margin-top:8px">아래(①)가 위(④)의 기반입니다. LLM 호출(Framework) 위에 상태·분기(Runtime), 그 위에 계획·위임(Harness), 맨 위에 절차·연결·협업(생태계)을 둡니다. <strong>Ch2에서 LangChain(프레임워크)과 LangGraph(런타임)를 함께 익혔기에</strong> Ch2가 아래 두 층에 걸쳐 있습니다. 위 여덟 역량은 전부 이 네 층 어딘가에 속합니다.</p>
 </div>
 </div>
 </section>
@@ -326,17 +326,17 @@ flowchart TB
 ## 데모와 프로덕션 사이
 
 </div>
-<p class="section-note">이 캡스톤은 결정론적 목으로 끝까지 돕니다. 학습엔 좋지만, 실선으로 바꾸면 새 문제가 생깁니다. 무엇이 깨질지 미리 압니다.</p>
+<p class="section-note">이 캡스톤은 결정론적 목으로 끝까지 실행됩니다. 학습엔 좋지만, 실선으로 바꾸면 새 문제가 생깁니다. 어떤 항목을 점검해야 하는지 미리 봅니다.</p>
 </div>
 
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>지금은 목이라 숨은 것</strong></div><div class="panel-body"><div class="list">
-<p><strong>추출 비결정성</strong> — <code>--mock</code>은 gold를 베껴 100% 재현됩니다. 실모델 멀티모달은 신뢰도가 흔들리고 같은 영수증을 넣어도 결과가 매번 달라져, 신뢰도 임계 HITL 멈춤(Ch2)이 진짜 안전장치가 됩니다.</p>
-<p><strong>검증의 진짜 값은 실모델에서</strong> — 목 구간에선 브리프도 검증자도 같은 gold에서 나와 PASS가 사실상 보장됩니다(검증이 "도는지" 확인용). 추출이 흔들리는 실모델에서야 브리프 누락 ↔ 검증자 반려가 실제로 갈려, 외부 검증이 제값을 합니다.</p>
+<p><strong>추출 비결정성</strong> — <code>--mock</code>은 gold를 베껴 100% 재현됩니다. 실모델 멀티모달은 신뢰도가 흔들리고 같은 영수증을 넣어도 결과가 매번 달라져, 신뢰도 임계 HITL 멈춤(Ch2)이 실제 안전장치가 됩니다.</p>
+<p><strong>검증은 실모델 구간에서 의미가 커짐</strong> — 목 구간에선 브리프도 검증자도 같은 gold에서 나와 PASS가 사실상 보장됩니다(검증이 "도는지" 확인용). 추출이 흔들리는 실모델에서는 브리프 누락과 검증자 반려가 실제로 갈리므로, 외부 검증의 효과가 드러납니다.</p>
 <p><strong>fan-out 비용·실패</strong> — 세 갈래가 실제 LLM 호출이면 토큰·지연·부분 실패가 곱해집니다. 한 갈래가 죽어도 나머지가 끝나게(부분 산출 허용) 설계해야 합니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>경계를 넘을 때</strong></div><div class="panel-body"><div class="list">
-<p><strong>A2A 검증자 신뢰</strong> — 외부 에이전트의 PASS도 결국 하나의 판단입니다. Agent Card 서명·결과 재현 로그를 남겨야 "도장"이 감사 가능해집니다.</p>
+<p><strong>A2A 검증자 신뢰</strong> — 외부 에이전트의 PASS도 결국 하나의 판단입니다. Agent Card 서명·결과 재현 로그를 남겨야 판정을 감사할 수 있습니다.</p>
 <p><strong>상태·재현</strong> — workspace를 지워도 복원되는 건 입력이 커밋돼 있어서입니다. 실선 메일·DB에선 입력이 흐르므로 체크포인터(SQLite·Postgres)와 멱등 적재가 필요합니다.</p>
 </div></div></div>
 </div>
@@ -380,11 +380,11 @@ flowchart TB
 <div>
 <div class="eyebrow">전이 · 2분</div>
 
-## 내 일에 가져갈 씨앗
+## 내 업무에 적용하기
 
 </div>
-<p class="section-note">이 애널리스트는 인박스를 다뤘지만 골격은 어디에나 맞습니다. 입력을 계약으로 정규화하고, 나눠 조사하고, 지식으로 쌓고, 외부에 검증을 맡기는 흐름입니다.<br>
-여러분의 문서 더미가 계약서든 로그든 논문이든, 부품을 갈아끼우면 같은 골격이 돕니다.</p>
+<p class="section-note">이 애널리스트는 인박스를 다뤘지만 구조는 다른 문서 업무에도 적용할 수 있습니다. 입력을 계약으로 정규화하고, 나눠 조사하고, 지식으로 쌓고, 외부에 검증을 맡기는 방식입니다.<br>
+문서 더미가 계약서든 로그든 논문이든, 도메인별 모듈을 바꾸면 같은 구조를 재사용할 수 있습니다.</p>
 </div>
 
 ```mermaid
@@ -401,12 +401,12 @@ flowchart LR
 ```
 
 <div class="legend" style="margin-top:8px">
-<span class="lpill"><span class="ldot" style="background:#f59e0b"></span>바꿀 것 — 부품(도메인마다 다름)</span>
+<span class="lpill"><span class="ldot" style="background:#f59e0b"></span>바꿀 것 — 모듈(도메인마다 다름)</span>
 <span class="lpill"><span class="ldot" style="background:#5eead4"></span>그대로 둘 것 — 골격(어디서나 같음)</span>
 </div>
 
 <div class="grid-3">
-<div class="panel"><div class="panel-head"><strong>바꿀 것</strong><span>부품</span></div><div class="panel-body"><div class="list">
+<div class="panel"><div class="panel-head"><strong>바꿀 것</strong><span>모듈</span></div><div class="panel-body"><div class="list">
 <p>RecordV1 필드를 내 도메인에 맞게</p>
 <p>조사 주제(reconcile 함수)를 내 질문으로</p>
 </div></div></div>
@@ -423,8 +423,8 @@ flowchart LR
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>오늘의 한 줄</span><span class="status-pill">정리</span></div>
 <div class="panel-body"><div class="list">
-<p>LLM만으론 부족 → <strong>Agent</strong>. Agent만으론 부족 → <strong>Harness</strong>. Harness만으론 부족 → <strong>Skills·MCP·A2A 생태계</strong>. 오늘 이 사다리를 아래에서 위로 직접 밟았습니다.</p>
-<p style="font-weight:800">"에이전트 개발은 LLM을 호출하는 게 아니라, LLM이 효과적으로 일할 환경(Harness)을 설계하는 것이다."</p>
+<p>LLM만으론 부족 → <strong>Agent</strong>. Agent만으론 부족 → <strong>Harness</strong>. Harness만으론 부족 → <strong>Skills·MCP·A2A 생태계</strong>. 오늘은 이 계층을 순서대로 실습했습니다.</p>
+<p style="font-weight:800">"에이전트 개발은 LLM 호출만이 아니라, LLM이 검증 가능한 방식으로 일할 실행 환경(Harness)을 설계하는 일이다."</p>
 </div></div>
 </div>
 

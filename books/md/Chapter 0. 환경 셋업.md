@@ -15,7 +15,7 @@ pageClass: lec-page
 
 # 인박스 한 통,<br>열어볼 준비
 
-<p class="lead">앞으로 8시간 동안 만들 인박스 리서치 애널리스트는 메일과 스캔 폴더로 들어온 영수증·명세서·계약서를 스스로 읽고 정리합니다.<br>
+<p class="lead">앞으로 8시간 동안 만들 인박스 리서치 애널리스트는 메일과 스캔 폴더로 들어온 영수증·명세서·계약서를 읽고 정리합니다.<br>
 Ch0에서는 그 바탕을 마련합니다. 도구를 설치하고, 모델을 한 번 불러 보고, 분석에 쓸 문서를 준비합니다.</p>
 
 <div class="kicker">
@@ -95,7 +95,7 @@ bash scripts/setup.sh        # .venv 생성 · uv sync · .env 템플릿
 ## 에디터를 WSL에 붙인다
 
 </div>
-<p class="section-note">남은 8시간 동안 코드는 전부 WSL 안에서 돕니다. VSCode를 WSL에 연결해 두면 리눅스 쪽 파일과 방금 만든 <code>.venv</code>를 그대로 열어 실행할 수 있습니다.<br>
+<p class="section-note">남은 8시간 동안 코드는 전부 WSL 안에서 실행됩니다. VSCode를 WSL에 연결해 두면 리눅스 쪽 파일과 방금 만든 <code>.venv</code>를 그대로 열어 실행할 수 있습니다.<br>
 윈도우와 리눅스 경로가 엉키는 문제도 이때 사라집니다. 한 번만 맞춰 두면 됩니다.</p>
 </div>
 
@@ -124,7 +124,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>실행은 두 갈래</span><span class="status-pill">.py 와 .ipynb</span></div>
 <div class="stack">
-<div class="row"><div class="code">py</div><div class="copy"><strong>스크립트 — 터미널에서</strong><p>완성된 부품은 .py로 둡니다. <code>uv run python3 ch1-llm-basics/classify_one.py</code>처럼 실행하면 <code>.venv</code>를 거쳐 도므로 키와 의존성이 그대로 잡힙니다.</p></div><div class="store">부품</div></div>
+<div class="row"><div class="code">py</div><div class="copy"><strong>스크립트 — 터미널에서</strong><p>완성된 모듈은 .py로 둡니다. <code>uv run python3 ch1-llm-basics/classify_one.py</code>처럼 실행하면 <code>.venv</code>를 거쳐 도므로 키와 의존성이 그대로 잡힙니다.</p></div><div class="store">모듈</div></div>
 <div class="row"><div class="code">nb</div><div class="copy"><strong>노트북 — 셀 단위로</strong><p>실험과 비교는 <code>.ipynb</code>에서 합니다. 노트북을 열고 오른쪽 위 커널을 <code>.venv</code>로 맞춘 뒤 셀을 하나씩 돌려 결과를 눈으로 확인합니다.</p></div><div class="store">실험</div></div>
 </div>
 </div>
@@ -310,11 +310,11 @@ flowchart LR
 
 </div>
 <p class="section-note">환경과 문서, 계약이 모두 준비됐습니다. Ch1에서는 영수증 이미지 한 장을 모델에게 보여 주고 방금 본 RecordV1 구조로 뽑아냅니다.<br>
-애널리스트의 첫 번째 부품입니다.</p>
+애널리스트의 첫 번째 모듈입니다.</p>
 </div>
 
 <div class="grid-3">
-<div class="panel"><div class="panel-head"><strong>지금 손에 든 것</strong></div><div class="panel-body"><div class="list">
+<div class="panel"><div class="panel-head"><strong>이번 챕터 결과</strong></div><div class="panel-body"><div class="list">
 <p>동작하는 <code>.venv</code> · <code>.env</code></p>
 <p>문서 10건 + RecordV1 계약</p>
 </div></div></div>

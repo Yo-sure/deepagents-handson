@@ -13,14 +13,14 @@ pageClass: lec-page
 <div>
 <div class="eyebrow">Chapter 2 · LangGraph 하네스</div>
 
-# 흐름을 그래프로<br>묶는다
+# 파이프라인을 그래프로<br>정의한다
 
 <p class="lead">Ch1의 단발 추출은 한 장을 읽고 끝났습니다. 인박스에는 열 건이 들어옵니다.<br>
 이 챕터에서는 분류와 정규화를 상태·재시도·중단점이 있는 파이프라인으로 묶습니다. 고액이나 저신뢰 건은 자동으로 통과시키지 않고 사람에게 멈춰 묻습니다.</p>
 
 <div class="kicker">
 <div class="metric"><span class="num">70</span><strong>분</strong><span>이론 37 · 핸즈온 30</span><span class="clk">예상 10:05–11:15</span></div>
-<div class="metric"><span class="num">2</span><strong>번째 부품</strong><span>intake_graph.py</span></div>
+<div class="metric"><span class="num">2</span><strong>번째 모듈</strong><span>intake_graph.py</span></div>
 <div class="metric"><span class="num">10</span><strong>건 적재</strong><span>classified/*.json</span></div>
 </div>
 </div>
@@ -43,8 +43,8 @@ pageClass: lec-page
 ## create_agent와 StateGraph
 
 </div>
-<p class="section-note">LangChain 1.0의 <code>create_agent</code>는 표준 ReAct 루프를 한 줄로 만듭니다. 모델이 도구를 알아서 고르고 반복합니다.<br>
-우리 적재 흐름은 순서가 정해져 있습니다. 분류한 다음 검증하고, 고액이면 멈추고, 끝나면 적재합니다. 이렇게 흐름을 직접 그릴 때는 StateGraph가 맞습니다.</p>
+<p class="section-note">LangChain 1.0의 <code>create_agent</code>는 표준 ReAct 루프를 한 줄로 만듭니다. 모델이 도구 선택과 반복 여부를 정합니다.<br>
+우리 적재 파이프라인은 순서가 정해져 있습니다. 분류한 다음 검증하고, 고액이면 멈추고, 끝나면 적재합니다. 이렇게 단계를 직접 정의할 때는 StateGraph가 맞습니다.</p>
 </div>
 
 <div class="grid-2">
@@ -53,7 +53,7 @@ pageClass: lec-page
 <p>도구 선택과 반복을 모델이 정합니다</p>
 <p>표준 루프로 충분할 때 가볍게 씁니다</p>
 </div></div></div>
-<div class="panel"><div class="panel-head"><strong>StateGraph — 명시한 흐름</strong><span>langgraph.graph</span></div><div class="panel-body"><div class="list">
+<div class="panel"><div class="panel-head"><strong>StateGraph — 명시한 파이프라인</strong><span>langgraph.graph</span></div><div class="panel-body"><div class="list">
 <p>노드와 엣지로 단계를 직접 그립니다</p>
 <p>분기·재시도·중단점을 내가 통제합니다</p>
 <p>적재 파이프라인처럼 순서가 있는 일에 맞습니다</p>
@@ -61,7 +61,7 @@ pageClass: lec-page
 </div>
 
 <div class="panel" style="margin-top:16px">
-<div class="panel-head"><strong>같은 그래프지만 모양이 다르다</strong><span>고정 루프 vs 내가 그린 흐름</span></div>
+<div class="panel-head"><strong>같은 그래프지만 모양이 다르다</strong><span>고정 루프 vs 직접 정의한 단계</span></div>
 <div class="panel-body">
 
 ```mermaid
@@ -72,7 +72,7 @@ flowchart LR
       Q -->|"예"| TO["tool"] --> M
       Q -->|"아니오"| DN["종료"]
     end
-    subgraph B["StateGraph · 내가 그린 흐름"]
+    subgraph B["StateGraph · 직접 정의한 단계"]
       direction TB
       C["classify"] --> V{"verify"}
       V --> R["retry"] --> C
@@ -90,7 +90,7 @@ from langchain.agents import create_agent
 agent = create_agent("openai:google/gemini-3.5-flash", tools=[...])
 
 # create_agent도 내부적으로 StateGraph를 컴파일해 돌려준다(CompiledStateGraph).
-# 다만 그 그래프는 ReAct 루프 모양으로 고정 — 흐름을 직접 그리려면 StateGraph를 손으로 짠다 ↓
+# 다만 그 그래프는 ReAct 루프 모양으로 고정 — 단계를 직접 정의하려면 StateGraph를 손으로 짠다 ↓
 ```
 
 <p class="section-note" style="margin-top:10px"><code>"openai:google/gemini-3.5-flash"</code>가 오타처럼 보이지만 맞습니다 — <code>openai:</code> 접두사는 <strong>OpenAI 호환 게이트웨이(OpenRouter)</strong>로 부른다는 표시이고, 실제 모델은 <code>google/gemini-3.5-flash</code>입니다(Ch0의 게이트웨이 설정 그대로). 이후 챕터의 <code>openai:</code>도 모두 같은 뜻입니다.</p>
@@ -113,7 +113,7 @@ for _ in range(MAX_STEPS):
         messages.append(ToolMessage(run_tool(tc), tool_call_id=tc["id"]))
 ```
 
-<p style="margin-top:8px">동작은 하지만 <strong>상태·에러·재시도·분기·중단점이 전부 내 몫</strong>입니다. 조건이 늘면 이 루프가 얽혀 관리하기 어려워집니다. 그래서 흐름 자체를 노드·엣지로 다루는 StateGraph로 올라갑니다 — 그게 이 챕터입니다.</p>
+<p style="margin-top:8px">동작은 하지만 <strong>상태·에러·재시도·분기·중단점이 전부 내 몫</strong>입니다. 조건이 늘면 이 루프가 얽혀 관리하기 어려워집니다. 그래서 이 챕터에서는 단계를 노드·엣지로 다루는 StateGraph로 올라갑니다.</p>
 </div>
 </div>
 </section>
@@ -146,7 +146,7 @@ class IntakeState(TypedDict, total=False):
 
 ```mermaid
 flowchart TD
-    S([START]) --> CL["classify · 추출(Ch1 부품)"]
+    S([START]) --> CL["classify · 추출(Ch1 모듈)"]
     CL --> VE{"verify · 합계·플래그"}
     VE -->|"합계 불일치 & 재시도 남음"| RT["retry · 재분류"]
     RT -->|"다시 분류"| CL
@@ -162,14 +162,14 @@ flowchart TD
 </div>
 
 <div class="flow flow-5" style="margin-top:14px">
-<div class="flow-step"><small>classify</small><strong>추출</strong><p>Ch1 부품을 그대로 불러 영수증→RecordV1</p></div>
+<div class="flow-step"><small>classify</small><strong>추출</strong><p>Ch1 모듈을 그대로 불러 영수증→RecordV1</p></div>
 <div class="flow-step"><small>verify</small><strong>검증·분기</strong><p>합계를 보고, 어긋나면 retry로 되돌린다</p></div>
 <div class="flow-step"><small>retry</small><strong>재분류</strong><p>상한(2회)까지 classify로 되돌아간다</p></div>
 <div class="flow-step"><small>review</small><strong>사람 확인</strong><p>고액·저신뢰 플래그면 interrupt()로 멈춤</p></div>
 <div class="flow-step"><small>persist</small><strong>적재</strong><p>classified/&lt;문서&gt;.json 으로 저장한다</p></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">classify는 Ch1의 <code>extract</code>를 그대로 부릅니다. 부품을 갈아끼우고 계약은 재사용한다는 원칙이 여기서 처음 작동합니다.</p>
+<p class="section-note" style="margin-top:16px">classify는 Ch1의 <code>extract</code>를 그대로 부릅니다. 모듈을 바꾸더라도 계약은 재사용한다는 원칙이 여기서 처음 작동합니다.</p>
 </section>
 
 <section class="slide">
@@ -181,7 +181,7 @@ flowchart TD
 
 </div>
 <p class="section-note">verify가 영수증 합계를 봅니다. 항목 금액에 수량을 곱해 더한 값이 총액과 어긋나면 잘못 읽은 것입니다.<br>
-이때 조건부 엣지가 흐름을 classify로 되돌립니다. 상한까지 다시 읽고, <strong>합계가 끝내 안 맞아도 고액·저신뢰(flagged)면 사람 검토(review)를 거쳐</strong> 적재합니다. 단 <em>flagged가 아닌 소액</em>은 합계가 틀린 채로 그냥 적재됩니다 — 사람 검토는 "고액·저신뢰에만 건다"는 <strong>의도된 트레이드오프</strong>이지, 모든 불일치를 막는 보장이 아닙니다.</p>
+이때 조건부 엣지가 실행을 classify로 되돌립니다. 상한까지 다시 읽고, <strong>합계가 끝내 안 맞아도 고액·저신뢰(flagged)면 사람 검토(review)를 거쳐</strong> 적재합니다. 단 <em>flagged가 아닌 소액</em>은 합계가 틀린 채로 그냥 적재됩니다. 사람 검토는 "고액·저신뢰에만 건다"는 <strong>의도된 트레이드오프</strong>이지, 모든 불일치를 막는 보장이 아닙니다.</p>
 </div>
 
 ```python
@@ -255,7 +255,7 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="board-header"><span>왜 메모리에 저장하나</span><span class="status-pill">InMemorySaver</span></div>
 <div class="panel-body"><div class="list">
 <p>이 실습은 한 프로세스 안에서 멈췄다 재개하므로 메모리 체크포인터로 충분합니다.</p>
-<p>프로덕션에서는 같은 자리에 SQLite·Postgres 체크포인터를 끼웁니다. 그래프 코드는 그대로 두고 저장소만 바꿉니다. 이것도 부품 교체입니다.</p>
+<p>프로덕션에서는 같은 자리에 SQLite·Postgres 체크포인터를 끼웁니다. 그래프 코드는 그대로 두고 저장소만 바꿉니다. 이것도 모듈 교체입니다.</p>
 </div></div>
 </div>
 
@@ -352,7 +352,7 @@ sequenceDiagram
 ## 그래프를 손으로 엮는다
 
 </div>
-<p class="section-note">노드 다섯 개를 엣지로 잇습니다. 한 줄씩 읽으면 분류 흐름이 그대로 그림으로 보입니다. 분기 하나(verify 다음)만 조건부고 나머지는 직선입니다.</p>
+<p class="section-note">노드 다섯 개를 엣지로 잇습니다. 한 줄씩 읽으면 분류 파이프라인이 그대로 그림으로 보입니다. 분기 하나(verify 다음)만 조건부고 나머지는 직선입니다.</p>
 </div>
 
 <div class="panel">
@@ -455,11 +455,11 @@ sequenceDiagram
 <p><code>after_verify</code>가 돌려준 문자열이 매핑 dict의 키와 정확히 같아야 합니다. 오타면 그래프가 갈 곳을 잃습니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>재개가 안 됨</strong><span>thread_id</span></div><div class="panel-body"><div class="list">
-<p>재개할 때 처음과 <strong>같은</strong> <code>thread_id</code>를 써야 멈춘 자리를 찾습니다. 매번 새로 만들면 처음부터 돕니다.</p>
+<p>재개할 때 처음과 <strong>같은</strong> <code>thread_id</code>를 써야 멈춘 자리를 찾습니다. 매번 새로 만들면 처음부터 실행됩니다.</p>
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">전체 실행 파일은 <code>ch2-langgraph-agent/intake_graph.py</code>. classify는 Ch1의 <code>extract</code>를 import해 그대로 씁니다 — 부품 교체·계약 재사용의 첫 작동입니다.</p>
+<p class="section-note" style="margin-top:16px">전체 실행 파일은 <code>ch2-langgraph-agent/intake_graph.py</code>. classify는 Ch1의 <code>extract</code>를 import해 그대로 씁니다. 모듈 교체·계약 재사용의 첫 작동입니다.</p>
 </section>
 
 <section class="slide">
@@ -470,8 +470,8 @@ sequenceDiagram
 ## 다음 — 한 장씩 말고, 한꺼번에
 
 </div>
-<p class="section-note">이제 인박스가 정규화된 레코드 열 건으로 정리됐습니다. StateGraph는 흐름을 또렷이 통제하지만 단계를 우리가 다 그려야 합니다.<br>
-Ch3에서는 한 단계 위로 올라갑니다. 여러 문서를 서브에이전트가 나눠 동시에 조사하고, 그 계획과 파일을 하네스가 알아서 관리합니다.</p>
+<p class="section-note">이제 인박스가 정규화된 레코드 열 건으로 정리됐습니다. StateGraph는 파이프라인을 명시적으로 통제하지만 단계를 우리가 다 정의해야 합니다.<br>
+Ch3에서는 여러 문서를 서브에이전트가 나눠 동시에 조사하고, 그 계획과 파일 관리를 하네스에 맡깁니다.</p>
 </div>
 
 <div class="board" style="margin-top:18px">
@@ -483,7 +483,7 @@ Ch3에서는 한 단계 위로 올라갑니다. 여러 문서를 서브에이전
 </div>
 
 <div class="grid-3">
-<div class="panel"><div class="panel-head"><strong>지금 손에 든 것</strong></div><div class="panel-body"><div class="list">
+<div class="panel"><div class="panel-head"><strong>이번 챕터 결과</strong></div><div class="panel-body"><div class="list">
 <p>분류·정규화 파이프라인</p>
 <p>classified/ 열 건 · 재시도 · HITL</p>
 </div></div></div>
@@ -492,7 +492,7 @@ Ch3에서는 한 단계 위로 올라갑니다. 여러 문서를 서브에이전
 <p>write_todos · 파일시스템으로 컨텍스트 덜어내기</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>최종 목적지</strong></div><div class="panel-body"><div class="list">
-<p>인박스 한 통 → 검증된 브리프</p>
+<p>인박스 입력 → 검증된 브리프</p>
 <p>Ch6 통합 캡스톤</p>
 </div></div></div>
 </div>
