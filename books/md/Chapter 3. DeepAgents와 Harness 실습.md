@@ -116,6 +116,20 @@ flowchart LR
 </div>
 
 <div class="board" style="margin-top:18px">
+<div class="board-header"><span>메모리는 한 종류가 아니다 — 무엇을 어디에 두나</span><span class="status-pill">단기 / 장기 3종</span></div>
+<div class="panel-body">
+<p>컨텍스트를 밖에 적어 둘 때 "메모리"는 한 덩어리가 아닙니다. 통용 분류는 <strong>단기</strong>(지금 대화)와 <strong>장기</strong>로 갈리고, 장기는 다시 셋입니다 — 그리고 우리 파이프라인의 파일들이 정확히 그 자리에 들어갑니다.</p>
+<div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+<div class="panel"><div class="panel-head"><strong>단기 (working)</strong><span>지금 창</span></div><div class="panel-body"><div class="list"><p>현재 대화·컨텍스트 윈도우. LangGraph라면 thread별 <code>checkpointer</code>(Ch2). 세션이 끝나면 사라진다</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>장기 · semantic</strong><span>사실·지식</span></div><div class="panel-body"><div class="list"><p>잘 안 변하는 사실·프로필. 우리의 <code>knowledge_base/</code>(OKF 지식, Ch4)가 여기</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>장기 · episodic</strong><span>지난 경험</span></div><div class="panel-body"><div class="list"><p>과거 상호작용·결과의 기록. 우리의 <code>research_notes/</code>·브리프가 여기</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>장기 · procedural</strong><span>방법·절차</span></div><div class="panel-body"><div class="list"><p>"어떻게 하는지"의 절차. <strong>Skill이 곧 procedural 메모리</strong>(SKILL.md, Ch4)</p></div></div></div>
+</div>
+<p class="section-note" style="margin-top:10px">그래서 "메모리를 붙인다"는 막연한 게 아니라 <em>종류별로 다른 저장소</em>에 두는 일입니다. LangGraph는 단기=checkpointer / 장기=cross-thread <code>Store</code>로 나누고(LangMem SDK가 그 위에서 의미를 추출), deepagents는 <code>StoreBackend</code>·memory 미들웨어로 같은 분리를 깔아 둡니다. 단 이 영역은 아직 미해결입니다 — 정확한 회수·새 정보 갱신·선택적 망각을 <em>동시에</em> 잘하는 방법은 2026년에도 없습니다.</p>
+</div>
+</div>
+
+<div class="board" style="margin-top:18px">
 <div class="board-header"><span>하네스는 공짜가 아니다 — 토큰을 더 쓴다</span><span class="status-pill">트레이드오프</span></div>
 <div class="panel-body"><div class="list">
 <p>기본 미들웨어 스택은 매 호출에 <strong>~3,500 토큰</strong>을 고정으로 더합니다(기본 프롬프트·서브에이전트·할 일·파일·도구 스키마 — deepagents 코드 기준 추정). 계획·위임·파일 관리를 쓰는 데 드는 비용입니다.</p>
@@ -204,6 +218,20 @@ agent = create_deep_agent(
 </div>
 <p class="section-note">조사를 세 갈래로 나눕니다. 카드 대조, 은행 대조, 지출 요약. 서로 독립이라 동시에 돌 수 있습니다.<br>
 각 갈래가 끝나면 결과를 research_notes 아래 각자의 파일로 저장합니다. 한 갈래의 긴 출력이 다른 갈래의 맥락을 밀어내지 않습니다.</p>
+</div>
+
+<div class="board" style="margin-top:16px">
+<div class="board-header"><span>멀티에이전트 패턴 지도 — 우리는 어디인가</span><span class="status-pill">2026 통용 분류</span></div>
+<div class="panel-body">
+<p>"여러 에이전트를 엮는다"엔 통용되는 네 갈래가 있습니다. <em>누가 누구에게 일을 넘기느냐</em>로 갈립니다.</p>
+<div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+<div class="panel"><div class="panel-head"><strong>오케스트레이터–워커</strong><span>← 우리</span></div><div class="panel-body"><div class="list"><p>리드가 작업을 <em>런타임에</em> 쪼개 워커에 위임하고 결과를 모은다. 갈래 수가 입력마다 다름 — Anthropic Research 시스템이 레퍼런스</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>슈퍼바이저·계층</strong><span>라우팅</span></div><div class="panel-body"><div class="list"><p>슈퍼바이저가 미리 정한 전문 에이전트들에 라우팅. 층을 더 쌓으면 hierarchical</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>핸드오프·스웜</strong><span>또래 위임</span></div><div class="panel-body"><div class="list"><p>중앙 없이 에이전트끼리 제어를 넘김(handoff). OpenAI Agents SDK가 정식 프리미티브로 채택</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>순차·병렬</strong><span>고정 파이프라인</span></div><div class="panel-body"><div class="list"><p>단계가 정해진 워크플로(Ch2). 갈래를 미리 알면 이게 더 싸고 단순</p></div></div></div>
+</div>
+<p class="section-note" style="margin-top:10px">우리 조사는 <strong>오케스트레이터–워커</strong>입니다 — 갈래 수를 미리 모르니까. 2026년 현장은 "단일 오케스트레이터 + 격리된 서브에이전트"로 수렴했습니다. 컨텍스트 공유가 멀티에이전트의 근본 병목이라(Cognition은 "멀티에이전트를 함부로 만들지 마라"고까지 했습니다), 서브에이전트를 <em>독립 컨텍스트</em>로 띄우고 리드에는 <strong>압축 요약만</strong> 돌려보내 메인 오염을 막는 게 정석입니다.</p>
+</div>
 </div>
 
 <div class="panel">

@@ -319,6 +319,18 @@ flowchart LR
 ```
 
 <p style="margin-top:8px"><code>tools/list</code>로 서버가 가진 도구 목록을, <code>tools/call</code>로 그중 하나를 호출합니다 — 위 <code>--list</code>가 보여 준 도구 4개가 곧 <code>tools/list</code> 결과입니다. 결과는 <code>result.content</code>에 담겨 오고, 없는 도구 이름을 넘기면 같은 <code>id</code>로 <code>result</code> 대신 <code>error</code>(<code>-32602</code> 잘못된 파라미터)가 돌아옵니다. <code>read_record(name)</code>의 <code>name</code>이 곧 위 <code>arguments</code>입니다.</p>
+
+```mermaid
+sequenceDiagram
+    participant A as 에이전트 (호스트)
+    participant S as MCP 서버 (subprocess)
+    A->>S: tools/list
+    S-->>A: 도구 4개 (list_classified·read_record·search_knowledge·fetch_inbox)
+    A->>S: tools/call · read_record(name="receipt_gs25.json")
+    S-->>A: result.content[].text = 레코드 JSON
+    Note over A,S: 모든 메시지는 stdio 위 JSON-RPC 2.0 · id로 짝을 맞춤
+```
+
 </div>
 </div>
 

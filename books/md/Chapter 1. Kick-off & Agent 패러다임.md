@@ -280,6 +280,7 @@ flowchart LR
 ```
 
 <p style="margin-top:10px">모델이 보는 건 글자가 아니라 토큰 숫자입니다(①). 그 토큰들이 서로를 참고해(②) 문맥을 만들고, 마지막에 <strong>다음 토큰의 확률분포</strong>가 나옵니다(③). 아래 <code>logprobs</code> 막대가 바로 이 ③의 분포이고, <code>temperature</code>는 그 분포에서 <em>얼마나 모험적으로</em> 하나를 고를지의 손잡이입니다. <code>classify_one</code>이 <code>temperature=0</code>인 건 이 분포에서 늘 최상위만 골라 재현성을 얻으려는 것입니다.</p>
+<p class="tiny" style="margin-top:6px;color:var(--muted)">엄밀히는 ③의 확률분포도 ②Transformer 마지막 층(LM head)이 만들어 냅니다 — ①~③은 '글자→숫자→문맥→다음 토큰'의 흐름을 끊어 본 단계 구분입니다.</p>
 </div>
 </div>
 
