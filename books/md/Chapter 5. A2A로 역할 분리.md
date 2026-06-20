@@ -128,7 +128,7 @@ stateDiagram-v2
 
 </div>
 <p class="section-note">A2A 에이전트는 자신을 well-known 경로에 카드로 밝힙니다. 이름, 버전, 무슨 기술(skill)을 제공하는지, 어디로 보내야 하는지가 담깁니다.<br>
-상대를 부르기 전에 이 카드를 먼저 읽습니다. 누구인지 확인하고 통신을 시작합니다. A2A 스펙(현재 v1.0 GA)은 카드를 <strong>JWS</strong>(<em>JSON Web Signature, RFC 7515</em>)로 서명할 수 있게 합니다(0.3.0에서 도입). 서명은 카드가 변조되지 않았고 서명자가 그 키를 가졌음을 증명합니다. 다만 그 키를 누구 것으로 믿을지는 공개키 배포·도메인 바인딩 같은 별도 신뢰 설정의 문제라, 서명만으로 신원이 보장되진 않습니다.</p>
+상대를 부르기 전에 이 카드를 먼저 읽습니다. 카드를 찾는 길은 셋입니다 — <strong>well-known URI</strong>(도메인의 <code>/.well-known/agent-card.json</code>, 우리가 쓰는 가장 단순한 길) · <strong>레지스트리</strong>(중앙 목록에서 능력으로 검색) · <strong>직접 설정</strong>(URL을 하드코딩). 누구인지 확인하고 통신을 시작합니다. A2A 스펙(현재 v1.0 GA)은 카드를 <strong>JWS</strong>(<em>JSON Web Signature, RFC 7515</em>)로 서명할 수 있게 합니다(0.3.0에서 도입). 서명은 카드가 변조되지 않았고 서명자가 그 키를 가졌음을 증명합니다. 다만 그 키를 누구 것으로 믿을지는 공개키 배포·도메인 바인딩 같은 별도 신뢰 설정의 문제라, 서명만으로 신원이 보장되진 않습니다.</p>
 <p class="section-note" style="margin-top:14px"><strong>신뢰 경계가 다르면 위험도 따라옵니다.</strong> A2A는 <em>대화 방식</em>을 표준화할 뿐, 누가 누구를 부르는지의 <em>제어</em>는 호출자 몫으로 남습니다. 그래서 외부 에이전트로 엮을 때 두 가지를 직접 막아야 합니다 — ① <strong>순환 호출</strong>: A와 B가 서로를 부르며 도는 걸 프로토콜이 대신 끊어 주지 않으니 hop 수 제한·Task 타임아웃·완료(REJECTED) 재진입 거부를 둡니다. ② <strong>카드 스푸핑·프롬프트 인젝션</strong>: 카드나 메시지 본문이 악의적일 수 있어, 서명 검증만으로 끝이 아니라 받은 지시를 그대로 신뢰하지 않는 경계가 필요합니다. 이 실습은 같은 소유자의 로컬 에이전트라 위험이 약하지만, 다른 벤더를 붙이는 순간 1순위 고려사항이 됩니다.</p>
 </div>
 
@@ -245,9 +245,16 @@ sequenceDiagram
 <span class="lpill"><span class="ldot blue"></span>대안 바인딩</span>
 </div>
 
-<div class="list" style="margin-top:14px">
-<p><strong>4 통신 패턴</strong> — 블로킹(즉답) · 폴링(<code>tasks/get</code>) · 스트리밍(SSE) · 웹훅(<code>pushNotification</code>). 우리 검증은 블로킹입니다.</p>
+<div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:14px">
+<div class="panel"><div class="panel-head"><strong>블로킹</strong><span>즉답</span></div><div class="panel-body"><div class="list"><p><code>message/send</code>에 <code>returnImmediately=false</code> — 완료까지 한 연결로 기다려 결과를 한 번에 받는다(우리 실습)</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>폴링</strong><span>tasks/get</span></div><div class="panel-body"><div class="list"><p>즉시 Task <code>id</code>만 받고, <code>tasks/get</code>으로 상태를 주기적으로 물어 완료를 기다린다(장기 작업)</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>스트리밍</strong><span>SSE</span></div><div class="panel-body"><div class="list"><p>Server-Sent Events로 진행·부분 결과를 실시간으로 흘려받는다</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>웹훅</strong><span>pushNotification</span></div><div class="panel-body"><div class="list"><p>완료 시 상대가 내 콜백 URL로 POST — 연결을 붙들 필요 없이 통지받는다</p></div></div></div>
+</div>
+<p class="section-note" style="margin-top:10px">같은 <code>message/send</code>가 <code>returnImmediately</code> 토글 하나로 블로킹↔폴링을 오갑니다. 작업이 길수록 폴링·스트리밍·웹훅으로 올라갑니다 — 우리는 1왕복이라 블로킹으로 충분합니다.</p>
+<div class="list" style="margin-top:12px">
 <p><strong>Task 상태</strong> — <code>submitted→working→completed</code>가 정상 경로. 그 외 <strong>failed·canceled·rejected·input-required·auth-required</strong>로 끝나거나 멈춥니다(위 상태머신).</p>
+<p><strong>메시지의 콘텐츠 단위는 Part</strong> — 한 메시지/아티팩트는 <code>TextPart</code>(글)·<code>FilePart</code>(파일)·<code>DataPart</code>(구조화 JSON)의 묶음입니다. 우리는 브리프를 <code>TextPart</code> 하나로 보내지만, 이 구조라 텍스트+이미지+JSON을 한 메시지에 실어 보내는 멀티모달이 가능합니다.</p>
 </div>
 </div>
 </div>

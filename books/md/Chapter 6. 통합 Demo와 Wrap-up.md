@@ -92,6 +92,18 @@ flowchart LR
 ```
 
 <p class="section-note" style="margin-top:6px">앞 다섯 단계(분류→조사→지식→브리프)는 한 프로세스 안에서 디렉터리로 이어지고, <strong>마지막 검증만 점선 박스 밖</strong> — 다른 프로세스로 떠 있는 검증 에이전트에게 A2A로 건너갑니다. 화살표 위 배지가 그 일을 맡은 챕터입니다.</p>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>사람을 끼울 자리는 어디인가 — 부작용 단계에만</span><span class="status-pill">HITL 확장점</span></div>
+<div class="panel-body">
+<p>이 파이프라인은 끝까지 자동입니다. 실무로 올리면 어디에 <strong>사람의 승인(HITL)</strong>을 끼울지가 문제인데, 기준은 하나 — <strong>되돌릴 수 없는 부작용이 있는 단계만</strong>입니다.</p>
+<div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:10px">
+<div class="panel"><div class="panel-head"><strong>그냥 두는 단계</strong><span>읽기·재계산</span></div><div class="panel-body"><div class="list"><p>분류·조사·지식 적재·브리프 작성은 파일을 읽고 만들 뿐이라 다시 돌리면 됨 — 멈출 이유가 없다</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>멈춰 물을 단계</strong><span>외부 영향</span></div><div class="panel-body"><div class="list"><p>메일 회신·결제·외부 제출처럼 한 번 나가면 못 되돌리는 단계 — 여기서 <code>interrupt()</code>로 멈춰 사람 승인을 받는다</p></div></div></div>
+</div>
+<p class="section-note" style="margin-top:10px">메커니즘은 Ch2에서 본 그대로입니다 — <code>checkpointer</code>로 상태를 저장하고 <code>interrupt()</code>로 멈춘 뒤 <code>Command(resume=…)</code>로 같은 자리에서 잇습니다. 우리 <code>analyst_app.py</code>는 부작용이 verified_brief.md 쓰기뿐이라 멈추지 않지만, 실제 메일 회신을 붙인다면 그 단계 앞이 바로 <code>interrupt()</code> 자리입니다.</p>
+</div>
+</div>
 </section>
 
 <section class="slide">

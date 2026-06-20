@@ -47,6 +47,14 @@ pageClass: lec-page
 핵심은 <strong>3단계 점진 공개</strong>입니다. ① 시작 시 모든 Skill의 <code>name·description</code>만 시스템 프롬프트에 올라갑니다(항상 켜지지만 쌉니다). ② description이 작업과 맞으면 그때 <strong>SKILL.md 본문</strong>을 읽습니다. ③ <code>references/*.md</code>·스크립트는 본문이 가리킬 때만 펼칩니다. 그래서 <em>description 한 줄이 호출 여부를 정하는 가장 중요한 필드</em>입니다.</p>
 </div>
 
+<div class="board">
+<div class="board-header"><span>Tool만 있으면 왜 부족한가</span><span class="status-pill">Skill의 자리</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>Tool</strong>은 "무엇을 할 수 있나"(read_file·send_mail)를 줍니다. 하지만 <em>어떤 순서로, 어떤 기준·형식으로</em> 브리프를 쓰는지 — 그 절차적 지식은 매번 프롬프트에 반복해 설명해야 합니다. 길어지고, 사람마다 달라지고, 토큰을 먹습니다.</p>
+<p><strong>Skill</strong>은 그 절차를 <em>도메인 전문가가 한 번 적어 두는</em> 파일입니다. 필요할 때만 본문이 펼쳐지니(점진 공개) 평소엔 description 한 줄 값만 들고, 작업이 맞을 때 전체 절차가 재현됩니다. Tool이 동사라면 Skill은 그 동사들을 엮는 <em>레시피</em>입니다.</p>
+</div></div>
+</div>
+
 <div class="grid-3">
 <div class="panel"><div class="panel-head"><strong>1단계 — 메타</strong><span>Skill당 ~100토큰</span></div><div class="panel-body"><div class="list">
 <p><code>name · description</code> — 언제 쓰는지 한 줄로</p>
@@ -293,6 +301,25 @@ flowchart LR
 <p>전송은 <strong>stdio</strong>(로컬·1:1, 에이전트가 subprocess로 붙음) 또는 <strong>Streamable HTTP</strong>(원격·다중 클라이언트; 옛 HTTP+SSE 전송은 2025-03 스펙에서 교체됨). 이 실습은 stdio입니다.</p>
 <p>그 위로 흐르는 메시지는 <strong>JSON-RPC 2.0</strong>입니다(LSP의 후예 — "M개 앱 × N개 도구"를 M+N으로 묶음). 에러는 HTTP 상태가 아니라 본문 <code>error</code> 객체로 옵니다: <code>-32601</code> 메서드 없음 · <code>-32602</code> 잘못된 파라미터 · <code>-32603</code> 내부 오류.</p>
 </div></div>
+</div>
+
+<div class="board" style="margin-top:14px">
+<div class="board-header"><span>JSON-RPC 한 왕복 — <code>tools/call</code> 실물</span><span class="status-pill">read_record</span></div>
+<div class="panel-body">
+
+```json
+// 요청 — 에이전트가 도구를 부른다 (id로 짝을 맞춘다)
+{ "jsonrpc": "2.0", "id": 7, "method": "tools/call",
+  "params": { "name": "read_record", "arguments": { "name": "receipt_gs25.json" } } }
+
+// 응답 — 서버가 결과를 돌려준다
+{ "jsonrpc": "2.0", "id": 7,
+  "result": { "content": [ { "type": "text",
+    "text": "{\"문서종류\":\"영수증\",\"판매처\":\"GS25 역삼점\",\"금액\":8400, ...}" } ] } }
+```
+
+<p style="margin-top:8px"><code>tools/list</code>로 서버가 가진 도구 목록을, <code>tools/call</code>로 그중 하나를 호출합니다 — 위 <code>--list</code>가 보여 준 도구 4개가 곧 <code>tools/list</code> 결과입니다. 결과는 <code>result.content</code>에 담겨 오고, 도구 이름을 틀리면 같은 <code>id</code>로 <code>result</code> 대신 <code>error</code>(<code>-32601</code>)가 돌아옵니다. <code>read_record(name)</code>의 <code>name</code>이 곧 위 <code>arguments</code>입니다.</p>
+</div>
 </div>
 
 <div class="cue solve" style="margin-top:18px">

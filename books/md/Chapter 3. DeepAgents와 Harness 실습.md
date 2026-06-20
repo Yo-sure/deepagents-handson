@@ -166,6 +166,18 @@ agent = create_deep_agent(
 <p class="section-note" style="margin-top:12px">기본은 <strong>StateBackend</strong>라 덜어낸 파일도 기본은 휘발입니다 — "컨텍스트 밖으로 뺀다"가 "디스크에 영구 저장"과 같은 말이 아니라는 게 요점입니다. 이 랩의 재현성은 별개로, 입력(<code>sample_inbox</code>)과 산출물을 <code>workspace/</code> 디스크에 남겨 누가 돌려도 같은 결과가 나오게 하는 데서 옵니다.</p>
 </div>
 </div>
+
+<div class="board" style="margin-top:20px">
+<div class="board-header"><span>긴 작업은 계획을 먼저 파일에 적는다 — Initializer / Executor</span><span class="status-pill">롱러닝 패턴</span></div>
+<div class="panel-body">
+<p>한 에이전트가 긴 작업을 한 번에 끌고 가면 네 가지가 깨집니다 — ① <strong>컨텍스트 소진</strong>(대화가 한도를 넘음), ② <strong>토큰 낭비</strong>(매 턴 과거 전체를 다시 읽음), ③ <strong>복구 비용</strong>(중간에 죽으면 처음부터), ④ <strong>거짓 완료</strong>(다 못 했는데 "끝났다"고 함). 그래서 하네스는 일을 둘로 나눕니다.</p>
+<div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:10px">
+<div class="panel"><div class="panel-head"><strong>Initializer</strong><span>계획을 적는다</span></div><div class="panel-body"><div class="list"><p>할 일을 <code>write_todos</code>로 계획해 <em>파일</em>(plan·todo)에 먼저 남긴다. 컨텍스트가 리셋돼도 계획은 파일에 남는다</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>Executor</strong><span>하나씩 처리</span></div><div class="panel-body"><div class="list"><p>계획을 한 항목씩 실행하며 진행 상태를 파일에 갱신한다. 죽으면 그 파일을 다시 읽어 남은 일부터 이어 간다</p></div></div></div>
+</div>
+<p class="section-note" style="margin-top:10px">"계획·진행을 컨텍스트가 아니라 파일에 둔다"가 하네스의 핵심입니다. DeepAgents의 <code>write_todos</code>(계획)와 filesystem(상태 파일)이 이 패턴을 기본으로 깔아 줍니다 — 우리 오케스트레이터도 계획을 세워 fan-out 한 뒤 노트를 파일로 남기는 같은 구조입니다.</p>
+</div>
+</div>
 </section>
 
 <section class="slide">

@@ -116,6 +116,28 @@ for _ in range(MAX_STEPS):
 <p style="margin-top:8px">동작은 하지만 <strong>상태·에러·재시도·분기·중단점이 전부 내 몫</strong>입니다. 조건이 늘면 이 루프가 얽혀 관리하기 어려워집니다. 그래서 이 챕터에서는 단계를 노드·엣지로 다루는 StateGraph로 올라갑니다.</p>
 </div>
 </div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>도구는 LLM에게 어떻게 보이나 — <code>@tool</code>의 내부</span><span class="status-pill">function calling</span></div>
+<div class="panel-body">
+<p>위 <code>bind_tools(tools)</code>가 하는 일은 함수를 <strong>JSON Schema</strong>로 바꿔 API 요청의 <code>tools</code> 필드에 싣는 것입니다. 모델은 그 스키마를 보고 산문 대신 <em>호출 명세</em>를 냅니다 — 함수를 직접 실행하진 않습니다.</p>
+<div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:10px">
+<div class="panel"><div class="panel-head"><strong>① 함수 → 스키마</strong><span>@tool</span></div><div class="panel-body"><div class="list">
+<p><code>@tool</code>이 함수 이름·독스트링·타입힌트를 읽어 <code>{name, description, parameters}</code> JSON Schema로 만든다</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>② 스키마 전송</strong><span>bind_tools</span></div><div class="panel-body"><div class="list">
+<p><code>bind_tools()</code>가 그 스키마를 API <code>tools</code> 필드로 보낸다. 모델은 function-calling으로 학습돼 스키마에 맞는 인자를 채운다</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>③ 호출 파싱</strong><span>tool_calls</span></div><div class="panel-body"><div class="list">
+<p>응답의 <code>ai.tool_calls = [{name, args, id}]</code>를 코드가 받아 실제 함수를 실행한다</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>④ 결과 되돌림</strong><span>ToolMessage</span></div><div class="panel-body"><div class="list">
+<p>결과를 <code>ToolMessage(..., tool_call_id=tc["id"])</code>로 붙인다 — 이 <code>id</code>가 ②의 호출 <code>id</code>와 같아야 모델이 "어느 호출의 결과인지" 맞춘다(임의 문자열이면 에러)</p>
+</div></div></div>
+</div>
+<p class="section-note" style="margin-top:10px">그래서 모델은 함수를 "실행"하는 게 아니라 <strong>무엇을 어떤 인자로 부를지</strong>만 정하고, 실제 실행·결과 회수는 위 루프(=하네스)가 합니다. Ch4의 MCP·Skill도 결국 이 <code>tools</code> 필드에 무엇을 어떻게 싣느냐의 문제입니다.</p>
+</div>
+</div>
 </section>
 
 <section class="slide">
@@ -217,6 +239,7 @@ flowchart TD
 <p>같은 실패를 계속 반복하면 비용만 듭니다. <code>MAX_RETRY</code>로 두 번까지만 되돌리고, 넘으면 사람이 볼 큐로 보냅니다.</p>
 <p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아, 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성).</p>
 <p>평소 mock은 gold가 고정이라 합계가 맞아 retry가 안 뜹니다(라이브 추출에선 비결정성으로 흔들려 의미가 있습니다). 그래서 <strong>아래 <code>--break-sum</code>으로 일부러 깨</strong> retry 루프를 눈으로 봅니다 — 한계를 정해 두는 게 하네스의 일입니다.</p>
+<p>재시도가 외부 부작용(메일 전송·DB 쓰기)을 가진 도구를 다시 부른다면 <strong>멱등성</strong>이 필요합니다 — 같은 작업을 두 번 해도 결과가 한 번과 같도록 idempotency key를 둬야 중복이 안 생깁니다(이 실습의 재분류는 부작용이 없어 안전). 그래프 차원의 마지막 안전망은 <code>recursion_limit</code>(기본값)으로, 노드가 끝없이 도는 걸 막습니다.</p>
 </div></div>
 </div>
 
@@ -250,6 +273,20 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 ```
 
 <p class="section-note" style="margin-top:12px">핵심: <strong>멈춤은 예외가 아니라 반환값 안의 <code>__interrupt__</code></strong>로 옵니다. <code>graph.invoke</code>가 정상 반환하되 결과에 <code>__interrupt__</code> 키가 있으면 거기서 멈춘 것이고, <code>[0].value</code>가 <code>interrupt()</code>에 넘긴 사유 페이로드입니다.</p>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>checkpointer가 실제로 저장하는 것 — superstep 스냅샷</span><span class="status-pill">Pregel 실행모델</span></div>
+<div class="panel-body">
+<p>LangGraph는 노드를 <strong>superstep</strong> 단위로 돕니다 — 실행 가능한 노드를 (병렬로) 돌려 출력을 모으고 상태를 동기화한 뒤 다음 superstep으로 넘어갑니다(Google Pregel에서 온 모델). checkpointer는 매 superstep 끝의 스냅샷을 <code>thread_id</code>별로 저장합니다. 그래서 그 자리부터 재개됩니다.</p>
+<div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+<div class="panel"><div class="panel-head"><strong>channel_values</strong><span>상태 본문</span></div><div class="panel-body"><div class="list"><p>지금 상태의 실제 값 — 분류 중인 문서·추출 레코드·재시도 횟수 같은 State 필드</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>channel_versions</strong><span>버전</span></div><div class="panel-body"><div class="list"><p>각 채널이 몇 번 갱신됐는지 — 무엇이 바뀌었는지 추적</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>versions_seen</strong><span>진행 위치</span></div><div class="panel-body"><div class="list"><p>각 노드가 어디까지 봤는지 — 재개 시 어느 노드를 다시 돌릴지 판단</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>pending_writes</strong><span>내고장성</span></div><div class="panel-body"><div class="list"><p>아직 반영 안 된 쓰기 — superstep 도중 죽어도 재개 시 잃지 않게 하는 fault tolerance의 핵심</p></div></div></div>
+</div>
+<p class="section-note" style="margin-top:10px">위 코드의 <code>thread_id="intake-{doc}"</code>가 이 스냅샷들의 키입니다. <code>InMemorySaver</code>는 이걸 프로세스 메모리에 두고, <code>SqliteSaver</code>/<code>PostgresSaver</code>로 바꾸면 <strong>같은 구조</strong>가 디스크·DB에 남아 프로세스를 넘어 재개됩니다.</p>
+</div>
+</div>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>왜 메모리에 저장하나</span><span class="status-pill">InMemorySaver</span></div>

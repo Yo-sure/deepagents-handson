@@ -267,6 +267,22 @@ xychart-beta
 <p class="section-note">"다음 토큰 예측기"가 추상이 아니라는 걸 짧게 확인합니다. <code>logprobs</code>로 모델이 토큰을 어떤 확률로 고르는지 보고, <code>temperature</code>로 그 선택이 얼마나 흔들리는지 봅니다.</p>
 </div>
 
+<div class="board">
+<div class="board-header"><span>그 확률은 어디서 나오나 — 토큰이 만들어지는 3단계</span><span class="status-pill">Tokenizer → Transformer → Inference</span></div>
+<div class="panel-body">
+
+```mermaid
+flowchart LR
+    T["오늘 서울의<br/>날씨는"] --> A["① Tokenizer<br/>글자→토큰 숫자<br/>(BPE)"]
+    A --> B["② Transformer<br/>Self-Attention으로<br/>문맥 파악"]
+    B --> C["③ Inference<br/>다음 토큰 확률분포"]
+    C --> D["맑습니다 0.42<br/>흐립니다 0.31<br/>비가 0.18 …"]
+```
+
+<p style="margin-top:10px">모델이 보는 건 글자가 아니라 토큰 숫자입니다(①). 그 토큰들이 서로를 참고해(②) 문맥을 만들고, 마지막에 <strong>다음 토큰의 확률분포</strong>가 나옵니다(③). 아래 <code>logprobs</code> 막대가 바로 이 ③의 분포이고, <code>temperature</code>는 그 분포에서 <em>얼마나 모험적으로</em> 하나를 고를지의 손잡이입니다. <code>classify_one</code>이 <code>temperature=0</code>인 건 이 분포에서 늘 최상위만 골라 재현성을 얻으려는 것입니다.</p>
+</div>
+</div>
+
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>logprobs — 확신의 정체</strong><span>토큰 확률 분포</span></div><div class="panel-body"><div class="list">
 <p>분류처럼 답이 또렷하면 한 토큰에 확률이 몰립니다(예: '식비' 98.6%).</p>
