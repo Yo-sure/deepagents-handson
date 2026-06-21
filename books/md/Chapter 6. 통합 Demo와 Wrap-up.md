@@ -153,7 +153,7 @@ flowchart LR
 </div>
 
 <div class="panel" style="margin-top:18px">
-<div class="panel-head"><strong>출력 — 파이프라인 실행 결과</strong><span>실제 stdout · 들여쓰기 줄은 각 모듈이 찍는다</span></div>
+<div class="panel-head"><strong>출력 골격 — 파이프라인 실행 결과(요약)</strong><span>live는 [1/6] 분류값이 다를 수 있음 · [1/6]~[6/6] 단계 골격은 코드라 같음</span></div>
 <div class="panel-body">
 
 ```text

@@ -404,7 +404,7 @@ flowchart TB
 
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>먼저 — Ch2 적재(없으면)</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code> <span style="color:var(--muted)">(키 없이: <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: <code>workspace/classified/</code>에 JSON 10개.</span></p></div><div class="store">classified</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py</code> <span style="color:var(--muted)">(키 없이 결정론: <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: <code>[plan]</code> 1줄 + <code>[task]</code> 세 줄(<strong>순서 뒤섞임 = 동시 실행</strong>) + <code>[synthesize]</code> 1줄. live는 서브에이전트가 실제 LLM이라 노트 내용이 풍부해지고 속도 이득도 체감됩니다 — <code>[task]</code> 골격과 순서 뒤섞임은 같습니다.</span></p></div><div class="store">노트 3</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code> <span style="color:var(--muted)">(키로 <code>--mock</code> 빼면 실제 조사)</span><br><span style="color:var(--muted)">성공 기준(<code>--mock</code>): <code>[plan]</code> 1줄 + <code>[task]</code> 세 줄(<strong>순서 뒤섞임 = 동시 실행</strong>) + <code>[synthesize]</code> 1줄 + <code>brief_draft.md</code>. fan-out 골격을 또렷이 보여 주는 게 <code>--mock</code>의 역할입니다. 키로 <code>--mock</code>을 빼면 같은 위임을 <em>실제 서브에이전트</em>가 수행해, 골격 줄 대신 에이전트가 직접 쓴 <strong>브리프 글</strong>이 최종 메시지로 나옵니다(배선만 보려면 4번 <code>--trace</code>).</span></p></div><div class="store">노트 3</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>노트 열어 보기</strong><p><code>cat workspace/research_notes/card_reconcile.md</code><br><span style="color:var(--muted)">성공 기준: 쿠팡 89,000원이 ⚠️로 잡혀 있다.</span></p></div><div class="store">확인</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>하네스 내부 열어 보기</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --trace</code><br><span style="color:var(--muted)">성공 기준(키 불필요): <code>create_deep_agent</code>에 배선되는 기본 장비·오케스트레이터 프롬프트·서브에이전트 3개 구성이 출력된다.</span></p></div><div class="store">하네스</div></div>
 </div>
@@ -456,7 +456,7 @@ flowchart TB
 - research_notes/spend_summary.md
 ```
 
-<p class="section-note" style="margin-top:8px">세 갈래가 각자 찾은 걸 한 초안으로 모았습니다 — 카드 대조가 <strong>쿠팡·넷플릭스</strong>(영수증 없는 결제)를, 은행 대조가 <strong>월세 출금</strong>(계약·세금계산서·카드 어디와도 안 이어지는 -650,000원)을 짚었습니다. fan-out이 아니었으면 한 사람이 순서대로 다 봐야 나올 목록입니다.</p>
+<p class="section-note" style="margin-top:8px">세 갈래가 각자 찾은 걸 한 초안으로 모았습니다 — 카드 대조가 <strong>쿠팡·넷플릭스</strong>(영수증 없는 결제)를, 은행 대조가 <strong>월세 출금</strong>(계약·세금계산서·카드 어디와도 안 이어지는 -650,000원)을 짚었습니다. fan-out이 아니었으면 한 사람이 순서대로 다 봐야 나올 목록입니다. <span style="color:var(--muted)">단 이 대조는 금액·키워드 기반 휴리스틱이라 — 대응 문서가 있는데 형식이 달라 못 이은 것도 섞일 수 있어 — "오류"가 아니라 <strong>"확인 필요"</strong>로 표시합니다(<code>⚠️</code>). 무엇이 진짜 누락인지는 다음 단계가 독립 검증(Ch5)합니다.</span></p>
 </div>
 </div>
 
