@@ -315,7 +315,7 @@ flowchart TB
 ## 서버가 요청을 받는 자리
 
 </div>
-<p class="section-note">A2A 서버의 핵심은 <code>AgentExecutor.execute</code> 하나입니다. 들어온 메시지에서 브리프를 꺼내 검증하고, Task로 결과를 돌려줍니다. 중요한 규칙은 하나입니다. 상태를 갱신하기 전에 Task를 먼저 등록해야 합니다.</p>
+<p class="section-note">A2A 서버의 핵심은 <code>AgentExecutor.execute</code> 하나입니다. 들어온 메시지에서 브리프를 꺼내 검증하고, Task로 결과를 돌려줍니다. 중요한 규칙은 하나입니다. 상태를 갱신하기 전에 Task를 먼저 등록해야 합니다.<br><span style="color:var(--muted)">코드의 <code>create_jsonrpc_routes(..., enable_v0_3_compat=True)</code>가 바로 <strong>버전 협상</strong>입니다 — v1.0 서버가 옛 v0.3 클라이언트도 받아 주도록 하위호환을 켭니다. 스펙이 빠르게 진화하는 동안 구·신 에이전트가 섞여도 통신이 끊기지 않게 하는 장치예요.</span></p>
 </div>
 
 <div class="panel">

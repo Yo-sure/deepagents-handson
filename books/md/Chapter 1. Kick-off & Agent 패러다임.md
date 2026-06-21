@@ -295,7 +295,7 @@ flowchart LR
 <div class="panel"><div class="panel-head"><strong>temperature — 왜 0인가</strong><span>추출의 재현성</span></div><div class="panel-body"><div class="list">
 <p>온도가 0이면 늘 최상위 토큰, 높을수록 아래 후보도 뽑힙니다.</p>
 <p>같은 영수증 → 같은 RecordV1이어야 하니 <code>classify_one</code>은 <code>temperature=0</code>. 창의가 필요한 글쓰기에서만 온도를 올립니다.</p>
-<p>디코딩 손잡이는 둘입니다 — 다른 하나가 <code>top_p</code>(누적확률 상위 토큰만 후보로 남기는 nucleus 샘플링). 보통 <code>temperature</code>나 <code>top_p</code> 중 하나만 조절하며, 결정적 추출은 <code>temperature=0</code>으로 충분합니다.</p>
+<p>디코딩 손잡이는 둘입니다 — 다른 하나가 <code>top_p</code>(누적확률 상위 토큰만 후보로 남기는 nucleus 샘플링). 보통 <code>temperature</code>나 <code>top_p</code> 중 하나만 조절하며, 결정적 추출은 <code>temperature=0</code>으로 충분합니다. <span style="color:var(--muted)">(오픈·로컬 모델에선 <code>min-p</code>(0.05~0.1)가 top_p의 '고온에서 분포가 평평해지면 헛토큰이 새는' 결함을 보완하는 세 번째 손잡이로 쓰입니다(ICLR 2025). API·<code>temperature=0</code>인 이 과정엔 무관.)</span></p>
 </div></div></div>
 </div>
 

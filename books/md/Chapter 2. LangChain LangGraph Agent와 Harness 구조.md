@@ -502,6 +502,9 @@ sequenceDiagram
 <div class="panel"><div class="panel-head"><strong>재개가 안 됨</strong><span>thread_id</span></div><div class="panel-body"><div class="list">
 <p>재개할 때 처음과 <strong>같은</strong> <code>thread_id</code>를 써야 멈춘 자리를 찾습니다. 매번 새로 만들면 처음부터 실행됩니다.</p>
 </div></div></div>
+<div class="panel"><div class="panel-head"><strong>ImportError: create_react_agent</strong><span>옛 경로</span></div><div class="panel-body"><div class="list">
+<p>옛 자료의 <code>from langgraph.prebuilt import create_react_agent</code>는 LangChain 1.0에서 <code>create_agent</code>로 옮겨졌습니다. 옛 import를 그대로 따라 치면 막히니 <code>create_agent</code>를 쓰세요.</p>
+</div></div></div>
 </div>
 
 <p class="section-note" style="margin-top:16px">전체 실행 파일은 <code>ch2-langgraph-agent/intake_graph.py</code>. classify는 Ch1의 <code>extract</code>를 import해 그대로 씁니다. 모듈 교체·계약 재사용의 첫 작동입니다.</p>
