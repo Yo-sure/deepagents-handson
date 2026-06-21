@@ -177,7 +177,7 @@ sequenceDiagram
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~3분</span></div>
-<div class="cue-body"><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. 키 없이도 <strong>미들웨어가 시스템 프롬프트에 무엇을 싣는지</strong>(메타데이터만)와, 본문이 아직 안 읽혔다는 점을 직접 봅니다. 키가 있으면 <code>--run</code>으로 에이전트가 본문을 read_file 하는 것까지 볼 수 있지만, live 호출은 몇 분 걸릴 수 있으므로 기본 성공 기준은 <code>--show</code>입니다.</div>
+<div class="cue-body"><strong>증명:</strong> 시작 시 시스템 프롬프트엔 <em>name·description만</em> 오르고 본문은 아직 안 읽힌다(점진 공개 1단계). <code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. <strong>내 화면에 뜨는 것</strong>은 바로 위 board와 같습니다 — <code>• inbox-brief</code> 한 줄과 <code>description: …</code>만 뜨고, 맨 끝에 <code>(본문 31줄은 아직 안 읽음 — description이 작업과 맞을 때 read_file)</code>이 보이면 성공입니다. 키가 있으면 <code>--run</code>으로 에이전트가 그 본문을 실제로 read_file 하는 2단계까지 볼 수 있습니다(live 호출은 몇 분 걸릴 수 있음).</div>
 </div>
 
 <div class="board" style="margin-top:18px">
