@@ -225,6 +225,21 @@ agent = create_deep_agent(
 <div class="board-header"><span>멀티에이전트 패턴 지도 — 우리는 어디인가</span><span class="status-pill">2026 통용 분류</span></div>
 <div class="panel-body">
 <p>"여러 에이전트를 엮는다"엔 통용되는 네 갈래가 있습니다. <em>누가 누구에게 일을 넘기느냐</em>로 갈립니다.</p>
+
+```mermaid
+flowchart LR
+    subgraph OW ["오케스트레이터–워커 (우리)"]
+        L["리드"] --> W1["워커"] & W2["워커"] & W3["워커"]
+        W1 & W2 & W3 --> SY["종합"]
+    end
+    subgraph SV ["슈퍼바이저"]
+        S["슈퍼바이저"] --> E1["전문A"] & E2["전문B"]
+    end
+    subgraph SW ["핸드오프·스웜"]
+        A1["에이전트"] <--> A2["에이전트"] <--> A3["에이전트"]
+    end
+```
+
 <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
 <div class="panel"><div class="panel-head"><strong>오케스트레이터–워커</strong><span>← 우리</span></div><div class="panel-body"><div class="list"><p>리드가 작업을 <em>런타임에</em> 쪼개 워커에 위임하고 결과를 모은다. 갈래 수가 입력마다 다름 — Anthropic Research 시스템이 레퍼런스</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>슈퍼바이저·계층</strong><span>라우팅</span></div><div class="panel-body"><div class="list"><p>슈퍼바이저가 미리 정한 전문 에이전트들에 라우팅. 층을 더 쌓으면 hierarchical</p></div></div></div>
