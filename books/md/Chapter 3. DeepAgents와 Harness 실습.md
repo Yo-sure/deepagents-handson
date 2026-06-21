@@ -125,7 +125,7 @@ flowchart LR
 <div class="panel"><div class="panel-head"><strong>장기 · episodic</strong><span>지난 경험</span></div><div class="panel-body"><div class="list"><p>과거 상호작용·결과의 기록. 우리의 <code>research_notes/</code>·브리프가 여기</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>장기 · procedural</strong><span>방법·절차</span></div><div class="panel-body"><div class="list"><p>"어떻게 하는지"의 절차. <strong>Skill이 곧 procedural 메모리</strong>(SKILL.md, Ch4)</p></div></div></div>
 </div>
-<p class="section-note" style="margin-top:10px">그래서 "메모리를 붙인다"는 막연한 게 아니라 <em>종류별로 다른 저장소</em>에 두는 일입니다. LangGraph는 단기=checkpointer / 장기=cross-thread <code>Store</code>로 나누고(LangMem SDK가 그 위에서 의미를 추출), deepagents는 <code>StoreBackend</code>·memory 미들웨어로 같은 분리를 깔아 둡니다. 단 이 영역은 아직 미해결입니다 — 정확한 회수·새 정보 갱신·선택적 망각을 <em>동시에</em> 잘하는 방법은 2026년에도 없습니다.</p>
+<p class="section-note" style="margin-top:10px">그래서 "메모리를 붙인다"는 막연한 게 아니라 <em>종류별로 다른 저장소</em>에 두는 일입니다. LangGraph는 단기=checkpointer / 장기=cross-thread <code>Store</code>로 나누고(LangMem SDK가 그 위에서 의미를 추출), deepagents는 <code>StoreBackend</code>·memory 미들웨어로 같은 분리를 깔아 둡니다. 공급사 네이티브로도 같은 일을 합니다 — Anthropic은 <strong>memory tool + context editing</strong>(2025-09 beta)으로 컨텍스트 밖 파일에 저장하고 오래된 도구 결과를 자동으로 비웁니다. 단 이 영역은 아직 미해결입니다 — 정확한 회수·새 정보 갱신·선택적 망각을 <em>동시에</em> 잘하는 방법은 2026년에도 없습니다.</p>
 </div>
 </div>
 
@@ -134,6 +134,7 @@ flowchart LR
 <div class="panel-body"><div class="list">
 <p>기본 미들웨어 스택은 매 호출에 <strong>~3,500 토큰</strong>을 고정으로 더합니다(기본 프롬프트·서브에이전트·할 일·파일·도구 스키마 — deepagents 코드 기준 추정). 계획·위임·파일 관리를 쓰는 데 드는 비용입니다.</p>
 <p>성능은 또 다른 이야기입니다. 위의 +13.7%p는 토큰을 더 썼다고 저절로 따라온 게 아니라, 하네스를 <strong>반복해 다듬어(harness engineering)</strong> 얻은 결과입니다. 토큰 비용과 성능 향상은 출처상 별개입니다. 반복되는 앞부분은 프롬프트 캐싱(Ch1)으로 비용을 다시 줄일 수 있습니다.</p>
+<p class="muted" style="margin-top:6px">덜 쓰는 게 더 나을 때도 많습니다 — 한 2026 연구('Less Context, Better Agents')는 전체 이력을 다 들고 가는 것보다 <em>최근 도구 호출 몇 개 + 자동 요약</em>만 남기는 쪽이 완료율도 비용도 더 나았다고 보고했습니다. 위 컨텍스트 엔지니어링 네 전략(특히 Compress·Select)의 근거입니다.</p>
 </div></div>
 </div>
 </section>

@@ -304,6 +304,14 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <p>Ch3에서 여러 문서를 동시에 조사할 때 이 성질이 비용을 아낍니다. 여러 갈래 중 일부가 끝난 뒤 끊겨도, 재개는 남은 것만 처리합니다.</p>
 </div></div>
 </div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>한 걸음 더 — 장기 메모리와 durability 모드</span><span class="status-pill">LangGraph</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>checkpointer는 단기입니다</strong> — 한 thread = 한 작업의 상태. thread를 <em>넘어</em> 오래 남길 것(사용자 프로필·지난 결과)은 <code>Store</code>(cross-thread, JSON namespace/key)에 둡니다. Ch3에서 볼 메모리 분류의 '장기'가 바로 이것이고, LangMem SDK가 그 위에서 의미를 추출·관리합니다.</p>
+<p><strong>durability는 셋으로 조절합니다</strong> — <code>"exit"</code>(끝날 때만 저장, 가장 빠름) · <code>"async"</code>(다음 단계와 겹쳐 저장, 균형) · <code>"sync"</code>(매 단계 저장 후 진행, 가장 안전). 속도와 복구 보장을 맞바꾸는 손잡이로, 우리 실습은 기본값으로 충분합니다.</p>
+</div></div>
+</div>
 </section>
 
 <section class="slide">

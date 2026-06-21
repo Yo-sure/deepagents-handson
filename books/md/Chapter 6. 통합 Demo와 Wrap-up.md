@@ -326,6 +326,7 @@ flowchart TB
 ```
 
 <p style="margin-top:8px">아래(①)가 위(④)의 기반입니다. LLM 호출(Framework) 위에 상태·분기(Runtime), 그 위에 계획·위임(Harness), 맨 위에 절차·연결·협업(생태계)을 둡니다. <strong>Ch2에서 LangChain(프레임워크)과 LangGraph(런타임)를 함께 익혔기에</strong> Ch2가 아래 두 층에 걸쳐 있습니다. 위 여덟 역량은 전부 이 네 층 어딘가에 속합니다.</p>
+<p class="muted" style="margin-top:6px">우리가 쓴 <strong>DeepAgents는 오픈소스 Harness</strong>입니다. Claude Code·Devin 같은 코딩 에이전트도 같은 Harness 층의 다른 구현체(독점·코딩 특화)예요 — 계획·파일·서브에이전트로 LLM을 감싸는 발상은 같습니다.</p>
 </div>
 </div>
 </section>
@@ -382,6 +383,7 @@ flowchart TB
 | 건당 비용 | 요청당 평균 토큰·비용 | 예산 내 |
 
 <p class="section-note" style="margin-top:10px">오른쪽 수치는 <strong>업계 표준이 아니라 출발점</strong>입니다 — 도메인·태스크 난이도마다 직접 정해야 합니다. 핵심은 숫자가 아니라 "무엇을 어떻게 측정할지"를 먼저 합의하는 것입니다.</p>
+<p class="section-note" style="margin-top:8px"><strong>비용은 '건당'만으로 부족합니다.</strong> 하네스는 토큰을 더 쓰니(Ch3), 운영에선 비용을 토큰 단위로 쪼개 봅니다 — ① <strong>요청당 평균 입·출력 토큰</strong> · ② <strong>일간 총 토큰</strong>(팀·서비스 단위 추세) · ③ <strong>성공 1건당 평균 비용</strong>(실패까지 분모에) · ④ <strong>재시도·실패로 버린 토큰 비율</strong>. 특히 ④가 새는 곳을 드러냅니다.</p>
 
 </div>
 </div>
