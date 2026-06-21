@@ -246,7 +246,7 @@ flowchart LR
 <div class="panel"><div class="panel-head"><strong>핸드오프·스웜</strong><span>또래 위임</span></div><div class="panel-body"><div class="list"><p>중앙 없이 에이전트끼리 제어를 넘김(handoff). OpenAI Agents SDK가 정식 프리미티브로 채택</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>순차·병렬</strong><span>고정 파이프라인</span></div><div class="panel-body"><div class="list"><p>단계가 정해진 워크플로(Ch2). 갈래를 미리 알면 이게 더 싸고 단순</p></div></div></div>
 </div>
-<p class="section-note" style="margin-top:10px">우리 조사는 <strong>오케스트레이터–워커</strong>입니다 — 갈래 수를 미리 모르니까. 2026년 현장은 "단일 오케스트레이터 + 격리된 서브에이전트"로 수렴했습니다. 컨텍스트 공유가 멀티에이전트의 근본 병목이라(Cognition은 "멀티에이전트를 함부로 만들지 마라"고까지 했습니다), 서브에이전트를 <em>독립 컨텍스트</em>로 띄우고 리드에는 <strong>압축 요약만</strong> 돌려보내 메인 오염을 막는 게 정석입니다.</p>
+<p class="section-note" style="margin-top:10px">우리 조사는 <strong>오케스트레이터–워커</strong>입니다 — 갈래 수를 미리 모르니까. 2026년 현장은 "단일 오케스트레이터 + 격리된 서브에이전트"로 수렴했습니다. 컨텍스트 공유가 멀티에이전트의 근본 병목이라(Cognition은 "멀티에이전트를 함부로 만들지 마라"고까지 했습니다), 서브에이전트를 <em>독립 컨텍스트</em>로 띄우고 리드에는 <strong>압축 요약만</strong> 돌려보내 메인 오염을 막는 게 정석입니다. 멀티에이전트가 깨지는 방식도 정리돼 있습니다 — MAST 분류는 실패를 크게 셋으로 봅니다: <strong>명세 부족</strong>(워커에 목표·경계를 모호하게 줌)·<strong>에이전트 간 정렬 불량</strong>(서로 다른 가정으로 어긋남)·<strong>검증/종료 실패</strong>(끝났는지 확인 안 함). 우리가 워커마다 목표·출력형식을 못박고 종료조건을 두는 이유입니다.</p>
 </div>
 </div>
 

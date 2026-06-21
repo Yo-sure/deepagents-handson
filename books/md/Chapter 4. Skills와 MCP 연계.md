@@ -52,6 +52,7 @@ pageClass: lec-page
 <div class="panel-body"><div class="list">
 <p><strong>Tool</strong>은 "무엇을 할 수 있나"(read_file·send_mail)를 줍니다. 하지만 <em>어떤 순서로, 어떤 기준·형식으로</em> 브리프를 쓰는지 — 그 절차적 지식은 매번 프롬프트에 반복해 설명해야 합니다. 길어지고, 사람마다 달라지고, 토큰을 먹습니다.</p>
 <p><strong>Skill</strong>은 그 절차를 <em>도메인 전문가가 한 번 적어 두는</em> 파일입니다. 필요할 때만 본문이 펼쳐지니(점진 공개) 평소엔 description 한 줄 값만 들고, 작업이 맞을 때 전체 절차가 재현됩니다. Tool이 동사라면 Skill은 그 동사들을 엮는 <em>레시피</em>입니다.</p>
+<p>달리 보면 <strong>Skill은 곧 procedural 메모리</strong>입니다 — Ch3의 메모리 3종(사실=semantic·경험=episodic·<strong>절차=procedural</strong>) 중 "어떻게 하는지"를 파일로 영속하는 자리. 그래서 한 번 잘 써 둔 Skill은 모델을 바꿔도 절차가 따라옵니다.</p>
 </div></div>
 </div>
 
@@ -330,6 +331,8 @@ sequenceDiagram
     S-->>A: result.content[].text = 레코드 JSON
     Note over A,S: 모든 메시지는 stdio 위 JSON-RPC 2.0 · id로 짝을 맞춤
 ```
+
+<p class="section-note" style="margin-top:14px"><strong>도구도 너무 많으면 독입니다.</strong> 서버를 여럿 붙여 도구가 수십 개가 되면, 모델이 매번 그 전부의 스키마를 읽느라 컨텍스트를 먹고 <em>고르기도 더 틀립니다</em>. 그래서 2026 권고는 <strong>하이브리드</strong> — 자주 쓰는 소수만 미리 싣고(preload), 나머지는 필요할 때 찾아 부릅니다(JIT, just-in-time). Skill의 점진 공개가 바로 이 발상을 메타데이터→본문→리소스 단계로 구현한 것입니다.</p>
 
 </div>
 </div>
