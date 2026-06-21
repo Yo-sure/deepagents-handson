@@ -530,7 +530,7 @@ flowchart TB
 <div class="board">
 <div class="board-header"><span>먼저 — 만들 물건과 처음 보는 말</span><span class="status-pill">RecordV1 · 용어</span></div>
 <div class="panel-body">
-<p class="section-note" style="margin-top:0">이 코드가 뽑아내는 <strong>RecordV1</strong>은 이렇게 생긴 한 덩어리입니다(한글 키 = 계약, Ch0 데이터 계약). 지금은 한 줄씩 이해할 필요 없이 <em>판매처·금액·항목·문서유형 칸이 정해져 있다</em>는 것만 보세요:</p>
+<p class="section-note" style="margin-top:0">이 코드가 뽑아내는 <strong>RecordV1</strong>은 이렇게 생긴 한 덩어리입니다(한글 키 = 계약, Ch0 데이터 계약). 지금은 한 줄씩 이해할 필요 없이 <em>판매처·금액·항목·문서유형 칸이 정해져 있다</em>는 것만 보세요(아래는 <code>--mock</code> 결정론 출력 — live로 같은 영수증을 돌리면 신뢰도나 표현이 조금 다를 수 있지만 칸은 같습니다):</p>
 
 ```json
 {
