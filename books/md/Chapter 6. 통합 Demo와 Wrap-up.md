@@ -183,6 +183,37 @@ flowchart LR
 </div>
 </div>
 
+<div class="panel" style="margin-top:18px">
+<div class="board-header"><span>내 화면에 뜨는 것 — <code>cat workspace/verified_brief.md</code></span><span class="status-pill">8시간의 결과물</span></div>
+<div class="panel-body">
+
+```text
+# 인박스 브리프 — 2026년 5월
+
+## 한 줄 요약
+문서 10건 · 영수증 지출 99,900원 · 짚을 점 2건.
+
+## 짚을 점
+- (gap) 쿠팡(주)
+- (subscription) 넷플릭스
+
+## 할 일
+- [ ] 영수증 없는 카드 결제 확인
+- [ ] 구독 목록 점검
+
+---
+
+## 외부 검증 결과 — PASS
+검증 주체: 세무·정합성 검증 에이전트 (목)
+
+- 독립 재계산: 영수증 없는 거래 2건 (쿠팡(주) 89,000원, 넷플릭스 17,000원)
+- 브리프가 빠짐 없이 모두 짚었습니다 — 검증 통과
+```
+
+<p class="section-note" style="margin-top:10px">메일 한 더미에서 출발해 <strong>이 한 파일</strong>에 도착합니다 — 위는 브리프(짚을 점·할 일), 구분선 아래는 <em>다른 에이전트가 독립으로 다시 센</em> 검증 판정. 8시간이 만든 결과물입니다.</p>
+</div>
+</div>
+
 <div class="cue wait">
 <div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~십여 초</span></div>
 <div class="cue-body"><code>--a2a</code> 실행은 9610 포트에 검증 에이전트를 띄워 통신하므로 목 실행보다 서버 기동 한 박자(십여 초)만큼 더 걸립니다(verifier는 LLM 없이 규칙으로 즉답). [5/6]에서 <code>Agent Card</code> 조회와 실제 서버 응답이 끝날 때까지 기다린 뒤, <code>workspace/verified_brief.md</code>를 열어 브리프 본문과 외부 검증 판정(<strong>PASS</strong>)이 한 파일에 함께 담겼는지 확인합니다.</div>

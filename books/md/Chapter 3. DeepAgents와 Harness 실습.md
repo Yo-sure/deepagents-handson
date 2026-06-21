@@ -21,7 +21,7 @@ pageClass: lec-page
 <div class="kicker">
 <div class="metric"><span class="num">65</span><strong>분</strong><span>이론 31 · 핸즈온 31</span><span class="clk">예상 11:25–12:30 · 앞 ☕10분</span></div>
 <div class="metric"><span class="num">3</span><strong>번째 모듈</strong><span>research_orchestrator.py</span></div>
-<div class="metric"><span class="num">1</span><strong>누락 발견</strong><span>영수증 없는 89,000원</span></div>
+<div class="metric"><span class="num">3</span><strong>짚을 점</strong><span>영수증 없는 89,000원 외 2건</span></div>
 </div>
 </div>
 
@@ -432,6 +432,31 @@ flowchart TB
   [synthesize] → workspace/brief_draft.md
 ```
 
+<p class="section-note" style="margin-top:8px"><code>[task]</code> 세 줄의 <strong>순서가 매번 뒤섞이는 게</strong> 동시 실행의 증거입니다(순차면 늘 plan 순서 그대로). 그 셋이 끝나면 <code>[synthesize]</code>가 노트를 모아 아래 초안을 씁니다.</p>
+</div>
+</div>
+
+<div class="panel" style="margin-top:12px">
+<div class="board-header"><span>내 화면에 뜨는 것 — <code>cat workspace/brief_draft.md</code></span><span class="status-pill">fan-out의 산출물</span></div>
+<div class="panel-body">
+
+```text
+# 인박스 브리프 (초안)
+
+문서 10건을 교차 조사했습니다.
+
+## 짚어야 할 것
+- ⚠️ 쿠팡(주) 89,000원 — 매칭 영수증 없음
+- ⚠️ 넷플릭스 17,000원 — 매칭 영수증 없음
+- ⚠️ 월세 이체 -650,000원(출금) — 대응 문서 없음
+
+## 조사 노트
+- research_notes/card_reconcile.md
+- research_notes/bank_reconcile.md
+- research_notes/spend_summary.md
+```
+
+<p class="section-note" style="margin-top:8px">세 갈래가 각자 찾은 걸 한 초안으로 모았습니다 — 카드 대조가 <strong>쿠팡·넷플릭스</strong>(영수증 없는 결제)를, 은행 대조가 <strong>월세 출금</strong>(계약·세금계산서·카드 어디와도 안 이어지는 -650,000원)을 짚었습니다. fan-out이 아니었으면 한 사람이 순서대로 다 봐야 나올 목록입니다.</p>
 </div>
 </div>
 

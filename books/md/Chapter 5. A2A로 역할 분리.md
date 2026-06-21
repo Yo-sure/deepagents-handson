@@ -375,16 +375,20 @@ flowchart TB
 </div>
 
 <div class="panel" style="margin-top:18px">
-<div class="panel-head"><strong>출력 — A2A로 받은 검증 결과</strong><span>verified_brief.md 끝부분</span></div>
+<div class="panel-head"><strong>내 화면에 뜨는 것 — 콘솔과 결과 파일</strong><span>--mock 기준</span></div>
 <div class="panel-body">
 
 ```text
+# 콘솔 (스텝 c · --mock, 키 없이)
 ▶ 브리프 제출 → 외부 검증 에이전트
-  Agent Card: 세무·정합성 검증 에이전트 (skill: verify-brief)
-  검증 결과 수신 (A2A)
+  (classified 비어 있음 — gold에서 보충. 먼저 Ch2 intake_graph 실행 권장)
+  검증 결과: PASS
+  → workspace/verified_brief.md
+# (스텝 a · --serve면 위에 'Agent Card: 세무·정합성 검증 에이전트' 줄이 더 뜬다)
 
+# 결과 파일 끝부분 (cat workspace/verified_brief.md)
 ## 외부 검증 결과 — PASS
-검증 주체: 세무·정합성 검증 에이전트 (A2A)
+검증 주체: 세무·정합성 검증 에이전트 (목)
 
 - 독립 재계산: 영수증 없는 거래 2건 (쿠팡(주) 89,000원, 넷플릭스 17,000원)
 - 브리프가 빠짐 없이 모두 짚었습니다 — 검증 통과

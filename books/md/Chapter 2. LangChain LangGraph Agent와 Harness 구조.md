@@ -245,7 +245,7 @@ flowchart TD
 
 <div class="cue do" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기 — retry를 눈으로</span><span class="cue-time">~3분</span></div>
-<div class="cue-body"><code>--break-sum</code>으로 합계를 일부러 1원 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. 이 플래그는 <em>매 재분류마다</em> 합계를 다시 깨므로 끝내 안 맞은 채 <code>[verify] 합계 불일치(항목합 8,400 ≠ 8,401) → [retry] 1/2 → 2/2 → dry-run</code>으로 흐릅니다. retry 루프와 상한(2회)을 보되, 다음 장 산출물을 오염시키지 않도록 JSON은 쓰지 않습니다.</div>
+<div class="cue-body"><strong>증명하려는 것: 재시도가 무한이 아니라 상한에서 멈춘다는 것.</strong> <code>--break-sum</code>으로 합계를 일부러 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. 이 플래그는 추출된 <em>총액(금액)에만 +1원</em>을 더합니다 — 항목 합계(8,400)는 그대로라 둘이 <em>영원히</em> 어긋나고(8,400 ≠ 8,401), 매 재분류마다 다시 깨지니 재시도 2회를 다 써도 안 맞아 상한 도달 후 <code>dry-run</code>으로 빠집니다: <code>[verify] 합계 불일치(항목합 8,400 ≠ 8,401) → [retry] 1/2 → 2/2 → dry-run</code>. 그래서 출력의 <strong>8,401</strong>이 어디서 왔는지(총액 +1) 알면, 왜 끝내 실패하는지가 보입니다. 다음 장 산출물을 오염시키지 않도록 JSON은 쓰지 않습니다.</div>
 </div>
 </section>
 

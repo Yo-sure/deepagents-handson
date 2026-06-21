@@ -508,6 +508,22 @@ if __name__ == "__main__":
 <div class="cue-body">서버가 떠서 도구 목록이 돌아올 때까지 기다립니다. 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 보이는지, 리소스 <code>inbox://stats</code>가 Tool과 별개로 노출되는지 확인하세요. 목록이 안 보이면 서버가 아직 초기화 중이거나 <code>mcp[cli]</code> 의존성이 빠진 것입니다.</div>
 </div>
 
+<div class="panel" style="margin-top:12px">
+<div class="panel-head"><strong>내 화면에 뜨는 것 — <code>--list</code></strong><span>mcp_inbox_server.py</span></div>
+<div class="panel-body">
+
+```text
+inbox-mcp-server 도구 4개:
+  [실선] list_classified — 분류된 레코드(classified/*.json) 목록을 돌려준다. [실선 — 실제 파일]
+  [실선] read_record — 분류 레코드 하나를 읽어 JSON 문자열로 돌려준다. [실선 — 실제 파일]
+  [실선] search_knowledge — OKF 지식 항목을 type으로 찾는다. [실선 — 실제 파일]
+  [목] fetch_inbox — 이번 달 샘플 메일 목록을 돌려준다. [목 — 외부 메일 서버 없이 재현]
+```
+
+<p class="section-note" style="margin-top:8px">[실선] 셋은 실제 <code>workspace/</code> 파일을 읽고, [목] 하나는 외부 메일 서버 없이 샘플을 돌려줍니다 — 이 줄들이 곧 모델이 받는 <code>tools/list</code> 결과입니다.</p>
+</div>
+</div>
+
 <div class="panel" style="margin-top:18px">
 <div class="panel-head"><strong>출력 — 적재된 지식 항목</strong><span>okf_store.py</span></div>
 <div class="panel-body">
