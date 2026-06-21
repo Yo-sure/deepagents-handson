@@ -327,6 +327,7 @@ flowchart TB
 
 <p style="margin-top:8px">아래(①)가 위(④)의 기반입니다. LLM 호출(Framework) 위에 상태·분기(Runtime), 그 위에 계획·위임(Harness), 맨 위에 절차·연결·협업(생태계)을 둡니다. <strong>Ch2에서 LangChain(프레임워크)과 LangGraph(런타임)를 함께 익혔기에</strong> Ch2가 아래 두 층에 걸쳐 있습니다. 위 여덟 역량은 전부 이 네 층 어딘가에 속합니다.</p>
 <p class="muted" style="margin-top:6px">우리가 쓴 <strong>DeepAgents는 오픈소스 Harness</strong>입니다. Claude Code·Devin 같은 코딩 에이전트도 같은 Harness 층의 다른 구현체(독점·코딩 특화)예요 — 계획·파일·서브에이전트로 LLM을 감싸는 발상은 같습니다.</p>
+<p class="muted" style="margin-top:6px">④ 생태계 층의 표준들은 한 방향으로 모이고 있습니다 — <strong>MCP·goose·AGENTS.md</strong>는 2025-12 출범한 <strong>AAIF</strong>(Agentic AI Foundation, Linux Foundation 산하)로, <strong>A2A</strong>도 LF 중립 호스팅으로(경쟁하던 IBM ACP를 흡수). 단일 벤더가 아니라 재단 거버넌스가 표준을 쥐면, 한 회사에 묶이지 않고 도구·에이전트를 갈아 끼울 수 있습니다.</p>
 </div>
 </div>
 </section>

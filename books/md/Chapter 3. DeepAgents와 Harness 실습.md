@@ -192,7 +192,7 @@ agent = create_deep_agent(
 <div class="panel"><div class="panel-head"><strong>StoreBackend</strong><span>세션 간</span></div><div class="panel-body"><div class="list"><p>LangGraph Store에 둬 스레드·세션을 넘어 남는다</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>CompositeBackend</strong><span>경로별 분배</span></div><div class="panel-body"><div class="list"><p>경로 접두사로 갈라 라우팅 — 임시는 state, 산출물은 disk로</p></div></div></div>
 </div>
-<p class="section-note" style="margin-top:12px">기본은 <strong>StateBackend</strong>라 덜어낸 파일도 기본은 휘발입니다 — "컨텍스트 밖으로 뺀다"가 "디스크에 영구 저장"과 같은 말이 아니라는 게 요점입니다. 이 랩의 재현성은 별개로, 입력(<code>sample_inbox</code>)과 산출물을 <code>workspace/</code> 디스크에 남겨 누가 돌려도 같은 결과가 나오게 하는 데서 옵니다.</p>
+<p class="section-note" style="margin-top:12px">기본은 <strong>StateBackend</strong>라 덜어낸 파일도 기본은 휘발입니다 — "컨텍스트 밖으로 뺀다"가 "디스크에 영구 저장"과 같은 말이 아니라는 게 요점입니다. 이 랩의 재현성은 별개로, 입력(<code>sample_inbox</code>)과 산출물을 <code>workspace/</code> 디스크에 남겨 누가 돌려도 같은 결과가 나오게 하는 데서 옵니다. <span style="color:var(--muted)">(deepagents 0.6은 <code>ContextHubBackend</code>(LangSmith Hub에 영속)와 모델·미들웨어 묶음을 한 번에 끼우는 Harness Profile도 더했습니다.)</span></p>
 </div>
 </div>
 

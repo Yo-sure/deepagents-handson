@@ -298,8 +298,9 @@ flowchart LR
 <div class="board" style="margin-top:14px">
 <div class="board-header"><span>MCP 세 가지 기본 요소</span><span class="status-pill">primitives</span></div>
 <div class="panel-body"><div class="list">
-<p><strong>Tool</strong> — 모델이 자율로 호출(부수효과 가능) · <strong>Resource</strong> — 클라이언트가 읽어가는 읽기전용 데이터 · <strong>Prompt</strong> — 사용자가 트리거하는 템플릿</p>
-<p>전송은 <strong>stdio</strong>(로컬·1:1, 에이전트가 subprocess로 붙음) 또는 <strong>Streamable HTTP</strong>(원격·다중 클라이언트; 옛 HTTP+SSE 전송은 2025-03 스펙에서 교체됨). 이 실습은 stdio입니다.</p>
+<p><strong>서버가 노출</strong>하는 셋 — <strong>Tool</strong>(모델이 자율로 호출, 부수효과 가능) · <strong>Resource</strong>(클라이언트가 읽어가는 읽기전용 데이터) · <strong>Prompt</strong>(사용자가 트리거하는 템플릿). 우리 서버가 이 셋을 씁니다.</p>
+<p><strong>클라이언트(호스트)도 셋을 되돌려줍니다</strong> — <strong>sampling</strong>(서버가 호스트의 모델에 추론을 요청) · <strong>elicitation</strong>(서버가 사용자에게 입력을 되묻기, 2025-06 도입) · <strong>roots</strong>(서버가 접근 가능한 파일 경로 범위). 방향이 반대인 프리미티브라, MCP는 서버↔클라이언트 양방향입니다.</p>
+<p>전송은 <strong>stdio</strong>(로컬·1:1, 에이전트가 subprocess로 붙음) 또는 <strong>Streamable HTTP</strong>(원격·다중 클라이언트; 옛 HTTP+SSE 전송은 2025-03 스펙에서 교체됨). 이 실습은 stdio입니다. <span style="color:var(--muted)">스펙은 2025-03(첫 안정)→2025-06(elicitation·구조화 출력)→2025-11-25로 발전했고, 다음 개정은 2026-07 RC가 예정돼 있습니다(예정이라 단정 금지).</span></p>
 <p>그 위로 흐르는 메시지는 <strong>JSON-RPC 2.0</strong>입니다(LSP의 후예 — "M개 앱 × N개 도구"를 M+N으로 묶음). 에러는 HTTP 상태가 아니라 본문 <code>error</code> 객체로 옵니다: <code>-32601</code> 메서드 없음 · <code>-32602</code> 잘못된 파라미터 · <code>-32603</code> 내부 오류.</p>
 </div></div>
 </div>

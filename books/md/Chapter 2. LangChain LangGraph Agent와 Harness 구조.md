@@ -95,7 +95,7 @@ agent = create_agent("openai:google/gemini-3.5-flash", tools=[...])
 
 <p class="section-note" style="margin-top:10px"><code>"openai:google/gemini-3.5-flash"</code>가 오타처럼 보이지만 맞습니다 — <code>openai:</code> 접두사는 <strong>OpenAI 호환 게이트웨이(OpenRouter)</strong>로 부른다는 표시이고, 실제 모델은 <code>google/gemini-3.5-flash</code>입니다(Ch0의 게이트웨이 설정 그대로). 이후 챕터의 <code>openai:</code>도 모두 같은 뜻입니다.</p>
 
-<p class="section-note" style="margin-top:16px"><code>create_agent</code>는 LangGraph 1.0 이전의 <code>create_react_agent</code>를 대체했습니다. 둘 다 같은 <code>CompiledStateGraph</code>를 돌려줍니다. 차이는 자유도이고, 그 자유도의 핵심은 LangChain 1.0이 더한 <strong>미들웨어</strong>(<code>before_model</code>·<code>after_model</code> 훅)입니다 — Ch3의 <code>create_deep_agent</code>는 바로 이 <code>create_agent</code>에 미들웨어를 기본 탑재한 확장입니다.</p>
+<p class="section-note" style="margin-top:16px"><code>create_agent</code>는 LangGraph 1.0 이전의 <code>create_react_agent</code>를 대체했습니다. 둘 다 같은 <code>CompiledStateGraph</code>를 돌려줍니다. 차이는 자유도이고, 그 자유도의 핵심은 LangChain 1.0이 더한 <strong>미들웨어</strong>입니다 — Ch3의 <code>create_deep_agent</code>는 바로 이 <code>create_agent</code>에 미들웨어를 기본 탑재한 확장입니다. 훅은 여섯입니다: 에이전트 실행 1회 단위 <code>before_agent</code>·<code>after_agent</code>, 매 모델 호출 전후 <code>before_model</code>·<code>after_model</code>, 그리고 모델·도구 호출을 <em>통째로 감싸는</em> <code>wrap_model_call</code>·<code>wrap_tool_call</code>(캐싱·재시도·결과 가로채기). <code>before_*</code>는 순차로, <code>after_*</code>는 역순으로, <code>wrap_*</code>는 실제 호출을 중첩으로 감쌉니다.</p>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>프레임워크가 지우는 것 — 손으로 짠 루프</span><span class="status-pill">왜 필요한가</span></div>
@@ -309,7 +309,7 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="board-header"><span>한 걸음 더 — 장기 메모리와 durability 모드</span><span class="status-pill">LangGraph</span></div>
 <div class="panel-body"><div class="list">
 <p><strong>checkpointer는 단기입니다</strong> — 한 thread = 한 작업의 상태. thread를 <em>넘어</em> 오래 남길 것(사용자 프로필·지난 결과)은 <code>Store</code>(cross-thread, JSON namespace/key)에 둡니다. Ch3에서 볼 메모리 분류의 '장기'가 바로 이것이고, LangMem SDK가 그 위에서 의미를 추출·관리합니다.</p>
-<p><strong>durability는 셋으로 조절합니다</strong> — <code>"exit"</code>(끝날 때만 저장, 가장 빠름) · <code>"async"</code>(다음 단계와 겹쳐 저장, 균형) · <code>"sync"</code>(매 단계 저장 후 진행, 가장 안전). 속도와 복구 보장을 맞바꾸는 손잡이로, 우리 실습은 기본값으로 충분합니다.</p>
+<p><strong>durability는 셋으로 조절합니다</strong> — <code>"exit"</code>(끝날 때만 저장, 가장 빠름) · <code>"async"</code>(다음 단계와 겹쳐 저장, 균형) · <code>"sync"</code>(매 단계 저장 후 진행, 가장 안전). 속도와 복구 보장을 맞바꾸는 손잡이로, 기본은 <code>async</code>이고 <code>graph.invoke(…, durability=…)</code>로 실행할 때 지정합니다 — 우리 실습은 기본값으로 충분합니다.</p>
 </div></div>
 </div>
 </section>

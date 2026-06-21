@@ -326,7 +326,7 @@ xychart-beta
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>temperature=0도 완전 결정론은 아니다</span><span class="status-pill">현실</span></div>
 <div class="panel-body"><div class="list">
-<p>온도 0이면 늘 최상위 토큰을 고르지만, 같은 입력이 드물게 다르게 나올 수 있습니다. 원인은 셋 — <strong>부동소수점 비결합성</strong>(덧셈 순서로 미세 차이), <strong>배치 크기 변동</strong>(함께 묶인 요청에 따라 커널 경로가 바뀜), <strong>MoE 라우팅 경쟁</strong>(어느 전문가로 갈지가 배치 내 경쟁으로 정해짐).</p>
+<p>온도 0이면 늘 최상위 토큰을 고르지만, 같은 입력이 드물게 다르게 나올 수 있습니다. 근본 원인은 <strong>배치 비불변성</strong> — 서버 부하에 따라 함께 묶이는 배치 크기가 바뀌면 커널의 수치 경로가 달라집니다. <strong>부동소수점 덧셈의 비결합성</strong>은 그 경로 차이를 logit에 드러내는 통로이고, <strong>MoE 라우팅</strong>이 배치 내 경쟁이면 흔들림이 더 커집니다. 흔히 "동시 GPU의 부동소수점" 탓으로 알려졌지만, 2025년 Thinking Machines는 배치 변동이 1차 원인임을 보이고 <em>batch-invariant 커널</em>로 결정론을 복원했습니다 — 비결정은 불가피한 게 아닙니다.</p>
 <p>그래서 "0 = 비트 단위 재현"은 아닙니다(OpenAI Cookbook·Anthropic Glossary도 명시). 추출은 <code>temperature=0</code>으로 흔들림을 <em>최소화</em>하되, 최종 신뢰는 스키마 검증(<code>model_validate</code>)에 둡니다.</p>
 </div></div>
 </div>
@@ -560,6 +560,8 @@ flowchart TB
 <p>모델이 <code>```json … ```</code> 울타리를 붙여 답할 때가 있어 <code>strip_fences</code>로 벗긴 뒤 파싱합니다.</p>
 </div></div></div>
 </div>
+
+<p class="section-note" style="margin-top:14px">사실 요즘은 더 단단한 길이 있습니다 — 제공자 <strong>네이티브 structured outputs</strong>(OpenAI 2024·Anthropic 2025-11 베타)는 JSON 스키마를 문법으로 컴파일해 <em>스키마를 어기는 토큰 자체를 못 내게</em> 합니다. 그러면 울타리·설명문 혼입이 구조적으로 사라집니다. 다만 모델·게이트웨이마다 지원이 갈려서, 이 과정은 어디서나 도는 <strong>프롬프트+사후검증</strong> 경로를 씁니다 — <code>strip_fences</code>는 그 호환을 위한 안전망입니다.</p>
 </section>
 
 <section class="slide">
