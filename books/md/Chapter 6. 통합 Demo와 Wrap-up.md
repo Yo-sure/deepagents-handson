@@ -140,14 +140,14 @@ flowchart LR
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~10분</span></div>
-<div class="cue-body">analyst_app.py로 전 구간을 실행합니다. 먼저 <code>--mock</code>으로 키 없이 끝까지 돌려 <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍히는지 보고, 그다음 <code>--a2a</code>를 더해 검증 단계가 실제 A2A 서버로 나가는 실호출까지 확인합니다.</div>
+<div class="cue-body">analyst_app.py로 전 구간을 실행합니다. 키가 있으니 <code>uv run python3 ch6-integration/analyst_app.py</code>로 <strong>실제로(live)</strong> 분류부터 돌려 <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍히는지 보고, <code>--a2a</code>를 더하면 검증이 실제 A2A 서버로 나갑니다. 키가 없거나 오프라인이면 <code>--mock</code>으로 같은 골격을 결정론으로 봅니다(분류값은 live면 다르지만, <strong>gap 계산·검증 판정은 코드라 같습니다</strong>).</div>
 </div>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
 <div class="stack">
-<div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — 오프라인</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock</code><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍힌다. 기본 실행은 브리프가 gap을 모두 담아 <code>verified_brief.md</code>가 <strong>PASS</strong>로 끝난다(<code>workspace/</code>를 비우고 한 단계를 빼면 NEEDS_REVISION이 정상 — 아래 트러블슈팅·직접 해보기 참고).</span></p></div><div class="store">엔드투엔드</div></div>
-<div class="row"><div class="code">b</div><div class="copy"><strong>검증만 실제 A2A</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock --a2a</code><br><span style="color:var(--muted)">성공 기준: [5/6]에서 <code>Agent Card</code>가 조회되고 실제 서버와 통신한다.</span></p></div><div class="store">A2A</div></div>
+<div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — live</strong><p><code>uv run python3 ch6-integration/analyst_app.py</code> <span style="color:var(--muted)">(오프라인: <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍히고 브리프가 gap을 모두 담아 <code>verified_brief.md</code>가 <strong>PASS</strong>로 끝난다(<code>workspace/</code>를 비우고 한 단계를 빼면 NEEDS_REVISION이 정상 — 아래 트러블슈팅·직접 해보기 참고).</span></p></div><div class="store">엔드투엔드</div></div>
+<div class="row"><div class="code">b</div><div class="copy"><strong>검증을 실제 A2A로</strong><p><code>uv run python3 ch6-integration/analyst_app.py --a2a</code> <span style="color:var(--muted)">(오프라인: <code>--mock --a2a</code>)</span><br><span style="color:var(--muted)">성공 기준: [5/6]에서 <code>Agent Card</code>가 조회되고 실제 서버와 통신한다.</span></p></div><div class="store">A2A</div></div>
 <div class="row"><div class="code">c</div><div class="copy"><strong>최종 산출물 열기</strong><p><code>cat workspace/verified_brief.md</code><br><span style="color:var(--muted)">성공 기준: 브리프 + 외부 검증 판정(PASS)이 한 파일에.</span></p></div><div class="store">완성</div></div>
 </div>
 </div>
