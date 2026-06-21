@@ -295,7 +295,7 @@
 /* mermaid 노드 라벨: 줄바꿈 허용 — nowrap이면 mermaid가 '줄바꿈 기준'으로 잰 박스보다
    렌더 텍스트가 넓어져 긴 라벨이 박스 밖으로 흘러 잘린다(폰에서 특히). 노드는 wrap,
    짧은 엣지/액터 라벨만 nowrap 유지. 한국어는 공백·중점 기준으로만 끊기게 keep-all. */
-.lec .mermaid .nodeLabel { white-space: normal; word-break: keep-all; overflow-wrap: anywhere; }
+.lec .mermaid .nodeLabel { white-space: normal; word-break: keep-all; overflow-wrap: normal; }
 .lec .mermaid .edgeLabel, .lec .mermaid .actor-box { white-space: nowrap; }
 .lec .mermaid foreignObject { overflow: visible; }
 .lec .mermaid .node foreignObject { overflow: visible; }
@@ -320,7 +320,8 @@
 .still-stop { padding:13px 12px; background:var(--white); border:1px solid var(--line); box-shadow:0 10px 26px rgba(27,31,29,.07); }
 .still-stop .n { display:inline-flex; align-items:center; justify-content:center; min-width:26px; height:24px; padding:0 8px;
   border-radius:99px; background:var(--teal); color:#fff; font-weight:900; font-size:12.5px; }
-.still-stop strong { display:block; margin-top:9px; font-size:14px; color:var(--ink); font-weight:800; line-height:1.3; }
+.still-stop strong { display:block; margin-top:9px; font-size:14px; color:var(--ink); font-weight:800; line-height:1.3; word-break:keep-all; }
+.still-stop em, .still-io { word-break:keep-all; }
 .still-stop em { display:block; margin-top:3px; font-style:normal; font-size:12px; color:var(--muted); }
 .still-io { display:flex; flex-direction:column; justify-content:center; padding:13px 13px; font-weight:900; font-size:13.5px; line-height:1.3; }
 .still-io small { display:block; margin-top:4px; font-weight:700; font-size:11px; opacity:.82; }
