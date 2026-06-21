@@ -295,7 +295,9 @@
 /* mermaid 노드 라벨: 줄바꿈 허용 — nowrap이면 mermaid가 '줄바꿈 기준'으로 잰 박스보다
    렌더 텍스트가 넓어져 긴 라벨이 박스 밖으로 흘러 잘린다(폰에서 특히). 노드는 wrap,
    짧은 엣지/액터 라벨만 nowrap 유지. 한국어는 공백·중점 기준으로만 끊기게 keep-all. */
-.lec .mermaid .nodeLabel { white-space: normal; word-break: keep-all; overflow-wrap: normal; }
+.lec .mermaid .nodeLabel, .lec .mermaid .nodeLabel p,
+.lec .mermaid .label, .lec .mermaid .label p,
+.lec .mermaid foreignObject p { white-space: normal !important; word-break: keep-all !important; overflow-wrap: normal !important; }
 .lec .mermaid .edgeLabel, .lec .mermaid .actor-box { white-space: nowrap; }
 .lec .mermaid foreignObject { overflow: visible; }
 .lec .mermaid .node foreignObject { overflow: visible; }
