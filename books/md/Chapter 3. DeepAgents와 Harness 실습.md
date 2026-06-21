@@ -207,6 +207,14 @@ agent = create_deep_agent(
 <p class="section-note" style="margin-top:10px">"계획·진행을 컨텍스트가 아니라 파일에 둔다"가 하네스의 핵심입니다. DeepAgents의 <code>write_todos</code>(계획)와 filesystem(상태 파일)이 이 패턴을 기본으로 깔아 줍니다 — 우리 오케스트레이터도 계획을 세워 fan-out 한 뒤 노트를 파일로 남기는 같은 구조입니다.</p>
 </div>
 </div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>한 번에 끝났는지 누가 아나 — 자가 채점 루프</span><span class="status-pill">RubricMiddleware · beta</span></div>
+<div class="panel-body">
+<p>긴 작업엔 또 하나의 문제가 있습니다 — 에이전트는 <em>자기 출력이 충분한지</em>를 어떻게 알까요? 한 번 쓰고 "끝났다"고 멈추면(거짓 완료) 그만입니다. deepagents 0.6의 <strong><code>RubricMiddleware</code></strong>(beta)는 여기에 <strong>루프</strong>를 답니다 — 출력을 넘겨받은 <em>루브릭(합격 기준 목록)</em>으로 채점하고, 미달이면 부족한 점을 돌려주며 <strong>통과(또는 <code>max_iterations</code>)까지 다시 시키는</strong> self-evaluation 반복입니다.</p>
+<p class="section-note" style="margin-top:8px">단 한계가 분명합니다 — 채점자도 <em>같은 모델·같은 맥락</em>이면, 모델이 못 본 건 채점도 못 봅니다(자기 사각을 자기가 못 본다). 그래서 자가 채점 루프는 "형식·누락" 같은 <em>스스로 확인 가능한</em> 기준엔 강하지만, <strong>독립적 사실 검증</strong>은 다른 주체가 맡아야 합니다 — 바로 <strong>Ch5</strong>에서 외부 검증 에이전트에게 A2A로 넘기는 이유입니다.</p>
+</div>
+</div>
 </section>
 
 <section class="slide">
