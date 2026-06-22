@@ -78,7 +78,7 @@
 .lec .copy p { margin-top:5px; color:var(--muted); font-size:13px; line-height:1.48; word-break:keep-all; overflow-wrap:anywhere; }
 /* 긴 명령·경로 토큰(공백 없는 ch3-deepagents/...py)이 행을 가로로 늘려 폰에서 페이지가
    가로 스크롤되던 것 방지 — keep-all이 못 끊는 토큰만 마지막 수단으로 끊는다(전 챕터 공통). */
-.lec .copy p code, .lec .cue-body code, .lec .list p code { overflow-wrap:anywhere; }
+.lec .copy p code, .lec .cue-body code, .lec .list p code, .lec .panel-body p code { overflow-wrap:anywhere; }
 .lec .store { display:grid; place-items:center; padding:10px; color:var(--forest); background:rgba(148,210,189,.25); border:1px solid rgba(15,118,110,.24); border-radius:7px; font-size:12px; font-weight:900; text-align:center; }
 
 .lec .section-head { display:grid; grid-template-columns:minmax(0,1fr) minmax(260px,360px); gap:28px; align-items:end; margin-bottom:26px; }
