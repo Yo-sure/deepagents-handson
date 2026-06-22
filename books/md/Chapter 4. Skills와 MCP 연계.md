@@ -151,7 +151,7 @@ sequenceDiagram
 </div>
 
 <div class="board" style="margin-top:16px">
-<div class="board-header"><span>--show — 미들웨어가 시작 시 싣는 것(키 불필요)</span><span class="status-pill">실제 출력</span></div>
+<div class="board-header"><span>--show — 미들웨어가 읽는 앞머리를 그대로 파싱해 보여 준다(키 불필요)</span><span class="status-pill">메타데이터 재현</span></div>
 <div class="panel-body">
 
 ```text
@@ -173,7 +173,8 @@ sequenceDiagram
 </div>
 </div>
 
-<p class="section-note" style="margin-top:14px"><strong>스펙 한 가지</strong> — 스킬 이름(<code>name</code>)은 디렉터리 이름과 같아야 합니다. 그래서 <code>inbox-brief/</code> 안 SKILL.md가 <code>name: inbox-brief</code>입니다(어긋나면 미들웨어가 경고). <code>--run</code>으로 키를 넣고 돌리면 에이전트의 행동 중 하나가 <code>read_file(.../SKILL.md, limit=1000)</code> — 메타만 보던 모델이 본문을 그때 가져오는 게 점진 공개의 증거입니다. 파일 백엔드는 레포 전체가 아니라 <code>workspace/_skill_runtime</code> 아래의 실습 산출물과 스킬 파일만 보게 둡니다.</p>
+<p class="section-note" style="margin-top:14px"><strong>스펙 한 가지</strong> — 스킬 이름(<code>name</code>)은 디렉터리 이름과 같아야 합니다. 그래서 <code>inbox-brief/</code> 안 SKILL.md가 <code>name: inbox-brief</code>입니다(어긋나면 미들웨어가 경고). <code>--run</code>으로 키를 넣고 돌리면 에이전트의 행동 중 하나가 <code>read_file(.../SKILL.md, limit=1000)</code> — 메타만 보던 모델이 본문을 그때 가져오는 게 점진 공개의 증거입니다. 파일 백엔드는 레포 전체가 아니라 <code>workspace/_skill_runtime</code> 아래의 실습 산출물과 스킬 파일만 보게 둡니다.<br>
+<span style="color:var(--muted)"><strong>정확히 하자면</strong> — <code>--show</code>는 <code>SkillsMiddleware</code>를 만들지만 그 내부 주입 루틴을 부르는 게 아니라, <em>미들웨어가 읽는 것과 똑같은 앞머리</em>를 우리가 직접 파싱해 보여 줍니다(같은 입력, 같은 결과). 미들웨어가 시스템 프롬프트에 실제로 끼우는 "Skills System" 문자열 자체를 보고 싶다면 <code>--run</code>의 첫 모델 호출에서 확인하세요.</span></p>
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~3분</span></div>
@@ -206,8 +207,8 @@ sequenceDiagram
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>2026 최신 — 스킬을 더 멀리</span><span class="status-pill">동향</span></div>
 <div class="panel-body"><div class="list">
-<p><strong>SKILLOPT (Microsoft, 2026)</strong> — 우리 SKILL.md는 손으로 쓴 <em>정적</em> 문서입니다. SKILLOPT는 이 스킬 문서 자체를 <strong>학습 가능한 산출물</strong>로 봅니다: rollout 실행 → 채점된 결과로 문서를 수정(add/delete/replace) → <strong>검증 점수가 오를 때만 채택</strong> → <code>best_skill.md</code>로 내보냅니다. 모델 가중치는 바꾸지 않고 텍스트만 수정해 GPT-5.5에서 무-스킬 대비 +23.5%p를 보고했습니다. 이 교재의 자가개선 루프를 스킬 문서에 적용한 사례로 볼 수 있습니다. <span class="badge blue">arXiv 2605.23904 · 검증일 2026-06-19</span></p>
-<p><strong>FORK (Anthropic, 2026)</strong> — Ch3의 서브에이전트는 부모 대화의 <em>압축 요약</em>만 물려받습니다. 반면 <strong>포크된 서브에이전트</strong>는 전체 컨텍스트를 그대로 물려받아 부모와 같은 맥락을 정확히 공유합니다 — 요약으로 잃기 쉬운 "지금 무슨 작업 중인지"를 보존해야 할 때. <em>위임(요약)이냐 포크(전체)냐</em>의 트레이드오프입니다.</p>
+<p><strong>SKILLOPT (Microsoft, 2026)</strong> — 우리 SKILL.md는 손으로 쓴 <em>정적</em> 문서입니다. SKILLOPT는 이 스킬 문서 자체를 <strong>학습 가능한 산출물</strong>로 봅니다: rollout 실행 → 채점된 결과로 문서를 수정(add/delete/replace) → <strong>검증 점수가 오를 때만 채택</strong> → <code>best_skill.md</code>로 내보냅니다. 모델 가중치는 바꾸지 않고 텍스트만 수정해 GPT-5.5에서 무-스킬 대비 +23.5%p를 보고했습니다. 이 교재의 자가개선 루프를 스킬 문서에 적용한 사례로 볼 수 있습니다. <span style="color:var(--muted)">단 공짜는 아닙니다 — 매 후보를 채점할 rollout 실행 비용과 신뢰할 검증셋이 있어야 "점수가 오를 때만 채택"이 성립합니다.</span> <span class="badge blue">arXiv 2605.23904 · 검증일 2026-06-19</span></p>
+<p><strong>FORK (Anthropic, 2026)</strong> — Ch3의 서브에이전트는 부모 대화의 <em>압축 요약</em>만 물려받습니다. 반면 <strong>포크된 서브에이전트</strong>는 전체 컨텍스트를 그대로 물려받아 부모와 같은 맥락을 정확히 공유합니다 — 요약으로 잃기 쉬운 "지금 무슨 작업 중인지"를 보존해야 할 때. 다만 <strong>포크는 그 전체 맥락을 토큰째 복제</strong>하므로, 서브에이전트가 늘면 창이 터집니다 — 기본을 <em>요약 위임</em>으로 두고 포크는 맥락 손실이 치명적일 때만 쓰는 이유입니다. <em>위임(요약)이냐 포크(전체)냐</em>의 트레이드오프입니다.</p>
 </div></div>
 </div>
 </section>
@@ -299,7 +300,7 @@ flowchart LR
 <div class="board-header"><span>MCP 세 가지 기본 요소</span><span class="status-pill">primitives</span></div>
 <div class="panel-body"><div class="list">
 <p><strong>서버가 노출</strong>하는 셋 — <strong>Tool</strong>(모델이 자율로 호출, 부수효과 가능) · <strong>Resource</strong>(클라이언트가 읽어가는 읽기전용 데이터) · <strong>Prompt</strong>(사용자가 트리거하는 템플릿). 우리 서버가 이 셋을 씁니다.</p>
-<p><strong>클라이언트(호스트)도 셋을 되돌려줍니다</strong> — <strong>sampling</strong>(서버가 호스트의 모델에 추론을 요청) · <strong>elicitation</strong>(서버가 사용자에게 입력을 되묻기, 2025-06 도입) · <strong>roots</strong>(서버가 접근 가능한 파일 경로 범위). 방향이 반대인 프리미티브라, MCP는 서버↔클라이언트 양방향입니다.</p>
+<p><strong>클라이언트(호스트)도 셋을 되돌려줍니다</strong> <span style="color:var(--muted)">(참고 — 우리 서버는 안 쓰지만 "양방향"의 실체)</span> — <strong>sampling</strong>(서버가 호스트의 모델에 추론을 요청) · <strong>elicitation</strong>(서버가 사용자에게 입력을 되묻기, 2025-06 도입) · <strong>roots</strong>(서버가 접근 가능한 파일 경로 범위). 방향이 반대인 프리미티브라, MCP는 서버↔클라이언트 양방향입니다. <span style="color:var(--muted)">우리 인박스로 그리면 — <strong>elicitation</strong>은 <code>read_record</code>가 모호한 파일명을 받았을 때 "이 셋 중 어느 거죠?"라고 사용자에게 되묻는 자리, <strong>sampling</strong>은 <code>fetch_inbox</code>가 가져온 메일 본문 요약을 (서버에 모델을 두지 않고) 호스트 모델에 맡기는 자리입니다.</span></p>
 <p>전송은 <strong>stdio</strong>(로컬·1:1, 에이전트가 subprocess로 붙음) 또는 <strong>Streamable HTTP</strong>(원격·다중 클라이언트; 옛 HTTP+SSE 전송은 2025-03 스펙에서 교체됨). 이 실습은 stdio입니다. <span style="color:var(--muted)">스펙은 2025-03(첫 안정)→2025-06(elicitation·구조화 출력)→2025-11-25로 발전했고, 다음 개정은 2026-07 RC가 예정돼 있습니다(예정이라 단정 금지).</span></p>
 <p>그 위로 흐르는 메시지는 <strong>JSON-RPC 2.0</strong>입니다(LSP의 후예 — "M개 앱 × N개 도구"를 M+N으로 묶음). 에러는 HTTP 상태가 아니라 본문 <code>error</code> 객체로 옵니다: <code>-32601</code> 메서드 없음 · <code>-32602</code> 잘못된 파라미터 · <code>-32603</code> 내부 오류.</p>
 </div></div>
@@ -320,7 +321,7 @@ flowchart LR
     "text": "{\"판매처\":\"GS25 역삼점\",\"금액\":8400,\"문서유형\":\"영수증\", ...}" } ] } }
 ```
 
-<p style="margin-top:8px"><code>tools/list</code>로 서버가 가진 도구 목록을, <code>tools/call</code>로 그중 하나를 호출합니다 — 위 <code>--list</code>가 보여 준 도구 4개가 곧 <code>tools/list</code> 결과입니다. 결과는 <code>result.content</code>에 담겨 오고, 없는 도구 이름을 넘기면 같은 <code>id</code>로 <code>result</code> 대신 <code>error</code>(<code>-32602</code> 잘못된 파라미터)가 돌아옵니다. <code>read_record(name)</code>의 <code>name</code>이 곧 위 <code>arguments</code>입니다.</p>
+<p style="margin-top:8px"><code>tools/list</code>로 서버가 가진 도구 목록을, <code>tools/call</code>로 그중 하나를 호출합니다 — 곧 핸즈온 ②에서 <code>--list</code>로 볼 도구 4개가 바로 이 <code>tools/list</code> 결과입니다. 결과는 <code>result.content</code>에 담겨 오고, 없는 도구 이름을 넘기면 같은 <code>id</code>로 <code>result</code> 대신 <code>error</code>(<code>-32602</code> 잘못된 파라미터)가 돌아옵니다. <code>read_record(name)</code>의 <code>name</code>이 곧 위 <code>arguments</code>입니다.</p>
 
 ```mermaid
 sequenceDiagram
@@ -495,7 +496,7 @@ if __name__ == "__main__":
 <div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code>(클린 워크스페이스 또는 Ch2 <code>--mock</code> 기준) + <code>knowledge_base/gap-쿠팡-주.md</code> 생성.</span></p></div><div class="store">지식</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 나온다(리소스 <code>inbox://stats</code>는 Tool과 별개로 노출).</span></p></div><div class="store">연결</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>Skill·지식 열어 보기</strong><p><code>cat workspace/knowledge_base/gap-쿠팡-주.md</code> · <code>cat ch4-skills-mcp/inbox-brief/SKILL.md</code><br><span style="color:var(--muted)">성공 기준: gap 항목에 <code>type: gap</code> 머리말, SKILL.md에 name·description.</span></p></div><div class="store">절차</div></div>
-<div class="row"><div class="code">4</div><div class="copy"><strong>Skill 점진 공개 — 코드로</strong><p><code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code><br><span style="color:var(--muted)">성공 기준: 미들웨어가 시스템 프롬프트에 싣는 건 name·description뿐, 본문은 "아직 안 읽음"으로 표시. <code>--run</code>은 키가 있을 때 선택으로만 실행합니다.</span></p></div><div class="store">절차</div></div>
+<div class="row"><div class="code">4</div><div class="copy"><strong>Skill 점진 공개 — 1단계는 §1에서 봤다, 이번엔 2단계</strong><p><code>uv run python3 ch4-skills-mcp/skill_agent.py --run</code> <span style="color:var(--muted)">(§1에서 <code>--show</code>로 1단계는 이미 확인 — 다시 보려면 <code>--show</code>)</span><br><span style="color:var(--muted)">성공 기준(<code>--run</code>, 키 필요): 도구 호출 추적에 <code>[read_file] …/SKILL.md</code>가 찍힌다 — 메타만 보던 모델이 본문을 그때 읽는 <strong>2단계</strong>의 증거. 키가 없으면 <code>--show</code>로 1단계만.</span></p></div><div class="store">절차</div></div>
 </div>
 
 <div class="cue do" style="margin-top:18px">
@@ -551,6 +552,7 @@ inbox-mcp-server 도구 4개:
 <div class="reveal">
 <p>쿠팡 89,000원은 여전히 gap입니다(5만 초과). 다만 만약 3만~5만 사이 결제가 있었다면 subscription으로 재분류됩니다. 기준 하나가 "구독으로 볼지, 확인이 필요한 거래로 볼지"를 가릅니다.</p>
 <p>실무에서는 이런 임계값을 도메인 전문가가 정합니다. <code>30000</code>이 "구독이냐 확인이냐"를 가르는 정책 그 자체 — 코드 한 줄에 회계 판단이 박혀 있다는 뜻입니다.</p>
+<p class="tiny" style="color:var(--muted)"><strong>한계 고백.</strong> 사실 금액 한 줄로 "구독"을 판정하는 건 거친 근사입니다 — 진짜 구독은 <em>여러 달에 걸쳐 같은 거래처·비슷한 금액이 반복</em>되는지를 봐야 합니다. 우리 데이터는 한 달치뿐이라 amount로 대신한 것이고, 제대로 하려면 (거래처 + 금액 허용오차)를 키로 월 단위 재등장을 탐지해야 합니다. 그래서 이 항목도 "확정"이 아니라 다음 단계의 검증 대상입니다.</p>
 </div>
 </details>
 </section>
@@ -575,6 +577,7 @@ inbox-mcp-server 도구 4개:
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>search_knowledge 빈 결과</strong><span>type</span></div><div class="panel-body"><div class="list">
 <p>type 철자가 항목의 <code>type:</code>와 정확히 같아야 합니다(gap·subscription·merchant).</p>
+<p class="tiny" style="color:var(--muted)">참고 — 이 검색은 지금 frontmatter를 파싱하지 않고 <code>"type: gap"</code> <em>문자열</em>을 파일 전체에서 훑습니다. 그래서 본문에 우연히 <code>type:</code>가 들어가면 오탐할 수 있어요. 실전이라면 <code>yaml</code>로 머리말만 읽어 <code>entry["type"] == type</code>으로 비교하는 게 맞습니다 — 우리가 OKF에서 "구조를 강제한다"고 가르친 그 구조를 검색이 무시하는 셈이니까요.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>mcp import 에러</strong><span>의존성</span></div><div class="panel-body"><div class="list">
 <p><code>mcp[cli]</code>가 설치돼 있어야 합니다. <code>uv sync</code>로 의존성을 맞춥니다.</p>

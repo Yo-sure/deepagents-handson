@@ -19,7 +19,7 @@ pageClass: lec-page
 한 사람이 순서대로 보면 느립니다. 조사 주제를 나눠 서브에이전트가 동시에 돌아갑니다. 그 계획과 파일을 하네스가 관리합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">65</span><strong>분</strong><span>이론 31 · 핸즈온 31</span><span class="clk">예상 11:25–12:30 · 앞 ☕10분</span></div>
+<div class="metric"><span class="num">65</span><strong>분</strong><span>이론 35 · 핸즈온 26 · 마무리 3</span><span class="clk">예상 11:25–12:30 · 앞 ☕10분</span></div>
 <div class="metric"><span class="num">3</span><strong>번째 모듈</strong><span>research_orchestrator.py</span></div>
 <div class="metric"><span class="num">3</span><strong>짚을 점</strong><span>영수증 없는 89,000원 외 2건</span></div>
 </div>
@@ -38,7 +38,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 위로 한 칸 · 6분</div>
+<div class="eyebrow">1 · 위로 한 칸 · 9분</div>
 
 ## StateGraph로는 버거운 일
 
@@ -132,7 +132,7 @@ flowchart LR
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>하네스는 공짜가 아니다 — 토큰을 더 쓴다</span><span class="status-pill">트레이드오프</span></div>
 <div class="panel-body"><div class="list">
-<p>기본 미들웨어 스택은 매 호출에 <strong>~3,500 토큰</strong>을 고정으로 더합니다(기본 프롬프트·서브에이전트·할 일·파일·도구 스키마 — deepagents 코드 기준 추정). 계획·위임·파일 관리를 쓰는 데 드는 비용입니다.</p>
+<p>기본 미들웨어 스택은 매 호출에 <strong>~3,500 토큰</strong>을 고정으로 더합니다(기본 프롬프트·서브에이전트·할 일·파일·도구 스키마 — deepagents 코드 기준 추정). 계획·위임·파일 관리를 쓰는 데 드는 비용입니다. <strong>게다가 이 고정 오버헤드는 서브에이전트마다 한 번씩</strong> 붙습니다 — fan-out 폭이 N이면 대략 N배로 늘죠. 그래서 갈래 수를 규모에 맞추라는 아래 ③ 규칙은 정확도뿐 아니라 비용 면에서도 중요합니다.</p>
 <p>성능은 또 다른 이야기입니다. 위의 +13.7%p는 토큰을 더 썼다고 저절로 따라온 게 아니라, 하네스를 <strong>반복해 다듬어(harness engineering)</strong> 얻은 결과입니다. 토큰 비용과 성능 향상은 출처상 별개입니다. 반복되는 앞부분은 프롬프트 캐싱(Ch1)으로 비용을 다시 줄일 수 있습니다.</p>
 <p class="muted" style="margin-top:6px">덜 쓰는 게 더 나을 때도 많습니다 — 한 2026 연구('Less Context, Better Agents')는 전체 이력을 다 들고 가는 것보다 <em>최근 도구 호출 몇 개 + 자동 요약</em>만 남기는 쪽이 완료율도 비용도 더 나았다고 보고했습니다. 위 컨텍스트 엔지니어링 네 전략(특히 Compress·Select)의 근거입니다.</p>
 </div></div>
@@ -142,7 +142,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">2 · 한 줄 · 7분</div>
+<div class="eyebrow">2 · 한 줄 · 8분</div>
 
 ## create_deep_agent의 기본 장비
 
@@ -193,6 +193,7 @@ agent = create_deep_agent(
 <div class="panel"><div class="panel-head"><strong>CompositeBackend</strong><span>경로별 분배</span></div><div class="panel-body"><div class="list"><p>경로 접두사로 갈라 라우팅 — 임시는 state, 산출물은 disk로</p></div></div></div>
 </div>
 <p class="section-note" style="margin-top:12px">기본은 <strong>StateBackend</strong>라 덜어낸 파일도 기본은 휘발입니다 — "컨텍스트 밖으로 뺀다"가 "디스크에 영구 저장"과 같은 말이 아니라는 게 요점입니다. 이 랩의 재현성은 별개로, 입력(<code>sample_inbox</code>)과 산출물을 <code>workspace/</code> 디스크에 남겨 누가 돌려도 같은 결과가 나오게 하는 데서 옵니다. <span style="color:var(--muted)">(deepagents 0.6은 <code>ContextHubBackend</code>(LangSmith Hub에 영속)와 모델·미들웨어 묶음을 한 번에 끼우는 Harness Profile도 더했습니다.)</span></p>
+<p class="tiny" style="margin-top:8px;color:var(--muted)"><strong>한 발 더.</strong> 우리 랩은 이 백엔드를 갈아끼우는 대신 노트를 <code>workspace/</code>에 <em>손수</em> 씁니다. 한 줄로 끼우려면 <code>create_deep_agent(..., backend=CompositeBackend(default=StateBackend(), routes=&#123;"/research_notes/": FilesystemBackend(root_dir=WORKSPACE)&#125;))</code> — "임시는 state, <code>/research_notes/</code>만 disk"가 코드로 표현됩니다. <code>StoreBackend</code>·<code>CompositeBackend</code>·<code>ContextHubBackend</code>는 이 챕터에선 <strong>이름만</strong>이고(코드 미시연), 실제로 거는 건 기본 <code>StateBackend</code> 하나입니다.</p>
 </div>
 </div>
 
@@ -209,7 +210,7 @@ agent = create_deep_agent(
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>한 번에 끝났는지 누가 아나 — 자가 채점 루프</span><span class="status-pill">RubricMiddleware · beta</span></div>
+<div class="board-header"><span>한 번에 끝났는지 누가 아나 — 자가 채점 루프</span><span class="status-pill">RubricMiddleware · beta · 코드 미시연</span></div>
 <div class="panel-body">
 <p>긴 작업엔 또 하나의 문제가 있습니다 — 에이전트는 <em>자기 출력이 충분한지</em>를 어떻게 알까요? 한 번 쓰고 "끝났다"고 멈추면(거짓 완료) 그만입니다. deepagents 0.6의 <strong><code>RubricMiddleware</code></strong>(beta)는 여기에 <strong>루프</strong>를 답니다 — 출력을 넘겨받은 <em>루브릭(합격 기준 목록)</em>으로 채점하고, 미달이면 부족한 점을 돌려주며 <strong>통과(또는 <code>max_iterations</code>)까지 다시 시키는</strong> self-evaluation 반복입니다.</p>
 <p class="section-note" style="margin-top:8px">단 한계가 분명합니다 — 채점자도 <em>같은 모델·같은 맥락</em>이면, 모델이 못 본 건 채점도 못 봅니다(자기 사각을 자기가 못 본다). 그래서 자가 채점 루프는 "형식·누락" 같은 <em>스스로 확인 가능한</em> 기준엔 강하지만, <strong>독립적 사실 검증</strong>은 다른 주체가 맡아야 합니다 — 바로 <strong>Ch5</strong>에서 외부 검증 에이전트에게 A2A로 넘기는 이유입니다.</p>
@@ -307,7 +308,7 @@ flowchart TB
 <p><strong>② 워커는 각자 격리된 컨텍스트</strong> — 3~5개를 병렬로 띄우되, 각 워커에 <em>목표·출력형식·도구·작업경계</em>를 명시해 줍니다. 위임이 모호하면 워커끼리 같은 걸 중복 조사합니다.</p>
 <p><strong>③ 노력을 규모에 맞춘다</strong> — "단순 사실=워커 1개·도구 3~10회, 복잡=워커 10+개로 범위 분할". 사소한 질문에 50개를 띄우는 게 대표적 실패입니다.</p>
 <p><strong>④ 종합은 한 에이전트가</strong> — 합치고 인용을 다는 마지막 글쓰기는 <em>쪼개지 않고</em> 한 곳에서. 병렬 작성자는 서로 충돌하기 때문입니다.</p>
-<p class="tiny" style="margin-top:6px;color:var(--muted)">한계: 기본 위임은 동기적입니다 — 리드는 전원이 끝날 때까지 기다리며 중간에 방향을 못 바꿉니다(비동기 서브에이전트는 아직 표준화 전). 토큰을 단일 채팅의 여러 배까지 쓰므로, <strong>가치 높고 병렬 가능한 일</strong>에만 씁니다.</p>
+<p class="tiny" style="margin-top:6px;color:var(--muted)"><strong>한 발 더 — 무엇이 '동시'이고 무엇이 '동기'인가.</strong> deepagents의 <code>task</code> 도구는 호출 하나하나가 동기입니다(<code>subagent.invoke</code>가 그 워커가 끝날 때까지 블록). 병렬은 리드가 <strong>한 턴에 여러 <code>task</code> 호출을 함께 내보낼 때</strong> 생깁니다 — 도구 설명이 모델에게 그러라고 명시하고("launch multiple agents concurrently … a single message with multiple tool uses"), 런타임이 그 호출들을 같이 실행합니다. 그래서 진짜 동기적인 건 워커 실행이 아니라 <strong>리드의 재계획 장벽</strong>입니다 — 한 배치가 다 돌아오기 전엔 방향을 못 바꿉니다. 즉시 task id만 받고 따로 진행을 지켜보는 fire-and-forget 비동기는 기본이 아니라 별도 <code>async_subagents</code> 미들웨어(원격 Agent Protocol 서버)에서만 됩니다. 토큰을 단일 채팅의 여러 배까지 쓰므로 <strong>가치 높고 병렬 가능한 일</strong>에만 씁니다.</p>
 </div></div>
 </div>
 
@@ -405,7 +406,7 @@ flowchart TB
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>먼저 — Ch2 적재(없으면)</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code> <span style="color:var(--muted)">(키 없이: <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: <code>workspace/classified/</code>에 JSON 10개.</span></p></div><div class="store">classified</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code> <span style="color:var(--muted)">(키로 <code>--mock</code> 빼면 실제 조사)</span><br><span style="color:var(--muted)">성공 기준(<code>--mock</code>): <code>[plan]</code> 1줄 + <code>[task]</code> 세 줄(<strong>순서 뒤섞임 = 동시 실행</strong>) + <code>[synthesize]</code> 1줄 + <code>brief_draft.md</code>. fan-out 골격을 또렷이 보여 주는 게 <code>--mock</code>의 역할입니다. 키로 <code>--mock</code>을 빼면 같은 위임을 <em>실제 서브에이전트</em>가 수행해, 골격 줄 대신 에이전트가 직접 쓴 <strong>브리프 글</strong>이 최종 메시지로 나옵니다(배선만 보려면 4번 <code>--trace</code>).</span></p></div><div class="store">노트 3</div></div>
-<div class="row"><div class="code">3</div><div class="copy"><strong>노트 열어 보기</strong><p><code>cat workspace/research_notes/card_reconcile.md</code><br><span style="color:var(--muted)">성공 기준: 쿠팡 89,000원이 ⚠️로 잡혀 있다.</span></p></div><div class="store">확인</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>노트 열어 보기</strong><p><code>cat workspace/research_notes/card_reconcile.md</code><br><span style="color:var(--muted)">성공 기준(<code>--mock</code>): 쿠팡 89,000원이 ⚠️로 잡혀 있다. <em>live면</em> 노트 파일은 에이전트가 <code>write_note</code>를 부를 때만 생기고 내용·파일명도 그때그때 다릅니다 — 결정론적 노트를 보려면 <code>--mock</code>으로 돌리세요.</span></p></div><div class="store">확인</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>하네스 내부 열어 보기</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --trace</code><br><span style="color:var(--muted)">성공 기준(키 불필요): <code>create_deep_agent</code>에 배선되는 기본 장비·오케스트레이터 프롬프트·서브에이전트 3개 구성이 출력된다.</span></p></div><div class="store">하네스</div></div>
 </div>
 

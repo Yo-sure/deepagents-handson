@@ -19,7 +19,7 @@ pageClass: lec-page
 기존 모듈을 연결해 샘플 메일 입력이 분류부터 검증까지 이어지는 엔드투엔드를 배선합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">90</span><strong>분</strong><span>이론 10 · 핸즈온 75</span><span class="clk">예상 16:10–17:40</span></div>
+<div class="metric"><span class="num">90</span><strong>분</strong><span>이론 10 · 핸즈온 70 · 마무리·현실·전이 10</span><span class="clk">예상 16:10–17:40</span></div>
 <div class="metric"><span class="num">6</span><strong>모듈 배선</strong><span>analyst_app.py</span></div>
 <div class="metric"><span class="num">1</span><strong>검증된 브리프</strong><span>verified_brief.md</span></div>
 </div>
@@ -109,7 +109,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 75분</div>
+<div class="eyebrow">핸즈온 · 70분</div>
 
 ## 직접 배선한다 — analyst_app.py
 
@@ -267,7 +267,7 @@ flowchart LR
   class A,B,C,D,E s;
 ```
 
-<p style="margin-top:6px">3만원 미만이면 ③에서 <code>type: subscription</code>(구독 추정), 이상이면 <code>type: gap</code>(확인 필요)으로 갈립니다. ⑤에서 검증자는 브리프 문장을 믿지 않고, <em>레코드에서 영수증 없는 거래를 다시 계산해</em> 브리프가 빠짐없이 짚었는지 대조합니다. 브리프 <em>문장</em>과는 독립이라, 브리프가 gap을 누락·변조하면 잡아냅니다. 다만 영수증 매칭 함수(<code>by_type</code>·<code>abs&lt;1.0</code>)는 producer와 같은 코드를 import해 쓰므로 그 매칭 <em>로직 자체</em>의 버그는 공유합니다 — 자세한 한계는 마무리 슬라이드.</p>
+<p style="margin-top:6px">3만원 미만이면 ③에서 <code>type: subscription</code>(구독 추정), 이상이면 <code>type: gap</code>(확인 필요)으로 갈립니다. <span style="color:var(--muted)">— 단 이 <strong>3만원</strong>은 데모용 임계일 뿐입니다. 진짜 구독은 금액이 아니라 <em>같은 상호·근사 금액이 월 주기로 반복되는지(periodicity)</em>를 봐야 하는데, 단일 인박스 스냅숏엔 과거 이력이 없어 금액 프록시로 대신한 것이고 실무엔 거래 이력 윈도우가 필요합니다.</span> ⑤에서 검증자는 브리프 문장을 믿지 않고, <em>레코드에서 영수증 없는 거래를 다시 계산해</em> 브리프가 빠짐없이 짚었는지 대조합니다. 브리프 <em>문장</em>과는 독립이라, 브리프가 gap을 누락하면 잡아냅니다. 다만 두 겹의 약점이 있습니다 — (a) 영수증 매칭 함수(<code>by_type</code>·<code>abs&lt;1.0</code>)는 producer와 같은 코드를 import해 쓰므로 그 매칭 <em>로직 자체</em>의 버그는 공유하고, (b) 매칭 키가 <strong>금액-동일(±1원)</strong>뿐이라 — 우연히 같은 금액인 별개 거래는 매칭돼 진짜 gap을 놓치고(false negative), 부가세 반올림으로 1원 넘게 어긋난 영수증은 가짜 gap을 만듭니다(false positive). 게다가 브리프 대조는 상호명 <em>존재</em>만 보고 금액은 안 맞춰, "쿠팡 5원"처럼 금액을 틀려도 PASS가 납니다(Ch5에서 직접 재현). 실무 대사는 금액+날짜+상호 다중키나 근사 매칭으로 키를 강화합니다.</p>
 </div>
 </details>
 
@@ -284,7 +284,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">마무리 · 3분</div>
+<div class="eyebrow">정리 · 역량 점검 · 3분</div>
 
 ## 8시간이 남긴 것
 
@@ -366,7 +366,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">현실</div>
+<div class="eyebrow">현실 · 5분</div>
 
 ## 데모와 프로덕션 사이
 
@@ -378,7 +378,7 @@ flowchart TB
 <div class="panel"><div class="panel-head"><strong>지금은 목이라 숨은 것</strong></div><div class="panel-body"><div class="list">
 <p><strong>추출 비결정성</strong> — <code>--mock</code>은 gold를 베껴 100% 재현됩니다. 실모델 멀티모달은 신뢰도가 흔들리고 같은 영수증을 넣어도 결과가 매번 달라져, 신뢰도 임계 HITL 멈춤(Ch2)이 실제 안전장치가 됩니다.</p>
 <p><strong>검증은 실모델 구간에서 의미가 커짐</strong> — 목 구간에선 브리프도 검증자도 같은 gold에서 나와 PASS가 사실상 보장됩니다(검증이 "도는지" 확인용). 추출이 흔들리는 실모델에서는 브리프 누락과 검증자 반려가 실제로 갈리므로, 외부 검증의 효과가 드러납니다.</p>
-<p><strong>fan-out 비용·실패</strong> — 세 갈래가 실제 LLM 호출이면 토큰·지연·부분 실패가 곱해집니다. 한 갈래가 죽어도 나머지가 끝나게(부분 산출 허용) 설계해야 합니다.</p>
+<p><strong>fan-out 비용·실패</strong> — 세 갈래가 실제 LLM 호출이면 토큰·지연·부분 실패가 곱해집니다. 한 갈래가 죽어도 나머지가 끝나게(부분 산출 허용) 설계해야 합니다. <span style="color:var(--muted)">또 목의 <code>fan_out_mock</code>은 함수가 즉답이라 <code>ThreadPoolExecutor</code>가 사실상 직렬입니다(대기가 0이니 겹칠 게 없죠) — fan-out의 실이득은 각 갈래가 네트워크 LLM 호출로 수백 ms~수초 <em>대기</em>할 때 그 대기를 겹치는 데서 납니다. 그래서 실모델 전환 시엔 I/O 대기를 겹치는 <code>asyncio.gather</code>가 더 맞고, 한 갈래가 죽어도 나머지를 거두려면 <code>return_exceptions=True</code>로 받습니다.</span></p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>경계를 넘을 때</strong></div><div class="panel-body"><div class="list">
 <p><strong>A2A 검증자 신뢰</strong> — 외부 에이전트의 PASS도 결국 하나의 판단입니다. Agent Card 서명·결과 재현 로그를 남겨야 판정을 감사할 수 있습니다.</p>

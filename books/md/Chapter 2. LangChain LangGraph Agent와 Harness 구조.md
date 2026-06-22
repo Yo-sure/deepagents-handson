@@ -95,7 +95,7 @@ agent = create_agent("openai:google/gemini-3.5-flash", tools=[...])
 
 <p class="section-note" style="margin-top:10px"><code>"openai:google/gemini-3.5-flash"</code>가 오타처럼 보이지만 맞습니다 — <code>openai:</code> 접두사는 <strong>OpenAI 호환 게이트웨이(OpenRouter)</strong>로 부른다는 표시이고, 실제 모델은 <code>google/gemini-3.5-flash</code>입니다(Ch0의 게이트웨이 설정 그대로). 이후 챕터의 <code>openai:</code>도 모두 같은 뜻입니다.</p>
 
-<p class="section-note" style="margin-top:16px"><code>create_agent</code>는 LangGraph 1.0 이전의 <code>create_react_agent</code>를 대체했습니다. 둘 다 같은 <code>CompiledStateGraph</code>를 돌려줍니다. 차이는 자유도이고, 그 자유도의 핵심은 LangChain 1.0이 더한 <strong>미들웨어</strong>입니다 — Ch3의 <code>create_deep_agent</code>는 바로 이 <code>create_agent</code>에 미들웨어를 기본 탑재한 확장입니다. 훅은 여섯입니다: 에이전트 실행 1회 단위 <code>before_agent</code>·<code>after_agent</code>, 매 모델 호출 전후 <code>before_model</code>·<code>after_model</code>, 그리고 모델·도구 호출을 <em>통째로 감싸는</em> <code>wrap_model_call</code>·<code>wrap_tool_call</code>(캐싱·재시도·결과 가로채기). <code>before_*</code>는 순차로, <code>after_*</code>는 역순으로, <code>wrap_*</code>는 실제 호출을 중첩으로 감쌉니다.</p>
+<p class="section-note" style="margin-top:16px"><code>create_agent</code>는 LangGraph 1.0 이전의 <code>create_react_agent</code>를 대체했습니다. 둘 다 같은 <code>CompiledStateGraph</code>를 돌려줍니다. 차이는 자유도이고, 그 자유도의 핵심은 LangChain 1.0이 더한 <strong>미들웨어</strong>입니다 — Ch3의 <code>create_deep_agent</code>는 바로 이 <code>create_agent</code>에 미들웨어를 기본 탑재한 확장입니다. 훅은 여섯입니다: 에이전트 실행 1회 단위 <code>before_agent</code>·<code>after_agent</code>, 매 모델 호출 전후 <code>before_model</code>·<code>after_model</code>, 그리고 모델·도구 호출을 <em>통째로 감싸는</em> <code>wrap_model_call</code>·<code>wrap_tool_call</code>(캐싱·재시도·결과 가로채기). <code>before_*</code>는 순차로, <code>after_*</code>는 역순으로, <code>wrap_*</code>는 실제 호출을 중첩으로 감쌉니다. <span style="color:var(--muted)">(이 훅들을 실제로 거는 건 <strong>Ch3</strong>의 <code>create_deep_agent</code>입니다 — 이 챕터 핸즈온은 손으로 짠 StateGraph라 아직 안 씁니다. 여기선 "create_agent의 확장이 그 미들웨어 위에 선다"만 잡고, 동작은 Ch3에서 봅니다.)</span></p>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>프레임워크가 지우는 것 — 손으로 짠 루프</span><span class="status-pill">왜 필요한가</span></div>
@@ -237,9 +237,10 @@ flowchart TD
 <div class="board-header"><span>재시도는 무한 루프가 아니다</span><span class="status-pill">상한</span></div>
 <div class="panel-body"><div class="list">
 <p>같은 실패를 계속 반복하면 비용만 듭니다. <code>MAX_RETRY</code>로 두 번까지만 되돌리고, 넘으면 사람이 볼 큐로 보냅니다.</p>
+<p class="tiny" style="color:var(--muted)"><strong>검증 자체의 한계도 알고 씁니다.</strong> <code>verify_total</code>은 "항목합(<code>금액×수량</code>) = 총액(±1원)"이라는 가정이라, 부가세 별도·서비스료·할인·반올림이 섞인 <em>실제</em> 영수증에선 모델이 옳게 읽어도 불일치가 날 수 있습니다. 그래서 이 검증은 <strong>정답 판정</strong>이 아니라 — 불일치를 재시도로 보내되 상한 + flagged 큐로 받치는 <em>층층 방어</em>의 한 겹일 뿐입니다.</p>
 <p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아, 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성).</p>
 <p>평소 mock은 gold가 고정이라 합계가 맞아 retry가 안 뜹니다(라이브 추출에선 비결정성으로 흔들려 의미가 있습니다). 그래서 <strong>아래 <code>--break-sum</code>으로 일부러 깨</strong> retry 루프를 눈으로 봅니다 — 한계를 정해 두는 게 하네스의 일입니다.</p>
-<p>재시도가 외부 부작용(메일 전송·DB 쓰기)을 가진 도구를 다시 부른다면 <strong>멱등성</strong>이 필요합니다 — 같은 작업을 두 번 해도 결과가 한 번과 같도록 idempotency key를 둬야 중복이 안 생깁니다(이 실습의 재분류는 부작용이 없어 안전). 그래프 차원의 마지막 안전망은 <code>recursion_limit</code>(기본값)으로, 노드가 끝없이 도는 걸 막습니다.</p>
+<p>재시도가 외부 부작용(메일 전송·DB 쓰기)을 가진 도구를 다시 부른다면 <strong>멱등성</strong>이 필요합니다 — 같은 작업을 두 번 해도 결과가 한 번과 같도록 idempotency key를 둬야 중복이 안 생깁니다(이 실습의 재분류는 부작용이 없어 안전). 그래프 차원의 마지막 안전망은 <code>recursion_limit</code>입니다 — 한 실행의 superstep 수가 이를 넘으면 <code>GraphRecursionError</code>가 납니다. langgraph 1.x 기본은 <strong>10007</strong>로, 평소엔 안 걸리는 <em>폭주 방지 backstop</em>입니다(노드 로직이 정하는 <code>MAX_RETRY</code> 재시도 횟수와는 다른 층). <code>graph.invoke(state, config=&#123;"recursion_limit": 5&#125;)</code>로 낮춰 일부러 터뜨려 보면 둘이 서로 다른 층이라는 게 또렷해집니다.</p>
 </div></div>
 </div>
 
@@ -278,6 +279,7 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="board-header"><span>checkpointer가 실제로 저장하는 것 — superstep 스냅샷</span><span class="status-pill">Pregel 실행모델</span></div>
 <div class="panel-body">
 <p>LangGraph는 노드를 <strong>superstep</strong> 단위로 돕니다 — 실행 가능한 노드를 (병렬로) 돌려 출력을 모으고 상태를 동기화한 뒤 다음 superstep으로 넘어갑니다(Google Pregel에서 온 모델). checkpointer는 매 superstep 끝의 스냅샷을 <code>thread_id</code>별로 저장합니다. 그래서 그 자리부터 재개됩니다.</p>
+<p class="tiny" style="color:var(--muted)"><strong>한 발 더</strong> — 이 챕터 그래프는 <em>직선</em>(classify→verify→분기→다음 하나)이라 한 superstep에 노드가 늘 하나뿐입니다. 여러 노드가 같은 상태 채널에 <em>동시에 쓰는</em> 진짜 병렬 superstep과, 그 동시 쓰기를 안전하게 합치는 reducer(<code>Annotated[list, add]</code>)는 <strong>Ch3 fan-out</strong>에서 봅니다 — 여기 "(병렬로)"는 Pregel 모델의 일반 성질이고, 우리 그래프에선 아직 발현되지 않습니다.</p>
 <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
 <div class="panel"><div class="panel-head"><strong>channel_values</strong><span>상태 본문</span></div><div class="panel-body"><div class="list"><p>지금 상태의 실제 값 — 분류 중인 문서·추출 레코드·재시도 횟수 같은 State 필드</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>channel_versions</strong><span>버전</span></div><div class="panel-body"><div class="list"><p>각 채널이 몇 번 갱신됐는지 — 무엇이 바뀌었는지 추적</p></div></div></div>

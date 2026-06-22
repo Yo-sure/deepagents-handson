@@ -597,6 +597,7 @@ flowchart TB
 <div class="grid-3" style="margin-top:16px">
 <div class="panel"><div class="panel-head"><strong>무엇이 ReAct인가</strong></div><div class="panel-body"><div class="list">
 <p>도구 선택을 <strong>모델이</strong> 합니다. <code>tool_calls</code>가 Action, <code>ToolMessage</code>가 Observation입니다.</p>
+<p class="tiny" style="color:var(--muted)">단, 원논문은 Thought를 <em>평문</em>으로 끼워 넣었지만, 요즘 함수호출 API는 추론을 <code>tool_calls</code> 결정 안으로 옮겨 — 대개 <code>content</code>가 빈 채 도구만 부릅니다. 그래서 <code>[Thought]</code> 줄은 모델이 텍스트와 도구를 <em>같은 턴에</em> 낼 때만 보이고, 안 보여도 정상입니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>단발과 무엇이 다른가</strong></div><div class="panel-body"><div class="list">
 <p>단발은 한 번 생성하고 끝납니다. ReAct는 검산이 불일치하면 다시 읽고 고치는 루프를 탑니다.</p>
@@ -620,7 +621,7 @@ flowchart TB
 
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>live 추출 — 단발 호출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png</code> <span style="color:var(--muted)">(키 없이 결정론: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: 위 RecordV1 예시처럼 판매처·금액·항목이 든 JSON이 한글 키로 출력된다(최상위 <code>금액</code>=총액, 항목 안 <code>금액</code>=품목가). 실제 모델이 영수증을 읽으므로 값·신뢰도는 조금 다를 수 있고, <em>칸 구조</em>는 같습니다. 키가 없으면 <code>--mock</code>으로 고정 출력(스타벅스 11,500 등)을 봅니다.</span></p></div><div class="store">live</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>키 넣고 — ReAct 추출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code><br><span style="color:var(--muted)"><strong>증명:</strong> 한 번에 답하지 않고 <em>도구로 검산</em>한다 — 이 단계는 키가 필요합니다(ReAct 루프는 실제 모델이 돕니다). 성공 기준: <code>[Action] check_receipt_sum 호출</code> → <code>[Observation] 항목합=8,400원 총액=8,400원 → 일치</code> → <code>[Final]</code>. live라 표현은 조금 달라질 수 있고, 도구로 검산해 멈추는 동작은 같습니다.</span></p></div><div class="store">실호출</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>ReAct 추출 — 도구로 검산</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code><br><span style="color:var(--muted)"><strong>증명:</strong> 한 번에 답하지 않고 <em>도구로 검산</em>한다 — step 1과 같은 live 경로이고, ReAct 루프라 실제 모델 호출이 필요합니다(키 없으면 <code>--mock</code>). 성공 기준: <code>[Action] check_receipt_sum 호출</code> → <code>[Observation] 항목합=8,400원 총액=8,400원 → 일치</code> → <code>[Final]</code>. live라 표현은 조금 달라질 수 있고, 도구로 검산해 멈추는 동작은 같습니다.</span></p></div><div class="store">실호출</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>모델 3종 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 세 모델의 정확도가 표로 나온다(비용 감각의 출발점).</span></p></div><div class="store">선택</div></div>
 </div>
 
