@@ -95,6 +95,42 @@ async def verify_via_a2a(brief: str) -> str:
 #pragma endregion a2a-client
 
 
+def show_protocol() -> None:
+    """A2A 동작 원리를 그대로 보여 준다(키·서버 불필요) — 발견·제출·처리 세 단계.
+
+    Agent Card는 verifier_agent가 만드는 그 카드(서버가 /.well-known/agent-card.json에
+    노출하는 것과 동일), message/send 봉투는 실제 a2a 타입에서 직렬화한다.
+    """
+    import json
+    import uuid as _uuid
+
+    from google.protobuf.json_format import MessageToDict
+
+    sys.path.insert(0, str(Path(__file__).parent))
+    from verifier_agent import agent_card
+
+    print("A2A = 에이전트끼리 HTTP 위 JSON-RPC로 말한다. 세 단계로 본다:\n")
+
+    print("① 발견 — Agent Card: 서버가 /.well-known/agent-card.json 에 자기소개(서명 가능)를 노출한다.")
+    card = MessageToDict(agent_card())
+    print(json.dumps(card, ensure_ascii=False, indent=2))
+    print("  ※ protocolVersion은 최상위가 아니라 supportedInterfaces[] 안에 있다(흔한 오해).")
+
+    print("\n② 제출 — message/send: 클라이언트가 브리프를 Message(parts=[Part(text=…)])로 보낸다.")
+    from a2a.types import Message, Part, Role
+    msg = Message(role=Role.ROLE_USER, message_id=str(_uuid.uuid4()),
+                  parts=[Part(text="<brief.md 본문>")])
+    envelope = {"method": "message/send",
+                "params": {"message": MessageToDict(msg)}}
+    print(json.dumps(envelope, ensure_ascii=False, indent=2))
+
+    print("\n③ 처리 — Task 라이프사이클: 서버가 상태를 단계로 올린다.")
+    print("   SUBMITTED → (start_work) WORKING → (add_artifact: verdict) → (complete) COMPLETED")
+    print("   클라이언트는 그 Task/artifact 스트림에서 검증 결과 텍스트만 거둔다.")
+    print("\n인프로세스 위임(Ch3 서브에이전트)과 다른 점: 상대가 다른 프로세스·다른 팀이라")
+    print("먼저 카드로 '누가 무엇을' 확인하고, 표준 봉투로 보낸다 — 경계를 코드로 못박는다.")
+
+
 def wait_for_server(url: str, timeout: float = 15.0) -> bool:
     end = time.monotonic() + timeout
     while time.monotonic() < end:
@@ -110,7 +146,12 @@ def main() -> None:
     ap = argparse.ArgumentParser(description="브리프 A2A 외부 검증")
     ap.add_argument("--mock", action="store_true", help="네트워크 없이 검증 함수 직접 호출")
     ap.add_argument("--serve", action="store_true", help="검증 에이전트를 자동 기동 후 통신")
+    ap.add_argument("--card", action="store_true", help="A2A 동작 원리(Agent Card·message/send·Task) 출력, 키·서버 불필요")
     args = ap.parse_args()
+
+    if args.card:
+        show_protocol()
+        return
 
     brief = read_brief()
     print("▶ 브리프 제출 → 외부 검증 에이전트")

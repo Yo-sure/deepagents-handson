@@ -157,7 +157,12 @@ stateDiagram-v2
 </div>
 </div>
 
-<p class="section-note" style="margin-top:16px">위 JSON은 <code>AgentCard</code> 타입을 직렬화한 결과입니다. 코드에선 <code>AgentCard(...)</code>로 만들어 스키마를 맞추고, JSON을 손으로 쓰지 않습니다.</p>
+<p class="section-note" style="margin-top:16px">위 JSON은 <code>AgentCard</code> 타입을 직렬화한 결과입니다. 코드에선 <code>AgentCard(...)</code>로 만들어 스키마를 맞추고, JSON을 손으로 쓰지 않습니다(필드가 <code>camelCase</code>인 건 a2a 1.x가 protobuf 타입이라 JSON 직렬화 시 그렇게 매핑되기 때문 — 코드의 snake_case 필드가 wire에선 <code>supportedInterfaces</code>처럼 바뀝니다).</p>
+
+<div class="cue do" style="margin-top:16px">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~2분</span></div>
+<div class="cue-body"><code>uv run python3 ch5-a2a/a2a_verify.py --card</code> 를 실행하세요(키·서버 불필요). 위 Agent Card JSON이 <em>실제 카드 타입에서</em> 그대로 나오고, 이어서 <code>message/send</code> 봉투(<code>Message(parts=[Part(text=…)])</code>)와 Task 상태 흐름(SUBMITTED→WORKING→COMPLETED)까지 한 번에 출력됩니다. 서버를 띄우면 같은 카드가 <code>localhost:9610/.well-known/agent-card.json</code>으로도 열립니다(핸즈온 ② 스텝 b).</div>
+</div>
 </section>
 
 <section class="slide">
@@ -259,6 +264,16 @@ sequenceDiagram
 </div>
 </div>
 </div>
+
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — A2A 한 왕복을 서버·클라이언트 양쪽 코드로 <span style="color:var(--muted)">(우리 모듈 기준)</span></summary>
+<div class="reveal">
+<p><strong>서버(<code>verifier_agent.py</code>)</strong> — 핵심은 <code>AgentExecutor.execute</code> 하나다. <code>DefaultRequestHandler(executor, task_store, card)</code>가 그걸 감싸고, <code>create_agent_card_routes</code>(<code>/.well-known/agent-card.json</code>)+<code>create_jsonrpc_routes(rpc_url="/", enable_v0_3_compat=True)</code>를 <code>Starlette</code>에 얹어 <code>uvicorn</code>으로 띄운다. <code>execute</code> 안의 순서가 곧 Task 라이프사이클이다: <code>get_user_input()</code>(브리프) → <code>verify_brief</code>(독립 재계산) → <strong><code>enqueue_event(Task(state=SUBMITTED))</code> 먼저</strong> → <code>TaskUpdater.start_work()</code>(WORKING) → <code>add_artifact(verdict)</code> → <code>complete()</code>(COMPLETED). <em>Task를 먼저 등록</em>해야 하는 건, 클라이언트가 추적할 대상(id)이 없으면 이후 상태 갱신이 갈 곳을 잃기 때문 — 어기면 <code>InvalidAgentResponseError</code>(핸즈온 ①의 깨뜨리기).</p>
+<p><strong>클라이언트(<code>a2a_verify.py</code>)</strong> — <code>A2ACardResolver(base_url).get_agent_card()</code>로 <em>먼저 카드를 읽어</em> 누가 무엇을 어디로 받는지 확인 → <code>ClientFactory(config).create(card)</code>로 그 카드에 맞는 클라이언트를 만든다 → <code>send_message(SendMessageRequest(Message(role, parts=[Part(text=brief)])))</code>로 제출 → 돌아오는 <code>StreamResponse</code>(task·message·status_update·artifact_update)를 <code>async for</code>로 훑어 <code>artifact</code>의 텍스트(=검증 결과)만 거둔다. <code>--mock</code>은 이 통신 한 겹을 떼고 <code>verify_brief</code>를 직접 부를 뿐 — <em>검증 로직은 같고 전송만 사라진다</em>(그래서 mock은 장애·오프라인 보조이지 다른 결과가 아니다).</p>
+<p><strong>wire</strong> — a2a 1.x 타입은 protobuf라 JSON 직렬화 시 필드가 <code>camelCase</code>가 된다(코드의 <code>supported_interfaces</code> → 카드 JSON의 <code>supportedInterfaces</code>). <code>enable_v0_3_compat=True</code>는 v1.0 서버가 옛 v0.3 클라이언트도 받게 하는 <strong>버전 협상</strong>이다. <code>--card</code>로 이 카드·<code>message/send</code> 봉투를 직접 찍어 볼 수 있다.</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "A2A = ① 카드로 발견 → ② <code>message/send</code>로 제출 → ③ Task 상태로 추적. 서버는 <em>Task부터 등록</em>하고, 클라이언트는 <em>카드부터 읽는다</em>." 학생에겐 <code>--card</code>(원리)와 스텝 a/b/c(실통신·독립서빙·오프라인)면 충분하다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">
