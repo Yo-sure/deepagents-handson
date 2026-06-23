@@ -197,6 +197,28 @@ agent = create_deep_agent(
 </div>
 </div>
 
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — 백엔드 6종과 셸 실행·샌드박싱 <span style="color:var(--muted)">(deepagents 0.6.10 기준)</span></summary>
+<div class="reveal">
+<p>위 4종은 저장 위치만 바꾸지만, 백엔드는 한 축이 더 있다 — <strong>셸 실행</strong> 여부. deepagents 0.6.10이 노출하는 백엔드는 여섯이다:</p>
+<table>
+<thead><tr><th>백엔드</th><th>저장</th><th>영속</th><th>셸 실행</th></tr></thead>
+<tbody>
+<tr><td><code>StateBackend</code></td><td>에이전트 상태(메모리)</td><td>실행 끝나면 휘발</td><td>✗</td></tr>
+<tr><td><code>FilesystemBackend</code></td><td><code>root_dir</code> 아래 실제 파일</td><td>디스크에 남음</td><td>✗</td></tr>
+<tr><td><code>StoreBackend</code></td><td>LangGraph Store(+Postgres)</td><td>스레드·세션 간</td><td>✗</td></tr>
+<tr><td><code>CompositeBackend</code></td><td>경로 접두사로 라우팅</td><td>대상 백엔드 따름</td><td>위임</td></tr>
+<tr><td><code>ContextHubBackend</code></td><td>LangSmith Hub</td><td>원격 영속</td><td>✗</td></tr>
+<tr><td><code>LocalShellBackend</code></td><td><code>FilesystemBackend</code> 상속</td><td>디스크에 남음</td><td><strong>✓ <code>execute()</code></strong></td></tr>
+</tbody>
+</table>
+<p><strong>프로토콜이 둘로 갈린다</strong> — <code>BackendProtocol</code>은 파일 연산(<code>ls·read·write·edit·download_files·ls_info</code>)만 정의하고, <code>SandboxBackendProtocol</code>이 그걸 상속해 <code>execute()</code>(셸 명령) 하나를 더한다. 그래서 "파일만 다루는 백엔드"와 "명령도 돌리는 백엔드"가 타입으로 구분된다 — <code>LocalShellBackend(FilesystemBackend, SandboxBackendProtocol)</code>가 후자다.</p>
+<p><strong>셸 실행엔 격리가 없다</strong> — <code>LocalShellBackend</code>는 명령을 <em>호스트에서 직접</em> 돈다. 소스 첫 줄이 못 박는다: "NO sandboxing or isolation — all operations run directly on the host system." 안전장치는 <code>timeout</code>(기본값 있음)과 <code>max_output_bytes</code>(100KB)뿐이라 <strong>개발·CI 전용</strong>이고, 신뢰할 수 없는 코드를 돌리려면 원격 샌드박스(Daytona·Modal·Runloop 같은 격리 환경)를 백엔드로 끼운다.</p>
+<p><strong><code>virtual_mode=True</code>는 보안 경계의 <em>일부</em></strong> — <code>root_dir</code>를 가상 루트로 삼아 모든 경로를 그 아래로 해석하고 <code>..</code>·<code>~</code> 같은 경로 탈출을 막는다. 다만 소스도 명시하듯 "경로 기반 제한은 그 자체로 보안을 <em>보장</em>하지 않는다" — 진짜 격리는 프로세스·네트워크 차원의 샌드박스가 한다. 우리 Ch4 <code>skill_agent</code>가 <code>FilesystemBackend(virtual_mode=True)</code>로 레포 전체가 아닌 좁은 뷰만 보이게 한 게 이 경계의 1차선이다.</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "백엔드는 두 축이다: <em>어디 저장하나</em>(state/disk/store/hub)와 <em>셸을 도나</em>(LocalShell만 ✓, 그것도 격리 없음). 신뢰 못 할 코드는 원격 샌드박스." 학생 실습은 기본 <code>StateBackend</code> 하나로 충분하고, 이 표는 "프로덕션에서 어디로 갈아끼우나"를 물을 때 펼친다.</p>
+</div>
+</details>
+
 <div class="board" style="margin-top:20px">
 <div class="board-header"><span>긴 작업은 계획을 먼저 파일에 적는다 — Initializer / Executor</span><span class="status-pill">롱러닝 패턴</span></div>
 <div class="panel-body">
