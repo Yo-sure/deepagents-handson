@@ -533,7 +533,7 @@ flowchart TB
 </tbody>
 </table>
 <p><strong>하네스 없이 모델만 루프 돌리면</strong> 여섯 가지가 차례로 깨진다 — ① <strong>컨텍스트 소진</strong>(대화가 한도를 넘어 멈춤) · ② <strong>doom loop</strong>(같은 실패를 무한 반복) · ③ <strong>상태 소실</strong>(중간에 죽으면 처음부터) · ④ <strong>장기 실행 불가</strong>(몇 시간짜리 작업을 못 버팀) · ⑤ <strong>보안 취약</strong>(인젝션·과권한 호출) · ⑥ <strong>관찰 불가</strong>(무엇을 왜 했는지 추적 안 됨). 앞의 SWE-bench·Terminal-Bench 사례에서 "모델 고정, 하네스만 손봐 점수 상승"이 가능했던 건 바로 이 여덟을 더 잘 짰기 때문이다.</p>
-<p class="muted"><strong>가르칠 때 한 줄</strong> — "모델은 한 수를 두고, 하네스가 판을 굴린다. 이 여덟이 없으면 데모는 되지만 운영은 안 된다." 이 표가 곧 <em>오늘 하루의 지도</em>다 — 각 칸을 한 챕터씩 짓는다.</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "모델은 다음 한 동작만 정하고, 하네스가 나머지를 떠맡는다. 이 여덟이 없으면 데모는 되지만 운영은 안 된다." 이 표가 곧 <em>오늘 하루의 지도</em>다 — 각 칸을 한 챕터씩 짓는다.</p>
 </div>
 </details>
 </section>
