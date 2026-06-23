@@ -514,6 +514,28 @@ flowchart TB
 <p class="section-note" style="margin-top:8px">아래(①)가 위(③)의 기반입니다. LLM·도구 연결(Framework) 위에 상태·분기(Runtime), 그 위에 계획·파일·서브에이전트(Harness)를 둡니다.</p>
 
 <p class="section-note" style="margin-top:18px">이 3계층은 LangChain 생태계에서 자주 쓰는 설명 틀이고 업계 단일 표준은 아닙니다. 다른 프레임워크는 경계를 다르게 둡니다. 이 과정이 이 스택을 고른 이유는 세 역할이 또렷이 나뉘어 따로 배우기 좋기 때문입니다.</p>
+
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — "하네스가 차이를 만든다"는 무슨 뜻인가: 8영역과 없을 때의 사고 <span style="color:var(--muted)">(이 챕터의 핵심 명제)</span></summary>
+<div class="reveal">
+<p>하네스(Harness)는 LLM을 감싸 <strong>일이 되게 만드는 통제층(control plane)</strong>이다. 모델은 한 번에 "다음 한 수"만 정하고, 그 한 수가 실제로 굴러가게 하는 여덟 가지를 하네스가 떠맡는다. 이 과정은 그 여덟을 챕터별로 하나씩 짓는다:</p>
+<table>
+<thead><tr><th>영역</th><th>하네스가 하는 일</th><th>이 과정에서</th></tr></thead>
+<tbody>
+<tr><td>컨텍스트 관리</td><td>유한한 창을 파일로 외부화·압축·선택</td><td>Ch3</td></tr>
+<tr><td>에러 복구</td><td>도구 실패·틀린 출력을 재시도·검산·fail-closed</td><td>Ch2</td></tr>
+<tr><td>상태 지속</td><td>죽어도 이어가게 체크포인터·파일에 저장</td><td>Ch2·Ch3</td></tr>
+<tr><td>계획 강제</td><td>즉흥 대신 <code>write_todos</code>로 계획을 먼저</td><td>Ch3</td></tr>
+<tr><td>Skills(절차)</td><td>매번 처음부터 대신 절차를 점진 공개로 주입</td><td>Ch4</td></tr>
+<tr><td>Subagent 위임</td><td>한 창에 다 못 담을 일을 격리 워커로 fan-out</td><td>Ch3</td></tr>
+<tr><td>보안</td><td>외부 데이터·도구에 권한 스코프·HITL·샌드박스</td><td>Ch4·Ch5</td></tr>
+<tr><td>비용 제어</td><td>호출당 토큰을 캐싱·압축·갈래 수로 억제</td><td>Ch3·Ch6</td></tr>
+</tbody>
+</table>
+<p><strong>하네스 없이 모델만 루프 돌리면</strong> 여섯 가지가 차례로 깨진다 — ① <strong>컨텍스트 소진</strong>(대화가 한도를 넘어 멈춤) · ② <strong>doom loop</strong>(같은 실패를 무한 반복) · ③ <strong>상태 소실</strong>(중간에 죽으면 처음부터) · ④ <strong>장기 실행 불가</strong>(몇 시간짜리 작업을 못 버팀) · ⑤ <strong>보안 취약</strong>(인젝션·과권한 호출) · ⑥ <strong>관찰 불가</strong>(무엇을 왜 했는지 추적 안 됨). 앞의 SWE-bench·Terminal-Bench 사례에서 "모델 고정, 하네스만 손봐 점수 상승"이 가능했던 건 바로 이 여덟을 더 잘 짰기 때문이다.</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "모델은 한 수를 두고, 하네스가 판을 굴린다. 이 여덟이 없으면 데모는 되지만 운영은 안 된다." 이 표가 곧 <em>오늘 하루의 지도</em>다 — 각 칸을 한 챕터씩 짓는다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">
