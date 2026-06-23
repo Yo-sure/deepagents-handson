@@ -114,7 +114,7 @@ flowchart LR
 ## 직접 배선한다 — analyst_app.py
 
 </div>
-<p class="section-note">전 구간을 한 번에 실행합니다. <code>--mock</code>은 키 없이 끝까지 돌리고, <code>--a2a</code>를 더하면 검증 단계만 실제 A2A 서버를 띄워 통신합니다.<br>
+<p class="section-note">전 구간을 한 번에 실행합니다. <strong>기본은 live</strong> — 키가 있으니 실제 모델이 분류부터 돌리고, <code>--a2a</code>를 더하면 검증 단계가 실제 A2A 서버를 띄워 통신합니다. <code>--mock</code>은 키·네트워크가 없을 때의 오프라인 대비예요(같은 골격을 결정론으로).<br>
 각 단계가 앞서 만든 모듈을 그대로 부릅니다. 코드를 열어 보면 import와 호출이 대부분입니다.</p>
 </div>
 
