@@ -191,6 +191,10 @@
 .lec details.deep > summary { color: #5b4fa3; background: rgba(155,135,222,.14); }
 .lec details.deep > summary::before { content: "🔬  "; }
 .lec details.deep[open] > summary::before { content: "🔬  "; }
+/* 심화 레이어 안 표 — 기본 테마가 안 잡는 칸 경계·패딩을 명시 */
+.lec details .reveal table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 13px; }
+.lec details .reveal th, .lec details .reveal td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+.lec details .reveal thead th { background: rgba(148,210,189,.18); font-weight: 800; color: #1b2a3a; }
 .lec .ask {
   margin: 16px 0; padding: 15px 18px; border-left: 3px solid var(--amber);
   background: rgba(224,159,62,.08); border-radius: 0 7px 7px 0; font-size: 14.5px; line-height: 1.6;
