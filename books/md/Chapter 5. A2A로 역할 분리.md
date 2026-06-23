@@ -118,6 +118,36 @@ stateDiagram-v2
 
 </div></div>
 </div>
+
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — "에이전트 간 협업"은 무엇이고, 언제 A2A인가 <span style="color:var(--muted)">(멀티에이전트)</span></summary>
+<div class="reveal">
+<p>우리 실습은 가장 단순한 <strong>1:1</strong>(애널리스트→검증자)만 보여 준다. A2A의 진짜 값은 <em>여러 에이전트가 주고받으며 반복</em>할 때 드러난다. 뉴스룸형 예 — 기자·리서처·편집자가 각각 독립 에이전트다:</p>
+
+```mermaid
+flowchart LR
+  R["기자"] -->|초안| E["편집자"]
+  E -->|수정 요구| R
+  R -->|자료 요청| S["리서처"]
+  S -->|자료| R
+  R -.MCP.-> T1["웹·DB 도구"]
+  S -.MCP.-> T2["검색 도구"]
+  classDef a fill:#ccfbf1,stroke:#0f766e,color:#0f5132;
+  class R,E,S a;
+```
+
+<p><strong>핵심은 양방향 반복이다</strong> — 기자가 팩트 확신이 낮으면 리서처에게 <em>다시</em> 자료를 청하고, 편집자가 수정을 요구하면 기자가 <em>다시</em> 고친다. 이 되돌아가는 흐름이 단발 함수 호출(MCP <code>tools/call</code> 한 번)과 다른 A2A의 핵심이다 — 한 왕복으로 안 끝나고, <strong>작업 상태(Task)를 들고 협상·반복</strong>한다.</p>
+<table>
+<thead><tr><th>이런 상황이면</th><th>쓰는 것</th></tr></thead>
+<tbody>
+<tr><td>두 컴포넌트가 <strong>협상·반복</strong>하고 작업 <strong>상태를 유지</strong>해야 한다</td><td><strong>A2A</strong></td></tr>
+<tr><td>한 컴포넌트가 <strong>외부 도구·데이터에 접근</strong>한다(단발)</td><td><strong>MCP</strong></td></tr>
+</tbody>
+</table>
+<p>그래서 한 시스템은 둘을 같이 쓴다 — 에이전트끼리는 A2A로 협업하고, 각 에이전트는 자기 도구를 MCP로 쓴다(위 점선). 우리 검증자도 내부적으로 레코드(데이터)에 닿지만, 애널리스트와의 <em>사이</em>는 A2A다.</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "협상·반복·상태유지가 필요하면 A2A, 도구·데이터 접근이면 MCP. 우리 1:1은 A2A의 가장 얕은 물이고, 깊은 물은 여러 에이전트의 <em>양방향 반복</em>이다." 학생 실습은 1왕복으로 충분하고, 이 그림은 "왜 단순 함수 호출로는 부족한가"를 물을 때 펼친다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">
