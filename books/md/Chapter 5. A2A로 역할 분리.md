@@ -442,6 +442,40 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
+<div class="eyebrow">스스로 점검 · 3분</div>
+
+## 넘어가기 전에 — 경계와 검증
+
+</div>
+<p class="section-note">왜 검증을 다른 프로세스에 맡기는지, 이 검증자의 한계가 무엇인지 다섯 문항으로 짚습니다.</p>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>스스로 점검</span><span class="status-pill">5문항</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>Q1.</strong> 왜 브리프를 쓴 에이전트가 아니라 <em>별도</em> 에이전트에게 검증을 맡기나?</p>
+<p><strong>Q2.</strong> Agent Card는 무엇이고, 상대를 부르기 전에 왜 먼저 읽나?</p>
+<p><strong>Q3.</strong> 이 검증자의 가장 큰 구멍은? 브리프가 "쿠팡(주) 5원"이라 틀려도 PASS가 나는 이유.</p>
+<p><strong>Q4.</strong> 서브에이전트(Ch3)·FORK·A2A 위임을 가르는 기준 한 줄.</p>
+<p><strong>Q5.</strong> A2A 서버에서 상태를 갱신하기 전에 무엇을 먼저 해야 하고, 어기면?</p>
+</div></div>
+</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p><strong>A1.</strong> 작성자는 같은 가정·같은 사각을 공유해 자기 누락을 못 본다. 검증자를 다른 프로세스로 분리하면 판정 기준이 "내가 쓴 문장"이 아니라 "원본 레코드"가 되어 작성자의 사각이 드러난다. A2A는 이 독립성을 코드 수준에서 강제한다.</p>
+<p><strong>A2.</strong> 에이전트의 자기소개(이름·버전·skill·엔드포인트)로 <code>/.well-known/agent-card.json</code>에 노출된다. 누가 무엇을 어디로 받는지 확인한 뒤 통신을 시작하려고 먼저 읽는다.</p>
+<p><strong>A3.</strong> 검증자는 상호명이 본문에 있는지만 부분문자열로 본다 — 금액은 대조하지 않는다. 그래서 항목을 빠뜨리면 잡히지만, 틀리게 쓰면 샌다. 89,000원을 알면서도 그 숫자를 브리프와 맞춰보지 않는 게 false-PASS의 원인.</p>
+<p><strong>A4.</strong> 양쪽을 내가 소유하고 도구·메모리를 싸게 나눠 쓰면 인프로세스(요약이면 서브에이전트, 전체 맥락이면 FORK). 상대가 다른 소유자·벤더·신뢰 영역이면 A2A. 경쟁이 아니라 같은 위임의 다른 고도.</p>
+<p><strong>A5.</strong> Task를 먼저 <code>enqueue_event(Task(...))</code>로 등록해야 한다 — 클라이언트가 추적할 대상이 없으면 안 되기 때문. 어기면 <code>InvalidAgentResponseError</code>가 난다.</p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
 <div class="eyebrow">마무리 · 3분</div>
 
 ## 다음 — 하나의 파이프라인으로 묶는다

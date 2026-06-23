@@ -341,12 +341,12 @@ xychart-beta
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">노트북 · 5분</span></div>
-<div class="cue-body"><code>llm_internals.ipynb</code>를 열고 커널을 <code>.venv</code>로 맞춘 뒤 <strong>실험1</strong> 셀을 실행하세요. <code>openai/gpt-4o-mini</code>로 요청이 한 번 나갑니다.</div>
+<div class="cue-body"><code>llm_internals.ipynb</code>를 열고 커널을 <code>.venv</code>로 맞춘 뒤 <strong>실험1</strong> 셀을 실행하세요. <code>openai/gpt-4o-mini</code>로 요청이 한 번 나갑니다. <strong>이 노트북은 키가 필요합니다</strong>(<code>--mock</code> 경로가 없어 첫 셀에서 <code>OPENROUTER_API_KEY</code>를 읽습니다) — 키가 없으면 이 실험은 건너뛰고, 앞의 logprobs 설명만 읽고 넘어가도 됩니다.</div>
 </div>
 
 <div class="cue wait">
 <div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~15초</span></div>
-<div class="cue-body">응답이 오면 확률 막대가 그려집니다. <strong>'식비' 토큰에 확률이 몰려 있는지</strong>(약 98.6%) 눈으로 확인하고 넘어가세요 — 확신이 높아도 정답 보장은 아니라는 게 이 실험의 핵심입니다.</div>
+<div class="cue-body">응답이 오면 확률 막대가 그려집니다. <strong>'식비' 토큰에 확률이 크게 몰려 있는지</strong> 눈으로 확인하고 넘어가세요(상위 토큰 하나가 대부분을 차지). 확신이 높아도 정답 보장은 아니라는 게 이 실험의 핵심입니다.</div>
 </div>
 </section>
 
@@ -621,13 +621,13 @@ flowchart TB
 
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>live 추출 — 단발 호출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png</code> <span style="color:var(--muted)">(키 없이 결정론: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: 위 RecordV1 예시처럼 판매처·금액·항목이 든 JSON이 한글 키로 출력된다(최상위 <code>금액</code>=총액, 항목 안 <code>금액</code>=품목가). 실제 모델이 영수증을 읽으므로 값·신뢰도는 조금 다를 수 있고, <em>칸 구조</em>는 같습니다. 키가 없으면 <code>--mock</code>으로 고정 출력(스타벅스 11,500 등)을 봅니다.</span></p></div><div class="store">live</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>ReAct 추출 — 도구로 검산</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code><br><span style="color:var(--muted)"><strong>증명:</strong> 한 번에 답하지 않고 <em>도구로 검산</em>한다 — step 1과 같은 live 경로이고, ReAct 루프라 실제 모델 호출이 필요합니다(키 없으면 <code>--mock</code>). 성공 기준: <code>[Action] check_receipt_sum 호출</code> → <code>[Observation] 항목합=8,400원 총액=8,400원 → 일치</code> → <code>[Final]</code>. live라 표현은 조금 달라질 수 있고, 도구로 검산해 멈추는 동작은 같습니다.</span></p></div><div class="store">실호출</div></div>
-<div class="row"><div class="code">3</div><div class="copy"><strong>모델 3종 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 세 모델의 정확도가 표로 나온다(비용 감각의 출발점).</span></p></div><div class="store">선택</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>ReAct 추출 — 도구로 검산</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code> <span style="color:var(--muted)">(키 없이: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)"><strong>증명:</strong> 한 번에 답하지 않고 <em>도구로 검산</em>한다. 성공 기준: <code>[Action] check_receipt_sum 호출</code> → <code>[Observation] 항목합=8,400원, 총액=8,400원 → 일치…</code> → <code>[Final]</code> 세 줄이 JSON 앞에 찍힌다. <strong><code>--mock</code>이면 gold로 이 검산 한 번을 그대로 재현</strong>해 키 없이도 루프 모양이 보이고, live면 모델이 직접 도구를 부르므로 표현·검산 횟수가 달라질 수 있습니다.</span></p></div><div class="store">루프</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>모델 3종 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 세 모델의 정확도가 표로 나온다(비용 감각의 출발점). <strong>이 단계는 실호출이라 키가 필요합니다</strong> — 키가 없으면 세 줄 모두 <code>skip (RuntimeError)</code>로 나오는 게 정상이고, 키를 넣으면 정확도가 채워집니다.</span></p></div><div class="store">키 필요</div></div>
 </div>
 
 <div class="cue solve" style="margin-top:18px">
 <div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~6분</span></div>
-<div class="cue-body"><p>① <code>--doc invoice_photo.png --react</code>로 명세서(고액 청구서)를 뽑아 보세요(검산 도구는 <code>--react</code> 경로에만 있습니다). 모델이 검산 도구 <code>check_receipt_sum</code>을 부를까요, 건너뛸까요?</p><p>② 검산 도구의 허용 오차 <code>1.0</code>을 <code>0.0</code>으로 바꾸면 어떤 영수증이 불일치로 떨어질까요?</p></div>
+<div class="cue-body"><p>① <code>--doc invoice_photo.png --react</code>로 명세서(고액 청구서)를 뽑아 보세요(검산 도구는 <code>--react</code> 경로에만 있습니다). 모델이 검산 도구 <code>check_receipt_sum</code>을 부를까요, 건너뛸까요? <span style="color:var(--muted)">(키가 있을 때 질문입니다. <code>--mock</code>으로는 "영수증이면 검산, 아니면 건너뜀"이라는 <em>고정 규칙</em>대로 명세서는 <code>[Action]</code> 없이 <code>[Final]</code>만 찍힙니다 — live에서 비로소 "모델이 정한다"가 드러납니다.)</span></p><p>② 검산 도구의 허용 오차 <code>1.0</code>을 <code>0.0</code>으로 바꾸면 어떤 영수증이 불일치로 떨어질까요?</p></div>
 </div>
 
 <details>
@@ -672,6 +672,28 @@ flowchart TB
 <p>전체 실행 파일은 <code>ch1-llm-basics/classify_one.py</code> 하나에 추출·검증·채점·비교가 다 들어 있습니다.</p>
 </div></div>
 </div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>스스로 점검 — 넘어가기 전에</span><span class="status-pill">5문항</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>Q1.</strong> LLM의 네 한계 중, "이번 달 영수증 금액"을 모델이 가중치만으로 답할 수 없는 <em>직접</em> 원인은?</p>
+<p><strong>Q2.</strong> <code>classify_one.py</code>가 추출에 <code>temperature=0</code>을 쓰는 이유를 한 줄로. 그래도 "비트 단위 재현"은 왜 아닌가?</p>
+<p><strong>Q3.</strong> ReAct가 "틀리면 그냥 한 번 더" 식 재시도 루프와 갈리는 한 지점은?</p>
+<p><strong>Q4.</strong> 다음 셋을 워크플로/에이전트로 분류: ① 영수증 1장 → RecordV1 ② 영수증인지 명세서인지로 분기 ③ "인박스를 조사해 브리프로".</p>
+<p><strong>Q5.</strong> <code>check_receipt_sum</code>의 허용 오차를 <code>1.0</code>→<code>0.0</code>으로 바꾸면 어떤 영수증이 통과하나?</p>
+</div></div>
+</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p><strong>A1.</strong> Knowledge Cutoff. 학습 시점 이후의 사실은 파라미터에 없다 — 도구로 외부를 조회해야 닿는다(Hallucination이 겹쳐 보이지만 뿌리는 cutoff).</p>
+<p><strong>A2.</strong> 같은 영수증은 늘 같은 RecordV1로 읽혀야 하므로(재현성). 단 <code>0</code>도 하드웨어·배치 등으로 비트 단위 결정론은 아니라서, 최종 신뢰는 <code>model_validate_json</code> 스키마 검증에 둔다.</p>
+<p><strong>A3.</strong> 검산 도구를 <em>언제·부를지를 모델이</em> 정한다. Action은 모델이 낸 <code>tool_calls</code>, Observation은 런타임이 돌려준 결과. 코드에 <code>doc_type</code> 강제 분기가 없다.</p>
+<p><strong>A4.</strong> ① 단일 호출(워크플로) ② 라우팅(워크플로) ③ 에이전트. 대부분 ①②로 충분하고, ③만 비용을 감수하고 에이전트로 간다.</p>
+<p><strong>A5.</strong> 하나도 못 통과한다. <code>abs(항목합−총액) &lt; 0.0</code>은 완전 일치(<code>abs=0</code>)에서도 거짓이라 전부 불일치로 떨어진다 — 과조임.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">

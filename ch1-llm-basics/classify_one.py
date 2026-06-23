@@ -223,9 +223,27 @@ def score(pred: RecordV1, gold: RecordV1) -> float:
     return sum(checks) / len(checks)
 
 
+def _print_mock_react_trace(rec: RecordV1) -> None:
+    """키 없이도 ReAct 루프의 모양을 그대로 보여 준다 — gold로 검산 한 번을 재현.
+
+    실제 루프(extract_react)와 똑같은 Action/Observation/Final 문자열을 찍는다. 차이는
+    '모델이 도구를 부를지 정하는' 부분이 없다는 것뿐 — mock은 영수증이면 무조건 한 번 검산한다.
+    """
+    ok, item_sum = verify_total(rec)
+    if rec.doc_type == DocType.receipt:                 # 영수증만 합계 검산 대상
+        print("  [Action] check_receipt_sum 호출")
+        verdict = ("일치. 이 추출을 그대로 최종 JSON으로 출력하라."
+                   if ok else "불일치. 이미지를 다시 보고 항목이나 수량을 고쳐 재검산하라.")
+        print(f"  [Observation] 항목합={item_sum:,.0f}원, 총액={rec.total:,.0f}원 → {verdict}")
+    print("  [Final] 검산 통과 — 최종 JSON 출력")
+
+
 def extract(doc: str, model: str, mock: bool, react: bool) -> RecordV1:
     if mock:
-        return gold_to_record(load_gold(doc))
+        rec = gold_to_record(load_gold(doc))
+        if react:                                       # 키 없이도 루프 모양을 재현
+            _print_mock_react_trace(rec)
+        return rec
     return extract_react(doc, model) if react else extract_singleshot(doc, model)
 
 

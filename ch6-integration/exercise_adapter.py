@@ -12,6 +12,8 @@
 
 from __future__ import annotations
 
+import re  # 힌트 ②의 re.sub 용 — 미리 import 해 둔다
+
 
 #pragma region coerce
 def coerce_amount(raw: object) -> float:

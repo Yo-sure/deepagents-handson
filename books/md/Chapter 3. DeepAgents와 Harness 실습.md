@@ -507,6 +507,40 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
+<div class="eyebrow">스스로 점검 · 3분</div>
+
+## 넘어가기 전에 — 하네스와 fan-out
+
+</div>
+<p class="section-note">하네스를 언제 쓰고, fan-out이 무엇을 사 주는지 다섯 문항으로 짚습니다.</p>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>스스로 점검</span><span class="status-pill">5문항</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>Q1.</strong> StateGraph(Ch2) 대신 하네스(Ch3)를 쓰는 기준은?</p>
+<p><strong>Q2.</strong> <code>[task]</code> 세 줄의 출력 순서가 매번 뒤섞이는 이유는?</p>
+<p><strong>Q3.</strong> 기본 백엔드가 <code>StateBackend</code>라는 사실이 "컨텍스트 밖으로 덜어낸 파일"에 무엇을 뜻하나?</p>
+<p><strong>Q4.</strong> 오케스트레이터-워커에서 종합(brief 쓰기)을 <em>한</em> 에이전트가 맡는 이유는?</p>
+<p><strong>Q5.</strong> 대조가 누락을 ⚠️"확인 필요"로 표시하고 "오류"라 단정하지 않는 이유는?</p>
+</div></div>
+</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p><strong>A1.</strong> 단계가 정해진 일은 StateGraph가 더 단순·저렴. 하네스는 "몇 갈래로 볼지 런타임에 정해지는" 조사·롱러닝에 쓴다.</p>
+<p><strong>A2.</strong> 세 갈래가 스레드로 동시에 돌아 먼저 끝난 갈래가 먼저 찍히기 때문. 순차였다면 늘 plan 순서 그대로다.</p>
+<p><strong>A3.</strong> 파일이 에이전트 상태에 살아 실행이 끝나면 휘발한다. "컨텍스트 창을 비운다"가 "디스크 영구 저장"과 같은 말이 아니다 — 영속하려면 Filesystem/Store/Composite 백엔드로 갈아끼운다.</p>
+<p><strong>A4.</strong> 병렬 작성자는 서로 충돌한다. 읽기·수집은 fan-out으로 나누되, 최종 글쓰기·확정은 한 곳에서 한다.</p>
+<p><strong>A5.</strong> 금액·키워드 휴리스틱(first-match)이라 형식이 달라 못 이은 것도 섞일 수 있다. 무엇이 진짜 누락인지는 다음 단계(Ch5)가 독립 검증한다.</p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
 <div class="eyebrow">마무리 · 3분</div>
 
 ## 다음 — 조사를 지식으로 남긴다

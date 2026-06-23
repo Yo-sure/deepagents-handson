@@ -468,7 +468,7 @@ sequenceDiagram
 
 <div class="cue solve">
 <div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~4분</span></div>
-<div class="cue-body"><code>HIGH_VALUE</code> 임계값을 <code>10000</code>으로 낮춰 보세요. interrupt가 몇 건에서 걸릴까요? 반대로 <code>5000000</code>으로 올리면?</div>
+<div class="cue-body"><code>intake_graph.py</code>를 열어 맨 위 상수 <code>HIGH_VALUE = 1_000_000</code>을 <code>10_000</code>으로 직접 고치고(<em>플래그가 아니라 코드 상수입니다</em>) <code>--mock</code>으로 다시 실행하세요. interrupt가 몇 건에서 걸릴까요? 반대로 <code>5_000_000</code>으로 올리면? <span style="color:var(--muted)">(확인했으면 <code>1_000_000</code>으로 되돌려 두세요.)</span></div>
 </div>
 
 <details>
@@ -510,6 +510,40 @@ sequenceDiagram
 </div>
 
 <p class="section-note" style="margin-top:16px">전체 실행 파일은 <code>ch2-langgraph-agent/intake_graph.py</code>. classify는 Ch1의 <code>extract</code>를 import해 그대로 씁니다. 모듈 교체·계약 재사용의 첫 작동입니다.</p>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">스스로 점검 · 3분</div>
+
+## 넘어가기 전에 — 하네스 구조
+
+</div>
+<p class="section-note">이 챕터는 개념이 무겁습니다. 다섯 문항으로 핵심 구분을 짚고 갑니다.</p>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>스스로 점검</span><span class="status-pill">5문항</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>Q1.</strong> <code>create_agent</code>와 직접 짠 <code>StateGraph</code> 중, "고액이면 멈추고 합계 틀리면 되돌린다"는 적재 파이프라인엔 무엇이 맞나? 왜?</p>
+<p><strong>Q2.</strong> <code>interrupt()</code>로 멈춘 그래프를 <code>Command(resume=...)</code>로 재개하려면 <code>compile()</code>에 무엇이 반드시 있어야 하나? 없으면 어디서 깨지나?</p>
+<p><strong>Q3.</strong> <code>MAX_RETRY</code>(2)와 <code>recursion_limit</code>(기본 10007)은 같은 안전장치인가?</p>
+<p><strong>Q4.</strong> <code>Command(resume=...)</code>로 재개하면 멈췄던 노드는 어떻게 실행되나? 그래서 <code>interrupt()</code> <em>앞</em>에 무엇을 두면 안 되나?</p>
+<p><strong>Q5.</strong> <code>--mock</code> 실행에선 저신뢰(&lt;0.7) 분기가 왜 한 번도 안 걸리나? 그럼 mock에서 멈춤은 무엇 때문에 뜨나?</p>
+</div></div>
+</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p><strong>A1.</strong> StateGraph. <code>create_agent</code>는 도구 선택·반복을 모델이 정하는 고정 ReAct 루프라 순서·분기·중단점을 내가 통제할 수 없다. 단계가 정해진 일은 노드·엣지로 직접 그린다.</p>
+<p><strong>A2.</strong> checkpointer. 없어도 interrupt 자체는 동작해 <code>__interrupt__</code>를 반환값에 담고 멈추지만, resume 시 멈춘 상태를 저장한 곳이 없어 <code>RuntimeError</code>가 난다.</p>
+<p><strong>A3.</strong> 아니다. <code>MAX_RETRY</code>는 노드 로직이 정하는 재분류 횟수 상한. <code>recursion_limit</code>은 그래프 차원의 backstop으로, 한 실행의 superstep 수가 넘으면 <code>GraphRecursionError</code>가 난다 — 평소엔 안 걸리는 폭주 방지용. 서로 다른 층이다.</p>
+<p><strong>A4.</strong> 노드를 위에서부터 통째로 다시 실행한다 — <code>interrupt()</code> 앞 코드도 한 번 더 돈다. 그래서 DB 쓰기·카운터 증가 같은 부수효과를 <code>interrupt()</code> 앞에 두면 두 번 실행된다. 부수효과는 뒤 노드로 미룬다.</p>
+<p><strong>A5.</strong> mock은 gold를 그대로 써 신뢰도가 1.0으로 주입되니 저신뢰 기준에 못 미친다. mock에서 멈추는 건 오직 고액(≥1,000,000) 기준 — invoice_photo·contract_freelance 2건이다. 저신뢰 분기는 키 있는 라이브에서만 본다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">

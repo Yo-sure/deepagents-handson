@@ -366,6 +366,46 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
+<div class="eyebrow">총정리 점검 · 5분</div>
+
+## 8시간 자가 점검 — 8문항
+
+</div>
+<p class="section-note">한 인박스를 끝까지 처리하며 익힌 것을 여덟 문항으로 되짚습니다. 막히는 문항은 해당 챕터로 돌아가는 지도로 쓰세요. (회상 4 · 이유 3 · 적용 1)</p>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>되짚기</span><span class="status-pill">8문항</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>Q1. (패러다임 · Ch1)</strong> LLM 한 번 호출과 "에이전트"의 차이를 한 줄로.</p>
+<p><strong>Q2. (하네스 · Ch3)</strong> "Harness가 LLM을 감싼다"에서 Harness가 더하는 세 가지는?</p>
+<p><strong>Q3. (fan-out · Ch3)</strong> Ch3 fan-out을 <code>ThreadPoolExecutor</code>로 묶었는데 목 실행에선 사실상 직렬인 이유는? 실모델에선 무엇으로 바꾸나?</p>
+<p><strong>Q4. (Skills vs MCP · Ch4)</strong> Skill과 MCP는 각각 무엇을 표준화하나? 한 단어씩.</p>
+<p><strong>Q5. (A2A 경계 · Ch5)</strong> 검증을 같은 프로세스 함수 호출이 아니라 A2A로 <em>다른 프로세스</em>에 맡기는 이유는?</p>
+<p><strong>Q6. (계약 · Ch6)</strong> <code>analyst_app.py</code>에 "새 로직이 거의 없다"가 가능한 이유 두 가지는?</p>
+<p><strong>Q7. (적용 · Ch6)</strong> 새 분류기가 금액을 <code>"11,500원"</code> 문자열로 준다. 파이프라인은 <code>total: float</code>을 요구한다. 무엇을 어디에 두나?</p>
+<p><strong>Q8. (규율 · Ch6)</strong> 이 캡스톤은 대부분 워크플로(고정 단계)이고 자율 루프는 Ch3 한 곳뿐이다. 단계가 정해졌는데 자율성을 일부러 줄이는 게 나은 이유는?</p>
+</div></div>
+</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p><strong>A1.</strong> LLM은 한 번 답하고 끝, 에이전트는 도구·관측·재계획을 <strong>루프</strong>로 돌려 목표에 도달한다.</p>
+<p><strong>A2.</strong> 계획(<code>write_todos</code>)·파일 퇴피(컨텍스트를 파일로 내보내기)·서브에이전트 위임. DeepAgents가 이 셋을 LLM 위에 얹는다.</p>
+<p><strong>A3.</strong> 목 함수는 즉답이라 겹칠 대기(I/O)가 없다. 실모델은 각 갈래가 네트워크 호출로 수백 ms~수초 대기하므로, 그 대기를 겹치는 <code>asyncio.gather</code>(+<code>return_exceptions=True</code>)가 맞다.</p>
+<p><strong>A4.</strong> Skill=절차(언제·어떻게, 점진 공개), MCP=연결(도구·데이터 소스로의 접속). 같은 생태계 층의 다른 축.</p>
+<p><strong>A5.</strong> 검증자를 독립 주체로 두어 producer 코드·상태와 분리하기 위해. 경계를 넘기면 다른 팀·런타임의 검증자로 교체 가능하고 판정을 감사할 수 있다. (단 매칭 함수를 import 공유하면 그 로직 버그는 여전히 공유된다 — Ch6 추적 답.)</p>
+<p><strong>A6.</strong> 모든 모듈이 ① <code>RecordV1</code>(같은 레코드 타입)과 ② 디렉터리 규약(한 단계 출력이 다음 단계 입력)을 공유하기 때문. 파일이 계약이라 함수가 인자를 길게 주고받지 않는다.</p>
+<p><strong>A7.</strong> 경계 어댑터(<code>coerce_amount</code>류)를 그 새 입력원과 파이프라인 <em>사이</em>에 둔다 — <code>₩·원·콤마·공백</code> 제거 후 <code>float</code>로. 본체 파이프라인은 그대로. "자유 교체"가 아니라 "계약을 지키는 한 교체".</p>
+<p><strong>A8.</strong> 고정 단계에 자율 루프를 쓰면 더 비싸고(토큰↑) 덜 안정적(매번 경로가 달라짐)이다. 자율성은 경로가 미리 안 정해진 곳(교차 조사)에만 두고, 나머지는 워크플로로 못 박는 게 싸고 재현 가능하다.</p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
 <div class="eyebrow">현실 · 5분</div>
 
 ## 데모와 프로덕션 사이

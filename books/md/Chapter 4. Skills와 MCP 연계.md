@@ -493,7 +493,7 @@ if __name__ == "__main__":
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code>(클린 워크스페이스 또는 Ch2 <code>--mock</code> 기준) + <code>knowledge_base/gap-쿠팡-주.md</code> 생성.</span></p></div><div class="store">지식</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code>(클린 워크스페이스 또는 Ch2 <code>--mock</code> 기준) + <code>knowledge_base/gap-쿠팡-주.md</code> 생성. 숫자가 12가 아니면 이전 산출물이 남은 것 — <code>rm -rf workspace/knowledge_base</code> 후 다시 실행하세요. classified가 비어 있으면 <code>(classified 비어 있음 — gold에서 보충)</code> 안내가 한 줄 먼저 떠도 정상입니다.</span></p></div><div class="store">지식</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개([실선] 3 + [목] 1)가 이름·설명과 함께 나온다(리소스 <code>inbox://stats</code>는 Tool과 별개로 노출).</span></p></div><div class="store">연결</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>Skill·지식 열어 보기</strong><p><code>cat workspace/knowledge_base/gap-쿠팡-주.md</code> · <code>cat ch4-skills-mcp/inbox-brief/SKILL.md</code><br><span style="color:var(--muted)">성공 기준: gap 항목에 <code>type: gap</code> 머리말, SKILL.md에 name·description.</span></p></div><div class="store">절차</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>Skill 점진 공개 — 1단계는 §1에서 봤다, 이번엔 2단계</strong><p><code>uv run python3 ch4-skills-mcp/skill_agent.py --run</code> <span style="color:var(--muted)">(§1에서 <code>--show</code>로 1단계는 이미 확인 — 다시 보려면 <code>--show</code>)</span><br><span style="color:var(--muted)">성공 기준(<code>--run</code>, 키 필요): 도구 호출 추적에 <code>[read_file] …/SKILL.md</code>가 찍힌다 — 메타만 보던 모델이 본문을 그때 읽는 <strong>2단계</strong>의 증거. 키가 없으면 <code>--show</code>로 1단계만.</span></p></div><div class="store">절차</div></div>
@@ -583,6 +583,40 @@ inbox-mcp-server 도구 4개:
 <p><code>mcp[cli]</code>가 설치돼 있어야 합니다. <code>uv sync</code>로 의존성을 맞춥니다.</p>
 </div></div></div>
 </div>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">스스로 점검 · 3분</div>
+
+## 넘어가기 전에 — Skill·MCP·지식
+
+</div>
+<p class="section-note">가장 헷갈리는 Skill과 MCP의 구분, 점진 공개의 동작을 다섯 문항으로 짚습니다.</p>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>스스로 점검</span><span class="status-pill">5문항</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>Q1.</strong> Skill과 MCP의 역할을 한 줄로 가르라.</p>
+<p><strong>Q2.</strong> 점진 공개 3단계에서 <em>시작 시</em> 시스템 프롬프트에 실제로 올라가는 건 무엇이고, <code>SKILL.md</code> 본문은 언제 읽히나?</p>
+<p><strong>Q3.</strong> <code>inbox_stats</code>는 왜 Tool이 아니라 <code>@mcp.resource</code>인가?</p>
+<p><strong>Q4.</strong> 위임(요약 서브에이전트)과 FORK의 트레이드오프는?</p>
+<p><strong>Q5.</strong> SKILLOPT가 <code>SKILL.md</code>를 "학습"한다는 게 모델 파인튜닝과 다른 점은? 공짜가 아닌 이유는?</p>
+</div></div>
+</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p><strong>A1.</strong> MCP=어디에 닿나(외부 시스템 연결·표준 통로). Skill=어떻게 하나(절차적 지식, <code>SKILL.md</code>). 연결 대 방법.</p>
+<p><strong>A2.</strong> 1단계는 각 스킬의 name·description만(스킬 100개여도 각 수십 토큰). 본문은 description이 작업과 맞다고 모델이 판단할 때 <code>read_file</code>로 읽힌다(2단계). <code>references/*.md</code>는 본문이 가리킬 때만(3단계).</p>
+<p><strong>A3.</strong> 부수효과 없는 순수 읽기라 호스트가 읽어가는 Resource가 맞다. 호출 시점을 모델이 정하는, 부수효과 가능한 기능은 Tool(예: <code>fetch_inbox</code>).</p>
+<p><strong>A4.</strong> 일반 서브에이전트는 부모 대화의 압축 요약만 상속(쌈, 맥락 손실 가능). FORK는 전체 컨텍스트를 토큰째 복제해 무손실 공유하지만, 서브에이전트가 늘면 창이 터진다. 기본은 요약 위임, 맥락 손실이 치명적일 때만 FORK.</p>
+<p><strong>A5.</strong> 모델 가중치는 안 건드리고 스킬 문서 텍스트만 add/delete/replace로 고쳐, 검증 점수가 오를 때만 채택한다. 단 후보마다 rollout 실행 비용과 신뢰할 검증셋이 필요하다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">

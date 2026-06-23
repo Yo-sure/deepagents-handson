@@ -313,6 +313,40 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
+<div class="eyebrow">스스로 점검 · 3분</div>
+
+## 넘어가기 전에 — 환경 확인
+
+</div>
+<p class="section-note">Ch1로 가기 전, 환경과 계약이 정말 손에 잡혔는지 다섯 문항으로 점검합니다. 막히면 위 단계로 돌아가세요.</p>
+</div>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>스스로 점검</span><span class="status-pill">5문항</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>Q1.</strong> 왜 <code>pip install</code>이 아니라 <code>uv</code>를 쓰나? 한 줄로.</p>
+<p><strong>Q2.</strong> 실습 코드를 <code>python3 x.py</code>가 아니라 <code>uv run python3 x.py</code>로 도는 이유는?</p>
+<p><strong>Q3.</strong> <code>.env</code>에 <strong>반드시</strong> 채워야 하는 키 한 줄은? 나머지 항목은 왜 그대로 둬도 되나?</p>
+<p><strong>Q4.</strong> 첫 호출에서 <code>401</code>·<code>404</code>·빈 응답은 각각 무엇을 의심하나?</p>
+<p><strong>Q5.</strong> 모든 챕터가 공유하는 데이터 계약의 이름과, 그게 정의된 파일 경로는?</p>
+</div></div>
+</div>
+
+<details>
+<summary>정답 확인</summary>
+<div class="reveal">
+<p><strong>A1.</strong> Ubuntu 24.04는 전역 <code>pip install</code>을 막는다(PEP 668). <code>uv</code>는 레포 <code>.venv</code>에 격리 설치한다.</p>
+<p><strong>A2.</strong> <code>uv run</code>이 자동으로 <code>.venv</code>를 거치므로 의존성·키가 잡힌다. 전역 Python으로 돌면 <code>ModuleNotFoundError</code>가 난다.</p>
+<p><strong>A3.</strong> <code>OPENROUTER_API_KEY</code>. <code>OPENAI_API_KEY</code>·<code>OPENAI_API_BASE</code>는 비거나 placeholder면 <code>analyst</code> 패키지가 OPENROUTER 키로 보정하고, <code>MAIL_BACKEND=mock</code>은 기본값이라 그대로 둔다.</p>
+<p><strong>A4.</strong> 401=키, 404=모델 슬러그, 빈 응답=네트워크.</p>
+<p><strong>A5.</strong> <code>RecordV1</code> — <code>analyst/schema.py</code>.</p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
 <div class="eyebrow">마무리 · 2분</div>
 
 ## 다음 — 영수증을 읽게 만든다
