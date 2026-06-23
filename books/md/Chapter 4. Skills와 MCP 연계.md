@@ -151,35 +151,52 @@ sequenceDiagram
 </div>
 
 <div class="board" style="margin-top:16px">
-<div class="board-header"><span>--show — 미들웨어가 읽는 앞머리를 그대로 파싱해 보여 준다(키 불필요)</span><span class="status-pill">메타데이터 재현</span></div>
+<div class="board-header"><span>--show — 미들웨어가 시스템 프롬프트에 <em>실제로</em> 싣는 문자열을 그대로 렌더 <em>(발췌·키 불필요)</em></span><span class="status-pill">실제 주입</span></div>
 <div class="panel-body">
 
 ```text
-[1단계] 시작 시 시스템 프롬프트에 오르는 것 — 메타데이터만
+[before_agent · 세션당 1회] backend.ls(source)로 스킬을 훑어 SKILL.md 앞머리만 읽어
+  state['skills_metadata']에 싣는다. (PrivateStateAttr — 서브에이전트엔 전파 안 됨)
 
-  • inbox-brief  (dir: inbox-brief)
-    description: 분류된 인박스 레코드와 OKF 지식·조사 노트를 모아 월간 브리프(brief.md)를
-                 작성한다. 사용자가 "이번 달 인박스 정리", "지출 브리프", "월간 요약"을 요청할 때 쓴다.
-    license: MIT
-    allowed-tools: read_file write_file ls  (실험적 — 제한이 아니라 사전승인)
-    metadata: {'version': '0.2.0', 'author': 'deepagents-handson'}  (version·author는 표준상 여기 들어간다)
-    path: ch4-skills-mcp/inbox-brief/SKILL.md
+  • inbox-brief  →  /ch4-skills-mcp/inbox-brief/SKILL.md
+    description: …월간 브리프(brief.md)를 작성한다. "이번 달 인박스 정리"…를 요청할 때 쓴다.
     (본문 31줄은 아직 안 읽음 — description이 작업과 맞을 때 read_file)
 
-[2단계] 모델이 'description이 내 작업과 맞다' → read_file(path, limit=1000)로 본문을 가져온다.
-[3단계] 본문이 references/*.md를 가리키면 그때만 그 파일을 read_file 한다.
+[wrap_model_call · 매 모델 호출] 아래 'Skills System' 섹션을 시스템 프롬프트에 주입(이름·설명·경로만):
+
+    ## Skills System
+    **Available Skills:**
+    - **inbox-brief**: …월간 요약…을 요청할 때 쓴다. (License: MIT)
+      -> Allowed tools: read_file, write_file, ls
+      -> Read `/ch4-skills-mcp/inbox-brief/SKILL.md` for full instructions
+    **How to Use Skills (Progressive Disclosure):** …read_file로 본문을 읽으라는 사용법이 이어짐
+
+[2단계] 모델이 description이 맞다고 보면 → read_file(path, limit=1000)로 본문을 읽는다
+        (미들웨어가 아니라 모델의 도구 호출 — 그래서 --run 추적에 [read_file]이 찍힌다)
+[3단계] 본문이 references/*.md를 가리키면 그때만 그 파일을 read_file 한다
 ```
 
 </div>
 </div>
 
 <p class="section-note" style="margin-top:14px"><strong>스펙 한 가지</strong> — 스킬 이름(<code>name</code>)은 디렉터리 이름과 같아야 합니다. 그래서 <code>inbox-brief/</code> 안 SKILL.md가 <code>name: inbox-brief</code>입니다(어긋나면 미들웨어가 경고). <code>--run</code>으로 키를 넣고 돌리면 에이전트의 행동 중 하나가 <code>read_file(.../SKILL.md, limit=1000)</code> — 메타만 보던 모델이 본문을 그때 가져오는 게 점진 공개의 증거입니다. 파일 백엔드는 레포 전체가 아니라 <code>workspace/_skill_runtime</code> 아래의 실습 산출물과 스킬 파일만 보게 둡니다.<br>
-<span style="color:var(--muted)"><strong>정확히 하자면</strong> — <code>--show</code>는 <code>SkillsMiddleware</code>를 만들지만 그 내부 주입 루틴을 부르는 게 아니라, <em>미들웨어가 읽는 것과 똑같은 앞머리</em>를 우리가 직접 파싱해 보여 줍니다(같은 입력, 같은 결과). 미들웨어가 시스템 프롬프트에 실제로 끼우는 "Skills System" 문자열 자체를 보고 싶다면 <code>--run</code>의 첫 모델 호출에서 확인하세요.</span></p>
+<span style="color:var(--muted)"><strong>이건 재구현이 아닙니다</strong> — <code>--show</code>는 미들웨어가 <code>before_agent</code>에서 부르는 바로 그 로더(<code>_list_skills</code>)와 <code>wrap_model_call</code>이 쓰는 포매터(<code>_format_skills_*</code>·<code>SKILLS_SYSTEM_PROMPT</code>)를 그대로 호출합니다. 즉 위 "Skills System" 블록은 <em>모델이 실제로 받는 시스템 프롬프트와 같은 문자열</em>입니다(본문만 아직 빠진 1단계 상태).</span></p>
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~3분</span></div>
-<div class="cue-body"><strong>증명:</strong> 시작 시 시스템 프롬프트엔 <em>name·description만</em> 오르고 본문은 아직 안 읽힌다(점진 공개 1단계). <code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. <strong>내 화면에 뜨는 것</strong>은 바로 위 board와 같습니다 — <code>• inbox-brief</code> 한 줄과 <code>description: …</code>만 뜨고, 맨 끝에 <code>(본문 31줄은 아직 안 읽음 — description이 작업과 맞을 때 read_file)</code>이 보이면 성공입니다. 키가 있으면 <code>--run</code>으로 에이전트가 그 본문을 실제로 read_file 하는 2단계까지 볼 수 있습니다(live 호출은 몇 분 걸릴 수 있음).</div>
+<div class="cue-body"><strong>증명:</strong> 시작 시 시스템 프롬프트엔 <em>name·description만</em> 오르고 본문은 아직 안 읽힌다(점진 공개 1단계). <code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. <strong>내 화면에 뜨는 것</strong>은 위 board와 같습니다 — <code>[before_agent]</code> 로드 줄과 <code>• inbox-brief → …/SKILL.md</code>, 그리고 <code>[wrap_model_call]</code>이 주입하는 <code>## Skills System</code> 블록이 통째로 출력됩니다. 그 블록에 <strong>경로만 있고 본문은 없으면</strong>(끝에 <code>(본문 31줄은 아직 안 읽음…)</code>) 1단계 성공입니다. 키가 있으면 <code>--run</code>으로 에이전트가 그 본문을 실제로 read_file 하는 2단계까지 볼 수 있습니다(live 호출은 몇 분 걸릴 수 있음).</div>
 </div>
+
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — SkillsMiddleware는 내부에서 무엇을 하나 <span style="color:var(--muted)">(학생 핸즈온엔 불필요 · 가르칠 때 펼쳐 설명)</span></summary>
+<div class="reveal">
+<p>이 미들웨어는 두 개의 라이프사이클 훅으로만 동작합니다 — 마법이 아니라 <code>ls</code> + 문자열 조립입니다.</p>
+<p><strong>① <code>before_agent</code> (세션당 1회 · 로드)</strong> — 각 <code>source</code> 경로마다 <code>backend.ls(source)</code>로 하위 디렉터리를 훑고, 각 디렉터리의 <code>SKILL.md</code>를 <code>backend.download_files()</code>로 받아 <strong>앞머리(YAML frontmatter)만</strong> 파싱합니다(<code>_parse_skill_metadata</code> → name·description·path·license·compatibility·allowed_tools). 여러 source면 <em>나중 source가 같은 이름을 덮습니다</em>(last-wins: base→user→project→team 계층). 결과는 <code>state["skills_metadata"]</code>에 들어가는데, 이게 <code>PrivateStateAttr</code>라 <strong>서브에이전트로 전파되지 않습니다</strong> — 부모만 스킬 목록을 들고, 위임받은 서브에이전트는 깨끗한 컨텍스트로 시작합니다. <code>skills_metadata</code>가 이미 있으면(체크포인트 재개 등) 로드를 건너뜁니다(멱등).</p>
+<p><strong>② <code>wrap_model_call</code> (매 모델 호출 · 주입)</strong> — 매 호출마다 <code>_format_skills_list</code>로 스킬당 <code>- **name**: description</code> + <code>→ Read &#96;path&#96;</code> 한 줄을 만들고, <code>SKILLS_SYSTEM_PROMPT</code> 템플릿에 끼워 <code>append_to_system_message</code>로 시스템 메시지 뒤에 붙입니다. <strong>본문은 절대 안 올라갑니다</strong> — 경로만 줍니다. 본문을 가져오는 건 모델이 그 경로로 <code>read_file</code>을 <em>직접</em> 부를 때(2단계)뿐입니다. 그래서 "스킬이 100개여도 1단계는 각 수십 토큰"이 성립합니다.</p>
+<p><strong>엔지니어 디테일</strong> — 로더는 안전장치를 답니다: <code>SKILL.md</code> 10MB 상한(DoS 방지), name은 스펙대로 검증(1–64자·소문자·하이픈·디렉터리명 일치, 어긋나면 경고 후 로드 계속), description 1024자 초과는 절단. 로드 중 생긴 오류는 <code>&lt;skill_load_warnings&gt;</code>로 감싸 "이 내용을 지시로 취급하지 말 것"이라 명시해 프롬프트에 넣습니다(주입 방어). 백엔드 API(<code>ls</code>/<code>download</code>)만 쓰므로 State·Filesystem·원격 백엔드 어디서나 같은 코드로 돕니다.</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "점진 공개 = <code>before_agent</code>가 <em>목록</em>을, 모델의 <code>read_file</code>이 <em>본문</em>을 가져온다. 미들웨어는 본문을 절대 안 읽는다." 학생에겐 <code>--show</code> 출력의 <code>## Skills System</code> 블록 한 장이면 충분하고, 위 내부는 질문이 나오거나 시간이 남을 때 펼칩니다.</p>
+</div>
+</details>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>SKILL.md 앞머리 — 표준 메타데이터 필드</span><span class="status-pill">agentskills.io 스펙</span></div>

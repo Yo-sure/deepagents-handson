@@ -17,8 +17,6 @@ import shutil
 import sys
 from pathlib import Path
 
-import yaml
-
 REPO = Path(__file__).resolve().parents[1]
 # 스킬 소스 = 스킬들이 모인 디렉터리. 그 하위 디렉터리 하나가 스킬 하나(SKILL.md 보유)다.
 # 스펙 규칙: 스킬 이름(name)은 디렉터리 이름과 같아야 한다 — 그래서 inbox-brief/ 안에 name: inbox-brief.
@@ -50,37 +48,48 @@ def sync_runtime_brief(runtime_root: Path) -> None:
 
 
 def show_progressive_disclosure() -> None:
-    """SkillsMiddleware가 시작 시 하는 일을 그대로 재현한다 — 앞머리만 읽어 싣는다."""
-    from deepagents.backends import FilesystemBackend
-    from deepagents.middleware.skills import SkillsMiddleware
+    """SkillsMiddleware가 시스템 프롬프트에 실제로 싣는 것을 그대로 렌더한다.
 
-    # 실제 에이전트 실행은 아래 run_agent처럼 virtual_mode=True와 좁은 runtime view를 쓴다.
+    재구현이 아니라 미들웨어의 진짜 함수를 호출한다 — before_agent가 부르는 `_list_skills`로
+    스킬을 로드하고, wrap_model_call이 쓰는 `_format_skills_*` + `SKILLS_SYSTEM_PROMPT`로
+    주입 텍스트를 만든다. 즉 아래 출력은 모델이 받는 시스템 프롬프트와 같은 문자열이다.
+    """
+    from deepagents.backends import FilesystemBackend
+    from deepagents.middleware.skills import (
+        SKILLS_SYSTEM_PROMPT,
+        SkillsMiddleware,
+        _list_skills,
+    )
+
     backend = FilesystemBackend(root_dir=str(REPO), virtual_mode=True)
     skills_mw = SkillsMiddleware(backend=backend, sources=[SKILLS_SOURCE])
 
-    print("[1단계] 시작 시 시스템 프롬프트에 오르는 것 — 메타데이터만\n")
-    for skill_dir in sorted((REPO / SKILLS_SOURCE).iterdir()):
-        md = skill_dir / "SKILL.md"
-        if not md.exists():
-            continue
-        text = md.read_text(encoding="utf-8")
-        fm = yaml.safe_load(text.split("---")[1])  # 미들웨어가 읽는 것도 이 앞머리다
-        print(f"  • {fm['name']}  (dir: {skill_dir.name})")
-        print(f"    description: {fm['description']}")
-        # 표준 스키마의 나머지 필드 — 있으면 그대로 보여 준다(없으면 건너뜀).
-        if fm.get("license"):
-            print(f"    license: {fm['license']}")
-        if fm.get("allowed-tools"):
-            print(f"    allowed-tools: {fm['allowed-tools']}  (실험적 — 제한이 아니라 사전승인)")
-        if fm.get("metadata"):
-            print(f"    metadata: {fm['metadata']}  (version·author는 표준상 여기 들어간다)")
-        print(f"    path: {md.relative_to(REPO)}")
-        print(f"    (본문 {len(text.splitlines())}줄은 아직 안 읽음 — description이 작업과 맞을 때 read_file)\n")
+    # ── 훅 ①: before_agent (세션당 1회) ─────────────────────────────
+    # 미들웨어는 backend.ls(source)로 스킬 디렉터리를 훑어 각 SKILL.md 앞머리만 파싱해
+    # state["skills_metadata"]에 싣는다. `_list_skills`가 바로 그 로더다.
+    skills = _list_skills(backend, SKILLS_SOURCE)
+    print("[before_agent · 세션당 1회] backend.ls(source)로 스킬을 훑어 SKILL.md 앞머리만 읽어")
+    print("  state['skills_metadata']에 싣는다. (PrivateStateAttr — 서브에이전트엔 전파 안 됨)\n")
+    for s in skills:
+        body_lines = len((REPO / s["path"].lstrip("/")).read_text(encoding="utf-8").splitlines())
+        print(f"  • {s['name']}  →  {s['path']}")
+        print(f"    description: {s['description']}")
+        print(f"    (본문 {body_lines}줄은 아직 안 읽음 — description이 작업과 맞을 때 read_file)\n")
 
-    print("[2단계] 모델이 'description이 내 작업과 맞다' → read_file(path, limit=1000)로 본문을 가져온다.")
-    print("[3단계] 본문이 references/*.md를 가리키면 그때만 그 파일을 read_file 한다.\n")
-    print(f"미들웨어({type(skills_mw).__name__})가 시스템 프롬프트에 'Skills System' 섹션으로 위 목록을 싣고,")
-    print("'필요할 때 read_file로 본문을 읽으라'는 사용법까지 함께 주입한다.")
+    # ── 훅 ②: wrap_model_call (매 모델 호출) ────────────────────────
+    # 위 메타데이터를 'Skills System' 섹션으로 만들어 시스템 메시지에 덧붙인다.
+    # 아래는 미들웨어의 실제 포매터가 만든 그 문자열이다(이름·설명·경로만; 본문 아님).
+    fragment = SKILLS_SYSTEM_PROMPT.format(
+        skills_locations=skills_mw._format_skills_locations(),
+        skills_load_warnings="",
+        skills_list=skills_mw._format_skills_list(skills),
+    )
+    print("[wrap_model_call · 매 모델 호출] 아래 'Skills System' 섹션을 시스템 프롬프트에 주입한다")
+    print("  — 이름·설명·경로만 올라간다(=1단계). 본문은 안 들어간다:\n")
+    print("\n".join("    " + ln for ln in fragment.splitlines()))
+    print("\n[2단계] 모델이 'description이 내 작업과 맞다' → read_file(path, limit=1000)로 본문을 읽는다")
+    print("        (미들웨어가 아니라 모델의 도구 호출 — 그래서 --run 추적에 [read_file]이 찍힌다).")
+    print("[3단계] 본문이 references/*.md를 가리키면 그때만 그 파일을 read_file 한다.")
 
 
 def run_agent() -> None:

@@ -186,6 +186,11 @@
 }
 .lec details .reveal p { margin: 0 0 8px; }
 .lec details .reveal p:last-child { margin-bottom: 0; }
+/* 심화(강의용) 레이어 — 학생 핸즈온과 시각적으로 구분: 보라 계열 점선 강조 */
+.lec details.deep { border-style: dashed; border-color: #b9a7e0; box-shadow: 0 10px 28px rgba(91,79,163,.08); }
+.lec details.deep > summary { color: #5b4fa3; background: rgba(155,135,222,.14); }
+.lec details.deep > summary::before { content: "🔬  "; }
+.lec details.deep[open] > summary::before { content: "🔬  "; }
 .lec .ask {
   margin: 16px 0; padding: 15px 18px; border-left: 3px solid var(--amber);
   background: rgba(224,159,62,.08); border-radius: 0 7px 7px 0; font-size: 14.5px; line-height: 1.6;
