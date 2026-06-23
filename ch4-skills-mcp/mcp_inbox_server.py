@@ -111,8 +111,53 @@ def _list_tools() -> None:
         print(f"  {tag} {t.name} — {(t.description or '').splitlines()[0]}")
 
 
+def _show_protocol() -> None:
+    """MCP가 stdio 위에서 실제로 주고받는 JSON-RPC를 그대로 보여 준다(점검용).
+
+    envelope는 직접 짜지만, 안에 든 inputSchema와 tools/call 결과는 진짜 서버에서
+    뽑는다 — 즉 에이전트가 이 서버와 stdio로 나누는 대화와 같은 내용이다.
+    """
+    import asyncio
+
+    print("MCP 통신 = stdio(표준입출력) 위 JSON-RPC 2.0 — 한 줄에 한 메시지.")
+    print("에이전트가 이 서버를 subprocess로 띄우고 다음 순서로 말한다:")
+    print("  ① initialize → ② notifications/initialized → ③ tools/list(발견) → ④ tools/call(실행)\n")
+
+    tools = asyncio.run(mcp.list_tools())
+    one = next(t for t in tools if t.name == "search_knowledge")
+    list_resp = {
+        "jsonrpc": "2.0", "id": 1,
+        "result": {"tools": [{
+            "name": one.name,
+            "description": (one.description or "").splitlines()[0],
+            "inputSchema": one.inputSchema,  # 타입힌트에서 자동 생성된 진짜 스키마
+        }]},
+    }
+    print("③ tools/list 응답 — 도구 이름·설명·inputSchema(타입힌트→JSON Schema). 발췌 1개:")
+    print(json.dumps(list_resp, ensure_ascii=False, indent=2))
+
+    call_req = {
+        "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+        "params": {"name": "search_knowledge", "arguments": {"type": "gap"}},
+    }
+    content, _raw = asyncio.run(mcp.call_tool("search_knowledge", {"type": "gap"}))
+    text = content[0].text if content else ""
+    call_resp = {
+        "jsonrpc": "2.0", "id": 2,
+        "result": {"content": [{"type": "text", "text": text}], "isError": False},
+    }
+    print("\n④ tools/call 요청(모델이 이 도구를 부르기로 결정 → 어댑터가 보냄):")
+    print(json.dumps(call_req, ensure_ascii=False, indent=2))
+    print("\n④ tools/call 응답(서버가 함수를 실행해 돌려준 결과):")
+    print(json.dumps(call_resp, ensure_ascii=False, indent=2))
+    print("\n에이전트 쪽: langchain-mcp-adapters가 각 MCP 도구를 LangChain 도구로 감싼다.")
+    print("모델이 그 도구를 부르면 위 tools/call을 stdio로 보내고, 결과를 ToolMessage로 받는다.")
+
+
 if __name__ == "__main__":
     if "--list" in sys.argv:
         _list_tools()
+    elif "--protocol" in sys.argv:
+        _show_protocol()
     else:
         mcp.run()  # stdio transport
