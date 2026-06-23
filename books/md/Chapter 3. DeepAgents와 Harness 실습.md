@@ -276,6 +276,26 @@ agent = create_deep_agent(
 <p class="section-note" style="margin-top:8px">단 한계가 분명합니다 — 채점자도 <em>같은 모델·같은 맥락</em>이면, 모델이 못 본 건 채점도 못 봅니다(자기 사각을 자기가 못 본다). 그래서 자가 채점 루프는 "형식·누락" 같은 <em>스스로 확인 가능한</em> 기준엔 강하지만, <strong>독립적 사실 검증</strong>은 다른 주체가 맡아야 합니다 — 바로 <strong>Ch5</strong>에서 외부 검증 에이전트에게 A2A로 넘기는 이유입니다.</p>
 </div>
 </div>
+
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — 루프 엔지니어링: 하네스 다음 결 <span style="color:var(--muted)">(2026 동향)</span></summary>
+<div class="reveal">
+<p>2026 들어 자주 쓰이는 틀 하나 — 에이전트를 다루는 일이 네 결로 진화했다는 것이다. 뒤로 갈수록 앞을 <em>품는다</em>:</p>
+<table>
+<thead><tr><th>결</th><th>다루는 것</th></tr></thead>
+<tbody>
+<tr><td>① 프롬프트 엔지니어링</td><td>모델에게 <em>무슨 말</em>을 하나</td></tr>
+<tr><td>② 컨텍스트 엔지니어링</td><td>모델이 <em>무엇을 보나</em>(창에 무엇을 넣고 뺄지 — 위 4전략)</td></tr>
+<tr><td>③ 하네스 엔지니어링</td><td>모델이 <em>어떤 환경</em>에서 도나(계획·파일·도구·서브에이전트 — 이 챕터)</td></tr>
+<tr><td>④ <strong>루프 엔지니어링</strong></td><td>그 환경을 <em>굴리는 순환</em>을 설계한다 — "프롬프트 치는 사람"에서 "프롬프트 치는 시스템을 짜는 사람"으로</td></tr>
+</tbody>
+</table>
+<p><strong>대표 예 — Ralph Loop</strong>(Geoffrey Huntley, 2026 초): 코딩 에이전트를 평범한 <code>while</code> 루프에 넣고, 매 회 <em>같은 프롬프트</em>를 명세(spec)와 함께 준다. 에이전트는 할 일 <em>하나</em>를 골라 처리하고, 그다음 <strong>완전히 새 인스턴스</strong>가 같은 프롬프트로 다시 시작한다. 핵심은 <strong>매 회 컨텍스트 리셋</strong>이다 — 한 세션을 길게 끌면 창이 과거 추론·막다른 길·낡은 파일로 차며 성능이 떨어지는데(context rot), 매번 깨끗한 창으로 시작하면 그걸 피한다. 우리 <strong>Initializer/Executor</strong>(계획·진행을 파일에 두고 청크마다 새로)가 바로 이 발상의 작은 버전이다.</p>
+<p><strong>그리고 핵심 한 줄 — "어떤 루프에서든 병목은 모델이 아니라 검증자(verifier)다."</strong> 루프가 스스로 돌수록, 무엇을 "됐다"로 칠지 정하는 채점·검증이 전체 품질을 정한다. 위 RubricMiddleware(자가 채점)도, Ch5의 외부 검증(A2A)도 결국 이 <em>검증자 설계</em> 문제다. 루프를 자동화할수록 사람이 쏟을 곳은 프롬프트가 아니라 <strong>검증 기준</strong>이다.</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "프롬프트→컨텍스트→하네스→루프. 오늘 짓는 하네스 위에 '스스로 도는 순환'을 얹는 게 다음 결이고, 그 순환의 품질은 <em>검증자</em>가 정한다." 학생에겐 ①~④ 한 줄과 "병목은 검증자"면 충분하다.</p>
+<p class="tiny" style="color:var(--muted)">참고: <a href="https://tosea.ai/blog/loop-engineering-ai-agents-complete-guide-2026">Loop Engineering 가이드(2026)</a> · <a href="https://bdtechtalks.com/2026/06/22/ai-loop-engineering/">TechTalks — loop engineering</a></p>
+</div>
+</details>
 </section>
 
 <section class="slide">
