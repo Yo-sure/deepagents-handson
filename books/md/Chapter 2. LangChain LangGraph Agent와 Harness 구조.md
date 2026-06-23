@@ -97,6 +97,37 @@ agent = create_agent("openai:google/gemini-3.5-flash", tools=[...])
 
 <p class="section-note" style="margin-top:16px"><code>create_agent</code>는 LangGraph 1.0 이전의 <code>create_react_agent</code>를 대체했습니다. 둘 다 같은 <code>CompiledStateGraph</code>를 돌려줍니다. 차이는 자유도이고, 그 자유도의 핵심은 LangChain 1.0이 더한 <strong>미들웨어</strong>입니다 — Ch3의 <code>create_deep_agent</code>는 바로 이 <code>create_agent</code>에 미들웨어를 기본 탑재한 확장입니다. 훅은 여섯입니다: 에이전트 실행 1회 단위 <code>before_agent</code>·<code>after_agent</code>, 매 모델 호출 전후 <code>before_model</code>·<code>after_model</code>, 그리고 모델·도구 호출을 <em>통째로 감싸는</em> <code>wrap_model_call</code>·<code>wrap_tool_call</code>(캐싱·재시도·결과 가로채기). <code>before_*</code>는 순차로, <code>after_*</code>는 역순으로, <code>wrap_*</code>는 실제 호출을 중첩으로 감쌉니다. <span style="color:var(--muted)">(이 훅들을 실제로 거는 건 <strong>Ch3</strong>의 <code>create_deep_agent</code>입니다 — 이 챕터 핸즈온은 손으로 짠 StateGraph라 아직 안 씁니다. 여기선 "create_agent의 확장이 그 미들웨어 위에 선다"만 잡고, 동작은 Ch3에서 봅니다.)</span></p>
 
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — 같은 일을 다른 프레임워크로: Pydantic AI <span style="color:var(--muted)">(Framework 층의 대안)</span></summary>
+<div class="reveal">
+<p>LangChain만 있는 게 아니다. <strong>Pydantic AI</strong>(Pydantic 팀, v1.0 2025-09 → 현재 1.x)는 "<em>FastAPI feeling</em>을 에이전트 개발에"를 내건 <strong>타입 안전</strong> 프레임워크다. 비유하면 <strong>LangChain은 Django</strong>(배터리 포함·관례 많고 표면 넓음), <strong>Pydantic AI는 FastAPI</strong>(작고 타입 우선·군더더기 적음)다. (덧붙여 — Pydantic의 검증 계층은 LangChain·OpenAI SDK·Anthropic SDK가 <em>이미 안에서</em> 쓴다. Pydantic AI는 그 팀이 에이전트까지 올라온 것.)</p>
+<p>핵심 차이는 <strong>구조화 출력이 타입으로 못 박힌다</strong>는 것 — <code>output_type</code>에 Pydantic 모델을 주면 결과가 그 타입으로 <em>검증</em>되고 IDE 자동완성·정적 검사가 붙어 오류가 런타임이 아니라 작성 시점에 잡힌다. 우리 <code>RecordV1</code> 추출을 이 프레임워크로 쓰면:</p>
+
+```python
+from pydantic_ai import Agent
+from pydantic import BaseModel
+
+class RecordV1(BaseModel):      # Ch0의 계약을 그대로
+    merchant: str
+    total: float
+
+agent = Agent("openai:google/gemini-3.5-flash",   # 모델 무관 — OpenAI·Anthropic·OpenRouter…
+              output_type=RecordV1,                 # ← 출력이 이 타입으로 검증된다
+              system_prompt="영수증을 읽어 RecordV1로 채워라")
+
+@agent.tool_plain                                   # 도구 등록(RunContext 없는 형태)
+def check_sum(items: list[float], total: float) -> str:
+    return "일치" if abs(sum(items) - total) < 1 else "불일치"
+
+result = agent.run_sync("이 영수증을 추출해줘")
+rec: RecordV1 = result.output                       # 타입 안전한 구조화 출력
+```
+
+<p><strong>3계층 어디?</strong> Pydantic AI는 <strong>Framework 층</strong>(LangChain 자리)의 대안이다. 그 위에 Runtime(상태·분기·지속)과 Harness(계획·파일·서브에이전트)는 여전히 필요하다 — Pydantic AI도 자체 그래프·durable 실행·관측(Logfire)을 붙여 그 위층을 채워 간다.</p>
+<p class="muted"><strong>이 과정이 LangChain을 고른 이유</strong> — 우리 하네스 스택(LangGraph → DeepAgents)이 LangChain 위에 서기 때문이다. <em>구조화 출력·타입 안전이 1순위</em>면 Pydantic AI가, <em>LangGraph·미들웨어·deepagents 생태계</em>가 필요하면 LangChain이 맞다. 둘 다 같은 ReAct 루프를 한 줄로 감춘다는 본질은 같다. <span class="tiny">(API는 설치본 pydantic-ai 1.x에서 확인.)</span></p>
+</div>
+</details>
+
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>프레임워크가 지우는 것 — 손으로 짠 루프</span><span class="status-pill">왜 필요한가</span></div>
 <div class="panel-body">
