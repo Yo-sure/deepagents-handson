@@ -138,6 +138,25 @@ for _ in range(MAX_STEPS):
 <p class="section-note" style="margin-top:10px">그래서 모델은 함수를 "실행"하는 게 아니라 <strong>무엇을 어떤 인자로 부를지</strong>만 정하고, 실제 실행·결과 회수는 위 루프(=하네스)가 합니다. Ch4의 MCP·Skill도 결국 이 <code>tools</code> 필드에 무엇을 어떻게 싣느냐의 문제입니다.</p>
 </div>
 </div>
+
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — 도구 <code>name</code>·<code>description</code>은 영어로 쓰는 게 정석인 이유 <span style="color:var(--muted)">(우리 코드는 한국어, 그 트레이드오프)</span></summary>
+<div class="reveal">
+<p>위에서 본 <code>{name, description, parameters}</code> 스키마는 <strong>매 모델 호출마다</strong> 컨텍스트에 실린다 — 도구가 많을수록, 호출이 잦을수록 누적된다. 그래서 스키마의 <em>언어</em>가 비용과 정확도 둘 다에 영향을 준다.</p>
+<p><strong>① 비용 — 한국어는 토큰이 더 든다.</strong> 같은 뜻을 BPE(<code>cl100k_base</code>)로 재 보면:</p>
+<table>
+<thead><tr><th>같은 설명</th><th>토큰 수</th></tr></thead>
+<tbody>
+<tr><td>한국어 ("분류된 인박스 레코드와 OKF 지식·조사 노트를 모아 월간 브리프를 작성한다")</td><td><strong>40</strong></td></tr>
+<tr><td>영어 ("Compile classified inbox records, OKF knowledge and research notes into a monthly brief")</td><td><strong>15</strong></td></tr>
+</tbody>
+</table>
+<p>약 <strong>2.7배</strong>다(직접 측정값). 스키마가 매 호출 실리니, 도구 수×호출 수만큼 이 차이가 곱해진다.</p>
+<p><strong>② 정확도 — 모델은 영어 표현공간에서 결정한다.</strong> 다국어 LLM도 의미가 무거운 판단은 <em>영어에 가까운 내부 표현</em>에서 먼저 내린 뒤 출력 언어로 옮긴다(<a href="https://arxiv.org/abs/2502.15603">Schut 외, 2025</a>). 그리고 도구 호출에서 가장 흔한 실패 하나가 <strong>"파라미터 값 언어 불일치"</strong>다 — 의도·도구 선택은 맞는데 인자를 사용자 언어로 생성해 실행 규약을 어긴다(<a href="https://arxiv.org/abs/2601.05366">Lost in Execution, 2026</a>). 스키마를 영어로 두면 이 결을 거스르지 않는다.</p>
+<p><strong>권장 패턴</strong>: 도구 <code>name</code>·<code>description</code>·<em>파라미터 이름</em>은 <strong>영어</strong>, 주석·대화·사용자에게 보이는 문자열은 한국어. 사람용 한국어 docstring을 두고 싶으면 <code>@tool("inbox_check", description="Check the inbox …")</code>처럼 <strong>인자로 덮어쓰면</strong> 모델엔 영어가, 코드 읽는 사람에겐 한국어 docstring이 간다(설치된 langchain에서 확인).</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "스키마는 매 호출 실린다 → 언어가 비용이자 정확도다. 모델용은 영어, 사람용은 한국어." <em>우리 실습 코드는 학습 가독성을 위해 한국어 docstring을 쓴다</em> — 그게 이 트레이드오프를 일부러 보여 주는 자리이고, 다국어·프로덕션에선 위 권장을 따른다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">
