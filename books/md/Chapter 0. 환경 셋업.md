@@ -65,7 +65,7 @@ bash scripts/setup.sh        # .venv 생성 · uv sync · .env 템플릿
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>.env</strong><span>API 키 한 곳에</span></div><div class="panel-body"><div class="list">
 <p><code>OPENROUTER_API_KEY</code> 한 줄만 채우면 시작합니다. <code>OPENAI_API_KEY</code>·<code>OPENAI_API_BASE</code>도 같은 값으로 채워 두는데, deepagents가 OpenAI 호환 경로로 OpenRouter를 부를 때 이 변수를 읽기 때문입니다</p>
-<p><code>MAIL_BACKEND=mock</code> — 메일은 실제 서버 대신 미리 준비한 가짜(mock) 데이터를 쓰므로 외부 메일 서버가 필요 없습니다</p>
+<p>이번 실습의 '메일'은 코드에 내장된 샘플 데이터(mock)라 외부 메일 서버가 필요 없습니다. <code>.env</code>의 <code>MAIL_BACKEND</code>는 나중에 실제 메일을 붙일 자리(placeholder)일 뿐, 지금 코드 동작을 바꾸지는 않습니다</p>
 <p>레포-로컬 파일이라 <code>~/.bashrc</code>를 안 건드리고 git에도 안 올라갑니다(<code>.gitignore</code>)</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>검증</strong><span>준비됐을까</span></div><div class="panel-body"><div class="list">
@@ -303,6 +303,24 @@ flowchart LR
 
 </div>
 </div>
+
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — 왜 키는 한글인데 코드는 영문인가: <code>alias</code> 한 줄이 푸는 두 문제 <span style="color:var(--muted)">(RecordV1 내부)</span></summary>
+<div class="reveal">
+<p>각 필드가 <em>영문 이름</em>(<code>merchant</code>)과 <em>한글 alias</em>(<code>판매처</code>)를 둘 다 가진다. 우연이 아니라 <strong>서로 충돌하는 두 요구</strong>를 한 줄로 가른 것이다:</p>
+<table>
+<thead><tr><th>요구</th><th>해법</th></tr></thead>
+<tbody>
+<tr><td>산출물 JSON을 사람이 읽기 좋게</td><td>직렬화 키 = <strong>한글 alias</strong>(<code>classified/*.json</code>에 <code>"판매처"</code>로 나감)</td></tr>
+<tr><td>코드·LLM 스키마는 영문이 안전</td><td>필드 이름 = <strong>영문</strong>(<code>rec.merchant</code> — 파이썬 관례 + 영문 키가 토큰 효율·도구 정확도 — Ch2 '영어 description' 심화 참고)</td></tr>
+</tbody>
+</table>
+<p><strong>둘을 잇는 게 <code>ConfigDict(populate_by_name=True)</code></strong> — 한글 alias로도, 영문 이름으로도 객체를 만들 수 있다. 그래서 mock은 gold(한글 키 dict)를 <code>model_validate</code>로 그대로 적재하고, 코드는 <code>rec.merchant</code>로 접근한다. 같은 객체, 두 입구.</p>
+<p><strong>LLM에 나가는 스키마도 한글</strong> — <code>schema_json()</code>은 <code>RecordV1.model_json_schema(by_alias=True)</code>다. <code>by_alias=True</code>라 모델이 받는 structured-output 스키마의 키가 <code>판매처·금액…</code>이고, 모델은 그 키로 채워 돌려준다. 즉 <em>여기선 한글이 외부 계약</em>이다(영문은 코드 내부용).</p>
+<p><strong>두 디테일</strong> — ① <code>use_enum_values=True</code>라 <code>doc_type</code>이 <code>DocType.receipt</code> 객체가 아니라 문자열 <code>"영수증"</code>으로 직렬화된다(JSON에 그대로 박힘). ② 최상위 <code>total</code>과 <code>LineItem.amount</code>이 <em>둘 다</em> alias <code>"금액"</code>이다 — 같은 한글이지만 중첩 위치로 갈린다(최상위 <code>금액</code>=총액, 항목 안 <code>금액</code>=품목가). Ch1에서 이 둘을 헷갈리면 합계 검산이 어긋난다.</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "<code>alias</code> + <code>populate_by_name</code> = 사람용 한글 JSON과 코드용 영문 식별자를 한 모델로. 직렬화는 한글, 접근은 영문, LLM 스키마는 <code>by_alias</code>로 한글." 학생은 schema.py를 읽고 'JSON은 한글인데 코드는 영문'만 잡으면 되고, 위 메커니즘은 질문이 나올 때 펼친다.</p>
+</div>
+</details>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>파이프라인 경로 — 각 챕터가 한 단계씩 채운다</span><span class="status-pill">디렉터리 규약</span></div>

@@ -19,7 +19,7 @@ pageClass: lec-page
 한 사람이 순서대로 보면 느립니다. 조사 주제를 나눠 서브에이전트가 동시에 돌아갑니다. 그 계획과 파일을 하네스가 관리합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">65</span><strong>분</strong><span>이론 35 · 핸즈온 26 · 마무리 3</span><span class="clk">예상 11:25–12:30 · 앞 ☕10분</span></div>
+<div class="metric"><span class="num">67</span><strong>분</strong><span>이론 35 · 핸즈온 26 · 점검·마무리 6</span><span class="clk">예상 11:25–12:32 · 앞 ☕10분</span></div>
 <div class="metric"><span class="num">3</span><strong>번째 모듈</strong><span>research_orchestrator.py</span></div>
 <div class="metric"><span class="num">3</span><strong>짚을 점</strong><span>영수증 없는 89,000원 외 2건</span></div>
 </div>
@@ -485,7 +485,7 @@ flowchart TB
 
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>먼저 — Ch2 적재(없으면)</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code> <span style="color:var(--muted)">(키 없이: <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: <code>workspace/classified/</code>에 JSON 10개.</span></p></div><div class="store">classified</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code> <span style="color:var(--muted)">(키로 <code>--mock</code> 빼면 실제 조사)</span><br><span style="color:var(--muted)">성공 기준(<code>--mock</code>): <code>[plan]</code> 1줄 + <code>[task]</code> 세 줄(<strong>순서 뒤섞임 = 동시 실행</strong>) + <code>[synthesize]</code> 1줄 + <code>brief_draft.md</code>. fan-out 골격을 또렷이 보여 주는 게 <code>--mock</code>의 역할입니다. 키로 <code>--mock</code>을 빼면 같은 위임을 <em>실제 서브에이전트</em>가 수행해, 골격 줄 대신 에이전트가 직접 쓴 <strong>브리프 글</strong>이 최종 메시지로 나옵니다(배선만 보려면 4번 <code>--trace</code>).</span></p></div><div class="store">노트 3</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code> <span style="color:var(--muted)">(키로 <code>--mock</code> 빼면 실제 조사)</span><br><span style="color:var(--muted)">성공 기준(<code>--mock</code>): <code>[plan]</code> 1줄 + <code>[task]</code> 세 줄(세 갈래를 <code>ThreadPoolExecutor</code>로 <strong>동시에 던진</strong> 것 — 순서는 실행마다 달라질 수 있으나 mock은 즉답이라 대개 비슷합니다) + <code>[synthesize]</code> 1줄 + <code>brief_draft.md</code>. fan-out 골격을 또렷이 보여 주는 게 <code>--mock</code>의 역할입니다. 키로 <code>--mock</code>을 빼면 같은 위임을 <em>실제 서브에이전트</em>가 수행해, 골격 줄 대신 에이전트가 직접 쓴 <strong>브리프 글</strong>이 최종 메시지로 나옵니다(배선만 보려면 4번 <code>--trace</code>).</span></p></div><div class="store">노트 3</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>노트 열어 보기</strong><p><code>cat workspace/research_notes/card_reconcile.md</code><br><span style="color:var(--muted)">성공 기준(<code>--mock</code>): 쿠팡 89,000원이 ⚠️로 잡혀 있다. <em>live면</em> 노트 파일은 에이전트가 <code>write_note</code>를 부를 때만 생기고 내용·파일명도 그때그때 다릅니다 — 결정론적 노트를 보려면 <code>--mock</code>으로 돌리세요.</span></p></div><div class="store">확인</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>하네스 내부 열어 보기</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --trace</code><br><span style="color:var(--muted)">성공 기준(키 불필요): <code>create_deep_agent</code>에 배선되는 기본 장비·오케스트레이터 프롬프트·서브에이전트 3개 구성이 출력된다.</span></p></div><div class="store">하네스</div></div>
 </div>
@@ -513,7 +513,7 @@ flowchart TB
   [synthesize] → workspace/brief_draft.md
 ```
 
-<p class="section-note" style="margin-top:8px"><code>[task]</code> 세 줄의 <strong>순서가 매번 뒤섞이는 게</strong> 동시 실행의 증거입니다(순차면 늘 plan 순서 그대로). 그 셋이 끝나면 <code>[synthesize]</code>가 노트를 모아 아래 초안을 씁니다.</p>
+<p class="section-note" style="margin-top:8px">세 <code>[task]</code>는 <code>ThreadPoolExecutor</code>로 <strong>동시에 던져집니다</strong> — 그게 동시 실행입니다. 출력 순서는 실행마다 달라질 수 있지만, mock 워커가 즉답이라(겹칠 대기가 0) 대개 비슷하게 나옵니다. 순서 자체보다 <em>"세 갈래를 한꺼번에 던지고 다 돌아오면 종합한다"</em>는 구조가 핵심입니다(배선은 4번 <code>--trace</code>). 그 셋이 끝나면 <code>[synthesize]</code>가 노트를 모아 아래 초안을 씁니다.</p>
 </div>
 </div>
 
@@ -549,7 +549,7 @@ flowchart TB
 <details>
 <summary>정답 확인</summary>
 <div class="reveal">
-<p>세 조사가 동시에(스레드로) 돌기 때문입니다. 먼저 끝난 갈래가 먼저 출력됩니다. 순서가 고정되지 않는다는 게 곧 병렬로 돌고 있다는 증거입니다.</p>
+<p>세 조사를 <code>ThreadPoolExecutor</code>로 <strong>동시에 던지기</strong> 때문입니다 — 그게 병렬입니다. 출력 순서는 실행마다 달라질 수 있으나, mock 워커가 즉답이라 겹칠 대기가 없어 대개 비슷한 순서로 찍힙니다(순서 자체는 약한 신호). 실제 속도 이득은 키 모드에서 각 갈래가 네트워크 LLM 호출로 <em>대기</em>할 때 그 대기를 겹치는 데서 납니다.</p>
 <p>순차로 돌렸다면 늘 card→bank→spend 순서일 겁니다. fan-out의 효과는 갈래가 많아질수록 커집니다. 다만 갈래 수에 정비례해 빨라지진 않습니다 — API 동시 호출 한도, 가장 느린 갈래(꼬리 지연), 마지막 종합 단계가 상한을 정합니다.</p>
 </div>
 </details>
@@ -599,7 +599,7 @@ flowchart TB
 <div class="board-header"><span>스스로 점검</span><span class="status-pill">5문항</span></div>
 <div class="panel-body"><div class="list">
 <p><strong>Q1.</strong> StateGraph(Ch2) 대신 하네스(Ch3)를 쓰는 기준은?</p>
-<p><strong>Q2.</strong> <code>[task]</code> 세 줄의 출력 순서가 매번 뒤섞이는 이유는?</p>
+<p><strong>Q2.</strong> <code>[task]</code> 세 줄은 어떻게 "동시에" 실행되나? 그리고 <em>출력 순서</em>만으로 병렬을 단정할 수 있나?</p>
 <p><strong>Q3.</strong> 기본 백엔드가 <code>StateBackend</code>라는 사실이 "컨텍스트 밖으로 덜어낸 파일"에 무엇을 뜻하나?</p>
 <p><strong>Q4.</strong> 오케스트레이터-워커에서 종합(brief 쓰기)을 <em>한</em> 에이전트가 맡는 이유는?</p>
 <p><strong>Q5.</strong> 대조가 누락을 ⚠️"확인 필요"로 표시하고 "오류"라 단정하지 않는 이유는?</p>
@@ -610,7 +610,7 @@ flowchart TB
 <summary>정답 확인</summary>
 <div class="reveal">
 <p><strong>A1.</strong> 단계가 정해진 일은 StateGraph가 더 단순·저렴. 하네스는 "몇 갈래로 볼지 런타임에 정해지는" 조사·롱러닝에 쓴다.</p>
-<p><strong>A2.</strong> 세 갈래가 스레드로 동시에 돌아 먼저 끝난 갈래가 먼저 찍히기 때문. 순차였다면 늘 plan 순서 그대로다.</p>
+<p><strong>A2.</strong> <code>ThreadPoolExecutor</code>로 세 갈래를 한꺼번에 던지기 때문 — 그게 동시 실행이다. 단 <em>출력 순서</em>로 단정하면 안 된다: mock 워커는 즉답이라 겹칠 대기가 없어 순서가 대개 비슷하게 나온다. 병렬의 진짜 증거는 "한꺼번에 던지고 다 돌아오면 종합"하는 구조(<code>--trace</code>)이고, 속도 이득은 실모델의 네트워크 대기가 겹칠 때 난다.</p>
 <p><strong>A3.</strong> 파일이 에이전트 상태에 살아 실행이 끝나면 휘발한다. "컨텍스트 창을 비운다"가 "디스크 영구 저장"과 같은 말이 아니다 — 영속하려면 Filesystem/Store/Composite 백엔드로 갈아끼운다.</p>
 <p><strong>A4.</strong> 병렬 작성자는 서로 충돌한다. 읽기·수집은 fan-out으로 나누되, 최종 글쓰기·확정은 한 곳에서 한다.</p>
 <p><strong>A5.</strong> 금액·키워드 휴리스틱(first-match)이라 형식이 달라 못 이은 것도 섞일 수 있다. 무엇이 진짜 누락인지는 다음 단계(Ch5)가 독립 검증한다.</p>

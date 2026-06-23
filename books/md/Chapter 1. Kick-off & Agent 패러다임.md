@@ -19,7 +19,7 @@ pageClass: lec-page
 그 과정에서 LLM이 왜 혼자서는 부족한지, 에이전트가 무엇을 더하는지를 손으로 확인합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">45</span><strong>분</strong><span>이론 26 · 핸즈온 17</span><span class="clk">예상 9:20–10:05</span></div>
+<div class="metric"><span class="num">45</span><strong>분</strong><span>이론 26 · 핸즈온 17 · 마무리 2</span><span class="clk">예상 9:20–10:05</span></div>
 <div class="metric"><span class="num">4</span><strong>한계</strong><span>LLM이 에이전트를 부르는 이유</span></div>
 <div class="metric"><span class="num">1</span><strong>첫 모듈</strong><span>classify_one.py</span></div>
 </div>
@@ -55,10 +55,10 @@ pageClass: lec-page
 | 오전 | **Ch0** 환경 (20분) | uv·.env·VSCode·데이터 계약 | — | `.venv` · sample_inbox |
 | 오전 | **Ch1** 패러다임 (45분) | LLM 한계 → ReAct → 추출 | LLM | `classify_one.py` |
 | 오전 | **Ch2** LangGraph (70분) | 상태·분기·재시도·HITL | Framework·Runtime | `intake_graph.py` |
-| 오전 | **Ch3** DeepAgents (65분) | 하네스·fan-out·컨텍스트 외주 | Harness | `research_orchestrator.py` |
+| 오전 | **Ch3** DeepAgents (67분) | 하네스·fan-out·컨텍스트 외주 | Harness | `research_orchestrator.py` |
 | 오후 | **Ch4** Skills·MCP (80분) | 절차·연결·지식 표준화 | 지식·연결 | MCP 서버 · OKF |
 | 오후 | **Ch5** A2A (70분) | 역할 분리·독립 검증 | 협업 | `verified_brief.md` |
-| 오후 | **Ch6** 통합 (90분) | 모듈 배선·엔드투엔드·랩업 | 전체 | 검증된 브리프 |
+| 오후 | **Ch6** 통합 (95분) | 모듈 배선·엔드투엔드·랩업 | 전체 | 검증된 브리프 |
 
 </div>
 </div>

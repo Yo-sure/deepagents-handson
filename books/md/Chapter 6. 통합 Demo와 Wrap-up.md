@@ -19,7 +19,7 @@ pageClass: lec-page
 기존 모듈을 연결해 샘플 메일 입력이 분류부터 검증까지 이어지는 엔드투엔드를 배선합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">90</span><strong>분</strong><span>이론 10 · 핸즈온 70 · 마무리·현실·전이 10</span><span class="clk">예상 16:10–17:40</span></div>
+<div class="metric"><span class="num">95</span><strong>분</strong><span>이론 10 · 핸즈온 70 · 점검·정리·현실·전이 15</span><span class="clk">예상 16:10–17:40</span></div>
 <div class="metric"><span class="num">6</span><strong>모듈 배선</strong><span>analyst_app.py</span></div>
 <div class="metric"><span class="num">1</span><strong>검증된 브리프</strong><span>verified_brief.md</span></div>
 </div>
@@ -114,7 +114,7 @@ flowchart LR
 ## 직접 배선한다 — analyst_app.py
 
 </div>
-<p class="section-note">전 구간을 한 번에 실행합니다. <strong>기본은 live</strong> — 키가 있으니 실제 모델이 분류부터 돌리고, <code>--a2a</code>를 더하면 검증 단계가 실제 A2A 서버를 띄워 통신합니다. <code>--mock</code>은 키·네트워크가 없을 때의 오프라인 대비예요(같은 골격을 결정론으로).<br>
+<p class="section-note">전 구간을 한 번에 실행합니다. <strong>실모델 LLM이 도는 건 <code>[1/6]</code> 분류 한 단계</strong>예요 — 키가 있으면 그 단계가 live(추출값이 매번 조금 다를 수 있음)입니다. <strong><code>[2/6]</code> 조사(fan-out)는 캡스톤에선 재현성을 위해 항상 결정론적 목</strong>(<code>fan_out_mock</code>)이고, <code>[5/6]</code> 검증은 <code>--a2a</code>를 붙이면 실제 A2A 서버(규칙 기반, LLM 아님)로 나갑니다. <strong>키가 없으면 <code>--mock</code></strong>을 붙이세요 — <code>[1/6]</code>까지 결정론으로 끝까지 돕니다.<br>
 각 단계가 앞서 만든 모듈을 그대로 부릅니다. 코드를 열어 보면 import와 호출이 대부분입니다.</p>
 </div>
 
@@ -140,13 +140,13 @@ flowchart LR
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~10분</span></div>
-<div class="cue-body">analyst_app.py로 전 구간을 실행합니다. 키가 있으니 <code>uv run python3 ch6-integration/analyst_app.py</code>로 <strong>실제로(live)</strong> 분류부터 돌려 <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍히는지 보고, <code>--a2a</code>를 더하면 검증이 실제 A2A 서버로 나갑니다. 키가 없거나 오프라인이면 <code>--mock</code>으로 같은 골격을 결정론으로 봅니다(분류값은 live면 다르지만, <strong>gap 계산·검증 판정은 코드라 같습니다</strong>).</div>
+<div class="cue-body">analyst_app.py로 전 구간을 실행합니다. <strong>키가 있으면</strong> <code>uv run python3 ch6-integration/analyst_app.py</code> — <code>[1/6]</code> 분류가 실모델로 돌고(나머지 단계는 결정론), <code>--a2a</code>를 더하면 <code>[5/6]</code> 검증이 실제 A2A 서버로 나갑니다. <code>[1/6]</code>~<code>[6/6]</code> 여섯 단계가 차례로 찍히면 성공입니다. <strong>키가 없으면 <code>--mock</code></strong>으로 <code>[1/6]</code>까지 결정론으로 끝까지 봅니다(<strong>gap 계산·검증 판정은 코드라 키와 무관하게 같습니다</strong>).</div>
 </div>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
 <div class="stack">
-<div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — live</strong><p><code>uv run python3 ch6-integration/analyst_app.py</code> <span style="color:var(--muted)">(오프라인: <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code>이 차례로 찍히고 브리프가 gap을 모두 담아 <code>verified_brief.md</code>가 <strong>PASS</strong>로 끝난다(<code>workspace/</code>를 비우고 한 단계를 빼면 NEEDS_REVISION이 정상 — 아래 트러블슈팅·직접 해보기 참고).</span></p></div><div class="store">엔드투엔드</div></div>
+<div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — [1/6] 분류만 live</strong><p><code>uv run python3 ch6-integration/analyst_app.py</code> <span style="color:var(--muted)">(키 없으면: <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code> 여섯 단계가 차례로 찍히면 성공입니다(판정은 입력 상태에 따라 <strong>PASS</strong> 또는 <strong>NEEDS_REVISION</strong> — 둘 다 검증이 돈 결과). 기본 실행은 PASS이고, <code>workspace/</code>를 비우고 한 단계를 빼면 NEEDS_REVISION이 정상(아래 직접 해보기). 무플래그는 <code>[1/6]</code>에서 키가 필요하니, 키가 없으면 <code>--mock</code>을 붙이세요.</span></p></div><div class="store">엔드투엔드</div></div>
 <div class="row"><div class="code">b</div><div class="copy"><strong>검증을 실제 A2A로</strong><p><code>uv run python3 ch6-integration/analyst_app.py --a2a</code> <span style="color:var(--muted)">(오프라인: <code>--mock --a2a</code>)</span><br><span style="color:var(--muted)">성공 기준: [5/6]에서 <code>Agent Card</code>가 조회되고 실제 서버와 통신한다.</span></p></div><div class="store">A2A</div></div>
 <div class="row"><div class="code">c</div><div class="copy"><strong>최종 산출물 열기</strong><p><code>cat workspace/verified_brief.md</code><br><span style="color:var(--muted)">성공 기준: 브리프 + 외부 검증 판정(PASS)이 한 파일에.</span></p></div><div class="store">완성</div></div>
 </div>
@@ -460,6 +460,23 @@ flowchart TB
 
 </div>
 </div>
+
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — 왜 "한 번 돌았다"로는 부족한가: <code>pass^k</code>와 곱의 붕괴 <span style="color:var(--muted)">(신뢰도 산수)</span></summary>
+<div class="reveal">
+<p>이 캡스톤은 <strong>6단계 파이프라인</strong>(분류→조사→지식→브리프→검증→완료)이다. 데모 한 번 PASS가 "이 시스템은 90% 신뢰"를 뜻하지 않는다 — 단계가 직렬로 이어지면 <strong>전체 성공률은 단계 성공률의 곱</strong>이기 때문이다.</p>
+<table>
+<thead><tr><th>각 단계 성공률</th><th>끝까지 한 번 성공 (≈완료율)</th><th>10번 중 10번 (pass^10)</th></tr></thead>
+<tbody>
+<tr><td>0.95</td><td>0.95⁶ ≈ <strong>0.74</strong></td><td>0.74¹⁰ ≈ <strong>0.05</strong></td></tr>
+<tr><td>0.99</td><td>0.99⁶ ≈ <strong>0.94</strong></td><td>0.94¹⁰ ≈ <strong>0.54</strong></td></tr>
+</tbody>
+</table>
+<p>단계당 95%는 꽤 좋아 보이지만 6단계를 거치면 <strong>네 번에 한 번은 어딘가에서 깨진다</strong>(완료율 74%). 그리고 "매번 같은 결과"를 요구하는 <code>pass^k</code>로 보면 — 6단계×10회면 0.95⁶⁰ ≈ <strong>0.05</strong>, 즉 <em>거의 매번 한 군데는 다르게 나온다</em>. "돌았다"(한 번 운 좋게)와 "신뢰할 수 있다"(pass^k 높음)는 다른 세계다.</p>
+<p><strong>그래서 이 과정의 각 안전장치가 산수에 직접 기여한다</strong> — Ch2 fail-closed(틀리면 안 들어감)·HITL 멈춤, Ch5 외부 검증, 신뢰도 임계 멈춤은 전부 <em>단계 성공률을 0.95에서 0.99로 끌어올리는</em> 장치다. 위 표에서 0.95→0.99 한 칸이 완료율 74%→94%, pass^10 5%→54%로 갈린다. <strong>곱이라서, 약한 단계 하나가 전체를 잡아먹는다</strong> — 그래서 평가는 "전체 돌았나"가 아니라 단계별 성공률·실패 지점을 따로 재야 한다(위 측정자 표).</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "직렬 N단계 신뢰도 = 단계 신뢰도의 N제곱. 그래서 데모 1회 PASS는 신뢰의 증거가 아니고, 각 단계를 fail-closed·검증으로 0.99까지 올려야 전체가 산다." pass^k는 '운'과 '신뢰'를 가르는 자다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">

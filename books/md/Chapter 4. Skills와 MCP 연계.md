@@ -19,7 +19,7 @@ pageClass: lec-page
 이 챕터에서 브리프 쓰는 절차를 SKILL.md로 정의하고, 파일과 메일을 MCP 한 겹으로 표준화하고, 조사 결과를 OKF 지식으로 적재합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">80</span><strong>분</strong><span>이론 42 · 핸즈온 35</span><span class="clk">예상 13:30–14:50 · 앞 🍽점심</span></div>
+<div class="metric"><span class="num">80</span><strong>분</strong><span>이론 42 · 핸즈온 35 · 점검 3</span><span class="clk">예상 13:30–14:50 · 앞 🍽점심</span></div>
 <div class="metric"><span class="num">3</span><strong>겹의 능력</strong><span>Skill · MCP · OKF</span></div>
 <div class="metric"><span class="num">12</span><strong>지식 항목</strong><span>knowledge_base/*.md</span></div>
 </div>
@@ -338,7 +338,7 @@ flowchart LR
     "text": "{\"판매처\":\"GS25 역삼점\",\"금액\":8400,\"문서유형\":\"영수증\", ...}" } ] } }
 ```
 
-<p style="margin-top:8px"><code>tools/list</code>로 서버가 가진 도구 목록을, <code>tools/call</code>로 그중 하나를 호출합니다 — 곧 핸즈온 ②에서 <code>--list</code>로 볼 도구 4개가 바로 이 <code>tools/list</code> 결과입니다. 결과는 <code>result.content</code>에 담겨 오고, 없는 도구 이름을 넘기면 같은 <code>id</code>로 <code>result</code> 대신 <code>error</code>(<code>-32602</code> 잘못된 파라미터)가 돌아옵니다. <code>read_record(name)</code>의 <code>name</code>이 곧 위 <code>arguments</code>입니다.<br>
+<p style="margin-top:8px"><code>tools/list</code>로 서버가 가진 도구 목록을, <code>tools/call</code>로 그중 하나를 호출합니다 — 곧 핸즈온 ②에서 <code>--list</code>로 볼 도구 4개가 바로 이 <code>tools/list</code> 결과입니다. 결과는 <code>result.content</code>에 담겨 옵니다 — 도구가 실행되다 <em>실패</em>해도(검증 실패 등) JSON-RPC는 성공이고 <code>result.isError: true</code>로 와서 모델이 보고 대응합니다. <em>없는 도구 이름</em>처럼 프로토콜이 깨지는 경우만 <code>result</code> 대신 본문 <code>error</code> 객체(<code>-326xx</code> 계열)로 돌아옵니다. <code>read_record(name)</code>의 <code>name</code>이 곧 위 <code>arguments</code>입니다.<br>
 <span style="color:var(--muted)">위 JSON은 손으로 쓴 예시가 아니라 <strong>직접 볼 수 있습니다</strong> — <code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --protocol</code>(키 불필요)이 진짜 서버에서 뽑은 <code>tools/list</code> 스키마와 <code>tools/call</code> 결과를 같은 JSON-RPC 봉투에 담아 출력합니다. 특히 <code>inputSchema</code>는 우리가 적은 게 아니라 <em>함수 타입힌트에서 자동 생성</em>됩니다(<code>type: str = "gap"</code> → <code>{"type":"string","default":"gap"}</code>).</span></p>
 
 ```mermaid
@@ -367,7 +367,7 @@ sequenceDiagram
 <div class="reveal">
 <p><strong>① 연결 — 한 번</strong>: 에이전트(호스트)가 서버를 <code>subprocess</code>로 띄우고, stdout/stdin을 JSON-RPC 파이프로 잡는다. 첫 메시지가 <code>initialize</code>(서로 프로토콜 버전·능력 협상) → 호스트가 <code>notifications/initialized</code>로 확인. 이후 <strong>stdout은 JSON-RPC 전용</strong>이라 서버는 로그를 stderr로만 쓴다(<code>print()</code> 한 줄이 파이프를 깬다).</p>
 <p><strong>② 발견 — <code>tools/list</code></strong>: 호스트가 도구 목록을 묻고, 서버가 각 도구의 <code>name·description·inputSchema</code>를 돌려준다. <code>FastMCP</code>는 이 셋을 <code>@mcp.tool()</code> 함수에서 자동으로 만든다 — 함수명→<code>name</code>, docstring→<code>description</code>(모델이 호출 판단에 읽음), <strong>타입힌트→<code>inputSchema</code></strong>(pydantic이 JSON Schema로). 읽기 전용 데이터는 <code>@mcp.resource(uri)</code>로 따로 노출돼 <code>resources/list</code>·<code>resources/read</code>로 다뤄진다(부수효과 없는 통계가 Tool이 아닌 이유).</p>
-<p><strong>③ 호출 — <code>tools/call</code></strong>: 모델이 도구를 부르기로 정하면, 에이전트 쪽 어댑터(<code>langchain-mcp-adapters</code>)가 <code>tools/call</code> 요청을 stdio로 보낸다. 서버가 그 함수를 실행해 <code>result.content[].text</code>로 결과를 돌려주고, 어댑터는 그걸 <code>ToolMessage</code>로 바꿔 모델에게 준다. 같은 <code>id</code>로 요청·응답을 짝짓고, 실패는 HTTP 상태가 아니라 본문 <code>error</code>(<code>-32601</code> 메서드 없음·<code>-32602</code> 잘못된 파라미터·<code>-32603</code> 내부)로 온다.</p>
+<p><strong>③ 호출 — <code>tools/call</code></strong>: 모델이 도구를 부르기로 정하면, 에이전트 쪽 어댑터(<code>langchain-mcp-adapters</code>)가 <code>tools/call</code> 요청을 stdio로 보낸다. 서버가 그 함수를 실행해 <code>result.content[].text</code>로 결과를 돌려주고, 어댑터는 그걸 <code>ToolMessage</code>로 바꿔 모델에게 준다. 같은 <code>id</code>로 요청·응답을 짝짓는다. <strong>실패는 두 결로 갈린다</strong>: ① <em>도구가 실행되다 실패</em>(검증 실패·예외)하면 JSON-RPC는 <em>성공</em>이고 <code>result</code>에 <code>isError: true</code>로 와 — 모델이 그 내용을 보고 대응한다(이게 핵심: 도구 에러는 대화 안에 머문다). ② <em>없는 도구·형식 오류</em> 같은 프로토콜 수준 문제만 <code>result</code> 대신 본문 <code>error</code> 객체(<code>-326xx</code> 계열: <code>-32601</code> 메서드 없음·<code>-32602</code> 잘못된 파라미터·<code>-32603</code> 내부)로 온다.</p>
 <p><strong>핵심 분담</strong>: <code>tools/list</code>로 받은 MCP 도구가 곧 LangChain 도구가 되어 모델의 도구 목록에 합류한다 — 모델은 "MCP인지" 모른 채 평소처럼 도구를 부르고, 어댑터가 그걸 stdio 너머의 <code>tools/call</code>로 옮긴다. 전송만 <code>stdio</code>(로컬·1:1)에서 <code>Streamable HTTP</code>(원격·다중)로 바꾸면 같은 도구가 네트워크 너머 서버에도 그대로 붙는다.</p>
 <p class="muted"><strong>가르칠 때 한 줄</strong> — "MCP는 도구를 <em>표준 한 겹(JSON-RPC/stdio)</em>으로 싼다. 발견은 <code>tools/list</code>, 실행은 <code>tools/call</code>. 모델은 그냥 도구를 부르고, 어댑터가 그 한 겹을 건넌다." 학생에겐 <code>--list</code>(목록)와 <code>--protocol</code>(왕복) 두 명령이면 충분하다.</p>
 </div>

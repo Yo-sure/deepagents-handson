@@ -187,6 +187,7 @@ def extract_react(doc: str, model: str, max_steps: int = 5) -> RecordV1:
         ]),
     ]
 
+    verified = False                                        # 도구로 검산을 한 번이라도 했나
     for _ in range(max_steps):
         ai = llm.invoke(messages)
         messages.append(ai)
@@ -198,8 +199,10 @@ def extract_react(doc: str, model: str, max_steps: int = 5) -> RecordV1:
                 obs = tool_fn.invoke(tc["args"])            # 런타임이 실제 실행
                 print(f"  [Observation] {obs}")
                 messages.append(ToolMessage(content=obs, tool_call_id=tc["id"]))
+                verified = True
             continue                                        # 관측을 들고 다시 모델에게
-        print("  [Final] 검산 통과 — 최종 JSON 출력")        # tool_calls 없음 = 종료
+        # tool_calls 없음 = 종료. 검산을 했으면 '통과', 안 했으면(명세서 등) '불필요'.
+        print(f"  [Final] {'검산 통과' if verified else '검산 불필요(영수증 아님)'} — 최종 JSON 출력")
         return RecordV1.model_validate_json(_strip_fences(_as_text(ai.content)))
     raise RuntimeError("ReAct 루프가 max_steps 안에 끝나지 않았다")
 #pragma endregion react-loop
@@ -230,12 +233,13 @@ def _print_mock_react_trace(rec: RecordV1) -> None:
     '모델이 도구를 부를지 정하는' 부분이 없다는 것뿐 — mock은 영수증이면 무조건 한 번 검산한다.
     """
     ok, item_sum = verify_total(rec)
-    if rec.doc_type == DocType.receipt:                 # 영수증만 합계 검산 대상
+    is_receipt = rec.doc_type == DocType.receipt          # 영수증만 합계 검산 대상
+    if is_receipt:
         print("  [Action] check_receipt_sum 호출")
         verdict = ("일치. 이 추출을 그대로 최종 JSON으로 출력하라."
                    if ok else "불일치. 이미지를 다시 보고 항목이나 수량을 고쳐 재검산하라.")
         print(f"  [Observation] 항목합={item_sum:,.0f}원, 총액={rec.total:,.0f}원 → {verdict}")
-    print("  [Final] 검산 통과 — 최종 JSON 출력")
+    print(f"  [Final] {'검산 통과' if is_receipt else '검산 불필요(영수증 아님)'} — 최종 JSON 출력")
 
 
 def extract(doc: str, model: str, mock: bool, react: bool) -> RecordV1:

@@ -19,7 +19,7 @@ pageClass: lec-page
 이 챕터에서는 분류와 정규화를 상태·재시도·중단점이 있는 파이프라인으로 묶습니다. 고액이나 저신뢰 건은 자동으로 통과시키지 않고 사람에게 멈춰 묻습니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 37 · 핸즈온 30</span><span class="clk">예상 10:05–11:15</span></div>
+<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 37 · 핸즈온 30 · 점검 3</span><span class="clk">예상 10:05–11:15</span></div>
 <div class="metric"><span class="num">2</span><strong>번째 모듈</strong><span>intake_graph.py</span></div>
 <div class="metric"><span class="num">10</span><strong>건 적재</strong><span>classified/*.json</span></div>
 </div>
@@ -124,7 +124,7 @@ rec: RecordV1 = result.output                       # 타입 안전한 구조화
 ```
 
 <p><strong>3계층 어디?</strong> Pydantic AI는 <strong>Framework 층</strong>(LangChain 자리)의 대안이다. 그 위에 Runtime(상태·분기·지속)과 Harness(계획·파일·서브에이전트)는 여전히 필요하다 — Pydantic AI도 자체 그래프·durable 실행·관측(Logfire)을 붙여 그 위층을 채워 간다.</p>
-<p class="muted"><strong>이 과정이 LangChain을 고른 이유</strong> — 우리 하네스 스택(LangGraph → DeepAgents)이 LangChain 위에 서기 때문이다. <em>구조화 출력·타입 안전이 1순위</em>면 Pydantic AI가, <em>LangGraph·미들웨어·deepagents 생태계</em>가 필요하면 LangChain이 맞다. 둘 다 같은 ReAct 루프를 한 줄로 감춘다는 본질은 같다. <span class="tiny">(API는 설치본 pydantic-ai 1.x에서 확인.)</span></p>
+<p class="muted"><strong>이 과정이 LangChain을 고른 이유</strong> — 우리 하네스 스택(LangGraph → DeepAgents)이 LangChain 위에 서기 때문이다. <em>구조화 출력·타입 안전이 1순위</em>면 Pydantic AI가, <em>LangGraph·미들웨어·deepagents 생태계</em>가 필요하면 LangChain이 맞다. 둘 다 같은 ReAct 루프를 한 줄로 감춘다는 본질은 같다. <span class="tiny">(이 레포 의존성엔 pydantic-ai를 넣지 않았습니다 — 위 API는 격리 실행한 pydantic-ai 1.x와 공개 문서로 확인했고, 직접 써 보려면 별도 환경에서 <code>uv run --with pydantic-ai</code>로 돌리세요.)</span></p>
 </div>
 </details>
 
