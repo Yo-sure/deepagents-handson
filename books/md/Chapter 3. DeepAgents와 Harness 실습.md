@@ -137,6 +137,26 @@ flowchart LR
 <p class="muted" style="margin-top:6px">덜 쓰는 게 더 나을 때도 많습니다 — 한 2026 연구('Less Context, Better Agents')는 전체 이력을 다 들고 가는 것보다 <em>최근 도구 호출 몇 개 + 자동 요약</em>만 남기는 쪽이 완료율도 비용도 더 나았다고 보고했습니다. 위 컨텍스트 엔지니어링 네 전략(특히 Compress·Select)의 근거입니다.</p>
 </div></div>
 </div>
+
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — "~3,500 토큰"은 어디서 나오고, 왜 호출 수에 따라 초선형으로 느나 <span style="color:var(--muted)">(비용 직관)</span></summary>
+<div class="reveal">
+<p>고정 오버헤드 ~3,500은 미들웨어 스택이 <em>매 호출</em> 시스템 프롬프트에 싣는 것들의 합이다. 한 측정 예시(비율은 버전·도구 수에 따라 변함):</p>
+<table>
+<thead><tr><th>구성</th><th>대략</th><th>무엇</th></tr></thead>
+<tbody>
+<tr><td>기본 프롬프트</td><td>~1,300</td><td>하네스 행동 지침</td></tr>
+<tr><td>도구 스키마·설명</td><td>~1,300</td><td>write_todos·task·read_file 등(read_file 설명만 ~330)</td></tr>
+<tr><td>SubAgent 미들웨어</td><td>~460</td><td>위임 도구·서브에이전트 목록</td></tr>
+<tr><td>TodoList</td><td>~200</td><td>할 일 관리</td></tr>
+<tr><td>Filesystem</td><td>~210</td><td>파일 도구</td></tr>
+</tbody>
+</table>
+<p><strong>여기까진 호출당 <em>고정</em>이다. 진짜 비용 폭발은 다른 데서 온다</strong> — 모델은 상태가 없어서(Ch1), 매 호출마다 <em>지금까지의 대화 전체</em>를 다시 보낸다. 그래서 멀티콜 에이전트의 토큰은 "3,500 × 호출 수"가 아니라, <strong>고정 오버헤드(매번 재전송) + 계속 쌓이는 대화 기록(매번 재전송) + 도구 결과</strong>로 불어난다. 한 측정에서 ~22,000 토큰짜리 실행을 쪼개 보니 대략 <strong>고정 오버헤드 63% · 누적 대화 기록 27% · 도구 결과 10%</strong>였다 — 호출이 늘수록 가운데 27% 칸이 커지며 비용이 <em>호출 수에 초선형</em>으로 증가한다.</p>
+<p><strong>그래서 "Agent는 마지막 수단"이다</strong> — 자율성을 키우면 호출이 늘고, 호출마다 누적 기록을 통째로 다시 사니 비용이 빠르게 뛴다. 줄이는 손잡이는 셋: ① <strong>fan-out 폭을 규모에 맞추기</strong>(N갈래 = 고정 오버헤드 N배), ② <strong>프롬프트 캐싱</strong>(반복되는 앞부분 재계산 면제, Ch1), ③ <strong>컨텍스트 압축·선택</strong>(누적 기록을 요약/잘라 27% 칸을 억제, 위 'Less Context' 근거).</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "토큰은 호출 수에 곱하기가 아니라 <em>제곱에 가깝게</em> 는다 — 매 호출이 과거 전체를 다시 사기 때문. 그래서 단계가 정해졌으면 워크플로(Ch2)가 싸다." 숫자는 예시이고, 외워야 할 건 <em>재전송 구조</em>다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">
@@ -230,6 +250,24 @@ agent = create_deep_agent(
 <p class="section-note" style="margin-top:10px">"계획·진행을 컨텍스트가 아니라 파일에 둔다"가 하네스의 핵심입니다. DeepAgents의 <code>write_todos</code>(계획)와 filesystem(상태 파일)이 이 패턴을 기본으로 깔아 줍니다 — 우리 오케스트레이터도 계획을 세워 fan-out 한 뒤 노트를 파일로 남기는 같은 구조입니다.</p>
 </div>
 </div>
+
+<details class="deep">
+<summary>🔬 심화 · <strong>강의용</strong> — 네 문제를 각각 무엇으로 막나 <span style="color:var(--muted)">(롱러닝 에이전트 엔지니어링)</span></summary>
+<div class="reveal">
+<p>"둘로 나눈다"는 발상의 핵심은 <strong>유한한 컨텍스트 창을, 무한한 외부 메모리(파일시스템)로 우회</strong>하는 것이다. 위 네 문제는 각각 다른 장치로 막힌다:</p>
+<table>
+<thead><tr><th>문제</th><th>장치</th><th>산출물</th></tr></thead>
+<tbody>
+<tr><td>① 컨텍스트 소진</td><td>계획·진행을 컨텍스트가 아니라 파일에 외부화. 창이 리셋돼도 파일은 남는다</td><td><code>plan.md</code>·todo</td></tr>
+<tr><td>② 토큰 낭비</td><td>진행 상태를 <strong>단일 진실원(SSOT)</strong> 파일 하나에 모은다 — 매 턴 과거 전체가 아니라 그 요약만 읽는다</td><td><code>progress.txt</code></td></tr>
+<tr><td>③ 복구 비용</td><td><strong>청크 단위</strong>로 쪼개 실패한 청크만 되돌려 재시도. 환경은 스크립트로 재구성해 처음부터 안 한다</td><td><code>git revert</code>·<code>init.sh</code></td></tr>
+<tr><td>④ 거짓 완료</td><td>완료를 <em>모델의 말</em>이 아니라 <code>progress.txt</code>의 청크별 체크로 판정 — 남은 게 있으면 안 끝난 것</td><td>progress 체크</td></tr>
+</tbody>
+</table>
+<p>핵심 통찰은 <strong>"끝났다"를 모델 자기보고가 아니라 파일 상태로 정의</strong>한다는 것이다. Anthropic도 긴 작업을 한 번(one-shot)에 시키면 중간 실패에서 복구 불능이 되고, 단계를 파일로 못 박아야 재개·감사·부분 재시도가 가능하다고 본다. 우리 랩의 fan-out도 작은 버전이다 — 계획(plan)→갈래별 노트 파일→대조. 갈래 하나가 죽어도 나머지 노트는 디스크에 남는다.</p>
+<p class="muted"><strong>가르칠 때 한 줄</strong> — "긴 작업의 적은 컨텍스트 한도다. 답은 <em>상태를 파일로 빼는 것</em> — 계획·진행·완료판정을 전부 파일에 두면 죽어도 이어 간다." <code>git revert</code>·<code>init.sh</code>·<code>progress.txt</code>는 특정 API가 아니라 그 패턴을 구현하는 흔한 도구다.</p>
+</div>
+</details>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>한 번에 끝났는지 누가 아나 — 자가 채점 루프</span><span class="status-pill">RubricMiddleware · beta · 코드 미시연</span></div>
