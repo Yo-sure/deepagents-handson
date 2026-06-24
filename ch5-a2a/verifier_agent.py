@@ -17,6 +17,7 @@ Agent Card는 /.well-known/agent-card.json 에 노출되는 메타데이터와 s
 
 from __future__ import annotations
 
+import re
 import sys
 import os
 from pathlib import Path
@@ -49,6 +50,18 @@ URL = f"http://localhost:{PORT}"
 
 
 #pragma region verify-brief
+def _amount_present(amount: float, text: str) -> bool:
+    """금액이 본문에 — 더 큰 수의 일부가 아니라 — 독립된 수로 등장하는지.
+
+    단순 substring이면 '89,000'이 '189,000'의 일부로 우연히 매칭돼
+    틀린 금액이 가짜 통과(false PASS)된다. 앞뒤 숫자 경계를 둬 막는다.
+    """
+    for s in (f"{amount:,.0f}", f"{amount:.0f}"):
+        if re.search(rf"(?<!\d){re.escape(s)}(?!\d)", text):
+            return True
+    return False
+
+
 def verify_brief(brief_text: str) -> tuple[bool, list[str]]:
     """브리프를 레코드와 다시 대사한다 — (통과여부, 근거 목록)."""
     records = load_records()
@@ -64,7 +77,7 @@ def verify_brief(brief_text: str) -> tuple[bool, list[str]]:
     missing = [
         name for name, amount in real_gaps
         if name.split("(")[0] not in brief_text
-        or (f"{amount:,.0f}" not in brief_text and f"{amount:.0f}" not in brief_text)
+        or not _amount_present(amount, brief_text)
     ]
     notes = [f"독립 재계산: 영수증 없는 거래 {len(real_gaps)}건 "
              f"({', '.join(f'{n} {a:,.0f}원' for n, a in real_gaps)})"]

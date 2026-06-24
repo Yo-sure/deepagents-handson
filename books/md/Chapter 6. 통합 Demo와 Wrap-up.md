@@ -109,7 +109,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 70분</div>
+<div class="eyebrow">핸즈온 · 65분</div>
 
 ## 직접 배선한다 — analyst_app.py
 
@@ -222,7 +222,7 @@ flowchart LR
 문서 10건 · 영수증 지출 99,900원 · 짚을 점 2건.
 
 ## 짚을 점
-- (gap) 쿠팡(주) 89,000원 — 영수증 없음, 확인 필요
+- (gap) 쿠팡(주) 89,000원 — 확인 필요
 - (subscription) 넷플릭스 17,000원 — 구독 추정
 
 ## 할 일

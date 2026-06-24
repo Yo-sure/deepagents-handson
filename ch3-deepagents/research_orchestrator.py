@@ -596,9 +596,9 @@ def build_agent(records: list[RecordV1]):
 def fan_out_live(records: list[RecordV1]) -> dict[str, str]:
     """DeepAgents live fan-out을 실행하고 노트·브리프 계약을 검증한다."""
     clear_expected_notes()
-    agent = build_agent(records)
-    print("  [live] create_deep_agent → task 서브에이전트 3개 위임 요청")
     try:
+        agent = build_agent(records)
+        print("  [live] create_deep_agent → task 서브에이전트 3개 위임 요청")
         out = agent.invoke({"messages": [{"role": "user",
               "content": (
                   "인박스를 교차 조사해라. 반드시 write_todos로 계획한 뒤 task로 "

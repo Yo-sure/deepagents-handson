@@ -419,7 +419,7 @@ sequenceDiagram
 <thead><tr><th>방어</th><th>무엇</th><th>이 챕터에서</th></tr></thead>
 <tbody>
 <tr><td>① 권한 최소화</td><td>도구는 <strong>읽기 전용이 기본</strong>. 쓰기·삭제·전송은 꼭 필요한 것만, 좁은 스코프로</td><td><code>read_record</code>·<code>search_knowledge</code>는 읽기뿐. <code>read_record</code>는 <code>SAFE_RECORD</code> 정규식+<code>relative_to</code>로 경로 탈출까지 막는다</td></tr>
-<tr><td>② 위험 도구 HITL</td><td>되돌릴 수 없는 도구(회신·삭제·결제)는 <code>interrupt</code>로 <strong>사람 승인</strong> 후 실행</td><td>Ch2 <code>interrupt()</code>·Ch6 회신 승인과 같은 장치 — 부작용 단계에만</td></tr>
+<tr><td>② 위험 도구 HITL</td><td>되돌릴 수 없는 도구(회신·삭제·결제)는 <code>interrupt</code>로 <strong>사람 승인</strong> 후 실행</td><td><strong>이 챕터 도구는 모두 읽기 전용이라 트리거 안 됨</strong> — 같은 장치를 Ch2 <code>interrupt()</code>·Ch6 회신 승인에서 부작용 단계에만 켠다</td></tr>
 <tr><td>③ 마스킹·감사</td><td>들고나는 내용에서 PII·키를 가리고, 누가 무엇을 호출했는지 <strong>로그로 남긴다</strong></td><td>MCP <code>tools/call</code> 추적(<code>--run</code>의 도구 호출 로그)이 감사의 1차선</td></tr>
 </tbody>
 </table>

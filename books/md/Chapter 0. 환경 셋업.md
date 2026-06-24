@@ -324,7 +324,7 @@ flowchart LR
 </table>
 <p><strong>둘을 잇는 게 <code>ConfigDict(populate_by_name=True)</code></strong> — 한글 alias로도, 영문 이름으로도 객체를 만들 수 있다. 그래서 mock은 gold(한글 키 dict)를 <code>model_validate</code>로 그대로 적재하고, 코드는 <code>rec.merchant</code>로 접근한다. 같은 객체, 두 입구.</p>
 <p><strong>LLM에 나가는 스키마도 한글</strong> — <code>schema_json()</code>은 <code>RecordV1.model_json_schema(by_alias=True)</code>다. <code>by_alias=True</code>라 모델이 받는 structured-output 스키마의 키가 <code>판매처·금액…</code>이고, 모델은 그 키로 채워 돌려준다. 즉 <em>여기선 한글이 외부 계약</em>이다(영문은 코드 내부용).</p>
-<p><strong>두 디테일</strong> — ① <code>use_enum_values=True</code>라 <code>doc_type</code>이 <code>DocType.receipt</code> 객체가 아니라 문자열 <code>"영수증"</code>으로 직렬화된다(JSON에 그대로 박힘). ② 최상위 <code>total</code>과 <code>LineItem.amount</code>이 <em>둘 다</em> alias <code>"금액"</code>이다 — 같은 한글이지만 중첩 위치로 갈린다(최상위 <code>금액</code>=총액, 항목 안 <code>금액</code>=품목가). Ch1에서 이 둘을 헷갈리면 합계 검산이 어긋난다.</p>
+<p><strong>두 디테일</strong> — ① <code>use_enum_values=True</code>라 <code>doc_type</code>이 <code>DocType.receipt</code> 객체가 아니라 문자열 <code>"영수증"</code>으로 직렬화된다(JSON에 그대로 박힘). ② 최상위 <code>total</code>과 <code>LineItem.amount</code>이 <em>둘 다</em> alias <code>"금액"</code>이다 — 같은 한글이지만 중첩 위치로 갈린다(최상위 <code>금액</code>=총액, 항목 안 <code>금액</code>=품목 <strong>단가</strong>). 그래서 Ch1의 합계 검산은 항목 금액을 그냥 더하는 게 아니라 <strong>Σ(금액 × 수량) == 총액</strong>이다 — 광화문 국밥은 순대국밥 <code>9,000원 × 수량 3 = 27,000원</code>(=총액)이라, 수량을 빼먹고 9,000원만 더하면 27,000원과 어긋나 <em>멀쩡한 영수증을 틀렸다고</em> 잡는다. 중첩 위치(총액 vs 단가)와 수량을 함께 봐야 검산이 선다.</p>
 <p class="muted"><strong>가르칠 때 한 줄</strong> — "<code>alias</code> + <code>populate_by_name</code> = 사람용 한글 JSON과 코드용 영문 식별자를 한 모델로. 직렬화는 한글, 접근은 영문, LLM 스키마는 <code>by_alias</code>로 한글." 학생은 schema.py를 읽고 'JSON은 한글인데 코드는 영문'만 잡으면 되고, 위 메커니즘은 질문이 나올 때 펼친다.</p>
 </div>
 </details>

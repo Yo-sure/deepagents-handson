@@ -296,7 +296,7 @@ flowchart TD
 <p class="tiny" style="color:var(--muted)"><strong>검증 자체의 한계도 알고 씁니다.</strong> <code>verify_total</code>은 "항목합(<code>금액×수량</code>) = 총액(±1원)"이라는 가정이라, 부가세 별도·서비스료·할인·반올림이 섞인 <em>실제</em> 영수증에선 모델이 옳게 읽어도 불일치가 날 수 있습니다. 그래서 이 검증은 <strong>정답 판정</strong>이 아니라 — 불일치를 재시도로 보내되 상한 + flagged 큐로 받치는 <em>층층 방어</em>의 한 겹일 뿐입니다.</p>
 <p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아, 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성).</p>
 <p>평소 mock은 gold가 고정이라 합계가 맞아 retry가 안 뜹니다(라이브 추출에선 비결정성으로 흔들려 의미가 있습니다). 그래서 <strong>아래 <code>--break-sum</code>으로 일부러 깨</strong> retry 루프를 눈으로 봅니다 — 한계를 정해 두는 게 하네스의 일입니다.</p>
-<p>재시도가 외부 부작용(메일 전송·DB 쓰기)을 가진 도구를 다시 부른다면 <strong>멱등성</strong>이 필요합니다 — 같은 작업을 두 번 해도 결과가 한 번과 같도록 idempotency key를 둬야 중복이 안 생깁니다(이 실습의 재분류는 부작용이 없어 안전). 그래프 차원의 마지막 안전망은 <code>recursion_limit</code>입니다 — 한 실행의 superstep 수가 이를 넘으면 <code>GraphRecursionError</code>가 납니다. 설치된 LangGraph의 기본은 <strong>25</strong>로, 평소엔 안 걸리는 <em>폭주 방지 backstop</em>입니다(노드 로직이 정하는 <code>MAX_RETRY</code> 재시도 횟수와는 다른 층). <code>graph.invoke(state, config=&#123;"recursion_limit": 5&#125;)</code>로 낮춰 일부러 터뜨려 보면 둘이 서로 다른 층이라는 게 또렷해집니다.</p>
+<p>재시도가 외부 부작용(메일 전송·DB 쓰기)을 가진 도구를 다시 부른다면 <strong>멱등성</strong>이 필요합니다 — 같은 작업을 두 번 해도 결과가 한 번과 같도록 idempotency key를 둬야 중복이 안 생깁니다(이 실습의 재분류는 부작용이 없어 안전). 그래프 차원의 마지막 안전망은 <code>recursion_limit</code>입니다 — 한 실행의 superstep 수가 이를 넘으면 <code>GraphRecursionError</code>가 납니다. 설치된 LangGraph 1.2.5의 기본은 <strong>10007</strong>입니다(옛 0.x의 25에서 올라갔습니다) — 평소엔 안 걸리는 <em>폭주 방지 backstop</em>입니다(노드 로직이 정하는 <code>MAX_RETRY</code> 재시도 횟수와는 다른 층). <code>graph.invoke(state, config=&#123;"recursion_limit": 5&#125;)</code>로 낮춰 일부러 터뜨려 보면 둘이 서로 다른 층이라는 게 또렷해집니다.</p>
 </div></div>
 </div>
 
@@ -627,7 +627,7 @@ flowchart LR
 <div class="panel-body"><div class="list">
 <p><strong>Q1.</strong> <code>create_agent</code>와 직접 짠 <code>StateGraph</code> 중, "고액이면 멈추고 합계 틀리면 되돌린다"는 적재 파이프라인엔 무엇이 맞나? 왜?</p>
 <p><strong>Q2.</strong> <code>interrupt()</code>로 멈춘 그래프를 <code>Command(resume=...)</code>로 재개하려면 <code>compile()</code>에 무엇이 반드시 있어야 하나? 없으면 어디서 깨지나?</p>
-<p><strong>Q3.</strong> <code>MAX_RETRY</code>(2)와 <code>recursion_limit</code>(기본 25)은 같은 안전장치인가?</p>
+<p><strong>Q3.</strong> <code>MAX_RETRY</code>(2)와 <code>recursion_limit</code>(기본 10007)은 같은 안전장치인가?</p>
 <p><strong>Q4.</strong> <code>Command(resume=...)</code>로 재개하면 멈췄던 노드는 어떻게 실행되나? 그래서 <code>interrupt()</code> <em>앞</em>에 무엇을 두면 안 되나?</p>
 <p><strong>Q5.</strong> <code>--mock</code> 실행에선 저신뢰(&lt;0.7) 분기가 왜 한 번도 안 걸리나? 그럼 mock에서 멈춤은 무엇 때문에 뜨나?</p>
 </div></div>
