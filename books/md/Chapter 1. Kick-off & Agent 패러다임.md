@@ -642,6 +642,8 @@ flowchart TB
 
 <<< ../../ch1-llm-basics/classify_one.py#react-tool{python}
 
+<p class="section-note" style="margin-top:10px">도구 설명은 함수 docstring에 두고, 입력 계약은 <code>args_schema=CheckReceiptSumInput</code>으로 고정합니다. <code>items: list[dict]</code>처럼 열어 두면 모델에게 전달되는 JSON Schema가 "아무 object 배열"이 되어 <code>amount</code>·<code>qty</code>의 의미가 약해집니다. Pydantic 모델로 닫아 두면 단가·수량·총액이 도구 호출 스키마에 그대로 드러나고, 런타임도 같은 계약으로 검증합니다.</p>
+
 </div>
 </div>
 

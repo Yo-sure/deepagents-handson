@@ -26,8 +26,6 @@ import json
 import mimetypes
 import os
 from pathlib import Path
-from typing import Any
-
 import yaml
 from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field
@@ -156,32 +154,30 @@ def verify_total(rec: RecordV1, tol: float = 1.0) -> tuple[bool, float]:
     return abs(item_sum - rec.total) < tol, item_sum
 
 
-def _pick_number(data: dict, *keys: str, default: float = 0.0) -> float:
-    for key in keys:
-        if data.get(key) is not None:
-            return float(data[key])
-    return default
-
-
 class ReceiptToolItem(BaseModel):
-    model_config = ConfigDict(populate_by_name=True, extra="forbid")
+    model_config = ConfigDict(extra="forbid")
 
-    name: str | None = Field(default=None, alias="이름", description="품목명")
-    amount: float | None = Field(default=None, alias="단가", description="항목 1개 단가(원)")
-    qty: float | None = Field(default=None, alias="수량", description="수량")
+    name: str | None = Field(default=None, description="품목명")
+    amount: float = Field(description="항목 1개 단가(원). 라인 총액이 아님")
+    qty: float = Field(default=1.0, description="수량")
 
 
-def _normalize_tool_items(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    normalized = []
+class CheckReceiptSumInput(BaseModel):
+    """check_receipt_sum 도구 입력."""
+
+    items: list[ReceiptToolItem] = Field(description="영수증 품목 목록")
+    total: float = Field(description="영수증에 적힌 총액(원)")
+
+
+CheckReceiptSumInput.model_rebuild(_types_namespace={"ReceiptToolItem": ReceiptToolItem})
+
+
+def _coerce_tool_items(items: list[ReceiptToolItem | dict]) -> list[ReceiptToolItem]:
+    parsed = []
     for item in items:
-        data = dict(item)
-        canonical = {
-            "이름": data.get("이름", data.get("name")),
-            "단가": data.get("단가", data.get("amount", data.get("금액"))),
-            "수량": data.get("수량", data.get("qty", data.get("quantity"))),
-        }
-        normalized.append(ReceiptToolItem.model_validate(canonical).model_dump())
-    return normalized
+        parsed.append(item if isinstance(item, ReceiptToolItem)
+                      else ReceiptToolItem.model_validate(item))
+    return parsed
 
 
 # ── ReAct 에이전트: 모델이 도구 호출 여부를 정하고 관측해 보정한다 ──
@@ -190,14 +186,13 @@ def _normalize_tool_items(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 # 결정하고(Action) 그 결과를 보고(Observation) 다음 행동을 정한다. 아래는 그 루프다.
 
 
-def _receipt_sum_observation(items: list[dict], total: float, tol: float = 1.0) -> tuple[bool, str]:
-    items = _normalize_tool_items(items)
-    s = 0.0
-    for it in items:
-        amount = _pick_number(it, "amount", "단가", "금액")
-        qty = _pick_number(it, "qty", "quantity", "수량", default=1.0)
-        if amount > 0:
-            s += amount * qty
+def _receipt_sum_observation(
+    items: list[ReceiptToolItem | dict],
+    total: float,
+    tol: float = 1.0,
+) -> tuple[bool, str]:
+    parsed = _coerce_tool_items(items)
+    s = sum(item.amount * item.qty for item in parsed if item.amount > 0)
     ok = abs(s - total) < tol
     obs = (f"항목합={s:,.0f}원, 총액={total:,.0f}원 → "
            + ("일치. 이 추출을 그대로 최종 JSON으로 출력하라."
@@ -216,12 +211,12 @@ def _check_sum_tool():
     from langchain_core.tools import tool
 
 #pragma region react-tool
-    @tool
-    def check_receipt_sum(items: list[dict], total: float) -> str:
+    @tool(args_schema=CheckReceiptSumInput)
+    def check_receipt_sum(items: list[ReceiptToolItem], total: float) -> str:
         """영수증 항목 합계가 총액과 맞는지 검산한다. 영수증으로 판단될 때 호출한다.
 
         Args:
-            items: [{"name": 품목, "amount": 단가(원), "qty": 수량}] 목록. 한글 키 "단가", "수량"도 허용.
+            items: [{"name": 품목, "amount": 단가(원), "qty": 수량}] 목록.
             total: 영수증에 적힌 총액(원)
         """
         return _receipt_sum_observation(items, total)[1]
