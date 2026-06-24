@@ -309,7 +309,7 @@ flowchart LR
 </div>
 </div>
 
-<div class="grid-2">
+<div class="grid-2" style="margin-top:16px">
 <div class="panel"><div class="panel-head"><strong>logprobs — 확신의 정체</strong><span>토큰 확률 분포</span></div><div class="panel-body"><div class="list">
 <p>분류처럼 답이 또렷하면 한 토큰에 확률이 몰립니다(예: '식비' 98.6%).</p>
 <p>애매하면 후보로 퍼집니다. 그래도 모델은 늘 최상위를 골라 답합니다. 모르겠다가 기본이 아닙니다. 이게 Kalai의 자신 있는 추측입니다.</p>
