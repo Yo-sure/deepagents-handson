@@ -96,8 +96,12 @@ try:
     if model == "google/gemini-3.5-flash" and not model_name.startswith("google/gemini-3.5-flash"):
         print(f"ROUTING_MISMATCH requested={model} actual={model_name or '(unknown)'}")
         raise SystemExit(1)
-    if not resp.response_metadata and resp.content is None:
-        print("EMPTY_RESPONSE OpenRouter returned no metadata/content")
+    content = (resp.content or "").strip()
+    if content.upper() != "OK":
+        print(f"UNEXPECTED_CONTENT expected=OK actual={content[:120]!r}")
+        raise SystemExit(1)
+    if not resp.response_metadata:
+        print("EMPTY_METADATA OpenRouter returned no response metadata")
         raise SystemExit(1)
 except Exception as e:
     text = str(e).replace("\n", " ")

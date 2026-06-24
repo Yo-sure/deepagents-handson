@@ -16,8 +16,8 @@ Ch3의 노트는 이번 인박스에만 쓰는 메모다. 다음 달에도 다�
 
 from __future__ import annotations
 
-import sys
 import os
+import sys
 from collections import defaultdict
 from pathlib import Path
 
@@ -65,7 +65,11 @@ def okf_entry(
 
 
 def okf_index(entries: dict[str, str]) -> str:
-    """Bundle root index.md. OKF v0.1 permits okf_version here."""
+    """Bundle root index.md.
+
+    OKF v0.1 keeps ordinary index.md files frontmatter-free, but section 11 permits
+    okf_version frontmatter only on the bundle-root index.md.
+    """
     grouped: dict[str, list[tuple[str, str, str]]] = defaultdict(list)
     for filename, text in entries.items():
         meta = yaml.safe_load(text.split("---", 2)[1])
@@ -105,18 +109,22 @@ def build_merchant_entries(records: list[RecordV1]) -> dict[str, str]:
     for merchant, recs in agg.items():
         total = sum(r.total for r in recs)
         types = sorted({r.doc_type for r in recs})
+        sources = sorted({r.source_path for r in recs if r.source_path})
         lines = [
             f"- 2026-05 합계: {total:,.0f}원",
             f"- 문서유형: {', '.join(types)}",
             f"- 건수: {len(recs)}",
         ]
+        extra = {"total": int(total)}
+        if len(sources) == 1:
+            extra["resource"] = sources[0]
         out[f"merchant-{slug(merchant)}"] = okf_entry(
             "merchant",
             merchant,
             lines,
             description=f"{merchant}의 2026년 5월 인박스 누적 거래 요약.",
             tags=["inbox", "merchant", "2026-05"],
-            total=int(total),
+            **extra,
         )
     return out
 
@@ -139,6 +147,7 @@ def build_finding_entries(records: list[RecordV1]) -> dict[str, str]:
                  "- 카드 명세서에만 등장"],
                 description=f"{item.name} {amt:,.0f}원 결제의 구독 가능성.",
                 tags=["inbox", "subscription", "2026-05"],
+                resource=card.source_path,
                 amount=int(amt))
         else:
             out[f"gap-{slug(item.name)}"] = okf_entry(
@@ -147,17 +156,35 @@ def build_finding_entries(records: list[RecordV1]) -> dict[str, str]:
                  "- 확인 필요: 영수증 분실 또는 미수령"],
                 description=f"{item.name} {amt:,.0f}원 결제의 대응 영수증 누락.",
                 tags=["inbox", "gap", "2026-05"],
+                resource=card.source_path,
                 amount=int(amt))
     return out
+
+
+def validate_okf_bundle(entries: dict[str, str], index_text: str) -> None:
+    """OKF v0.1 teaching minimum: item frontmatter, required type, root-index version exception."""
+    if "okf_version:" not in index_text.split("---", 2)[1]:
+        raise RuntimeError("OKF 루트 index.md에 okf_version이 없습니다.")
+    for name, text in entries.items():
+        if not text.startswith("---"):
+            raise RuntimeError(f"{name}.md: YAML frontmatter가 없습니다.")
+        try:
+            meta = yaml.safe_load(text.split("---", 2)[1]) or {}
+        except yaml.YAMLError as exc:
+            raise RuntimeError(f"{name}.md: YAML frontmatter 파싱 실패: {exc}") from exc
+        if not meta.get("type"):
+            raise RuntimeError(f"{name}.md: OKF 필수 필드 type이 없습니다.")
 
 
 def main() -> None:
     records = load_records()
     ensure_workspace()
     entries = {**build_merchant_entries(records), **build_finding_entries(records)}
+    index_text = okf_index(entries)
+    validate_okf_bundle(entries, index_text)
     for name, text in entries.items():
         (KNOWLEDGE_BASE / f"{name}.md").write_text(text, encoding="utf-8")
-    (KNOWLEDGE_BASE / "index.md").write_text(okf_index(entries), encoding="utf-8")
+    (KNOWLEDGE_BASE / "index.md").write_text(index_text, encoding="utf-8")
     print(f"▶ OKF 항목 {len(entries)}개 적재 → {KNOWLEDGE_BASE}")
     for name in sorted(entries):
         kind = name.split("-")[0]

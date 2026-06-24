@@ -37,6 +37,7 @@ def prepare_runtime_view() -> Path:
         shutil.rmtree(root)
     (root / "ch4-skills-mcp").mkdir(parents=True)
     shutil.copytree(REPO / "ch4-skills-mcp" / "inbox-brief", root / "ch4-skills-mcp" / "inbox-brief")
+    shutil.copytree(REPO / "ch4-skills-mcp" / "reconcile-rules", root / "ch4-skills-mcp" / "reconcile-rules")
     if WORKSPACE.exists():
         shutil.copytree(WORKSPACE, root / "workspace", ignore=shutil.ignore_patterns("_skill_runtime"))
     return root
@@ -49,6 +50,14 @@ def sync_runtime_brief(runtime_root: Path) -> None:
     if generated.exists():
         BRIEF.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(generated, BRIEF)
+
+
+def brief_has_bad_card_gap(text: str) -> bool:
+    markers = ("대응 문서 없음", "영수증 없음", "미확인", "누락", "분실", "미수령")
+    for line in text.splitlines():
+        if "신한카드 결제" in line and any(marker in line for marker in markers):
+            return True
+    return False
 
 
 def show_progressive_disclosure() -> None:
@@ -115,6 +124,10 @@ def run_agent() -> None:
     )
     note_files = sorted(f"/workspace/research_notes/{p.name}"
                         for p in (workspace_root / "research_notes").glob("*.md"))
+    requires_reconcile = bool(
+        any("statement_card" in path or "statement_bank" in path for path in classified_files)
+        and any("reconcile" in path for path in note_files)
+    )
     backend = FilesystemBackend(root_dir=runtime_root, virtual_mode=True)
     skills_mw = SkillsMiddleware(
         backend=backend,
@@ -126,8 +139,10 @@ def run_agent() -> None:
         backend=backend,
     )
     task = (
-        "inbox-brief 스킬을 사용해 /workspace/brief.md를 작성하라.\n"
-        "먼저 /ch4-skills-mcp/inbox-brief/SKILL.md를 읽고 지침을 따르라.\n"
+        "분류 레코드, OKF 지식, 조사 노트를 모아 /workspace/brief.md를 작성하라.\n"
+        "사용 가능한 Skill 목록에서 이 작업에 맞는 브리프 작성 Skill을 찾아 본문을 읽고 따르라.\n"
+        "조사 노트의 대응 문서 없음이나 영수증 없음 판정은 레코드와 충돌할 수 있으므로, "
+        "사용 가능한 대사 검증 Skill도 읽어 규칙을 적용하라.\n"
         "입력은 /workspace/classified, /workspace/knowledge_base, "
         "/workspace/research_notes 아래에만 있다. ls로 파일명을 확인한 뒤 필요한 파일만 "
         "read_file로 읽어라. glob/grep으로 전체를 뒤지지 말라.\n"
@@ -145,6 +160,7 @@ def run_agent() -> None:
     )
     print(f"task: {task}\n--- 도구 호출 추적 (read_file이 곧 점진 공개) ---")
     saw_write = False
+    read_targets: list[str] = []
     final_text = ""
     for chunk in agent.stream(
         {"messages": [{"role": "user", "content": task}]},
@@ -166,12 +182,21 @@ def run_agent() -> None:
                     args = call.get("args", {})
                     target = args.get("file_path") or args.get("path") or ""
                     print(f"  [{call['name']}] {target}".rstrip())
+                    if call["name"] == "read_file" and target:
+                        read_targets.append(str(target))
                     if call["name"] == "write_file" and "brief.md" in str(args):
                         saw_write = True
     if final_text:
         print(f"final: {final_text[:500]}")
     if not saw_write or not generated.exists() or generated.stat().st_mtime < start:
         raise RuntimeError("Skill 실행이 workspace/brief.md를 새로 쓰지 않았습니다.")
+    brief_text = generated.read_text(encoding="utf-8")
+    if not any("inbox-brief/SKILL.md" in target for target in read_targets):
+        raise RuntimeError("Skill 실행이 inbox-brief 본문을 read_file로 읽지 않았습니다.")
+    if requires_reconcile and not any("reconcile-rules/SKILL.md" in target for target in read_targets):
+        raise RuntimeError("대사 검증이 필요한 입력인데 reconcile-rules Skill을 읽지 않았습니다.")
+    if brief_has_bad_card_gap(brief_text):
+        raise RuntimeError("정상 매칭된 신한카드 결제를 짚을 점으로 잘못 올렸습니다.")
     sync_runtime_brief(runtime_root)
 
 
@@ -182,16 +207,37 @@ def run_offline_rehearsal() -> None:
     Skill 문서의 절차를 끝까지 확인하기 위한 결정론 보조 경로다.
     """
     sys.path.insert(0, str(REPO / "ch3-deepagents"))
+    sys.path.insert(0, str(REPO / "ch4-skills-mcp"))
     from analyst.paths import BRIEF, KNOWLEDGE_BASE, ensure_workspace
     from research_orchestrator import by_type, load_records
+    from okf_store import build_finding_entries, build_merchant_entries, okf_index, validate_okf_bundle
 
     skill = REPO / "ch4-skills-mcp" / "inbox-brief" / "SKILL.md"
+    reconcile_skill = REPO / "ch4-skills-mcp" / "reconcile-rules" / "SKILL.md"
     ref = REPO / "ch4-skills-mcp" / "inbox-brief" / "references" / "brief_format.md"
-    print("--- 오프라인 리허설: LLM 호출 없이 Skill 문서를 절차로 실행 ---")
-    print(f"  [read_file] {skill.relative_to(REPO)}")
-    print(f"  [read_file] {ref.relative_to(REPO)}")
+    print("--- 오프라인 리허설: LLM·SkillsMiddleware 도구 호출 로그가 아님 ---")
+    print(f"  [offline-read] {skill.relative_to(REPO)}")
+    print(f"  [offline-read] {reconcile_skill.relative_to(REPO)}")
+    print(f"  [offline-read] {ref.relative_to(REPO)}")
 
-    records = load_records()
+    records = load_records(allow_gold=True)
+    ensure_workspace()
+    existing_findings = [
+        p for p in KNOWLEDGE_BASE.glob("*.md")
+        if p.name != "index.md" and ("gap-" in p.name or "subscription-" in p.name)
+    ]
+    if not existing_findings:
+        entries = {**build_merchant_entries(records), **build_finding_entries(records)}
+        index_text = okf_index(entries)
+        validate_okf_bundle(entries, index_text)
+        for name, text in entries.items():
+            (KNOWLEDGE_BASE / f"{name}.md").write_text(text, encoding="utf-8")
+        (KNOWLEDGE_BASE / "index.md").write_text(index_text, encoding="utf-8")
+        try:
+            index_target = (KNOWLEDGE_BASE / "index.md").relative_to(REPO)
+        except ValueError:
+            index_target = KNOWLEDGE_BASE / "index.md"
+        print(f"  [offline-write] {index_target}")
     receipts = by_type(records, "영수증")
     spend = sum(r.total for r in receipts)
     categories = {
@@ -233,13 +279,12 @@ def run_offline_rehearsal() -> None:
         "- [ ] 영수증 없는 카드 결제 확인",
         "- [ ] 구독 목록 점검",
     ]
-    ensure_workspace()
     BRIEF.write_text("\n".join(lines) + "\n", encoding="utf-8")
     try:
         target = BRIEF.relative_to(REPO)
     except ValueError:
         target = BRIEF
-    print(f"  [write_file] {target}")
+    print(f"  [offline-write] {target}")
 
 
 def main() -> None:

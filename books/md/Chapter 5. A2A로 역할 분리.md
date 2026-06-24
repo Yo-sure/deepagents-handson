@@ -133,7 +133,7 @@ stateDiagram-v2
 </div>
 
 <details class="deep">
-<summary>🔬 심화 · <strong>강의용</strong> — "에이전트 간 협업"은 무엇이고, 언제 A2A인가 <span style="color:var(--muted)">(멀티에이전트)</span></summary>
+<summary>🔬 심화 — "에이전트 간 협업"은 무엇이고, 언제 A2A인가 <span style="color:var(--muted)">(멀티에이전트)</span></summary>
 <div class="reveal">
 <p>우리 실습은 가장 단순한 <strong>1:1</strong>(애널리스트→검증자)만 보여 준다. A2A의 진짜 값은 <em>여러 에이전트가 주고받으며 반복</em>할 때 드러난다. 뉴스룸형 예 — 기자·리서처·편집자가 각각 독립 에이전트다:</p>
 
@@ -158,7 +158,7 @@ flowchart LR
 </tbody>
 </table>
 <p>그래서 한 시스템은 둘을 같이 쓴다 — 에이전트끼리는 A2A로 협업하고, 각 에이전트는 자기 도구를 MCP로 쓴다(위 점선). 우리 검증자도 내부적으로 레코드(데이터)에 닿지만, 애널리스트와의 <em>사이</em>는 A2A다.</p>
-<p class="muted"><strong>가르칠 때 한 줄</strong> — "협상·반복·상태유지가 필요하면 A2A, 도구·데이터 접근이면 MCP. 우리 1:1은 A2A의 가장 단순한 형태이고, 본격적인 쓰임은 여러 에이전트의 <em>양방향 반복</em>이다." 학생 실습은 1왕복으로 충분하고, 이 그림은 "왜 단순 함수 호출로는 부족한가"를 물을 때 펼친다.</p>
+<p class="muted"><strong>핵심 정리</strong> — "협상·반복·상태유지가 필요하면 A2A, 도구·데이터 접근이면 MCP. 우리 1:1은 A2A의 가장 단순한 형태이고, 본격적인 쓰임은 여러 에이전트의 <em>양방향 반복</em>이다." 지금은 1왕복 실습으로 충분하고, 이 그림은 단순 함수 호출과 A2A의 차이를 보여 줍니다.</p>
 </div>
 </details>
 </section>
@@ -204,7 +204,7 @@ flowchart LR
 
 <div class="cue do" style="margin-top:16px">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~2분</span></div>
-<div class="cue-body"><code>uv run python3 ch5-a2a/a2a_verify.py --card</code> 를 실행하세요(키·서버 불필요). 위 Agent Card JSON이 <em>실제 카드 타입에서</em> 그대로 나오고, 이어서 <code>SendMessageRequest(Message(parts=[Part(text=…)]))</code> 본문과 Task 상태 흐름(SUBMITTED→WORKING→COMPLETED)까지 한 번에 출력됩니다. 서버를 띄우면 같은 카드가 <code>localhost:9610/.well-known/agent-card.json</code>으로도 열립니다(핸즈온 ② 스텝 b).</div>
+<div class="cue-body"><code>uv run python3 ch5-a2a/a2a_verify.py --card</code> 를 실행하세요(키·서버 불필요). 위 Agent Card JSON이 <em>실제 카드 타입에서</em> 그대로 나오고, 이어서 <code>SendMessageRequest(Message(parts=[Part(text=…)]), configuration=SendMessageConfiguration(return_immediately=False))</code> 본문과 Task 상태 흐름(SUBMITTED→WORKING→COMPLETED)까지 한 번에 출력됩니다. 서버를 띄우면 같은 카드가 <code>localhost:9610/.well-known/agent-card.json</code>으로도 열립니다(핸즈온 ② 스텝 b).</div>
 </div>
 </section>
 
@@ -322,12 +322,12 @@ sequenceDiagram
 </div>
 
 <details class="deep">
-<summary>🔬 심화 · <strong>강의용</strong> — A2A 한 왕복을 서버·클라이언트 양쪽 코드로 <span style="color:var(--muted)">(우리 모듈 기준)</span></summary>
+<summary>🔬 심화 — A2A 한 왕복을 서버·클라이언트 양쪽 코드로 <span style="color:var(--muted)">(우리 모듈 기준)</span></summary>
 <div class="reveal">
-<p><strong>서버(<code>verifier_agent.py</code>)</strong> — 핵심은 <code>AgentExecutor.execute</code> 하나다. <code>DefaultRequestHandler(executor, task_store, card)</code>가 그걸 감싸고, <code>create_agent_card_routes</code>(<code>/.well-known/agent-card.json</code>)+<code>create_jsonrpc_routes(rpc_url="/", enable_v0_3_compat=True)</code>를 <code>Starlette</code>에 얹어 <code>uvicorn</code>으로 띄운다. <code>execute</code> 안의 순서가 곧 Task 라이프사이클이다: <code>get_user_input()</code>(브리프) → <code>verify_brief</code>(독립 재계산) → <strong><code>enqueue_event(Task(state=SUBMITTED))</code> 먼저</strong> → <code>TaskUpdater.start_work()</code>(WORKING) → <code>add_artifact(verdict)</code> → <code>complete()</code>(COMPLETED). <em>Task를 먼저 등록</em>해야 하는 건, 클라이언트가 추적할 대상(id)이 없으면 이후 상태 갱신이 갈 곳을 잃기 때문 — 어기면 <code>InvalidAgentResponseError</code>(핸즈온 ①의 깨뜨리기).</p>
-<p><strong>클라이언트(<code>a2a_verify.py</code>)</strong> — <code>A2ACardResolver(base_url).get_agent_card()</code>로 <em>먼저 카드를 읽어</em> endpoint와 skill을 확인 → <code>ClientFactory(config).create(card)</code>로 그 카드에 맞는 클라이언트를 만든다 → <code>send_message(SendMessageRequest(Message(role, parts=[Part(text=brief)])))</code>로 제출 → 돌아오는 <code>StreamResponse</code>(task·message·status_update·artifact_update)를 <code>async for</code>로 훑어 <code>artifact</code>의 텍스트(=검증 결과)만 거둔다. <code>--mock</code>은 네트워크 전송 대신 <code>verify_brief</code>를 직접 부른다. 검증 로직은 같고 호출 경로만 다르므로 장애·오프라인 보조 경로로 쓴다.</p>
+<p><strong>서버(<code>verifier_agent.py</code>)</strong> — 핵심은 <code>AgentExecutor.execute</code> 하나다. <code>DefaultRequestHandler(executor, task_store, card)</code>가 그걸 감싸고, <code>create_agent_card_routes</code>(<code>/.well-known/agent-card.json</code>)+<code>create_jsonrpc_routes(rpc_url="/", enable_v0_3_compat=True)</code>를 <code>Starlette</code>에 얹어 <code>uvicorn</code>으로 띄운다. <code>execute</code> 안의 순서가 곧 Task 라이프사이클이다: <code>get_user_input()</code>(브리프) → <strong><code>enqueue_event(Task(state=SUBMITTED))</code> 먼저</strong> → <code>TaskUpdater.start_work()</code>(WORKING) → <code>verify_brief</code>(독립 재계산) → <code>add_artifact(verdict)</code> → <code>complete()</code>(COMPLETED). <em>Task를 먼저 등록</em>해야 하는 건, 클라이언트가 추적할 대상(id)이 없으면 이후 상태 갱신이 갈 곳을 잃기 때문 — 어기면 <code>InvalidAgentResponseError</code>(핸즈온 ①의 깨뜨리기).</p>
+<p><strong>클라이언트(<code>a2a_verify.py</code>)</strong> — <code>A2ACardResolver(base_url).get_agent_card()</code>로 <em>먼저 카드를 읽어</em> endpoint와 skill을 확인 → <code>ClientFactory(config).create(card)</code>로 그 카드에 맞는 클라이언트를 만든다 → <code>send_message(SendMessageRequest(Message(role, parts=[Part(text=brief)]), configuration=SendMessageConfiguration(return_immediately=False)))</code>로 제출 → 돌아오는 <code>StreamResponse</code>(task·message·status_update·artifact_update)를 <code>async for</code>로 훑는다. 구현은 여러 필드에서 텍스트를 안전하게 모은 뒤 진행 메시지를 제외하고 verdict 본문만 남긴다. <code>--mock</code>은 네트워크 전송 대신 <code>verify_brief</code>를 직접 부른다. 검증 로직은 같고 호출 경로만 다르므로 장애·오프라인 보조 경로로 쓴다.</p>
 <p><strong>wire</strong> — a2a 1.x 타입은 protobuf라 JSON 직렬화 시 필드가 <code>camelCase</code>가 된다(코드의 <code>supported_interfaces</code> → 카드 JSON의 <code>supportedInterfaces</code>). <code>enable_v0_3_compat=True</code>는 v1.0 서버가 옛 v0.3 클라이언트도 받게 하는 <strong>버전 협상</strong>이다. <code>--card</code>로 카드와 <code>SendMessageRequest</code> 본문 구조를 직접 확인할 수 있다.</p>
-<p class="muted"><strong>가르칠 때 한 줄</strong> — "A2A = ① 카드로 발견 → ② <code>SendMessage</code>로 제출 → ③ Task 상태로 추적. 서버는 <em>Task부터 등록</em>하고, 클라이언트는 <em>카드부터 읽는다</em>." 학생에겐 <code>--card</code>(원리)와 스텝 a/b/c(실통신·독립서빙·오프라인)면 충분하다.</p>
+<p class="muted"><strong>핵심 정리</strong> — "A2A = ① 카드로 발견 → ② <code>SendMessage</code>로 제출 → ③ Task 상태로 추적. 서버는 <em>Task부터 등록</em>하고, 클라이언트는 <em>카드부터 읽는다</em>." 지금은 <code>--card</code>(원리)와 스텝 a/b/c(실통신·독립서빙·오프라인)를 보면 충분합니다.</p>
 </div>
 </details>
 </section>
@@ -395,15 +395,15 @@ flowchart TB
 
 <<< ../../ch5-a2a/verifier_agent.py#execute{python}
 
-<p class="section-note" style="margin-top:12px">읽는 순서 — <strong>①</strong> <code>get_user_input()</code>로 들어온 브리프 텍스트 → <strong>②</strong> <code>verify_brief</code>로 독립 재계산 → <strong>③</strong> <code>enqueue_event(Task(...))</code>로 <em>상태 갱신 전에 Task를 먼저 등록</em>(A2A 규칙) → <code>start_work → add_artifact(verdict) → complete</code>로 상태를 단계로 올립니다.</p>
+<p class="section-note" style="margin-top:12px">읽는 순서 — <strong>①</strong> <code>get_user_input()</code>로 들어온 브리프 텍스트를 꺼낸다 → <strong>②</strong> <code>enqueue_event(Task(state=SUBMITTED))</code>로 <em>상태 갱신 전에 Task를 먼저 등록</em>(A2A 규칙) → <strong>③</strong> <code>start_work()</code>로 WORKING 상태를 알린다 → <strong>④</strong> <code>verify_brief</code>로 독립 재계산 → <code>add_artifact(verdict)</code> → <code>complete()</code>로 상태를 단계로 올립니다.</p>
 
 </div>
 </div>
 
 <div class="grid-2" style="margin-top:16px">
-<div class="panel"><div class="panel-head"><strong>a2a-sdk 1.1.0 서버 골격</strong></div><div class="panel-body"><div class="list">
+<div class="panel"><div class="panel-head"><strong>a2a-sdk 1.1+ 서버 골격</strong></div><div class="panel-body"><div class="list">
 <p><code>AgentExecutor</code> 구현 → <code>DefaultRequestHandler</code>(+Card·TaskStore) → <code>create_*_routes</code> → Starlette → uvicorn.</p>
-<p>이 순서가 a2a-sdk 1.1.0 서버의 표준 골격입니다.</p>
+<p>이 순서가 이 레포 lockfile로 해석되는 a2a-sdk 1.1+ 서버의 표준 골격입니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>왜 Task를 먼저 등록하나</strong></div><div class="panel-body"><div class="list">
 <p>A2A는 "Task 없이 상태 갱신 먼저"를 금지합니다. 클라이언트가 추적할 대상이 없기 때문입니다.</p>
@@ -425,13 +425,13 @@ flowchart TB
 ## 띄우고, 보내고, 받는다
 
 </div>
-<p class="section-note">한 번에 자동 기동해 통신하거나, 서버를 따로 띄워 두고 보냅니다. 네트워크 없이 구조만 보려면 mock입니다.</p>
+<p class="section-note">기본 경로는 Ch4가 만든 live 브리프를 실제 A2A 서버로 보내는 것입니다. 네트워크 없이 검증 로직만 분리 확인할 때만 mock을 씁니다.</p>
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">0</div><div class="copy"><strong>먼저 — 검증할 레코드와 브리프를 만든다</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><code>uv run python3 ch3-deepagents/research_orchestrator.py --mock</code><br><span style="color:var(--muted)">이건 A2A 수업이 아니라 <em>검증할 입력을 준비</em>하는 단계입니다. 첫 줄은 검증자가 다시 셀 <code>workspace/classified/</code> 레코드 10건을 만들고, 둘째 줄은 제출할 <code>workspace/brief_draft.md</code>를 만듭니다. <strong>키가 있고 Ch4까지 이미 실행했다면</strong> Ch4 <code>skill_agent.py --run</code>(live)으로 만든 <code>brief.md</code>를 Ch5가 우선 보내니 이 준비 단계는 건너뛰어도 됩니다.</span></p></div><div class="store">선행</div></div>
-<div class="row"><div class="code">a</div><div class="copy"><strong>한 번에 — 자동 기동 + 검증</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --serve --draft</code><br><span style="color:var(--muted)"><strong>증명:</strong> 두 프로세스가 well-known 카드 조회 + JSON-RPC로 <em>실제로</em> 통신한다. <code>--draft</code>는 방금 만든 <code>brief_draft.md</code>를 제출해 이전 <code>brief.md</code>가 남아 있어도 결과가 섞이지 않게 한다. 성공 기준: <code>Agent Card: 세무·정합성 검증 에이전트</code> → <code>검증 결과 수신 (A2A)</code> → verified_brief.md.</span></p></div><div class="store">A2A</div></div>
-<div class="row"><div class="code">b</div><div class="copy"><strong>따로 — 서버 먼저(다른 터미널)</strong><p><code>uv run python3 ch5-a2a/verifier_agent.py</code> 후 <code>uv run python3 ch5-a2a/a2a_verify.py --draft</code><br><span style="color:var(--muted)"><strong>증명:</strong> 검증자는 <em>별도 프로세스</em>로 독립 서빙된다 — 카드가 브라우저에서 직접 200으로 열린다. 성공 기준: 브라우저로 <code>localhost:9610/.well-known/agent-card.json</code> 카드가 보인다.</span></p></div><div class="store">서버</div></div>
+<div class="row"><div class="code">0</div><div class="copy"><strong>먼저 — live 브리프를 만든다</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code><br><code>uv run python3 ch3-deepagents/research_orchestrator.py</code><br><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><code>uv run python3 ch4-skills-mcp/skill_agent.py --run</code><br><span style="color:var(--muted)">수업 기본 입력은 LLM API가 만든 <code>workspace/brief.md</code>입니다. 키·네트워크 장애 때만 Ch2/Ch3 <code>--mock</code>과 Ch4 <code>--offline</code>으로 같은 파일 계약을 보조 확인합니다.</span></p></div><div class="store">선행</div></div>
+<div class="row"><div class="code">a</div><div class="copy"><strong>한 번에 — 자동 기동 + 검증</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --serve</code><br><span style="color:var(--muted)"><strong>증명:</strong> 두 프로세스가 well-known 카드 조회 + JSON-RPC로 <em>실제로</em> 통신한다. 성공 기준: <code>Agent Card: 세무·정합성 검증 에이전트</code> → <code>검증 결과 수신 (A2A)</code> → verified_brief.md. Ch3 초안만 제출하는 보조 실험에서는 <code>--draft</code>를 붙입니다.</span></p></div><div class="store">A2A</div></div>
+<div class="row"><div class="code">b</div><div class="copy"><strong>따로 — 서버 먼저(다른 터미널)</strong><p><code>uv run python3 ch5-a2a/verifier_agent.py</code> 후 <code>uv run python3 ch5-a2a/a2a_verify.py</code><br><span style="color:var(--muted)"><strong>증명:</strong> 검증자는 <em>별도 프로세스</em>로 독립 서빙된다 — 카드가 브라우저에서 직접 200으로 열린다. 성공 기준: 브라우저로 <code>localhost:9610/.well-known/agent-card.json</code> 카드가 보인다.</span></p></div><div class="store">서버</div></div>
 <div class="row"><div class="code">c</div><div class="copy"><strong>오프라인 — 네트워크 없이</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py --mock --draft</code><br><span style="color:var(--muted)"><strong>증명:</strong> 검증 <em>로직</em>은 네트워크와 무관하다 — A2A를 떼도 같은 <code>verified_brief.md</code>가 나온다(전송만 바뀜). 성공 기준: 같은 PASS 결과가 네트워크 없이 나온다.</span></p></div><div class="store">직접</div></div>
 </div>
 
@@ -446,19 +446,20 @@ flowchart TB
 </div>
 
 <div class="panel" style="margin-top:18px">
-<div class="panel-head"><strong>내 화면에 뜨는 것 — 콘솔과 결과 파일</strong><span>--mock 기준</span></div>
+<div class="panel-head"><strong>내 화면에 뜨는 것 — 콘솔과 결과 파일</strong><span>A2A 기준</span></div>
 <div class="panel-body">
 
 ```text
-# 콘솔 (스텝 c · --mock --draft, 키 없이)
+# 콘솔 (스텝 a · --serve, 실제 A2A)
 ▶ 브리프 제출 → 외부 검증 에이전트
-  검증 결과: PASS
+  Agent Card: 세무·정합성 검증 에이전트 (skill: verify-brief)
+  검증 결과 수신 (A2A)
+  검증 판정: PASS
   → workspace/verified_brief.md
-# (스텝 a · --serve면 위에 'Agent Card: 세무·정합성 검증 에이전트' 줄이 더 뜬다)
 
 # 결과 파일 끝부분 (cat workspace/verified_brief.md)
 ## 외부 검증 결과 — PASS
-검증 주체: 세무·정합성 검증 에이전트 (직접 호출)
+검증 주체: 세무·정합성 검증 에이전트 (A2A)
 
 - 독립 재계산: 영수증 없는 거래 2건 (쿠팡(주) 89,000원, 넷플릭스 17,000원)
 - 누락 항목 없음 — 검증 통과
@@ -469,7 +470,7 @@ flowchart TB
 
 <div class="cue solve" style="margin-top:18px">
 <div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~5분</span></div>
-<div class="cue-body">두 가지를 해보세요. ① 브리프에서 "쿠팡" 줄을 <strong>지우고</strong> 보내면? ② 줄은 두되 금액만 "쿠팡(주) <strong>5원</strong>"으로 <strong>틀리게 바꿔</strong> 보내면? 둘 다 실제로 고쳐 보내고 결과를 비교하세요.</div>
+<div class="cue-body">두 가지를 해보세요. 원본 <code>brief.md</code> 대신 <code>workspace/brief_draft.md</code> 복사본을 고치고 <code>--draft</code>로 보냅니다. ① 브리프에서 "쿠팡" 줄을 <strong>지우고</strong> 보내면? ② 줄은 두되 금액만 "쿠팡(주) <strong>5원</strong>"으로 <strong>틀리게 바꿔</strong> 보내면? 둘 다 실제로 고쳐 보내고 결과를 비교하세요.</div>
 </div>
 
 <details>

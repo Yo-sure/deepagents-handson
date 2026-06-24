@@ -25,6 +25,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -42,7 +43,15 @@ from analyst.paths import CLASSIFIED, ensure_workspace
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "ch1-llm-basics"))
 from classify_one import DEFAULT_MODEL, classify_error, extract, gold_to_record, load_gold, score, verify_total
 
-HIGH_VALUE = 1_000_000  # 고액 기준(원)
+def default_high_value() -> float:
+    raw = os.environ.get("ANALYST_HIGH_VALUE", "1000000")
+    try:
+        return float(raw)
+    except ValueError as exc:
+        raise RuntimeError("ANALYST_HIGH_VALUE는 숫자여야 합니다.") from exc
+
+
+HIGH_VALUE = default_high_value()  # 고액 기준(원)
 LOW_CONFIDENCE = 0.7    # 저신뢰 기준
 MAX_RETRY = 2
 QUALITY_MIN_SCORE = 5 / 6
@@ -217,7 +226,7 @@ def build_graph():
     g.add_edge("review", "persist")
     g.add_edge("hold", END)
     g.add_edge("persist", END)
-    return g.compile(checkpointer=InMemorySaver())            # ← interrupt에 필수
+    return g.compile(checkpointer=InMemorySaver())            # ← HITL 재개에 필수
 #pragma endregion build-graph
 
 
@@ -277,7 +286,12 @@ def main() -> None:
     ap.add_argument("--reject-flagged", action="store_true", help="검토건을 자동 반려(명시적 fail-closed 데모)")
     ap.add_argument("--approve-flagged", action="store_true", help="검토건을 자동 승인(데모/CI용)")
     ap.add_argument("--break-sum", action="store_true", help="영수증 합계를 일부러 깨 retry 분기를 본다")
+    ap.add_argument("--high-value", type=float, default=None, help="고액 검토 기준(원). 기본: ANALYST_HIGH_VALUE 또는 1,000,000")
     args = ap.parse_args()
+
+    global HIGH_VALUE
+    if args.high_value is not None:
+        HIGH_VALUE = args.high_value
 
     graph = build_graph()
     if args.reject_flagged:

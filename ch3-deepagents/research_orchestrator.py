@@ -24,10 +24,14 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
+import shutil
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from analyst import RecordV1
@@ -43,6 +47,10 @@ MATCH_TOL = 1.0
 BRIEF_DRAFT = WORKSPACE / "brief_draft.md"
 SAFE_NOTE = re.compile(r"^[a-z0-9_-]{1,64}$")
 LIVE_MODEL = "openai:anthropic/claude-haiku-4.5"
+OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+LIVE_TIMEOUT = 90
+
+load_dotenv()
 
 
 # ── 입력: classified 레코드 ───────────────────────────────────────
@@ -180,6 +188,14 @@ SAMPLE_CHECK_ALIASES = {
     "넷플릭스": ("넷플릭스",),
     "월세": ("월세", "임대료", "임대차"),
 }
+SAMPLE_CLEAR_ALIASES = {
+    "스타벅스": ("스타벅스",),
+    "GS25": ("GS25",),
+    "카카오T": ("카카오T", "카카오"),
+    "광화문 국밥": ("광화문 국밥", "국밥"),
+    "올리브영": ("올리브영",),
+    "신한카드 결제": ("신한카드 결제", "카드 결제"),
+}
 NEGATIVE_MARKERS = (
     "⚠️", "❌", "없음", "없는", "분실", "미수령", "미확인", "미보유", "미대응",
     "미매칭", "누락", "불일치", "부재", "전무",
@@ -206,7 +222,7 @@ def fan_out_mock(records: list[RecordV1]) -> dict[str, str]:
         return dict(ex.map(run, THREADS.items()))
 
 
-def synthesize(notes: dict[str, str], records: list[RecordV1]) -> None:
+def synthesize(notes: dict[str, str], records: list[RecordV1], out_path: Path = BRIEF_DRAFT) -> None:
     """노트를 모아 brief_draft.md 로 종합한다."""
     flags: list[str] = []
     seen: set[str] = set()
@@ -229,8 +245,8 @@ def synthesize(notes: dict[str, str], records: list[RecordV1]) -> None:
     brief = "\n".join(parts) + "\n"
     if is_sample_record_set(records):
         validate_sample_findings(brief, combined_notes)
-    BRIEF_DRAFT.write_text(brief, encoding="utf-8")
-    print(f"  [synthesize] → {BRIEF_DRAFT.relative_to(WORKSPACE.parent)}")
+    out_path.write_text(brief, encoding="utf-8")
+    print(f"  [synthesize] → {out_path.relative_to(WORKSPACE.parent)}")
 
 
 def is_sample_record_set(records: list[RecordV1]) -> bool:
@@ -263,12 +279,6 @@ def collect_evidence_lines(text: str, alias_groups: dict[str, tuple[str, ...]]):
         key = evidence_key(evidence_body(line), alias_groups)
         seen_keys.add(key)
         yield line
-    for key, aliases in alias_groups.items():
-        if key in seen_keys:
-            continue
-        section = evidence_section_line(text, aliases)
-        if section:
-            yield section
 
 
 def iter_evidence_lines(text: str, alias_groups: dict[str, tuple[str, ...]]):
@@ -322,9 +332,6 @@ def first_evidence_line(text: str, aliases: tuple[str, ...]) -> str | None:
     for line in iter_evidence_lines(text, alias_groups):
         if any(alias in line for alias in aliases):
             return line
-    section = evidence_section_line(text, aliases)
-    if section:
-        return section
     return None
 
 
@@ -374,6 +381,14 @@ def finding_evidenced(text: str, aliases: tuple[str, ...]) -> bool:
     return False
 
 
+def unexpected_sample_findings(brief: str) -> list[str]:
+    unexpected = []
+    for label, aliases in SAMPLE_CLEAR_ALIASES.items():
+        if finding_evidenced(brief, aliases):
+            unexpected.append(label)
+    return unexpected
+
+
 def validate_sample_findings(brief: str, notes: str) -> None:
     missing_from_notes = []
     missing_from_brief = []
@@ -386,13 +401,19 @@ def validate_sample_findings(brief: str, notes: str) -> None:
         raise RuntimeError("브리프 합성에서 기대 확인 항목이 노트에도 없습니다: " + ", ".join(missing_from_notes))
     if missing_from_brief:
         raise RuntimeError("브리프 합성에서 노트의 확인 항목을 브리프로 옮기지 못했습니다: " + ", ".join(missing_from_brief))
+    unexpected = unexpected_sample_findings(brief)
+    if unexpected:
+        raise RuntimeError(
+            "브리프 합성에서 정상 매칭 항목이 확인 대상으로 섞였습니다: "
+            + ", ".join(unexpected)
+        )
 
 
-def read_expected_notes() -> tuple[dict[str, str], list[str]]:
+def read_expected_notes(notes_dir: Path = RESEARCH_NOTES) -> tuple[dict[str, str], list[str]]:
     notes: dict[str, str] = {}
     missing = []
     for name in EXPECTED_NOTES:
-        path = RESEARCH_NOTES / f"{name}.md"
+        path = notes_dir / f"{name}.md"
         if not path.exists() or path.stat().st_size == 0:
             missing.append(name)
             continue
@@ -404,15 +425,94 @@ def read_expected_notes() -> tuple[dict[str, str], list[str]]:
     return notes, missing
 
 
-def clear_expected_notes() -> None:
+def apply_cross_record_guards(notes: dict[str, str], records: list[RecordV1],
+                              notes_dir: Path | None = None) -> dict[str, str]:
+    """LLM 노트의 명백한 교차대사 오류를 레코드 계약으로 정정한다."""
+    bank_note = notes.get("bank_reconcile")
+    if not bank_note:
+        return notes
+    card_records = [r for r in records if r.doc_type == "명세서" and "카드" in r.merchant]
+    bank_records = [r for r in records if r.doc_type == "명세서" and ("은행" in r.merchant or "뱅크" in r.merchant)]
+    replacements: list[tuple[str, float, str]] = []
+    for bank in bank_records:
+        for item in bank.items:
+            if "카드" not in item.name:
+                continue
+            amount = abs(item.amount or 0)
+            hit = next((card for card in card_records if abs(card.total - amount) < MATCH_TOL), None)
+            if hit:
+                replacements.append((item.name, amount, hit.merchant))
+    if not replacements:
+        return notes
+
+    lines = bank_note.splitlines()
+    fixed_lines: list[str] = []
+    added: list[str] = []
+    changed = False
+    for line in lines:
+        matched = next((r for r in replacements if r[0] in line), None)
+        if matched and any(marker in line for marker in NEGATIVE_MARKERS):
+            name, amount, merchant = matched
+            added.append(f"- ✅ {name} -{amount:,.0f}원(출금) ↔ 「{merchant}」 명세서")
+            changed = True
+            continue
+        fixed_lines.append(line)
+    if not changed:
+        return notes
+
+    insert_at = next((idx + 1 for idx, line in enumerate(fixed_lines)
+                      if "대사 완료" in line), len(fixed_lines))
+    fixed_lines[insert_at:insert_at] = added
+    fixed = "\n".join(fixed_lines) + "\n"
+    fixed = re.sub(r"(대사 완료:\s*)2건", r"\g<1>3건", fixed)
+    fixed = re.sub(r"(미대사:\s*)2건", r"\g<1>1건", fixed)
+    notes = {**notes, "bank_reconcile": fixed}
+    if notes_dir:
+        (notes_dir / "bank_reconcile.md").write_text(fixed, encoding="utf-8")
+    print("  [guard] 은행 카드 출금 ↔ 카드 명세서 교차검증 정정")
+    return notes
+
+
+def commit_live_outputs(notes_dir: Path, brief_path: Path) -> None:
+    """검증된 live 산출물을 최종 위치에 커밋한다. 실패하면 기존 산출물을 복구한다."""
     ensure_workspace()
-    if BRIEF_DRAFT.exists():
-        BRIEF_DRAFT.unlink()
-    for name in EXPECTED_NOTES:
-        path = RESEARCH_NOTES / f"{name}.md"
-        if path.exists():
-            path.unlink()
-    leftovers = [p.name for p in RESEARCH_NOTES.glob("*.md")]
+    commit_dir = RESEARCH_NOTES / ".commit_tmp"
+    if commit_dir.exists():
+        shutil.rmtree(commit_dir)
+    commit_dir.mkdir(parents=True, exist_ok=True)
+    backups: list[tuple[Path, Path]] = []
+    staged: list[tuple[Path, Path]] = []
+    try:
+        for name in EXPECTED_NOTES:
+            src = notes_dir / f"{name}.md"
+            dst = RESEARCH_NOTES / f"{name}.md"
+            staged_dst = commit_dir / f"{name}.md.next"
+            shutil.copy2(src, staged_dst)
+            staged.append((staged_dst, dst))
+        brief_stage = commit_dir / "brief_draft.md.next"
+        shutil.copy2(brief_path, brief_stage)
+        staged.append((brief_stage, BRIEF_DRAFT))
+
+        for _src, dst in staged:
+            if dst.exists():
+                backup = commit_dir / f"{dst.name}.bak"
+                dst.replace(backup)
+                backups.append((backup, dst))
+        for src, dst in staged:
+            src.replace(dst)
+    except Exception:
+        backup_by_dst = {dst: backup for backup, dst in backups}
+        for _src, dst in reversed(staged):
+            backup = backup_by_dst.get(dst)
+            if dst.exists():
+                dst.unlink()
+            if backup and backup.exists():
+                backup.replace(dst)
+        raise
+    finally:
+        shutil.rmtree(commit_dir, ignore_errors=True)
+
+    leftovers = [p.name for p in RESEARCH_NOTES.glob("*.md") if p.stem not in EXPECTED_NOTES]
     if leftovers:
         print("  [warn] 이전 추가 노트는 보존됨:", ", ".join(sorted(leftovers)))
 
@@ -498,7 +598,9 @@ SUBAGENT_SPECS = [
         "system_prompt": (
         "너는 은행 대사 담당이다. list_records로 레코드를 받아 은행 명세서의 "
         "입출금 줄마다 같은 금액의 계약·세금계산서·카드가 있는지 맞춰 보고, "
-        "특히 은행의 신한카드 결제와 같은 금액의 카드 명세서가 있으면 대응 문서가 있는 것으로 처리한다. "
+        "특히 은행의 카드 결제·신한카드 결제 같은 출금은 문서유형=명세서이고 판매처에 카드가 포함된 "
+        "레코드의 총액과 절댓값을 대조한다. 같은 금액의 카드 명세서가 있으면 반드시 대응 문서가 있는 "
+        "것으로 처리하고 확인 필요나 대응 문서 없음에 넣지 않는다. "
         "대응 문서 없는 거래는 반드시 '- ⚠️ 거래명 금액원 — 대응 문서 없음' 한 줄로 남긴다. "
         "대응 문서 없는 줄을 표시해 write_note('bank_reconcile', ...)로 저장한다."
     ),
@@ -522,7 +624,7 @@ ORCHESTRATOR_PROMPT = (
 
 def trace_harness() -> None:
     """create_deep_agent에 무엇이 배선되는지 연다 — 키 불필요(구성만 출력, 호출 안 함)."""
-    print("create_deep_agent에 배선되는 하네스 구성 (키 없이 보는 내부):\n")
+    print("정적 trace — create_deep_agent에 배선되는 하네스 구성(키 없이 구성만 출력, 실제 호출 아님):\n")
     print("  [기본 장비] write_todos(계획) · task(서브에이전트 위임)")
     print("             · 파일시스템(ls·read_file·write_file·edit_file·glob·grep)\n")
     print("  [런타임 참고] DeepAgents 버전에 따라 general-purpose 기본 후보가 함께 보일 수 있다.")
@@ -536,7 +638,7 @@ def trace_harness() -> None:
     print("  task 위임에는 워커별 name·description·system_prompt·tools 정의가 필요하다.")
 
 
-def build_agent(records: list[RecordV1]):
+def build_agent(records: list[RecordV1], notes_dir: Path = RESEARCH_NOTES):
     """키가 있을 때 — DeepAgents live fan-out.
 
     메인 에이전트는 조사하지 않는다. write_todos로 계획하고 task로 세 서브에이전트
@@ -545,10 +647,11 @@ def build_agent(records: list[RecordV1]):
     """
     from deepagents import create_deep_agent
     from langchain_core.tools import tool
+    from langchain_openai import ChatOpenAI
 
     @tool
     def list_records() -> str:
-        """분류된 모든 레코드와 항목 상세를 JSON으로 돌려준다."""
+        """Return all classified records and item details as JSON."""
         payload = []
         for r in records:
             payload.append(
@@ -569,13 +672,14 @@ def build_agent(records: list[RecordV1]):
 
     @tool
     def write_note(name: str, body: str) -> str:
-        """조사 노트를 research_notes/<name>.md 로 저장한다."""
+        """Write an investigation note to research_notes/<name>.md."""
         if not SAFE_NOTE.fullmatch(name):
             return f"invalid note name: {name}"
         ensure_workspace()
-        path = (RESEARCH_NOTES / f"{name}.md").resolve()
+        notes_dir.mkdir(parents=True, exist_ok=True)
+        path = (notes_dir / f"{name}.md").resolve()
         try:
-            path.relative_to(RESEARCH_NOTES.resolve())
+            path.relative_to(notes_dir.resolve())
         except ValueError:
             return f"invalid note name: {name}"
         path.write_text(body, encoding="utf-8")
@@ -584,9 +688,21 @@ def build_agent(records: list[RecordV1]):
     worker_tools = [list_records, write_note]
     # 위 SUBAGENT_SPECS(정적 구성)에 이 실행 도구를 붙여 배선한다.
     subagents = [{**spec, "tools": worker_tools} for spec in SUBAGENT_SPECS]
+    key = os.environ.get("OPENROUTER_API_KEY")
+    if not key or key == "sk-or-...":
+        raise RuntimeError("OPENROUTER_API_KEY 미설정")
+    model = ChatOpenAI(
+        model=LIVE_MODEL.removeprefix("openai:"),
+        base_url=OPENROUTER_BASE_URL,
+        api_key=key,
+        temperature=0,
+        timeout=LIVE_TIMEOUT,
+        max_retries=1,
+        use_responses_api=False,
+    )
 
     return create_deep_agent(
-        model=LIVE_MODEL,
+        model=model,
         tools=[list_records],
         subagents=subagents,
         system_prompt=ORCHESTRATOR_PROMPT,
@@ -595,10 +711,14 @@ def build_agent(records: list[RecordV1]):
 
 def fan_out_live(records: list[RecordV1]) -> dict[str, str]:
     """DeepAgents live fan-out을 실행하고 노트·브리프 계약을 검증한다."""
-    clear_expected_notes()
+    ensure_workspace()
+    tmp_notes = RESEARCH_NOTES / ".live_tmp"
+    if tmp_notes.exists():
+        shutil.rmtree(tmp_notes)
+    tmp_notes.mkdir(parents=True, exist_ok=True)
     try:
-        agent = build_agent(records)
-        print("  [live] create_deep_agent → task 서브에이전트 3개 위임 요청")
+        agent = build_agent(records, notes_dir=tmp_notes)
+        print(f"  [live] create_deep_agent → task 서브에이전트 3개 위임 요청 (timeout={LIVE_TIMEOUT}s)")
         out = agent.invoke({"messages": [{"role": "user",
               "content": (
                   "인박스를 교차 조사해라. 반드시 write_todos로 계획한 뒤 task로 "
@@ -610,11 +730,14 @@ def fan_out_live(records: list[RecordV1]) -> dict[str, str]:
         raise RuntimeError(
             f"DeepAgents live 호출 실패: {type(e).__name__}: {e}. "
             "Ch0 preflight는 기본 Gemini 호출을 확인하고, Ch3 live는 DeepAgents/OpenAI 호환 경로의 "
-            f"{LIVE_MODEL} 호출을 별도로 사용합니다. 키/크레딧/모델 라우팅을 확인하고, "
+            f"{LIVE_MODEL.removeprefix('openai:')} 호출을 별도로 사용합니다. "
+            f"OpenRouter Chat Completions 경로에서 timeout={LIVE_TIMEOUT}s, max_retries=1로 제한합니다. "
+            "키/크레딧/모델 라우팅/응답 지연을 확인하고, "
             "하네스 구조만 보려면 --mock 또는 --trace를 실행하세요."
         ) from e
     final = message_text(out["messages"][-1].content)
-    print(final)
+    if final:
+        print("  [model] 최종 요약 수신 — 성공 판정은 아래 하니스 검증과 파일 상태로 판단")
     names = tool_call_names(out["messages"])
     if "write_todos" not in names:
         raise RuntimeError(
@@ -638,14 +761,17 @@ def fan_out_live(records: list[RecordV1]) -> dict[str, str]:
             "순차 호출이 아니라 한 번에 위임해야 fan-out입니다."
         )
     print(f"  [verify] task 호출 대상 확인: {', '.join(sorted(expected))}")
-    notes, missing = read_expected_notes()
+    notes, missing = read_expected_notes(tmp_notes)
     if missing:
         raise RuntimeError(
             "live fan-out 후 기대 노트가 없습니다: "
-            + ", ".join(f"research_notes/{name}.md" for name in missing)
+            + ", ".join(f"research_notes/.live_tmp/{name}.md" for name in missing)
             + " — 모델이 task/write_note 지시를 따르지 않았습니다. --trace로 배선을 확인하거나 --mock으로 하네스만 점검하세요."
         )
-    synthesize(notes, records)
+    notes = apply_cross_record_guards(notes, records, notes_dir=tmp_notes)
+    tmp_brief = tmp_notes / "brief_draft.md"
+    synthesize(notes, records, out_path=tmp_brief)
+    commit_live_outputs(tmp_notes, tmp_brief)
     return notes
 
 

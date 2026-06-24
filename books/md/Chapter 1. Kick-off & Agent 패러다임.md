@@ -86,7 +86,26 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">0 · 지금 · 2분</div>
+<div class="eyebrow">0 · 먼저 실행 · 3분</div>
+
+## 한 장을 바로 읽어 본다
+
+</div>
+<p class="section-note">이 장의 목표는 이론을 외우는 것이 아니라, 이미지/PDF 한 장을 실제 LLM 호출로 RecordV1 JSON에 맞춰 읽게 만드는 것입니다. 아래 명령을 먼저 실행해 오늘 만들 물건의 모양을 봅니다.</p>
+</div>
+
+<div class="stack">
+<div class="row"><div class="code">1</div><div class="copy"><strong>live 기본</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png</code><br><span style="color:var(--muted)">성공 기준: 판매처·금액·항목·문서유형이 있는 RecordV1 JSON이 한글 키로 출력된다. 키·크레딧·모델 슬러그가 막히면 오류 종류가 표시된다.</span></p></div><div class="store">LLM API</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>진단 보조</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --mock</code><br><span style="color:var(--muted)">mock은 주 경로가 아닙니다. live가 막혔을 때 파일 경로·스키마·검증 코드가 정상인지 분리 확인하는 고정 기준입니다.</span></p></div><div class="store">보조</div></div>
+</div>
+
+<p class="section-note" style="margin-top:12px">이제부터 나오는 모델·토큰·하네스 이야기는 방금 본 JSON을 왜 그렇게 안정적으로 만들기 위한 장치인지 설명합니다.</p>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
+<div class="eyebrow">1 · 지금 · 2분</div>
 
 ## 순위를 가르는 건 모델이 아니다
 
@@ -96,11 +115,11 @@ flowchart LR
 </div>
 
 <div class="grid-2">
-<div class="panel"><div class="panel-head"><strong>성능은 평평해졌다</strong><span>SWE-bench Verified · 2026 중반</span></div><div class="panel-body"><div class="list">
-<p>주력 모델 정확도가 좁은 구간에 빽빽이 몰렸습니다(아래 막대는 개념도).</p>
+<div class="panel"><div class="panel-head"><strong>성능은 평평해졌다</strong><span>공개 벤치 흐름</span></div><div class="panel-body"><div class="list">
+<p>주력 모델 정확도가 좁은 구간에 빽빽이 몰렸습니다(아래 그림은 개념 흐름).</p>
 <p>저비용 모델도 많은 실무 분류·추출 작업에서는 충분한 기준선이 됩니다 — 프런티어 주력끼리는 체감 차이가 하네스에 묻히기도 합니다.</p>
-<p>Verified가 포화에 가까워지자 OpenAI·Google은 더 어려운 <strong>SWE-bench Pro</strong>로 무게추를 옮기는 중입니다 — 벤치가 포화할수록 차이는 모델이 아니라 하네스에서 납니다.</p>
-<p>수치는 게이트웨이·시점마다 달라지는 <strong>대략·예시값</strong>입니다.</p>
+<p>기존 벤치가 포화될수록 더 어려운 변형·상위 벤치가 등장합니다. 그래서 단일 순위보다, 같은 모델을 어떤 하네스로 실행하고 검증했는지를 함께 봐야 합니다.</p>
+<p>정확한 수치와 순위는 벤치 버전·채점 환경·시점마다 바뀝니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>그래서 하네스다</strong><span>이 과정의 무게중심</span></div><div class="panel-body"><div class="list">
 <p>공개 사례들에서 모델을 그대로 두고도 하네스(재시도·검증·종료 조건)를 손보면 벤치 결과가 크게 달라졌습니다.</p>
@@ -109,27 +128,26 @@ flowchart LR
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:14px"><strong>점수 자체도 의심합니다.</strong> 2026년 UC Berkeley RDI는 주요 에이전트 벤치 8종을 <em>문제를 안 풀고</em> 채점 파이프라인을 해킹해(채점용 설정 파일을 고치거나 정답을 직접 읽는 식) 거의 만점을 받아냈습니다 — SWE-bench Verified 100%까지. 그래서 점수를 인용할 땐 <strong>격리 실행·정답 차단</strong>이 전제이고, 단일 숫자보다 추세(주력끼리 몰렸다)를 봅니다.</p>
+<p class="section-note" style="margin-top:14px"><strong>점수 자체도 의심합니다.</strong> 에이전트 벤치는 채점 환경·정답 접근·격리 설정에 민감합니다. 문제를 푸는 능력이 아니라 채점 파이프라인의 빈틈을 타면 숫자가 부풀 수 있습니다. 그래서 점수를 인용할 땐 <strong>격리 실행·정답 차단</strong>이 전제이고, 단일 숫자보다 추세(주력끼리 몰렸다)를 봅니다.</p>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>주력 모델이 좁은 구간에 몰렸다 — 그래서 모델보다 하네스</span><span class="status-pill">개념도</span></div>
 <div class="panel-body">
 
 ```mermaid
-xychart-beta
-    title "SWE-bench Verified 정확도 (예시 · 2026 중반)"
-    x-axis ["저비용", "주력A", "주력B", "프런티어"]
-    y-axis "정확도 %" 0 --> 100
-    bar [78, 88.6, 88.7, 95]
+flowchart LR
+    B["벤치 점수<br/>시점·채점환경 의존"] --> M["모델 차이<br/>좁아지는 구간"]
+    M --> H["하네스 차이<br/>재시도·검증·종료조건"]
+    H --> O["운영 품질<br/>거짓 성공 차단"]
 ```
 
 <p style="margin-top:8px">정확한 순위와 숫자는 시점·게이트웨이·평가 설정에 따라 바뀝니다. 여기서 볼 것은 특정 모델명이 아니라, 모델 단독 점수 차이가 줄수록 비교 기준이 "어떤 모델인가"에서 "<strong>어떤 하네스로 실행하는가</strong>"로 옮겨 간다는 흐름입니다.</p>
 </div>
 </div>
 
-<div class="board" style="margin-top:18px">
-<div class="board-header"><span>사례 — 20B 오픈 모델이 하네스로 프런티어급과 겨룬다</span><span class="status-pill">Harness-1 · 2026-06</span></div>
-<div class="panel-body"><div class="list">
+<details class="deep" style="margin-top:18px">
+<summary>🔬 심화 — 20B 오픈 모델이 하네스로 강한 검색 기준선과 겨룬 사례</summary>
+<div class="reveal">
 <p><strong>무엇인가.</strong> UIUC·UC버클리·Chroma가 <strong>gpt-oss-20B</strong> 위에 검색 하네스를 얹은 <em>리서치 검색 서브에이전트</em>입니다.<br>
 질문에 직접 답하지 않고, 근거가 될 문서를 찾아 추려 내는 일만 합니다 — 답은 뒤단의 다른 모델이 냅니다.</p>
 <p><strong>어떻게 끌어올렸나.</strong> 핵심은 <strong>상태의 외부화</strong>입니다.<br>
@@ -141,10 +159,10 @@ xychart-beta
 답을 맞히는 점수가 아니라 <em>근거를 잘 모았는지</em>를 재는 검색 지표라는 점, 모델 순위가 아니라 하네스 설계의 효과를 보는 사례라는 점만 잡습니다.</p>
 <p><strong>교훈.</strong> 20B가 프런티어급 검색과 겨루는 건 모델이 더 똑똑해서가 아니라 <strong>하네스 설계 + 환경 안에서의 학습</strong> 덕입니다.<br>
 기록을 모델 머릿속이 아니라 바깥에 두는 이 발상을, Ch2 체크포인터·Ch3 파일 퇴피에서 더 작은 형태로 다시 만납니다.</p>
-</div></div>
 </div>
+</details>
 
-<p class="section-note" style="margin-top:18px">Karpathy는 2025년을 영어만으로 프로그램을 짜는 임계점을 넘은 해로 평가했습니다. 코딩에서 먼저 터진 이 변화는 "문서를 읽고 판단해 행동으로 옮긴다"는 같은 골격을 공유하는 지식 업무 전반으로 번지고 있습니다. 우리가 만들 인박스 애널리스트도 그 한 갈래이고, 같은 패턴을 다른 업무로 옮겨 쓸 수 있습니다.</p>
+<p class="section-note" style="margin-top:18px">코딩 에이전트에서 먼저 보인 변화는 "문서를 읽고 판단해 행동으로 옮긴다"는 지식 업무 전반으로 번지고 있습니다. 우리가 만들 인박스 애널리스트도 그 한 갈래이고, 같은 패턴을 다른 업무로 옮겨 쓸 수 있습니다.</p>
 </section>
 
 <section class="slide">
@@ -218,10 +236,8 @@ xychart-beta
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">S</div><div class="copy"><strong>Stateless — 캐시하고, 요약은 의심하고, 메모리를 붙인다</strong><p>호출 사이에 상태가 없으니 같은 맥락을 매번 다시 보냅니다. 대응은 층이 다른 둘로 갈립니다. <strong>①·② 재전송 비용을 줄이는 쪽</strong>(캐싱·요약. 상태를 복원하진 않고 매번 다시 보내되 싸게), <strong>③ 상태를 별도로 추가하는 쪽</strong>(메모리 모듈·체크포인터)입니다. 캐싱을 "기억"으로 오해하기 쉬운데, 캐시는 같은 프리픽스를 싸게 다시 보낼 뿐 모델에 기억을 주지는 않습니다.</p>
-<p>① <strong>프리픽스 캐싱</strong> — 바뀌지 않는 앞부분(시스템 프롬프트·문서)을 재사용합니다. Anthropic·OpenAI의 <strong>프롬프트 캐시(API read cache)</strong>가 정확히 이것 — 캐시에서 읽은 토큰은 훨씬 싸게 청구됩니다.</p>
-<p>② <strong>요약</strong> — 길어진 대화를 줄입니다. 단 요약은 <strong>손실 압축</strong>이라(정보가 빠지고 없던 내용이 끼기도 해) 원본을 그대로 대체하진 못합니다. "요약이 늘 정답"은 아니어서 원본을 파일로 남깁니다(Ch3).</p>
-<p>③ <strong>메모리 모듈</strong> — 지금 활발히 연구되는 영역입니다. MemGPT는 컨텍스트를 RAM, 외부 저장소를 디스크로 보고 둘 사이를 페이징하며 에이전트가 자기 메모리를 직접 편집합니다. 이 계열이 Letta·mem0, Anthropic memory tool(2025)로 이어집니다. <span class="badge blue">MemGPT 2310.08560</span> <span class="badge blue">Letta·mem0</span></p></div></div>
+<div class="row"><div class="code">S</div><div class="copy"><strong>Stateless — 호출 사이에 상태가 없다</strong><p>호출 사이에 상태가 없으니 같은 맥락을 매번 다시 보냅니다. 이 장에서는 한 가지만 잡습니다. <strong>모델은 자동으로 기억하지 않으므로</strong> 필요한 맥락을 코드가 다시 넣거나, Ch2처럼 체크포인터에 상태를 남겨야 합니다.</p>
+<p>비용을 줄이는 프리픽스 캐싱, 길어진 대화를 줄이는 요약, 별도 메모리 모듈은 모두 이 한계에 대한 다른 대응입니다. 단 캐시는 기억이 아니고, 요약은 손실 압축입니다. 그래서 Ch3에서는 원본 산출물을 파일로 남깁니다.</p></div></div>
 <div class="row"><div class="code">C</div><div class="copy"><strong>Context Window — 담기느냐가 아니라 고르게 쓰느냐</strong><p>요즘 롱컨텍스트엔 문서 10건쯤은 그냥 들어갑니다. 문제는 "담기느냐"가 아니라 "고르게 쓰느냐"입니다.</p>
 <p>· 중간에 둔 정보일수록 모델이 덜 씁니다 — 시작·끝은 잘 보고 가운데는 흘립니다(<strong>Lost in the Middle</strong>, U자 곡선).<br>
 · 관련 없어 보이는 문단이 끼면 정답도 흔들립니다(<strong>distractor</strong>).<br>
@@ -340,13 +356,28 @@ xychart-beta
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">노트북 · 5분</span></div>
-<div class="cue-body"><code>llm_internals.ipynb</code>를 열고 커널을 <code>.venv</code>로 맞춘 뒤 <strong>실험1</strong> 셀을 실행하세요. <code>openai/gpt-4o-mini</code>로 요청이 한 번 나갑니다. <strong>이 노트북은 키가 필요합니다</strong>(<code>--mock</code> 경로가 없어 첫 셀에서 <code>OPENROUTER_API_KEY</code>를 읽습니다) — 키가 없으면 이 실험은 건너뛰고, 앞의 logprobs 설명만 읽고 넘어가도 됩니다.</div>
+<div class="cue-body"><code>llm_internals.ipynb</code>를 열고 커널을 <code>.venv</code>로 맞춘 뒤 <strong>실험1</strong> 셀을 실행하세요. <code>openai/gpt-4o-mini</code>로 요청이 한 번 나갑니다. <strong>이 노트북은 키가 필요합니다</strong>(<code>--mock</code> 경로가 없어 첫 셀에서 <code>OPENROUTER_API_KEY</code>를 읽습니다). 키가 없으면 아래 고정 관찰 예시를 보고 핵심만 확인합니다.</div>
 </div>
 
 <div class="cue wait">
 <div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~15초</span></div>
 <div class="cue-body">응답이 오면 확률 막대가 그려집니다. <strong>'식비' 토큰에 확률이 크게 몰려 있는지</strong> 눈으로 확인하고 넘어가세요(상위 토큰 하나가 대부분을 차지). 확신이 높아도 정답 보장은 아니라는 게 이 실험의 핵심입니다.</div>
 </div>
+
+<details>
+<summary>키가 없을 때 보는 고정 관찰 예시</summary>
+<div class="reveal">
+<p>분류 프롬프트가 "GS25 도시락은 무슨 비용인가?"처럼 답이 또렷하면 상위 후보가 한쪽으로 몰립니다.</p>
+
+```text
+식비   ████████████████████  98.6%
+생활   ▎                     1.0%
+교통   ▏                     0.3%
+```
+
+<p>여기서 배울 것은 숫자 자체가 아니라 모양입니다. 모델은 확률분포에서 하나를 고르고, 분류처럼 쉬운 문제는 최상위 후보가 압도적입니다. 그래도 실제 업무에서는 영수증 합계·스키마·대사 규칙으로 한 번 더 검증합니다.</p>
+</div>
+</details>
 </section>
 
 <section class="slide">
@@ -455,25 +486,25 @@ flowchart LR
 </div>
 
 <div class="panel">
-<div class="panel-head"><strong>2026년 중반 모델 자리표</strong><span>단가 = 입력/출력 · 1M 토큰 · 게이트웨이마다 다름</span></div>
+<div class="panel-head"><strong>모델 자리표</strong><span>수업 당일 호출 가능한 슬러그로 확정</span></div>
 <div class="panel-body">
 
-| 자리 | 대표 모델 (ID) | 강점 | 대략 단가 | 쓰는 곳 |
-|---|---|---|---|---|
-| 범용 주력 | Opus 4.8 (`anthropic/claude-opus-4.8`) | 균형 잡힌 고성능 | OpenRouter 표 참고 | 비교·심화 |
-| 범용 주력 | GPT-5.5 (`openai/gpt-5.5`) | 강한 범용 추론 | OpenRouter 표 참고 | 비교축 |
-| 범용 주력 | **Gemini 3.5 Flash** (`google/gemini-3.5-flash`) | 빠르고 저렴 | OpenRouter 표 참고 | **이 과정 기본** |
-| 경량 | Haiku 4.5 (`anthropic/claude-haiku-4.5`) | 분류·대량 처리 | 최저가대 | 라우터·서브에이전트 |
+| 자리 | 정하는 방식 | 강점 | 쓰는 곳 |
+|---|---|---|---|
+| 기본 실습 | <code>classify_one.py</code>의 <code>DEFAULT_MODEL</code> | 빠른 반복·저비용 | Ch1·Ch2 |
+| 비교 모델 | <code>ANALYST_COMPARE_MODELS</code>에 넣은 슬러그 | 같은 입력의 품질·비용 비교 | 비교표 |
+| 고난도/심화 | 수업 당일 계정에서 통과한 상위 모델 | 막힌 문서 재시도·토론 | 선택 실습 |
+| 라우터/서브태스크 | Ch3 이후 각 모듈의 설정값 | 대량 분류·요약·대사 | Ch3·Ch6 |
 
 </div>
 </div>
 
-<p class="section-note" style="margin-top:8px">모델 ID는 OpenRouter 슬러그 예시입니다. 실제 수업 전에는 <code>bash scripts/preflight.sh</code>로 기본 모델 호출을 확인합니다. 비교 모델은 코드에 못 박지 않고 <code>ANALYST_COMPARE_MODELS</code> 환경변수로 그날 계정에서 되는 슬러그를 넣습니다. 사용할 수 없는 모델은 비교표에서 <code>skip</code>으로 넘어갑니다. 표는 선택 감각을 주기 위한 자리표이고, 수업 당일 OpenRouter 모델 페이지와 계정 라우팅이 최종 기준입니다.</p>
+<p class="section-note" style="margin-top:8px">모델 ID와 단가는 수업 당일 OpenRouter 모델 페이지와 계정 라우팅이 최종 기준입니다. 실제 수업 전에는 <code>bash scripts/preflight.sh</code>로 기본 모델 호출을 확인합니다. 비교 모델은 코드에 못 박지 않고 <code>ANALYST_COMPARE_MODELS</code> 환경변수로 그날 계정에서 되는 슬러그를 넣습니다. 사용할 수 없는 모델은 비교표에서 <code>skip</code>으로 넘어갑니다.</p>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>기본값은 Gemini 3.5 Flash</span><span class="status-pill">실무 휴리스틱</span></div>
+<div class="board-header"><span>기본값은 빠른 저비용 모델</span><span class="status-pill">실무 휴리스틱</span></div>
 <div class="panel-body"><div class="list">
-<p>저렴하고 빨라 8시간 내내 반복 실습에 맞습니다. 비교가 필요한 대목에서만 Opus 4.8로 올립니다.</p>
+<p>저렴하고 빨라 8시간 내내 반복 실습에 맞는 모델을 기본으로 둡니다. 비교가 필요한 대목에서만 그날 호출 가능한 상위 모델로 올립니다.</p>
 <p>점수 5%를 더 얻으려고 비용을 3배 쓰는 건 대개 손해입니다. 그래서 한 모델로 통일하지 않고 자리를 섞습니다. 이 챕터 끝의 비교표가 그 감각을 데이터로 줍니다.</p>
 </div></div>
 </div>
@@ -516,7 +547,7 @@ flowchart TB
 <p class="section-note" style="margin-top:18px">이 3계층은 LangChain 생태계에서 자주 쓰는 설명 틀이고 업계 단일 표준은 아닙니다. 다른 프레임워크는 경계를 다르게 둡니다. 이 과정이 이 스택을 고른 이유는 세 역할이 또렷이 나뉘어 따로 배우기 좋기 때문입니다.</p>
 
 <details class="deep">
-<summary>🔬 심화 · <strong>강의용</strong> — "하네스가 차이를 만든다"는 무슨 뜻인가: 8영역과 없을 때의 사고 <span style="color:var(--muted)">(이 챕터의 핵심 명제)</span></summary>
+<summary>🔬 심화 — "하네스가 차이를 만든다"는 무슨 뜻인가: 8영역과 없을 때의 사고 <span style="color:var(--muted)">(이 챕터의 핵심 명제)</span></summary>
 <div class="reveal">
 <p>하네스(Harness)는 LLM을 감싸 <strong>일이 되게 만드는 통제층(control plane)</strong>이다. 모델은 한 번에 "다음 한 수"만 정하고, 그 한 수가 실제로 굴러가게 하는 여덟 가지를 하네스가 떠맡는다. 이 과정은 그 여덟을 챕터별로 하나씩 짓는다:</p>
 <table>
@@ -533,7 +564,7 @@ flowchart TB
 </tbody>
 </table>
 <p><strong>하네스 없이 모델만 루프 돌리면</strong> 여섯 가지가 차례로 깨진다 — ① <strong>컨텍스트 소진</strong>(대화가 한도를 넘어 멈춤) · ② <strong>doom loop</strong>(같은 실패를 무한 반복) · ③ <strong>상태 소실</strong>(중간에 죽으면 처음부터) · ④ <strong>장기 실행 불가</strong>(몇 시간짜리 작업을 못 버팀) · ⑤ <strong>보안 취약</strong>(인젝션·과권한 호출) · ⑥ <strong>관찰 불가</strong>(무엇을 왜 했는지 추적 안 됨). 앞의 SWE-bench·Terminal-Bench 사례에서 "모델 고정, 하네스만 손봐 점수 상승"이 가능했던 건 바로 위 표의 여덟 통제 영역을 더 잘 짰기 때문이다 — 이 여섯 가지 깨짐을 그 여덟 영역이 막는다.</p>
-<p class="muted"><strong>가르칠 때 한 줄</strong> — "모델은 다음 한 동작만 정하고, 하네스가 나머지를 떠맡는다. 이 여덟이 없으면 데모는 되지만 운영은 안 된다." 이 표가 곧 <em>오늘 하루의 지도</em>다 — 각 칸을 한 챕터씩 짓는다.</p>
+<p class="muted"><strong>핵심 정리</strong> — "모델은 다음 한 동작만 정하고, 하네스가 나머지를 떠맡는다. 이 여덟이 없으면 데모는 되지만 운영은 안 된다." 이 표가 곧 <em>오늘 하루의 지도</em>입니다. 각 칸을 한 챕터씩 짓습니다.</p>
 </div>
 </details>
 </section>
@@ -651,14 +682,14 @@ flowchart TB
 
 <div class="cue solve" style="margin-top:18px">
 <div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~6분</span></div>
-<div class="cue-body"><p>① <code>--doc invoice_photo.png --react</code>로 명세서(고액 청구서)를 뽑아 보세요(검산 도구는 <code>--react</code> 경로에만 있습니다). 모델이 검산 도구 <code>check_receipt_sum</code>을 부를까요, 건너뛸까요? <span style="color:var(--muted)">(키가 있을 때 질문입니다. <code>--mock</code>으로는 "영수증이면 검산, 아니면 건너뜀"이라는 <em>고정 규칙</em>대로 명세서는 <code>[Action]</code> 없이 <code>[Final]</code>만 찍힙니다 — live에서 비로소 "모델이 정한다"가 드러납니다.)</span></p><p>② 검산 도구의 허용 오차 <code>1.0</code>을 <code>0.0</code>으로 바꾸면 어떤 영수증이 불일치로 떨어질까요?</p></div>
+<div class="cue-body"><p>① <code>--doc invoice_photo.png --react</code>로 명세서(고액 청구서)를 뽑아 보세요(검산 도구는 <code>--react</code> 경로에만 있습니다). 모델이 검산 도구 <code>check_receipt_sum</code>을 부를까요, 건너뛸까요? <span style="color:var(--muted)">(키가 있을 때 질문입니다. <code>--mock</code>으로는 "영수증이면 검산, 아니면 건너뜀"이라는 <em>고정 규칙</em>대로 명세서는 <code>[Action]</code> 없이 <code>[Final]</code>만 찍힙니다 — live에서 비로소 "모델이 정한다"가 드러납니다.)</span></p><p>② 코드를 고치지 말고, 아래 <code>관찰 포인트</code>의 식 <code>abs(항목합 − 총액) &lt; tol</code>을 기준으로 생각해 보세요. <code>tol=0.0</code>이면 완전히 일치하는 영수증도 통과할까요?</p></div>
 </div>
 
 <details>
 <summary>관찰 포인트</summary>
 <div class="reveal">
 <p>① 정답은 <strong>"도구 호출 제안은 모델이 정하고, 영수증 안전 조건은 런타임이 강제한다"</strong>입니다. 시스템 프롬프트는 "명세서·계약서처럼 항목합이 총액과 무관한 문서면 검산을 건너뛰라"고 일러둡니다. invoice_photo는 <em>명세서로 분류되지만</em> 항목 2개(공급가액 1,500,000 + 부가세 150,000)가 총액 1,650,000원과 정확히 맞아떨어지는 경계 사례라, 모델에 따라 "검산할 수 있는 문서"로 보고 도구를 부르기도 합니다. 반대로 최종 JSON이 영수증인데 도구를 안 불렀거나 합계가 안 맞으면 하니스가 실패시킵니다.</p>
-<p>② 정답은 <strong>"전부"</strong>입니다. 정확히 맞아떨어지는 영수증조차 불일치로 떨어집니다. 검산은 <code>abs(항목합 − 총액) &lt; tol</code>인데, <code>tol=0.0</code>이면 절댓값(항상 0 이상)이 <code>0.0</code>보다 작을 수 없어서(완전 일치라도 <code>abs(0) &lt; 0.0</code>은 거짓) 어떤 영수증도 통과하지 못합니다. 즉 허용 오차는 "얼마나 깐깐하게 볼까"의 손잡이인데, 0으로 두면 '완벽히 일치'마저 못 통과시키는 과조임입니다. 반대로 너무 크면 실제 오류를 놓칩니다. (정수 원화라 기본값 <code>1.0</code>은 사실상 "1원이라도 어긋나면 불일치, 정확히 맞으면 통과"로 작동합니다.)</p>
+<p>② 정답은 <strong>"하나도 통과하지 못한다"</strong>입니다. 정확히 맞아떨어지는 영수증조차 불일치로 떨어집니다. 검산은 <code>abs(항목합 − 총액) &lt; tol</code>인데, <code>tol=0.0</code>이면 절댓값(항상 0 이상)이 <code>0.0</code>보다 작을 수 없어서(완전 일치라도 <code>abs(0) &lt; 0.0</code>은 거짓) 어떤 영수증도 통과하지 못합니다. 즉 허용 오차는 "얼마나 깐깐하게 볼까"의 손잡이인데, 0으로 두면 '완벽히 일치'마저 못 통과시키는 과조임입니다. 반대로 너무 크면 실제 오류를 놓칩니다. (정수 원화라 기본값 <code>1.0</code>은 사실상 "1원이라도 어긋나면 불일치, 정확히 맞으면 통과"로 작동합니다.)</p>
 </div>
 </details>
 </section>

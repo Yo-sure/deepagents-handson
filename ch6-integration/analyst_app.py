@@ -3,8 +3,8 @@
 지금까지 만든 모듈을 새로 짜지 않고 그대로 연결한다. 샘플 메일 입력을 분류부터
 외부 검증까지 순서대로 처리한다. 계약(RecordV1)과 디렉터리 규약이 같아서 가능하다.
 
-    샘플 메일 입력 → 분류·정규화(Ch2) → fan-out 조사(Ch3) → OKF 적재(Ch4)
-            → 브리프(Ch4 Skill) → A2A 외부 검증(Ch5) → verified_brief.md
+    샘플 메일 입력 → 분류·정규화(Ch2) → fan-out 조사(Ch3) + OKF 적재(Ch4)
+            → 브리프(Ch4 Skill) → 검증(Ch5, --a2a면 외부 A2A) → verified_brief.md
 
 각 단계는 해당 챕터의 모듈을 import 해 그 함수를 부른다. 기본 live 경로는 Ch4의
 Skill 에이전트까지 실제로 실행하고, --mock 경로만 키 없이 끝까지 볼 수 있도록
@@ -64,17 +64,19 @@ def run_research(mock: bool) -> dict:
 
 
 def run_okf() -> int:
-    """Ch4 — 조사 결과를 OKF 지식 항목으로 적재."""
-    from okf_store import build_finding_entries, build_merchant_entries, okf_index
+    """Ch4 — classified 레코드를 OKF 지식 항목으로 적재."""
+    from okf_store import build_finding_entries, build_merchant_entries, okf_index, validate_okf_bundle
     from analyst.paths import KNOWLEDGE_BASE
     from research_orchestrator import load_records
 
     records = load_records()
     ensure_workspace()
     entries = {**build_merchant_entries(records), **build_finding_entries(records)}
+    index_text = okf_index(entries)
+    validate_okf_bundle(entries, index_text)
     for name, text in entries.items():
         (KNOWLEDGE_BASE / f"{name}.md").write_text(text, encoding="utf-8")
-    (KNOWLEDGE_BASE / "index.md").write_text(okf_index(entries), encoding="utf-8")
+    (KNOWLEDGE_BASE / "index.md").write_text(index_text, encoding="utf-8")
     return len(entries)
 
 
@@ -179,7 +181,7 @@ def main() -> None:
     step(4, "브리프 작성 (Ch4 inbox-brief Skill)")
     write_brief(use_skill=not args.mock)
     print(f"  → {BRIEF.relative_to(WORKSPACE.parent)}")
-    step(5, "외부 검증 (Ch5 A2A)")
+    step(5, "외부 검증 (Ch5 A2A)" if args.a2a else "직접 검증 (Ch5 verifier)")
     run_verify(args.a2a)
     step(6, "완료")
     print(f"\n분류 {len(list(CLASSIFIED.glob('*.json')))}건 · 조사 {len(ctx['notes'])}갈래")

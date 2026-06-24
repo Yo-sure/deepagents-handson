@@ -28,7 +28,7 @@ pageClass: lec-page
 <div class="board">
 <div class="board-header"><span>이 챕터가 끝나면</span><span class="status-pill">완성</span></div>
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>엔드투엔드 1회</strong><p>샘플 메일 → 분류 → 조사 → 지식 → 브리프 → 검증</p></div><div class="store">전체</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>엔드투엔드 1회</strong><p>샘플 메일 → 분류 → 조사·지식 → 브리프 → 검증</p></div><div class="store">전체</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>모듈 배선 원리</strong><p>계약을 재사용해 새로 짜지 않는다</p></div><div class="store">조립</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>적용 메모</strong><p>내 업무에 옮길 항목 정리</p></div><div class="store">전이</div></div>
 </div>
@@ -53,7 +53,7 @@ pageClass: lec-page
 <p>중간에 포맷이 바뀌지 않아 배선이 단순합니다</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>규약 — 디렉터리</strong><span>workspace/ 단계별</span></div><div class="panel-body"><div class="list">
-<p>classified → research_notes → knowledge_base → brief → verified</p>
+<p>classified → research_notes + knowledge_base → brief → verified</p>
 <p>한 단계의 출력이 다음 단계의 입력입니다</p>
 </div></div></div>
 </div>
@@ -69,7 +69,7 @@ pageClass: lec-page
 ## 샘플 입력이 처리되는 경로
 
 </div>
-<p class="section-note">샘플 메일 입력은 여섯 단계를 지납니다. 앞 다섯은 한 프로세스 안에서, 마지막 검증은 프로세스 경계를 넘어 A2A로 나갑니다.<br>
+<p class="section-note">샘플 메일 입력은 여섯 단계를 지납니다. 분류 레코드는 두 갈래로 쓰입니다. Ch3는 조사 노트와 초안을 만들고, Ch4 OKF 적재는 같은 classified 레코드에서 거래처·gap·구독 지식을 다시 계산합니다. 마지막 검증은 기본 실행에서는 같은 프로세스의 검증 함수를 부르고, <code>--a2a</code>를 붙일 때 프로세스 경계를 넘어갑니다.<br>
 각 단계 옆에 그 일을 맡은 챕터를 적었습니다.</p>
 </div>
 
@@ -78,20 +78,23 @@ flowchart LR
   IN[("📥 샘플 메일 입력<br/>문서 10건")]
   IN -->|Ch2| C["분류·정규화<br/>classified/"]
   C -->|Ch3| R["fan-out 교차조사<br/>research_notes/"]
-  R -->|Ch4| K["OKF 적재<br/>knowledge_base/"]
-  K -->|Ch4| B["브리프<br/>brief.md"]
-  subgraph EXT ["프로세스 경계 · A2A (Ch5)"]
+  C -->|Ch4| K["OKF 적재<br/>knowledge_base/"]
+  R -->|초안 근거| B["브리프<br/>brief.md"]
+  K -->|gap·subscription| B
+  B -->|기본| D["직접 검증<br/>verify_brief()"]
+  subgraph EXT ["옵션 · --a2a 프로세스 경계 (Ch5)"]
     V{{"검증 에이전트<br/>localhost:9610"}}
   end
-  B -->|제출| V
-  V -->|검증 판정| OUT[["✅ verified_brief.md"]]
+  B -.->|--a2a| V
+  D --> OUT[["✅ verified_brief.md"]]
+  V -->|검증 판정| OUT
   classDef io fill:#0d9488,stroke:#0f766e,color:#fff;
   classDef step fill:#ecfdf5,stroke:#5eead4,color:#0f5132;
   class IN,OUT io;
-  class C,R,K,B step;
+  class C,R,K,B,D step;
 ```
 
-<p class="section-note" style="margin-top:6px">앞 다섯 단계(분류→조사→지식→브리프)는 한 프로세스 안에서 디렉터리로 이어지고, <strong>마지막 검증만 점선 박스 밖</strong> — 다른 프로세스로 떠 있는 검증 에이전트에게 A2A로 건너갑니다. 화살표 위 배지가 그 일을 맡은 챕터입니다.</p>
+<p class="section-note" style="margin-top:6px">분류 뒤에는 두 산출물이 나뉩니다. <code>research_notes/</code>는 조사 초안의 근거이고, <code>knowledge_base/</code>는 classified 레코드에서 재계산한 OKF 지식입니다. 검증은 기본 실행에서는 직접 함수 호출, <code>--a2a</code> 실행에서는 점선 박스 밖의 별도 프로세스로 갑니다.</p>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>사람을 끼울 자리는 어디인가 — 부작용 단계에만</span><span class="status-pill">HITL 확장점</span></div>
@@ -130,6 +133,7 @@ flowchart LR
 <div class="grid-2" style="margin-top:16px">
 <div class="panel"><div class="panel-head"><strong>왜 import만으로 되나</strong></div><div class="panel-body"><div class="list">
 <p>각 단계가 돌려준 산출물(classified·notes·knowledge_base)을 다음 단계가 디렉터리 규약으로 집어 옵니다.</p>
+<p>단 OKF는 notes를 파싱하지 않습니다. Ch4의 지식 적재는 classified 레코드에서 거래처·gap·subscription을 다시 계산하고, Ch4 Skill 브리프가 notes와 knowledge_base를 함께 읽습니다.</p>
 <p>그래서 함수끼리 인자를 길게 주고받지 않아도 됩니다 — 파일이 계약입니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>두 실행 트랙</strong></div><div class="panel-body"><div class="list">
@@ -161,7 +165,7 @@ flowchart LR
 <div class="board-header"><span>실행</span><span class="status-pill">터미널</span></div>
 <div class="stack">
 <div class="row"><div class="code">a</div><div class="copy"><strong>전 구간 — live 분류·조사·Skill</strong><p><code>uv run python3 ch6-integration/analyst_app.py</code> <span style="color:var(--muted)">(키 없으면: <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: <code>[1/6]</code>~<code>[6/6]</code> 여섯 단계가 차례로 찍히고 <code>verified_brief.md</code>가 생성됩니다. live 모델 출력은 달라질 수 있으므로 판정이 흔들리면 <code>--mock</code>으로 결정론 경로를 먼저 확인하세요. 무플래그는 <code>[1/6]</code>·<code>[2/6]</code>·<code>[4/6]</code>에서 키가 필요합니다.</span></p></div><div class="store">엔드투엔드</div></div>
-<div class="row"><div class="code">b</div><div class="copy"><strong>검증을 실제 A2A로</strong><p><code>uv run python3 ch6-integration/analyst_app.py --mock --a2a</code> <span style="color:var(--muted)">(키가 있고 live도 볼 때: <code>--a2a</code>)</span><br><span style="color:var(--muted)">성공 기준: [5/6]에서 <code>Agent Card</code>가 조회되고 실제 서버와 통신한다. <code>--mock --a2a</code>는 앞 네 단계는 결정론 경로, 검증만 실제 A2A다.</span></p></div><div class="store">A2A</div></div>
+<div class="row"><div class="code">b</div><div class="copy"><strong>검증까지 실제 A2A로</strong><p><code>uv run python3 ch6-integration/analyst_app.py --a2a</code> <span style="color:var(--muted)">(키 없이 검증 경계만 볼 때: <code>--mock --a2a</code>)</span><br><span style="color:var(--muted)">성공 기준: [1/6]·[2/6]·[4/6]은 LLM API live 호출, [5/6]은 <code>Agent Card</code> 조회 후 실제 서버 통신입니다. <code>--mock --a2a</code>는 앞 네 단계만 결정론 보조 경로로 바꾸고 A2A 경계는 그대로 확인합니다.</span></p></div><div class="store">A2A</div></div>
 <div class="row"><div class="code">c</div><div class="copy"><strong>최종 산출물 열기</strong><p><code>cat workspace/verified_brief.md</code><br><span style="color:var(--muted)">성공 기준: 브리프 + 외부 검증 판정(PASS)이 한 파일에.</span></p></div><div class="store">완성</div></div>
 </div>
 </div>
@@ -199,7 +203,7 @@ flowchart LR
   지식 항목 12개
 [4/6] 브리프 작성 (Ch4 inbox-brief Skill)
   → workspace/brief.md
-[5/6] 외부 검증 (Ch5 A2A)
+[5/6] 직접 검증 (Ch5 verifier)
   검증 판정: PASS
   → workspace/verified_brief.md
 [6/6] 완료
@@ -308,7 +312,7 @@ flowchart LR
 
 <div class="cue solve" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~7분</span></div>
-<div class="cue-body">카드 명세서에만 있고 영수증이 없는 결제 한 줄(예: 쿠팡)을 골라, 그 항목이 ① classified ② research_notes ③ knowledge_base ④ brief ⑤ verified_brief 다섯 산출물에서 각각 어떤 모양으로 나타나는지 추적하세요.</div>
+<div class="cue-body">카드 명세서에만 있고 영수증이 없는 결제 한 줄(예: 쿠팡)을 골라, 그 항목이 ① classified ② research_notes ③ knowledge_base ④ brief ⑤ verified_brief 다섯 산출물에서 각각 어떤 모양으로 나타나는지 추적하세요. ②와 ③은 서로 직렬이 아니라 둘 다 ① classified에서 갈라져 나온 산출물입니다.</div>
 </div>
 
 <details>
@@ -319,7 +323,7 @@ flowchart LR
 ```mermaid
 flowchart LR
   A["① classified/<br/>항목: 쿠팡 89,000"] --> B["② research_notes/<br/>⚠️ 영수증 없음"]
-  B --> C["③ knowledge_base/<br/>type: gap"]
+  A --> C["③ knowledge_base/<br/>type: gap"]
   C --> D["④ brief.md<br/>(gap) 쿠팡(주) 89,000원"]
   D --> E["⑤ verified_brief.md<br/>상호명+금액 포함 ✓ PASS"]
   classDef s fill:#ecfdf5,stroke:#5eead4,color:#0f5132;
@@ -334,7 +338,7 @@ flowchart LR
 <div class="board-header"><span>막히면</span><span class="status-pill">트러블슈팅</span></div>
 <div class="stack">
 <div class="row"><div class="code">!</div><div class="copy"><strong>ModuleNotFoundError (deepagents·langchain 등)</strong><p>레포 루트에서 <code>uv run</code> 하세요. <code>uv</code>는 실행 폴더(또는 상위)에서 <code>pyproject.toml</code>을 찾아 이 프로젝트의 의존성·가상환경을 잡는데, 레포 밖에서 돌리면 그걸 못 찾아 import가 깨집니다. (앱이 ch1~5를 <code>sys.path</code>에 넣는 건 <code>__file__</code> 위치 기준이라 cwd와는 무관합니다.)</p></div><div class="store">경로</div></div>
-<div class="row"><div class="code">!</div><div class="copy"><strong>[5/6]에서 멈춤(--a2a)</strong><p><code>--a2a</code>는 9610 포트에 verifier_agent를 띄웁니다. 포트 점유 시 기동 실패가 납니다. 이전 프로세스를 끄거나 <code>--a2a</code> 없이 목으로 돌립니다.</p></div><div class="store">A2A</div></div>
+<div class="row"><div class="code">!</div><div class="copy"><strong>[5/6]에서 멈춤(--a2a)</strong><p><code>--a2a</code>는 9610 포트에 verifier_agent를 띄웁니다. 포트 점유 시 기동 실패가 납니다. 관찰하려면 다른 터미널에서 <code>uv run python3 ch5-a2a/verifier_agent.py</code>를 먼저 띄운 뒤 <code>uv run python3 ch6-integration/analyst_app.py --a2a</code>를 실행하세요. 점유 프로세스 확인은 <code>ss -ltnp | grep 9610</code>으로 합니다. 경계가 아니라 전체 배선만 보려면 <code>--a2a</code> 없이 직접 검증으로 돌립니다.</p></div><div class="store">A2A</div></div>
 <div class="row"><div class="code">!</div><div class="copy"><strong>verified_brief가 NEEDS_REVISION</strong><p>버그가 아닙니다. 기본 실행은 PASS지만, <code>workspace/</code>를 비우고 <code>run_okf()</code>를 건너뛰면 브리프가 gap을 빠뜨려 검증자가 반려합니다(<code>workspace/</code>를 안 비우면 이전 <code>knowledge_base/</code>가 남아 PASS가 납니다). brief.md "짚을 점"과 verified_brief의 재계산을 비교하세요. <strong>PASS도 NEEDS_REVISION도 검증 로직이 돈 결과</strong>입니다.</p></div><div class="store">정상</div></div>
 </div>
 </div>
@@ -521,7 +525,7 @@ flowchart TB
 </div>
 
 <details class="deep">
-<summary>🔬 심화 · <strong>강의용</strong> — 왜 "한 번 돌았다"로는 부족한가: <code>pass^k</code>와 곱의 붕괴 <span style="color:var(--muted)">(신뢰도 산수)</span></summary>
+<summary>🔬 심화 — 왜 "한 번 돌았다"로는 부족한가: <code>pass^k</code>와 곱의 붕괴 <span style="color:var(--muted)">(신뢰도 산수)</span></summary>
 <div class="reveal">
 <p>이 캡스톤은 <strong>6단계 파이프라인</strong>(분류→조사→지식→브리프→검증→완료)이다. 데모 한 번 PASS가 "이 시스템은 90% 신뢰"를 뜻하지 않는다. 단계가 직렬로 이어지면 <strong>전체 성공률은 단계 성공률의 곱</strong>이기 때문이다.</p>
 <table>
@@ -533,7 +537,7 @@ flowchart TB
 </table>
 <p>단계당 95%는 꽤 좋아 보이지만 6단계를 거치면 <strong>네 번에 한 번은 어딘가에서 깨진다</strong>(완료율 74%). 그리고 "매번 같은 결과"를 요구하는 <code>pass^k</code>로 보면 — 6단계×10회면 0.95⁶⁰ ≈ <strong>0.05</strong>, 즉 <em>거의 매번 한 군데는 다르게 나온다</em>. "돌았다"(한 번 운 좋게)와 "신뢰할 수 있다"(pass^k 높음)는 다른 세계다.</p>
 <p><strong>그래서 이 과정의 각 안전장치가 산수에 직접 기여한다.</strong> Ch2 fail-closed(틀리면 안 들어감)·HITL 멈춤, Ch5 외부 검증, 신뢰도 임계 멈춤은 전부 <em>단계 성공률을 0.95에서 0.99로 올리기 위한</em> 장치다. 위 표에서 0.95→0.99 한 칸이 완료율 74%→94%, pass^10 5%→54%로 갈린다. 단계 성공률은 곱으로 누적되므로, 낮은 성공률의 한 단계가 전체 완료율을 크게 낮춘다. 그래서 평가는 "전체 돌았나"가 아니라 단계별 성공률·실패 지점을 따로 재야 한다(위 측정자 표).</p>
-<p class="muted"><strong>가르칠 때 한 줄</strong> — "직렬 N단계 신뢰도 = 단계 신뢰도의 N제곱. 데모 1회 PASS는 신뢰도의 증거가 아니고, 각 단계의 실패율을 따로 측정해야 한다."</p>
+<p class="muted"><strong>핵심 정리</strong> — "직렬 N단계 신뢰도 = 단계 신뢰도의 N제곱. 데모 1회 PASS는 신뢰도의 증거가 아니고, 각 단계의 실패율을 따로 측정해야 한다."</p>
 </div>
 </details>
 </section>
@@ -547,12 +551,12 @@ flowchart TB
 
 </div>
 <p class="section-note">이 애널리스트는 인박스를 다뤘지만 구조는 다른 문서 업무에도 적용할 수 있습니다. 입력을 계약으로 정규화하고, 나눠 조사하고, 지식으로 쌓고, 외부에 검증을 맡기는 방식입니다.<br>
-문서 더미가 계약서든 로그든 논문이든, 도메인별 모듈을 바꾸면 같은 구조를 재사용할 수 있습니다.</p>
+문서 묶음이 계약서든 로그든 논문이든, 도메인별 모듈을 바꾸면 같은 구조를 재사용할 수 있습니다.</p>
 </div>
 
 ```mermaid
 flowchart LR
-  IN["문서 더미<br/>계약서·로그·논문"] --> N["계약으로 정규화<br/>RecordV1 → 내 스키마"]
+  IN["문서 묶음<br/>계약서·로그·논문"] --> N["계약으로 정규화<br/>RecordV1 → 내 스키마"]
   N --> S["나눠 조사<br/>reconcile → 내 질문"]
   S --> K["지식으로 적재<br/>OKF 표준"]
   K --> V["외부에 검증<br/>A2A 경계"]

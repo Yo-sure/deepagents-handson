@@ -1,10 +1,10 @@
-"""Ch5 제공 모듈 — 외부 검증 에이전트(A2A 서버, a2a-sdk 1.1.0).
+"""Ch5 제공 모듈 — 외부 검증 에이전트(A2A 서버, a2a-sdk 1.1+).
 
 브리프 작성 경로와 검증 경로가 같으면 같은 가정 때문에 누락을 놓칠 수 있다.
 검증을 다른 프로세스로 분리하고 A2A 메시지로 제출한다. 이 검증 에이전트는 과정에서
 '제공 모듈'로 주어진다. 재현성을 위해 LLM 없이 규칙으로 동작한다.
 
-A2A 서버 뼈대(공식 1.1.0)
+A2A 서버 뼈대(1.1+ lockfile 기준)
   AgentExecutor 구현 → DefaultRequestHandler(+AgentCard·TaskStore)
   → create_agent_card_routes + create_jsonrpc_routes → Starlette → uvicorn.
 Agent Card는 /.well-known/agent-card.json 에 노출되는 메타데이터와 skill 목록이다.
@@ -95,11 +95,6 @@ class VerifierExecutor(AgentExecutor):
 #pragma region execute
     async def execute(self, context: RequestContext, event_queue: EventQueue) -> None:
         brief = context.get_user_input()
-        ok, notes = verify_brief(brief)
-        verdict = "PASS" if ok else "NEEDS_REVISION"
-        body = (f"## 외부 검증 결과 — {verdict}\n검증 주체: 세무·정합성 검증 에이전트 (A2A)\n\n"
-                + "\n".join(f"- {n}" for n in notes))
-
         # A2A 규칙: 상태 갱신 전에 Task를 먼저 enqueue 한다.
         if os.getenv("A2A_BREAK_TASK_ORDER") != "1":
             await event_queue.enqueue_event(Task(
@@ -112,6 +107,11 @@ class VerifierExecutor(AgentExecutor):
                               context_id=context.context_id)
         await updater.start_work(message=updater.new_agent_message(
             parts=[Part(text="브리프를 레코드와 대사하는 중...")]))
+
+        ok, notes = verify_brief(brief)
+        verdict = "PASS" if ok else "NEEDS_REVISION"
+        body = (f"## 외부 검증 결과 — {verdict}\n검증 주체: 세무·정합성 검증 에이전트 (A2A)\n\n"
+                + "\n".join(f"- {n}" for n in notes))
         await updater.add_artifact(parts=[Part(text=body)], name="verdict", last_chunk=True)
         await updater.complete()
 #pragma endregion execute

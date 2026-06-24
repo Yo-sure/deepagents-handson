@@ -1,4 +1,4 @@
-"""Ch5 산출물 — 브리프를 외부 검증 에이전트에 A2A로 보내 검증받는다(a2a-sdk 1.1.0).
+"""Ch5 산출물 — 브리프를 외부 검증 에이전트에 A2A로 보내 검증받는다(a2a-sdk 1.1+).
 
 흐름: brief.md(없으면 brief_draft.md) 를 읽어 → Agent Card 조회 → SendMessage 로 제출 →
 검증 결과를 받아 → verified_brief.md 로 떨군다.
@@ -86,14 +86,20 @@ def _texts_from_stream(resp) -> list[str]:
 async def verify_via_a2a(brief: str) -> str:
     """Agent Card 조회 → ClientFactory → SendMessage. 검증 결과 텍스트를 돌려준다."""
     from a2a.client import A2ACardResolver, ClientConfig, ClientFactory
-    from a2a.types import Message, Part, Role, SendMessageRequest
+    from a2a.types import Message, Part, Role, SendMessageConfiguration, SendMessageRequest
 
     async with httpx.AsyncClient(timeout=30.0) as http:
         card = await A2ACardResolver(httpx_client=http, base_url=VERIFIER_URL).get_agent_card()
         print(f"  Agent Card: {card.name} (skill: {card.skills[0].id})")
         client = ClientFactory(config=ClientConfig(httpx_client=http, streaming=False)).create(card=card)
-        req = SendMessageRequest(message=Message(
-            role=Role.ROLE_USER, message_id=str(uuid.uuid4()), parts=[Part(text=brief)]))
+        req = SendMessageRequest(
+            message=Message(
+                role=Role.ROLE_USER,
+                message_id=str(uuid.uuid4()),
+                parts=[Part(text=brief)],
+            ),
+            configuration=SendMessageConfiguration(return_immediately=False),
+        )
         out: list[str] = []
         async for resp in client.send_message(request=req):
             out += _texts_from_stream(resp[0] if isinstance(resp, tuple) else resp)
@@ -124,11 +130,16 @@ def show_protocol() -> None:
     print("  ※ protocolVersion은 최상위가 아니라 supportedInterfaces[] 안에 있다(흔한 오해).")
 
     print("\n② 제출 — SendMessage: 클라이언트가 브리프를 Message(parts=[Part(text=…)])로 보낸다.")
-    from a2a.types import Message, Part, Role, SendMessageRequest
+    from a2a.types import Message, Part, Role, SendMessageConfiguration, SendMessageRequest
     msg = Message(role=Role.ROLE_USER, message_id=str(_uuid.uuid4()),
                   parts=[Part(text="<brief.md 본문>")])
-    req = SendMessageRequest(message=msg)
-    print(json.dumps(MessageToDict(req), ensure_ascii=False, indent=2))
+    req = SendMessageRequest(
+        message=msg,
+        configuration=SendMessageConfiguration(return_immediately=False),
+    )
+    req_json = MessageToDict(req)
+    req_json.setdefault("configuration", {})["returnImmediately"] = False
+    print(json.dumps(req_json, ensure_ascii=False, indent=2))
 
     print("\n③ 처리 — Task 라이프사이클: 서버가 상태를 단계로 올린다.")
     print("   SUBMITTED → (start_work) WORKING → (add_artifact: verdict) → (complete) COMPLETED")
@@ -141,10 +152,12 @@ def wait_for_server(url: str, timeout: float = 15.0) -> bool:
     end = time.monotonic() + timeout
     while time.monotonic() < end:
         try:
-            httpx.get(f"{url}/.well-known/agent-card.json", timeout=2.0)
-            return True
+            resp = httpx.get(f"{url}/.well-known/agent-card.json", timeout=2.0)
+            if resp.status_code == 200:
+                return True
         except Exception:
-            time.sleep(0.4)
+            pass
+        time.sleep(0.4)
     return False
 
 
@@ -176,11 +189,14 @@ def main() -> None:
 
     proc = None
     if args.serve:
-        proc = subprocess.Popen([sys.executable, str(Path(__file__).with_name("verifier_agent.py"))])
-        if not wait_for_server(VERIFIER_URL):
-            print("  검증 에이전트 기동 실패")
-            proc.terminate()
-            return
+        if wait_for_server(VERIFIER_URL, timeout=1.0):
+            print("  기존 검증 에이전트 재사용")
+        else:
+            proc = subprocess.Popen([sys.executable, str(Path(__file__).with_name("verifier_agent.py"))])
+            if not wait_for_server(VERIFIER_URL):
+                print("  검증 에이전트 기동 실패")
+                proc.terminate()
+                return
     try:
         block = asyncio.run(verify_via_a2a(brief))
         print("  검증 결과 수신 (A2A)")

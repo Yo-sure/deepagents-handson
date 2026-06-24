@@ -86,21 +86,32 @@ flowchart LR
 
 ```python
 # create_agent — 표준 ReAct는 한 줄
+import os
+from dotenv import load_dotenv
 from langchain.agents import create_agent
-agent = create_agent("openai:google/gemini-3.5-flash", tools=[...])
+from langchain_openai import ChatOpenAI
+
+load_dotenv()  # Ch0의 OpenRouter 호환 환경변수 로드
+model = ChatOpenAI(
+    model="google/gemini-3.5-flash",
+    base_url="https://openrouter.ai/api/v1",
+    api_key=os.environ["OPENROUTER_API_KEY"],
+    temperature=0,
+)
+agent = create_agent(model=model, tools=[...])
 
 # create_agent도 내부적으로 StateGraph를 컴파일해 돌려준다(CompiledStateGraph).
 # 다만 그 그래프는 ReAct 루프 모양으로 고정 — 단계를 직접 정의하려면 StateGraph를 손으로 짠다 ↓
 ```
 
-<p class="section-note" style="margin-top:10px"><code>"openai:google/gemini-3.5-flash"</code>가 오타처럼 보이지만 맞습니다 — <code>openai:</code> 접두사는 <strong>OpenAI 호환 게이트웨이(OpenRouter)</strong>로 부른다는 표시이고, 실제 모델은 <code>google/gemini-3.5-flash</code>입니다(Ch0의 게이트웨이 설정 그대로). 이후 챕터의 <code>openai:</code>도 모두 같은 뜻입니다.</p>
+<p class="section-note" style="margin-top:10px">OpenRouter는 OpenAI 호환 API라서 <code>ChatOpenAI(base_url="https://openrouter.ai/api/v1")</code>로 직접 지정합니다. 이후 챕터의 <code>openai:</code> 접두사는 같은 호환 게이트웨이 경로를 뜻하고, 실제 모델 슬러그는 <code>google/gemini-3.5-flash</code>처럼 별도로 들어갑니다.</p>
 
 <p class="section-note" style="margin-top:16px"><code>create_agent</code>는 LangGraph 1.0 이전의 <code>create_react_agent</code>를 대체했습니다. 둘 다 같은 <code>CompiledStateGraph</code>를 돌려줍니다. 차이는 자유도이고, 그 자유도의 핵심은 LangChain 1.0이 더한 <strong>미들웨어</strong>입니다 — Ch3의 <code>create_deep_agent</code>는 바로 이 <code>create_agent</code>에 미들웨어를 기본 탑재한 확장입니다. 훅은 여섯입니다: 에이전트 실행 1회 단위 <code>before_agent</code>·<code>after_agent</code>, 매 모델 호출 전후 <code>before_model</code>·<code>after_model</code>, 그리고 모델·도구 호출을 <em>통째로 감싸는</em> <code>wrap_model_call</code>·<code>wrap_tool_call</code>(캐싱·재시도·결과 가로채기). <code>before_*</code>는 순차로, <code>after_*</code>는 역순으로, <code>wrap_*</code>는 실제 호출을 중첩으로 감쌉니다. <span style="color:var(--muted)">(이 훅들을 실제로 거는 건 <strong>Ch3</strong>의 <code>create_deep_agent</code>입니다 — 이 챕터 핸즈온은 손으로 짠 StateGraph라 아직 안 씁니다. 여기선 "create_agent의 확장이 그 미들웨어 위에 선다"만 잡고, 동작은 Ch3에서 봅니다.)</span></p>
 
 <details class="deep">
-<summary>🔬 심화 · <strong>강의용</strong> — 같은 일을 다른 프레임워크로: Pydantic AI <span style="color:var(--muted)">(Framework 층의 대안)</span></summary>
+<summary>🔬 심화 — 같은 일을 다른 프레임워크로: Pydantic AI <span style="color:var(--muted)">(Framework 층의 대안)</span></summary>
 <div class="reveal">
-<p>LangChain만 있는 게 아니다. <strong>Pydantic AI</strong>(Pydantic 팀, v1.0 2025-09 → 현재 1.x)는 "<em>FastAPI feeling</em>을 에이전트 개발에"를 내건 <strong>타입 안전</strong> 프레임워크다. 비유하면 <strong>LangChain은 Django</strong>(배터리 포함·관례 많고 표면 넓음), <strong>Pydantic AI는 FastAPI</strong>(작고 타입 우선·군더더기 적음)다. (덧붙여 — Pydantic의 검증 계층은 LangChain·OpenAI SDK·Anthropic SDK가 <em>이미 안에서</em> 쓴다. Pydantic AI는 그 팀이 에이전트까지 올라온 것.)</p>
+<p>LangChain만 있는 게 아니다. <strong>Pydantic AI</strong>는 "<em>FastAPI feeling</em>을 에이전트 개발에"를 내건 <strong>타입 안전</strong> 프레임워크다. 비유하면 <strong>LangChain은 Django</strong>(배터리 포함·관례 많고 표면 넓음), <strong>Pydantic AI는 FastAPI</strong>(작고 타입 우선·군더더기 적음)다. 버전과 제공자 설정은 빠르게 바뀌므로, 아래 코드는 이 레포에서 실행하는 핸즈온이 아니라 <strong>개념 예시</strong>로 읽는다. (덧붙여 — Pydantic의 검증 계층은 LangChain·OpenAI SDK·Anthropic SDK가 <em>이미 안에서</em> 쓴다. Pydantic AI는 그 팀이 에이전트까지 올라온 것.)</p>
 <p>핵심 차이는 <strong>구조화 출력이 타입으로 못 박힌다</strong>는 것 — <code>output_type</code>에 Pydantic 모델을 주면 결과가 그 타입으로 <em>검증</em>되고 IDE 자동완성·정적 검사가 붙어 오류가 런타임이 아니라 작성 시점에 잡힌다. 우리 <code>RecordV1</code> 추출을 이 프레임워크로 쓰면:</p>
 
 ```python
@@ -111,7 +122,7 @@ class RecordV1(BaseModel):      # Ch0의 계약을 그대로
     merchant: str
     total: float
 
-agent = Agent("openai:google/gemini-3.5-flash",   # 모델 무관 — OpenAI·Anthropic·OpenRouter…
+agent = Agent("openai:google/gemini-3.5-flash",   # 개념 예시 — 실제 제공자/base_url 설정은 별도 필요
               output_type=RecordV1,                 # ← 출력이 이 타입으로 검증된다
               system_prompt="영수증을 읽어 RecordV1로 채워라")
 
@@ -124,7 +135,7 @@ rec: RecordV1 = result.output                       # 타입 안전한 구조화
 ```
 
 <p><strong>3계층 어디?</strong> Pydantic AI는 <strong>Framework 층</strong>(LangChain 자리)의 대안이다. 그 위에 Runtime(상태·분기·지속)과 Harness(계획·파일·서브에이전트)는 여전히 필요하다 — Pydantic AI도 자체 그래프·durable 실행·관측(Logfire)을 붙여 그 위층을 채워 간다.</p>
-<p class="muted"><strong>이 과정이 LangChain을 고른 이유</strong> — 우리 하네스 스택(LangGraph → DeepAgents)이 LangChain 위에 서기 때문이다. <em>구조화 출력·타입 안전이 1순위</em>면 Pydantic AI가, <em>LangGraph·미들웨어·deepagents 생태계</em>가 필요하면 LangChain이 맞다. 둘 다 같은 ReAct 루프를 한 줄로 감춘다는 본질은 같다. <span class="tiny">(이 레포 의존성엔 pydantic-ai를 넣지 않았습니다 — 위 API는 격리 실행한 pydantic-ai 1.x와 공개 문서로 확인했고, 직접 써 보려면 별도 환경에서 <code>uv run --with pydantic-ai</code>로 돌리세요.)</span></p>
+<p class="muted"><strong>이 과정이 LangChain을 고른 이유</strong> — 우리 하네스 스택(LangGraph → DeepAgents)이 LangChain 위에 서기 때문이다. <em>구조화 출력·타입 안전이 1순위</em>면 Pydantic AI가, <em>LangGraph·미들웨어·deepagents 생태계</em>가 필요하면 LangChain이 맞다. 둘 다 같은 ReAct 루프를 한 줄로 감춘다는 본질은 같다. <span class="tiny">(이 레포 의존성엔 pydantic-ai를 넣지 않았습니다. 수업 중 실행하지 않는 비교용 의사코드이며, 직접 써 보려면 Pydantic AI 공식 문서의 현재 provider 설정을 보고 별도 환경에서 <code>uv run --with pydantic-ai</code>로 실험하세요.)</span></p>
 </div>
 </details>
 
@@ -171,7 +182,7 @@ for _ in range(MAX_STEPS):
 </div>
 
 <details class="deep">
-<summary>🔬 심화 · <strong>강의용</strong> — 도구 <code>name</code>·<code>description</code>은 영어로 쓰는 게 정석인 이유 <span style="color:var(--muted)">(우리 코드는 한국어, 그 트레이드오프)</span></summary>
+<summary>🔬 심화 — 도구 <code>name</code>·<code>description</code>은 영어로 쓰는 게 정석인 이유 <span style="color:var(--muted)">(우리 코드는 한국어, 그 트레이드오프)</span></summary>
 <div class="reveal">
 <p>위에서 본 <code>{name, description, parameters}</code> 스키마는 <strong>매 모델 호출마다</strong> 컨텍스트에 실린다 — 도구가 많을수록, 호출이 잦을수록 누적된다. 그래서 스키마의 <em>언어</em>가 비용과 정확도 둘 다에 영향을 준다.</p>
 <p><strong>① 비용 — 한국어는 토큰이 더 든다.</strong> 같은 뜻을 BPE(<code>cl100k_base</code>)로 재 보면:</p>
@@ -185,7 +196,7 @@ for _ in range(MAX_STEPS):
 <p>약 <strong>2.7배</strong>다(직접 측정값). 스키마가 매 호출 실리니, 도구 수×호출 수만큼 이 차이가 곱해진다.</p>
 <p><strong>② 정확도 — 모델은 영어 표현공간에서 결정한다.</strong> 다국어 LLM도 의미가 무거운 판단은 <em>영어에 가까운 내부 표현</em>에서 먼저 내린 뒤 출력 언어로 옮긴다(<a href="https://arxiv.org/abs/2502.15603">Schut 외, 2025</a>). 그리고 도구 호출에서 가장 흔한 실패 하나가 <strong>"파라미터 값 언어 불일치"</strong>다 — 의도·도구 선택은 맞는데 인자를 사용자 언어로 생성해 실행 규약을 어긴다(<a href="https://arxiv.org/abs/2601.05366">Lost in Execution, 2026</a>). 스키마를 영어로 두면 이 결을 거스르지 않는다.</p>
 <p><strong>권장 패턴</strong>: 도구 <code>name</code>·<code>description</code>·<em>파라미터 이름</em>은 <strong>영어</strong>, 주석·대화·사용자에게 보이는 문자열은 한국어. 사람용 한국어 docstring을 두고 싶으면 <code>@tool("inbox_check", description="Check the inbox …")</code>처럼 <strong>인자로 덮어쓰면</strong> 모델엔 영어가, 코드 읽는 사람에겐 한국어 docstring이 간다(설치된 langchain에서 확인).</p>
-<p class="muted"><strong>가르칠 때 한 줄</strong> — "스키마는 매 호출 실린다 → 언어가 비용이자 정확도다. 모델용은 영어, 사람용은 한국어." <em>우리 실습 코드는 학습 가독성을 위해 한국어 docstring을 쓴다</em> — 그게 이 트레이드오프를 일부러 보여 주는 자리이고, 다국어·프로덕션에선 위 권장을 따른다.</p>
+<p class="muted"><strong>핵심 정리</strong> — "스키마는 매 호출 실린다 → 언어가 비용이자 정확도다. 모델용은 영어, 사람용은 한국어." <em>우리 실습 코드는 학습 가독성을 위해 한국어 docstring을 씁니다</em>. 다국어·프로덕션에선 위 권장을 따릅니다.</p>
 </div>
 </details>
 </section>
@@ -296,7 +307,7 @@ flowchart TD
 <p class="tiny" style="color:var(--muted)"><strong>검증 자체의 한계도 알고 씁니다.</strong> <code>verify_total</code>은 "항목합(<code>금액×수량</code>) = 총액(±1원)"이라는 가정이라, 부가세 별도·서비스료·할인·반올림이 섞인 <em>실제</em> 영수증에선 모델이 옳게 읽어도 불일치가 날 수 있습니다. 그래서 이 검증은 <strong>정답 판정</strong>이 아니라 — 불일치를 재시도로 보내되 상한 + flagged 큐로 받치는 <em>층층 방어</em>의 한 겹일 뿐입니다.</p>
 <p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아, 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성).</p>
 <p>평소 mock은 gold가 고정이라 합계가 맞아 retry가 안 뜹니다(라이브 추출에선 비결정성으로 흔들려 의미가 있습니다). 그래서 <strong>아래 <code>--break-sum</code>으로 일부러 깨</strong> retry 루프를 눈으로 봅니다 — 한계를 정해 두는 게 하네스의 일입니다.</p>
-<p>재시도가 외부 부작용(메일 전송·DB 쓰기)을 가진 도구를 다시 부른다면 <strong>멱등성</strong>이 필요합니다 — 같은 작업을 두 번 해도 결과가 한 번과 같도록 idempotency key를 둬야 중복이 안 생깁니다(이 실습의 재분류는 부작용이 없어 안전). 그래프 차원의 마지막 안전망은 <code>recursion_limit</code>입니다 — 한 실행의 superstep 수가 이를 넘으면 <code>GraphRecursionError</code>가 납니다. 설치된 LangGraph 1.2.5의 기본은 <strong>10007</strong>입니다(옛 0.x의 25에서 올라갔습니다) — 평소엔 안 걸리는 <em>폭주 방지 backstop</em>입니다(노드 로직이 정하는 <code>MAX_RETRY</code> 재시도 횟수와는 다른 층). <code>graph.invoke(state, config=&#123;"recursion_limit": 5&#125;)</code>로 낮춰 일부러 터뜨려 보면 둘이 서로 다른 층이라는 게 또렷해집니다.</p>
+<p>재시도가 외부 부작용(메일 전송·DB 쓰기)을 가진 도구를 다시 부른다면 <strong>멱등성</strong>이 필요합니다 — 같은 작업을 두 번 해도 결과가 한 번과 같도록 idempotency key를 둬야 중복이 안 생깁니다(이 실습의 재분류는 부작용이 없어 안전). 그래프 차원의 마지막 안전망은 <code>recursion_limit</code>입니다 — 한 실행의 superstep 수가 이를 넘으면 <code>GraphRecursionError</code>가 납니다. 기본값은 LangGraph 버전별로 달라질 수 있으니 수업 환경에서는 직접 확인합니다. 평소엔 안 걸리는 <em>폭주 방지 backstop</em>이고, 노드 로직이 정하는 <code>MAX_RETRY</code> 재시도 횟수와는 다른 층입니다. 이 챕터 그래프는 checkpointer를 쓰므로 낮춰 실험할 때도 <code>graph.invoke(state, config=&#123;"configurable": &#123;"thread_id": "rec-demo"&#125;, "recursion_limit": 5&#125;)</code>처럼 thread_id를 함께 줍니다.</p>
 </div></div>
 </div>
 
@@ -342,7 +353,7 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="panel"><div class="panel-head"><strong>versions_seen</strong><span>진행 위치</span></div><div class="panel-body"><div class="list"><p>각 노드가 어디까지 봤는지 — 재개 시 어느 노드를 다시 돌릴지 판단</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>pending_writes</strong><span>내고장성</span></div><div class="panel-body"><div class="list"><p>아직 반영 안 된 쓰기 — 스냅샷과는 <em>별도로</em> 보존돼, superstep 도중 죽어도 재개 시 잃지 않게 하는 fault tolerance의 핵심</p></div></div></div>
 </div>
-<p class="section-note" style="margin-top:10px">위 코드의 <code>thread_id="intake-{doc}"</code>가 이 스냅샷들의 키입니다. <code>InMemorySaver</code>는 이걸 프로세스 메모리에 두고, <code>SqliteSaver</code>/<code>PostgresSaver</code>로 바꾸면 <strong>같은 구조</strong>가 디스크·DB에 남아 프로세스를 넘어 재개됩니다.</p>
+<p class="section-note" style="margin-top:10px">위 코드의 <code>thread_id="intake-{doc}"</code>가 이 스냅샷들의 키입니다. <code>InMemorySaver</code>는 이걸 프로세스 메모리에 둡니다. 디스크·DB에 남기려면 같은 인터페이스의 영속 체크포인터를 쓰되, 현재 실습 의존성에는 넣지 않은 <code>langgraph-checkpoint-sqlite</code> 또는 <code>langgraph-checkpoint-postgres</code> 같은 별도 패키지가 필요합니다.</p>
 </div>
 </div>
 
@@ -358,7 +369,7 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="board-header"><span>이게 왜 중요한가 — 지속 실행</span><span class="status-pill">durable execution</span></div>
 <div class="panel-body"><div class="list">
 <p>checkpointer는 각 <strong>superstep</strong>(LangGraph가 노드를 실행하는 단위)이 끝날 때마다 상태를 저장합니다. 그래서 interrupt뿐 아니라 <strong>중간에 끊겨도</strong> 같은 thread로 다시 부르면 마지막 superstep부터 이어집니다 — 처음부터 다시 안 합니다.</p>
-<p class="muted" style="margin-top:6px">단, 우리 데모의 <code>InMemorySaver</code>는 <strong>같은 프로세스 안에서만</strong> 상태를 들고 있습니다(예외를 잡고 재시도, 같은 런 안의 재개). 프로세스가 정말 죽었다 살아나도 복구하려면 디스크에 쓰는 영속 체크포인터(<code>SqliteSaver</code>·<code>PostgresSaver</code>)가 필요합니다 — 인터페이스는 같고 저장소만 바뀝니다.</p>
+<p class="muted" style="margin-top:6px">단, 우리 데모의 <code>InMemorySaver</code>는 <strong>같은 프로세스 안에서만</strong> 상태를 들고 있습니다(예외를 잡고 재시도, 같은 런 안의 재개). 프로세스가 정말 죽었다 살아나도 복구하려면 디스크에 쓰는 영속 체크포인터가 필요합니다. 저장소만 바꾸는 구조는 맞지만, sqlite/postgres 구현은 별도 패키지를 설치해야 import됩니다.</p>
 <p>Ch3에서 여러 문서를 동시에 조사할 때 이 성질이 비용을 아낍니다. 여러 갈래 중 일부가 끝난 뒤 끊겨도, 재개는 남은 것만 처리합니다.</p>
 </div></div>
 </div>
@@ -491,7 +502,7 @@ sequenceDiagram
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>전체 적재 — live 기본</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code> <span style="color:var(--muted)">(장애·오프라인 확인: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)"><strong>증명:</strong> 실제 모델 추출값이 StateGraph를 지나간다. 시작할 때 기존 <code>classified</code> 산출물을 <code>workspace/classified_backup/</code>에 백업한 뒤 비워 이번 실행 결과만 보인다. 검토건은 터미널에서 <code>approve</code>/<code>reject</code>를 직접 입력한다. 성공 기준: 문서들이 <code>[classify]</code>→<code>[verify]</code>→필요시 <code>⏸ interrupt</code>→<code>[persist]</code> 또는 <code>[hold]</code> 흐름을 탄다. 샘플 품질 게이트가 PDF 오추출을 잡으면 JSON 10개가 아니라 실패/hold가 정상입니다. live는 값·신뢰도·저신뢰 멈춤이 달라질 수 있으므로, 글자 단위 일치가 아니라 <strong>거짓 성공을 막는 그래프 흐름</strong>을 본다.</span></p></div><div class="store">live</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>격리 전체 적재 — live 기본</strong><p><code>ANALYST_WORKSPACE=/tmp/acdc-ch2-live uv run python3 ch2-langgraph-agent/intake_graph.py</code> <span style="color:var(--muted)">(장애·오프라인 확인: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)"><strong>증명:</strong> 실제 모델 추출값이 StateGraph를 지나간다. 첫 실습은 <code>/tmp/acdc-ch2-live</code> 격리 workspace에 써서 기존 <code>workspace/classified</code> 산출물을 건드리지 않는다. 검토건은 터미널에서 <code>approve</code>/<code>reject</code>를 직접 입력한다. 성공 기준: 문서들이 <code>[classify]</code>→<code>[verify]</code>→필요시 <code>⏸ interrupt</code>→<code>[persist]</code> 또는 <code>[hold]</code> 흐름을 탄다. 샘플 품질 게이트가 PDF 오추출을 잡으면 JSON 10개가 아니라 실패/hold가 정상입니다. live는 값·신뢰도·저신뢰 멈춤이 달라질 수 있으므로, 글자 단위 일치가 아니라 <strong>거짓 성공을 막는 그래프 흐름</strong>을 본다.</span></p></div><div class="store">live</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>한 건만 — 멈춤 관찰</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc invoice_photo.png</code> <span style="color:var(--muted)">(장애·오프라인 확인: <code>--mock</code> 추가)</span><br><span style="color:var(--muted)"><strong>증명:</strong> interrupt는 예외가 아니라 <em>반환값</em>(<code>__interrupt__</code>)으로 온다 — 한 건으로 또렷이. 성공 기준: 고액 청구서로 분류되면 <code>approve/reject 입력</code> 프롬프트가 보이고, 직접 <code>approve</code>를 넣으면 review→persist로 이어진다. 금액·상호명은 live 추출이라 조금 다를 수 있다.</span></p></div><div class="store">interrupt</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>검토건 반려</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --reject-flagged --doc invoice_photo.png</code> <span style="color:var(--muted)">(장애·오프라인 확인: <code>--mock</code> 추가)</span><br><span style="color:var(--muted)"><strong>증명:</strong> fail-closed — 반려·오타·빈 응답이 모두 보류로 가고 기존 JSON까지 회수된다(틀리면 안 들어간다). 성공 기준: 고액 한 건이 <code>[review] 보류 — 적재 안 함</code>으로 빠지고, 기존 JSON이 있으면 제거된다. 다시 정상 산출물을 만들려면 1번 전체 적재를 한 번 더 실행한다.</span></p></div><div class="store">보류</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>품질 게이트 단건 확인</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc statement_bank_2026-05.pdf</code><br><span style="color:var(--muted)"><strong>증명:</strong> live 모델이 은행 PDF를 의미상 잘못 읽으면 <code>[verify] 샘플 품질 불일치(...)</code> 뒤 retry를 쓰고, 끝내 맞지 않으면 <code>[hold]</code>로 보류한다. 이 실패는 정상입니다 — 거짓 성공으로 JSON을 남기지 않는 것이 목표입니다.</span></p></div><div class="store">품질</div></div>
@@ -500,7 +511,7 @@ sequenceDiagram
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~5분</span></div>
-<div class="cue-body">먼저 1번 명령 <code>uv run python3 ch2-langgraph-agent/intake_graph.py</code>을 그대로 실행하세요. live라 값은 조금 흔들릴 수 있지만, <code>[reset]</code> 뒤 <code>[classify]</code>→<code>[verify]</code>→필요시 <code>⏸</code>→<code>[persist]</code>/<code>[hold]</code> 흐름이 보여야 정상입니다. 검토건이 뜨면 직접 <code>approve</code> 또는 <code>reject</code>를 입력합니다. 한 문서가 실패하면 나머지를 계속 처리한 뒤 마지막에 <code>전체 적재 중 N건 실패</code>로 모읍니다. 이전 JSON이 있었다면 <code>classified_backup</code>에 보관됩니다. 키·네트워크 문제로 막히면 같은 명령에 <code>--mock</code>을 붙여 그래프 코드 자체는 정상인지 가릅니다.</div>
+<div class="cue-body">먼저 1번 명령 <code>ANALYST_WORKSPACE=/tmp/acdc-ch2-live uv run python3 ch2-langgraph-agent/intake_graph.py</code>을 그대로 실행하세요. live라 값은 조금 흔들릴 수 있지만, <code>[reset]</code> 뒤 <code>[classify]</code>→<code>[verify]</code>→필요시 <code>⏸</code>→<code>[persist]</code>/<code>[hold]</code> 흐름이 보여야 정상입니다. 검토건이 뜨면 직접 <code>approve</code> 또는 <code>reject</code>를 입력합니다. 한 문서가 실패하면 나머지를 계속 처리한 뒤 마지막에 <code>전체 적재 중 N건 실패</code>로 모읍니다. 격리 workspace라 본 실습 산출물은 보존됩니다. 키·네트워크 문제로 막히면 같은 명령에 <code>--mock</code>을 붙여 그래프 코드 자체는 정상인지 가릅니다.</div>
 </div>
 
 <div class="cue check" style="margin-top:12px">
@@ -531,7 +542,7 @@ sequenceDiagram
 
 <div class="cue solve">
 <div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~4분</span></div>
-<div class="cue-body"><code>intake_graph.py</code>를 열어 맨 위 상수 <code>HIGH_VALUE = 1_000_000</code>을 <code>10_000</code>으로 직접 고치고(<em>플래그가 아니라 코드 상수입니다</em>) <code>--mock</code>으로 다시 실행하세요. interrupt가 몇 건에서 걸릴까요? 반대로 <code>5_000_000</code>으로 올리면? 확인했으면 <code>1_000_000</code>으로 되돌리고 <code>rg "HIGH_VALUE = 1_000_000" ch2-langgraph-agent/intake_graph.py</code>로 복구를 확인하세요.</div>
+<div class="cue-body">코드를 고치지 말고 실행 기준만 바꿉니다. <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --high-value 10000</code>으로 돌리면 interrupt가 몇 건에서 걸릴까요? 반대로 <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --high-value 5000000</code>으로 올리면? 같은 그래프라도 임계값 하나가 자동화와 사람 검토의 경계를 바꾼다는 것을 봅니다.</div>
 </div>
 
 <details>
@@ -567,8 +578,8 @@ sequenceDiagram
 <div class="panel"><div class="panel-head"><strong>재개가 안 됨</strong><span>thread_id</span></div><div class="panel-body"><div class="list">
 <p>재개할 때 처음과 <strong>같은</strong> <code>thread_id</code>를 써야 멈춘 자리를 찾습니다. 매번 새로 만들면 처음부터 실행됩니다.</p>
 </div></div></div>
-<div class="panel"><div class="panel-head"><strong>ImportError: create_react_agent</strong><span>옛 경로</span></div><div class="panel-body"><div class="list">
-<p>옛 자료의 <code>from langgraph.prebuilt import create_react_agent</code>는 LangChain 1.0에서 <code>create_agent</code>로 옮겨졌습니다. 옛 import를 그대로 따라 치면 막히니 <code>create_agent</code>를 쓰세요.</p>
+<div class="panel"><div class="panel-head"><strong>create_react_agent</strong><span>옛 경로</span></div><div class="panel-body"><div class="list">
+<p>현재 설치본에서는 <code>from langgraph.prebuilt import create_react_agent</code>가 아직 import됩니다. 새 코드에서는 LangChain 1.x의 <code>langchain.agents.create_agent</code>를 기본으로 쓰고, 직접 그래프 제어가 필요할 때만 이 챕터처럼 <code>StateGraph</code>를 손으로 짭니다.</p>
 </div></div></div>
 </div>
 
@@ -595,13 +606,13 @@ flowchart LR
     I["sample_inbox 문서"]
     C["classify<br/>RecordV1 생성"]
     V["verify<br/>스키마·금액 점검"]
-    H["human_review<br/>고액 승인"]
+    H["human_review<br/>고액·저신뢰 승인"]
     P[("workspace/classified/*.json")]
-    R["retry<br/>저신뢰 재분류"]
+    R["retry<br/>합계 불일치 재분류"]
     I --> C --> V
     V -- "통과" --> P
-    V -- "고액" --> H --> P
-    V -- "저신뢰" --> R --> C
+    V -- "고액·저신뢰" --> H --> P
+    V -- "합계 불일치" --> R --> C
     style C fill:#e3f2fd,stroke:#315f9c
     style V fill:#fff3e0,stroke:#e09f3e
     style P fill:#e8f5e9,stroke:#0f766e
@@ -627,7 +638,7 @@ flowchart LR
 <div class="panel-body"><div class="list">
 <p><strong>Q1.</strong> <code>create_agent</code>와 직접 짠 <code>StateGraph</code> 중, "고액이면 멈추고 합계 틀리면 되돌린다"는 적재 파이프라인엔 무엇이 맞나? 왜?</p>
 <p><strong>Q2.</strong> <code>interrupt()</code>로 멈춘 그래프를 <code>Command(resume=...)</code>로 재개하려면 <code>compile()</code>에 무엇이 반드시 있어야 하나? 없으면 어디서 깨지나?</p>
-<p><strong>Q3.</strong> <code>MAX_RETRY</code>(2)와 <code>recursion_limit</code>(기본 10007)은 같은 안전장치인가?</p>
+<p><strong>Q3.</strong> <code>MAX_RETRY</code>(2)와 <code>recursion_limit</code>(설치본 기본값은 버전별로 확인)는 같은 안전장치인가?</p>
 <p><strong>Q4.</strong> <code>Command(resume=...)</code>로 재개하면 멈췄던 노드는 어떻게 실행되나? 그래서 <code>interrupt()</code> <em>앞</em>에 무엇을 두면 안 되나?</p>
 <p><strong>Q5.</strong> <code>--mock</code> 실행에선 저신뢰(&lt;0.7) 분기가 왜 한 번도 안 걸리나? 그럼 mock에서 멈춤은 무엇 때문에 뜨나?</p>
 </div></div>
@@ -638,7 +649,7 @@ flowchart LR
 <div class="reveal">
 <p><strong>A1.</strong> StateGraph. <code>create_agent</code>는 도구 선택·반복을 모델이 정하는 고정 ReAct 루프라 순서·분기·중단점을 내가 통제할 수 없다. 단계가 정해진 일은 노드·엣지로 직접 그린다.</p>
 <p><strong>A2.</strong> checkpointer. 없어도 interrupt 자체는 동작해 <code>__interrupt__</code>를 반환값에 담고 멈추지만, resume 시 멈춘 상태를 저장한 곳이 없어 <code>RuntimeError</code>가 난다.</p>
-<p><strong>A3.</strong> 아니다. <code>MAX_RETRY</code>는 노드 로직이 정하는 재분류 횟수 상한. <code>recursion_limit</code>은 그래프 차원의 backstop으로, 한 실행의 superstep 수가 넘으면 <code>GraphRecursionError</code>가 난다 — 평소엔 안 걸리는 폭주 방지용. 서로 다른 층이다.</p>
+<p><strong>A3.</strong> 아니다. <code>MAX_RETRY</code>는 노드 로직이 정하는 재분류 횟수 상한. <code>recursion_limit</code>은 그래프 차원의 backstop으로, 한 실행의 superstep 수가 넘으면 <code>GraphRecursionError</code>가 난다 — 평소엔 안 걸리는 폭주 방지용. 설치본의 기본값은 <code>uv run python3 -c "from langgraph._internal._config import DEFAULT_RECURSION_LIMIT; print(DEFAULT_RECURSION_LIMIT)"</code>로 확인한다. 서로 다른 층이다.</p>
 <p><strong>A4.</strong> 노드를 위에서부터 통째로 다시 실행한다 — <code>interrupt()</code> 앞 코드도 한 번 더 돈다. 그래서 DB 쓰기·카운터 증가 같은 부수효과를 <code>interrupt()</code> 앞에 두면 두 번 실행된다. 부수효과는 뒤 노드로 미룬다.</p>
 <p><strong>A5.</strong> mock은 gold를 그대로 써 신뢰도가 1.0으로 주입되니 저신뢰 기준에 못 미친다. mock에서 멈추는 건 오직 고액(≥1,000,000) 기준 — invoice_photo·contract_freelance 2건이다. 저신뢰 분기는 키 있는 라이브에서만 본다.</p>
 </div>
