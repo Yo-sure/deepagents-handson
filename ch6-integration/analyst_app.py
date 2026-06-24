@@ -145,6 +145,11 @@ def run_verify(use_a2a: bool) -> None:
         finally:
             if proc:
                 proc.terminate()
+                try:
+                    proc.wait(timeout=5)        # 반드시 reap — 좀비가 다음 --a2a의 포트를 막는 것 방지
+                except subprocess.TimeoutExpired:
+                    proc.kill()
+                    proc.wait()
     else:
         from verifier_agent import verify_brief
         ok, notes = verify_brief(brief)

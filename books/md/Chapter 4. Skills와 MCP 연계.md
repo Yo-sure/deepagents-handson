@@ -234,7 +234,7 @@ sequenceDiagram
 <p><strong>license</strong> — 라이선스 이름 또는 번들 파일 참조(짧게).</p>
 <p><strong>compatibility</strong> — ≤500자. 필요한 제품·시스템 패키지·네트워크 등 환경 요건. 대부분 스킬엔 불필요합니다.</p>
 <p><strong>metadata</strong> — string→string 자유 맵. version·author는 여기 넣습니다. 표준엔 최상위 <code>version</code> 필드가 없습니다(흔한 오해).</p>
-<p><span class="badge amber">실험적</span> <strong>allowed-tools</strong> — 공백 구분 도구 목록. 제한이 아니라 사전승인(권한 프롬프트를 건너뜀)이고, 지원은 구현마다 다릅니다.</p>
+<p><span class="badge amber">실험적</span> <strong>allowed-tools</strong> — 공백 구분 도구 목록. 제한이 아니라 사전승인(권한 프롬프트가 있는 <em>호스트</em>에서만 그 프롬프트를 건너뜀)이고, 지원은 구현마다 다릅니다. deepagents 런타임 자체엔 권한 게이트가 없어 이 필드는 동작을 바꾸지 않습니다(호스트 메타데이터일 뿐).</p>
 </div></div>
 </div>
 

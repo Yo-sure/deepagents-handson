@@ -35,6 +35,16 @@ BRIEF_DRAFT = WORKSPACE / "brief_draft.md"
 VERIFIER_URL = "http://localhost:9610"
 
 
+def _stop(proc) -> None:
+    """spawn한 검증 서버를 반드시 reap한다 — 좀비가 다음 실행의 9610 포트를 막는 것 방지."""
+    proc.terminate()
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        proc.wait()
+
+
 def read_brief(use_draft: bool = False) -> str:
     if use_draft and BRIEF_DRAFT.exists():
         return BRIEF_DRAFT.read_text(encoding="utf-8")
@@ -195,7 +205,7 @@ def main() -> None:
             proc = subprocess.Popen([sys.executable, str(Path(__file__).with_name("verifier_agent.py"))])
             if not wait_for_server(VERIFIER_URL):
                 print("  검증 에이전트 기동 실패")
-                proc.terminate()
+                _stop(proc)
                 return
     try:
         block = asyncio.run(verify_via_a2a(brief))
@@ -203,7 +213,7 @@ def main() -> None:
         write_verified(brief, block)
     finally:
         if proc:
-            proc.terminate()
+            _stop(proc)
 
 
 if __name__ == "__main__":
