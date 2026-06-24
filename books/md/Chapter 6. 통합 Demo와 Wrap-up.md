@@ -273,7 +273,7 @@ flowchart LR
 ```mermaid
 flowchart LR
     MAIN["기본 workspace/<br/>수업 산출물 보존"] -.건드리지 않음.-> SAFE["안전"]
-    TMP["/tmp/acdc-capstone-fail<br/>임시 workspace"] --> RUN["ACDC_SKIP_OKF=1<br/>okf 제외 실행"]
+    TMP["workspace/capstone-fail<br/>임시 workspace"] --> RUN["ACDC_SKIP_OKF=1<br/>okf 제외 실행"]
     RUN --> MISS["brief의 짚을 점 누락"]
     MISS --> VER["A2A 검증자"]
     VER --> REV["NEEDS_REVISION"]
@@ -286,7 +286,7 @@ flowchart LR
 <details>
 <summary>관찰 포인트</summary>
 <div class="reveal">
-<p>okf를 빼면 brief의 "짚을 점"이 비거나 줄어듭니다. 브리프가 knowledge_base의 gap·subscription을 읽어 채우기 때문입니다. 단, 기존 <code>workspace/</code>를 그대로 두면 이전 실행의 <code>knowledge_base/</code>가 남아 있어 브리프가 여전히 채워지고 <strong>PASS</strong>가 날 수 있습니다. 효과를 보려면 <code>ANALYST_WORKSPACE=/tmp/acdc-capstone-fail ACDC_SKIP_OKF=1 uv run python3 ch6-integration/analyst_app.py --mock --a2a</code>처럼 임시 워크스페이스를 지정해 처음부터 돌리세요. 콘솔에도 <code>검증 판정: NEEDS_REVISION</code>이 찍히고, 파일 확인은 <code>cat /tmp/acdc-capstone-fail/verified_brief.md</code>로 합니다. 그러면 브리프가 gap을 빠뜨리고, 검증자가 레코드에서 그 gap을 다시 찾아 <strong>NEEDS_REVISION</strong>으로 반려합니다.</p>
+<p>okf를 빼면 brief의 "짚을 점"이 비거나 줄어듭니다. 브리프가 knowledge_base의 gap·subscription을 읽어 채우기 때문입니다. 단, 기존 <code>workspace/</code>를 그대로 두면 이전 실행의 <code>knowledge_base/</code>가 남아 있어 브리프가 여전히 채워지고 <strong>PASS</strong>가 날 수 있습니다. 효과를 보려면 <code>ANALYST_WORKSPACE=workspace/capstone-fail ACDC_SKIP_OKF=1 uv run python3 ch6-integration/analyst_app.py --mock --a2a</code>처럼 임시 워크스페이스를 지정해 처음부터 돌리세요. 콘솔에도 <code>검증 판정: NEEDS_REVISION</code>이 찍히고, 파일 확인은 <code>cat workspace/capstone-fail/verified_brief.md</code>로 합니다. 그러면 브리프가 gap을 빠뜨리고, 검증자가 레코드에서 그 gap을 다시 찾아 <strong>NEEDS_REVISION</strong>으로 반려합니다.</p>
 <p>임시 워크스페이스를 지우고 다시 돌리면 처음부터 같은 순서로 재생됩니다. 입력(sample_inbox)과 코드만 커밋돼 있으면 누가 돌려도 같은 산출물이 나옵니다. 감사 가능한 실행의 조건입니다.</p>
 </div>
 </details>
