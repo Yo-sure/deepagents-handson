@@ -646,6 +646,15 @@ inbox-mcp-server 도구 4개:
 </div>
 </div>
 
+<div class="board" style="margin-top:16px">
+<div class="board-header"><span>왜 스타벅스도 지식인가</span><span class="status-pill">type 구분</span></div>
+<div class="panel-body"><div class="list">
+<p><code>merchant</code> — 거래처별 누적 요약입니다. 정상 영수증도 들어갑니다. 예: 스타벅스 강남R점 11,500원, 건수 1.</p>
+<p><code>subscription</code> — 카드 명세서에는 있지만 영수증이 없고, 금액이 구독 임계값보다 낮은 반복 결제 후보입니다. 예: 넷플릭스 17,000원.</p>
+<p><code>gap</code> — 명세서에는 있는데 대응 영수증이 없어 확인이 필요한 항목입니다. 예: 기본 기준의 쿠팡 89,000원.</p>
+</div></div>
+</div>
+
 <p class="section-note" style="margin-top:14px">항목 수는 (거래처 수 + 영수증 없는 카드 항목)으로 정해집니다. gold 전체나 <code>--mock</code> 파이프라인이면 10거래처 + gap(쿠팡) + 구독(넷플릭스) = <strong>12개로 고정</strong>입니다. 실제 API로 Ch2를 돌렸다가 일부 이미지가 분류에 실패해 레코드가 빠지면, 그 거래처만큼 항목이 줄어듭니다. 숫자가 12가 아니라 파이프라인 상태를 그대로 비춘다는 뜻입니다.</p>
 
 <div class="cue solve" style="margin-top:18px">
