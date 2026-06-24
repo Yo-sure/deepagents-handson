@@ -560,6 +560,49 @@ sequenceDiagram
 <section class="slide">
 <div class="section-head">
 <div>
+<div class="eyebrow">✏️ 직접 엮어보기 · ~10분</div>
+
+## 빈 그래프를 직접 채운다
+
+</div>
+<p class="section-note">위 그래프는 <strong>읽기만 하면 손에 안 남습니다.</strong> 축소판 <code>ch2-langgraph-agent/exercise_graph.py</code>는 노드 로직(classify·verify·review·persist)은 채워져 있고 <strong>LangGraph 뼈대 네 곳만 비어</strong> 있습니다. 직접 쳐서 채우세요 — 키·네트워크는 필요 없습니다(가짜 인박스).</p>
+</div>
+
+<div class="board">
+<div class="board-header"><span>채울 빈칸 네 곳</span><span class="status-pill">TODO</span></div>
+<div class="stack">
+<div class="row"><div class="code">①</div><div class="copy"><strong>State</strong><p>노드 사이로 운반할 필드 <code>doc·record·flagged</code>를 <code>TypedDict</code>에 선언</p></div><div class="store">상태</div></div>
+<div class="row"><div class="code">②</div><div class="copy"><strong>build_graph</strong><p>노드 4개 등록 · 엣지 연결 · <code>verify</code> 뒤 분기 · <strong><code>compile(checkpointer=…)</code></strong></p></div><div class="store">연결</div></div>
+<div class="row"><div class="code">③</div><div class="copy"><strong>review의 interrupt()</strong><p>멈춰 사람 결정을 받고, 그 반환값으로 승인/보류 분기</p></div><div class="store">멈춤</div></div>
+<div class="row"><div class="code">④</div><div class="copy"><strong>run_one의 resume</strong><p><code>Command(resume=결정)</code>으로 멈춘 그래프를 같은 <code>thread_id</code>에서 이어가기</p></div><div class="store">재개</div></div>
+</div>
+</div>
+
+<div class="panel" style="margin-top:18px">
+<div class="panel-head"><strong>exercise_graph.py — 빈칸 ②(build_graph)</strong><span>여기를 직접 채운다</span></div>
+<div class="panel-body">
+
+<<< ../../ch2-langgraph-agent/exercise_graph.py#exercise-build{python}
+
+</div>
+</div>
+
+<div class="cue do">
+<div class="cue-head"><span class="cue-label">✋ 채운 뒤 자가 점검</span><span class="cue-time">~10분</span></div>
+<div class="cue-body">네 칸을 채운 뒤 <code>uv run python3 ch2-langgraph-agent/exercise_graph.py --check</code>를 돌리세요. <strong>✅ 네 줄</strong>이 다 뜨면 그래프를 직접 엮은 것입니다. <code>--check</code> 없이 그냥 실행하면 고액 건에서 <code>⏸ interrupt</code>가 떠 <code>approve/reject</code>를 직접 입력해 한 바퀴를 돌 수 있습니다. <code>②</code>에서 <code>checkpointer</code>를 빠뜨리면 <code>④</code> 재개가 <code>RuntimeError: Cannot use Command(resume=...) without checkpointer</code>로 막히는 것도 직접 보게 됩니다.</div>
+</div>
+
+<details class="deep">
+<summary>막히면 — 정답</summary>
+<div class="reveal">
+<p>네 칸의 정답 패턴은 <code>intake_graph.py</code>의 <code>build_graph()</code>(노드·엣지·분기·<code>compile(checkpointer=InMemorySaver())</code>)와 <code>run_one()</code>(<code>thread_id</code> config·<code>Command(resume=...)</code>)에 그대로 있습니다. 먼저 5~10분 직접 부딪힌 뒤 펼쳐 보세요 — 손으로 한 번 친 코드가 남습니다.</p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
 <div class="eyebrow">핸즈온 ③ · 트러블슈팅 · 참고</div>
 
 ## 막히면 여기부터
