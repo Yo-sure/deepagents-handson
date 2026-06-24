@@ -353,21 +353,22 @@ flowchart LR
 </div>
 
 <div class="board" style="margin-top:14px">
-<div class="board-header"><span>JSON-RPC 한 왕복 — <code>tools/call</code> 실물</span><span class="status-pill">read_record</span></div>
+<div class="board-header"><span>JSON-RPC 한 왕복 — <code>tools/call</code> 실물</span><span class="status-pill">search_knowledge</span></div>
 <div class="panel-body">
 
 ```json
 // 요청 — 에이전트가 도구를 부른다 (id로 짝을 맞춘다)
-{ "jsonrpc": "2.0", "id": 7, "method": "tools/call",
-  "params": { "name": "read_record", "arguments": { "name": "receipt_gs25.json" } } }
+{ "jsonrpc": "2.0", "id": 2, "method": "tools/call",
+  "params": { "name": "search_knowledge", "arguments": { "type": "gap" } } }
 
 // 응답 — 서버가 결과를 돌려준다
-{ "jsonrpc": "2.0", "id": 7,
+{ "jsonrpc": "2.0", "id": 2,
   "result": { "content": [ { "type": "text",
-    "text": "{\"판매처\":\"GS25 역삼점\",\"금액\":8400,\"문서유형\":\"영수증\", ...}" } ] } }
+    "text": "---\ntype: gap\ntitle: 쿠팡(주)\ndescription: 쿠팡(주) 89,000원 결제의 대응 영수증 누락.\namount: 89000\n---\n\n# 쿠팡(주)\n- 카드 명세서 89,000원 — 대응 영수증 없음\n..." } ],
+    "isError": false } }
 ```
 
-<p style="margin-top:8px"><code>tools/list</code>로 서버가 가진 도구 목록을, <code>tools/call</code>로 그중 하나를 호출합니다 — 곧 핸즈온 ②에서 <code>--list</code>로 볼 도구 4개가 바로 이 <code>tools/list</code> 결과입니다. 결과는 <code>result.content</code>에 담겨 옵니다 — 도구가 실행되다 <em>실패</em>해도(검증 실패 등) JSON-RPC는 성공이고 <code>result.isError: true</code>로 와서 모델이 보고 대응합니다. <em>없는 도구 이름</em>처럼 프로토콜이 깨지는 경우만 <code>result</code> 대신 본문 <code>error</code> 객체(<code>-326xx</code> 계열)로 돌아옵니다. <code>read_record(name)</code>의 <code>name</code>이 곧 위 <code>arguments</code>입니다.<br>
+<p style="margin-top:8px"><code>tools/list</code>로 서버가 가진 도구 목록을, <code>tools/call</code>로 그중 하나를 호출합니다 — 곧 핸즈온 ②에서 <code>--list</code>로 볼 도구 4개가 바로 이 <code>tools/list</code> 결과입니다. 결과는 <code>result.content</code>에 담겨 옵니다 — 도구가 실행되다 <em>실패</em>해도(검증 실패 등) JSON-RPC는 성공이고 <code>result.isError: true</code>로 와서 모델이 보고 대응합니다. <em>없는 도구 이름</em>처럼 프로토콜이 깨지는 경우만 <code>result</code> 대신 본문 <code>error</code> 객체(<code>-326xx</code> 계열)로 돌아옵니다. <code>search_knowledge(type)</code>의 <code>type</code>이 곧 위 <code>arguments</code>입니다.<br>
 <span style="color:var(--muted)">위 JSON은 손으로 쓴 예시가 아니라 <strong>직접 볼 수 있습니다</strong>. <code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --protocol</code>(키 불필요)이 서버에서 뽑은 <code>tools/list</code> 스키마와 <code>tools/call</code> 결과를 JSON-RPC 메시지 형태로 출력합니다. 특히 <code>inputSchema</code>는 우리가 적은 게 아니라 <em>함수 타입힌트에서 자동 생성</em>됩니다(<code>type: str = "gap"</code> → <code>{"type":"string","default":"gap"}</code>).</span></p>
 
 ```mermaid
@@ -376,8 +377,8 @@ sequenceDiagram
     participant S as MCP 서버 (subprocess)
     A->>S: tools/list
     S-->>A: 도구 4개 (list_classified·read_record·search_knowledge·fetch_inbox)
-    A->>S: tools/call · read_record(name="receipt_gs25.json")
-    S-->>A: result.content[].text = 레코드 JSON
+    A->>S: tools/call · search_knowledge(type="gap")
+    S-->>A: result.content[].text = gap 항목 JSON
     Note over A,S: 모든 메시지는 stdio 위 JSON-RPC 2.0 · id로 짝을 맞춤
 ```
 
@@ -598,7 +599,7 @@ if __name__ == "__main__":
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">0</div><div class="copy"><strong>먼저 — live 분류 레코드 준비</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code> <span style="color:var(--muted)">(장애·CI 확인: <code>--mock</code>)</span><br><span style="color:var(--muted)">OKF 적재는 <code>workspace/classified/*.json</code>을 읽습니다. 수업의 기본은 Ch2 live 산출물입니다. <code>--mock</code>은 키·네트워크 장애 때 그래프와 OKF 계약만 분리 확인하는 보조 경로입니다.</span></p></div><div class="store">선행</div></div>
+<div class="row"><div class="code">0</div><div class="copy"><strong>먼저 — Ch2 분류 + Ch3 조사 노트 준비</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code> → <code>uv run python3 ch3-deepagents/research_orchestrator.py</code> <span style="color:var(--muted)">(장애·CI 확인: 둘 다 <code>--mock</code>)</span><br><span style="color:var(--muted)">OKF 적재는 <code>workspace/classified/*.json</code>을, 브리프의 대사 검증은 <code>workspace/research_notes/*.md</code>(Ch3 fan-out 산출)를 읽습니다. <strong>Ch3를 건너뛰면 조사 노트가 비어 <code>reconcile-rules</code> Skill이 적용 대상 없이 조용히 지나갑니다</strong> — 그러면 step 5의 대사 검증을 실제로 못 봅니다. 그래서 Ch2·Ch3를 먼저 돌립니다. <code>--mock</code>은 키·네트워크 장애 때 배선과 OKF 계약만 분리 확인하는 보조 경로입니다.</span></p></div><div class="store">선행</div></div>
 <div class="row"><div class="code">1</div><div class="copy"><strong>OKF 지식 적재</strong><p><code>uv run python3 ch4-skills-mcp/okf_store.py</code><br><span style="color:var(--muted)">성공 기준: <code>OKF 항목 12개 적재</code> + <code>knowledge_base/gap-쿠팡-주.md</code>와 <code>knowledge_base/index.md</code> 생성. 생성 직후 코드는 실습용 최소 계약만 검사합니다: frontmatter가 파싱되고, 각 항목에 OKF v0.1 필수 <code>type</code>이 있으며, bundle root index 예외로 허용된 <code>okf_version</code>이 있는지 확인합니다. 공식 validator를 대체하는 전체 표준 검증은 아닙니다. 숫자가 12가 아니면 이전 산출물이 섞인 것일 수 있습니다. 수업 중에는 <code>ANALYST_WORKSPACE=/tmp/acdc-ch4</code>처럼 임시 워크스페이스에서 다시 확인하세요.</span></p></div><div class="store">지식</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>MCP 서버 도구 점검</strong><p><code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --list</code><br><span style="color:var(--muted)">성공 기준: 도구 4개(실제 파일 3 + 샘플 메일 1)가 이름·설명과 함께 나온다(리소스 <code>inbox://stats</code>는 Tool과 별개로 노출).</span></p></div><div class="store">연결</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>MCP client로 실제 호출</strong><p><code>uv run python3 ch4-skills-mcp/mcp_client_demo.py</code><br><span style="color:var(--muted)">성공 기준: stdio client가 서버를 subprocess로 띄우고 <code>langchain-mcp-adapters</code>로 도구 4개를 LangChain Tool로 로드한 뒤 <code>search_knowledge(type='gap')</code> 결과에 쿠팡 gap 항목이 보인다.</span></p></div><div class="store">호스트</div></div>

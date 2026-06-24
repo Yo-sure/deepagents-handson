@@ -118,7 +118,8 @@ flowchart LR
 
 </div>
 <p class="section-note">전 구간을 한 번에 실행합니다. 무플래그 기본 경로는 <strong><code>[1/6]</code> 분류, <code>[2/6]</code> 조사, <code>[4/6]</code> Skill 브리프 작성이 live LLM</strong>입니다. <code>--mock</code>을 붙이면 분류·조사·브리프 작성이 결정론 보조 경로로 바뀌어 키 없이 전체 배선을 확인합니다. <code>[5/6]</code> 검증은 <code>--a2a</code>를 붙이면 실제 A2A 서버(규칙 기반, LLM 아님)로 나갑니다.<br>
-각 단계가 앞서 만든 모듈을 부르고, Ch6는 그 반환값을 다음 디렉터리 규약에 맞게 넘기는 얇은 접착 코드만 둡니다. 예외는 키 없는 <code>--mock</code>에서 쓰는 결정론 브리프 작성 보조 경로입니다.</p>
+각 단계가 앞서 만든 모듈을 부르고, Ch6는 그 반환값을 다음 디렉터리 규약에 맞게 넘기는 얇은 접착 코드만 둡니다. 예외는 키 없는 <code>--mock</code>에서 쓰는 결정론 브리프 작성 보조 경로입니다.<br>
+<span style="color:var(--muted)">⚠️ live는 모델 비결정성 때문에 드물게 <code>[2/6]</code> 조사 등에서 <code>RuntimeError</code>로 멈출 수 있습니다 — 이건 합성 결과가 기대 검증(fail-closed 가드)을 못 넘긴 <strong>정상적인 실패</strong>이지 버그가 아닙니다. 그대로 한 번 더 실행하거나, 결정론으로 확인하려면 <code>--mock</code>으로 돌립니다.</span></p>
 </div>
 
 <div class="panel">
