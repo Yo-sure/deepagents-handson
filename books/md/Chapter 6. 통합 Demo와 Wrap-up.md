@@ -148,7 +148,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 실행 · 15분</div>
+<div class="eyebrow">핸즈온 · 실행</div>
 
 ## 캡스톤을 실행한다
 
@@ -175,7 +175,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 결과 · 12분</div>
+<div class="eyebrow">핸즈온 · 결과</div>
 
 ## verified_brief.md를 확인한다
 
@@ -251,7 +251,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 변형 · 20분</div>
+<div class="eyebrow">핸즈온 · 변형</div>
 
 ## 실패 실험과 경계 어댑터
 

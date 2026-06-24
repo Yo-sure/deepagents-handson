@@ -277,7 +277,7 @@ xychart-beta
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1.5 · 들여다보기 · 5분</div>
+<div class="eyebrow">1.5 · 들여다보기 · 2분</div>
 
 ## "예측"을 눈으로 — logprobs와 temperature
 

@@ -19,7 +19,7 @@ pageClass: lec-page
 이 챕터에서는 분류와 정규화를 상태·재시도·중단점이 있는 파이프라인으로 묶습니다. 고액이나 저신뢰 건은 자동으로 통과시키지 않고 사람에게 멈춰 묻습니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 37 · 핸즈온 30 · 점검 3</span><span class="clk">예상 10:05–11:15</span></div>
+<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 39 · 핸즈온 25 · 점검 6</span><span class="clk">예상 10:05–11:15</span></div>
 <div class="metric"><span class="num">2</span><strong>번째 모듈</strong><span>intake_graph.py</span></div>
 <div class="metric"><span class="num">10</span><strong>건 적재</strong><span>classified/*.json</span></div>
 </div>
@@ -493,7 +493,7 @@ sequenceDiagram
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ② · 단계별 실행 · 14분</div>
+<div class="eyebrow">핸즈온 ② · 단계별 실행 · 17분</div>
 
 ## 흘려보내고 멈춤을 본다
 

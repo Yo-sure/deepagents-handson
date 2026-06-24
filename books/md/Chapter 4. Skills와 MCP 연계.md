@@ -19,7 +19,7 @@ pageClass: lec-page
 이 챕터에서 브리프 쓰는 절차와 대사 검증 규칙을 SKILL.md로 정의하고, 파일과 메일 접근을 MCP 인터페이스로 표준화하고, 조사 결과를 OKF 지식으로 적재합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">80</span><strong>분</strong><span>이론 42 · 핸즈온 35 · 점검 3</span><span class="clk">예상 13:30–14:50 · 앞 🍽점심</span></div>
+<div class="metric"><span class="num">80</span><strong>분</strong><span>이론 39 · 핸즈온 35 · 점검 6</span><span class="clk">예상 13:30–14:50 · 앞 🍽점심</span></div>
 <div class="metric"><span class="num">3</span><strong>겹의 능력</strong><span>Skill · MCP · OKF</span></div>
 <div class="metric"><span class="num">12</span><strong>지식 항목</strong><span>knowledge_base/*.md</span></div>
 </div>
@@ -38,7 +38,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 절차 · 15분</div>
+<div class="eyebrow">1 · 절차 · 8분</div>
 
 ## SKILL.md — 점진 공개
 
@@ -303,7 +303,7 @@ sequenceDiagram
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">3 · 연결 · 10분</div>
+<div class="eyebrow">3 · 연결 · 6분</div>
 
 ## MCP — 파일은 실제, 메일은 샘플
 
@@ -440,7 +440,7 @@ sequenceDiagram
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">4 · 지식 · 9분</div>
+<div class="eyebrow">4 · 지식 · 5분</div>
 
 ## OKF — 사람도 읽고 에이전트도 읽는다
 

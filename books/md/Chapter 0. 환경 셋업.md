@@ -19,7 +19,7 @@ pageClass: lec-page
 Ch0에서는 그 바탕을 마련합니다. 도구를 설치하고, 모델을 한 번 불러 보고, 분석에 쓸 문서를 준비합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">25</span><strong>분</strong><span>설치 · 작업공간 · 첫 호출</span><span class="clk">예상 9:00–9:25 (다운로드 따라 ±)</span></div>
+<div class="metric"><span class="num">20</span><strong>분</strong><span>설치 · 작업공간 · 첫 호출</span><span class="clk">예상 9:00–9:20 (다운로드 따라 ±)</span></div>
 <div class="metric"><span class="num">10</span><strong>건의 문서</strong><span>영수증·명세서·계약·리포트</span></div>
 <div class="metric"><span class="num">1</span><strong>데이터 계약</strong><span>전 챕터가 공유하는 RecordV1</span></div>
 </div>

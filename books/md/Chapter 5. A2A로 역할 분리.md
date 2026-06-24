@@ -19,7 +19,7 @@ pageClass: lec-page
 이 챕터에서 브리프를 외부 검증 에이전트에 A2A로 보냅니다. 그 에이전트는 Agent Card 메타데이터를 제공하고, 원본 레코드를 다시 계산해 PASS/NEEDS_REVISION을 답합니다.</p>
 
 <div class="kicker">
-<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 34 · 핸즈온 33 · 점검 3</span><span class="clk">예상 15:00–16:10 · 앞 ☕10분</span></div>
+<div class="metric"><span class="num">70</span><strong>분</strong><span>이론 36 · 핸즈온 28 · 점검 6</span><span class="clk">예상 15:00–16:10 · 앞 ☕10분</span></div>
 <div class="metric"><span class="num">5</span><strong>번째 모듈</strong><span>a2a_verify.py</span></div>
 <div class="metric"><span class="num">1</span><strong>검증된 브리프</strong><span>verified_brief.md</span></div>
 </div>
@@ -38,7 +38,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 경계 · 9분</div>
+<div class="eyebrow">1 · 경계 · 5분</div>
 
 ## 서브에이전트와 무엇이 다른가
 
@@ -211,7 +211,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">3 · 통신 · 10분</div>
+<div class="eyebrow">3 · 통신 · 6분</div>
 
 ## SendMessage와 Task 라이프사이클
 

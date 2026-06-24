@@ -319,7 +319,7 @@ agent = create_deep_agent(
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">3 · fan-out · 12분</div>
+<div class="eyebrow">3 · fan-out · 10분</div>
 
 ## 주제를 나눠 동시에
 
