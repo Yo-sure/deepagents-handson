@@ -322,7 +322,7 @@ flowchart LR
 <div class="panel-body">
 
 ```mermaid
-flowchart LR
+flowchart TB
     I["📥 analyst/sample_inbox/<br/>문서 10건"] -->|"Ch1·2 추출·분류"| C["🗂 classified/<br/>RecordV1 10건"]
     C -->|"Ch3 조사"| R["📝 research_notes/"]
     R -->|"Ch4 지식·브리프"| B["📄 brief.md"]
