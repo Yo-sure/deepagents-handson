@@ -28,7 +28,7 @@ pageClass: lec-page
 <div class="board">
 <div class="board-header"><span>이 챕터가 끝나면</span><span class="status-pill">산출물</span></div>
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>문서 → RecordV1</strong><p>이미지/PDF 한 장을 읽어 판매처·금액·항목으로 구조화</p></div><div class="store">추출</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>문서 → RecordV1</strong><p>이미지/PDF 한 장을 읽어 판매처·총액·항목으로 구조화</p></div><div class="store">추출</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>단발 vs ReAct</strong><p>합계 검증 루프가 왜 필요한지 비교</p></div><div class="store">루프</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>모델 비교표</strong><p>같은 문서를 사용 가능한 모델에 물어 핵심 필드·항목 정확도를 비교한다</p></div><div class="store">선택</div></div>
 </div>
@@ -95,7 +95,7 @@ flowchart LR
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>live 기본</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png</code><br><span style="color:var(--muted)">성공 기준: 판매처·금액·항목·문서유형이 있는 RecordV1 JSON이 한글 키로 출력된다. 키·크레딧·모델 슬러그가 막히면 오류 종류가 표시된다.</span></p></div><div class="store">LLM API</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>live 기본</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png</code><br><span style="color:var(--muted)">성공 기준: 판매처·총액·항목·문서유형이 있는 RecordV1 JSON이 한글 키로 출력된다. 키·크레딧·모델 슬러그가 막히면 오류 종류가 표시된다.</span></p></div><div class="store">LLM API</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>진단 보조</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --mock</code><br><span style="color:var(--muted)">mock은 주 경로가 아닙니다. live가 막혔을 때 파일 경로·스키마·검증 코드가 정상인지 분리 확인하는 고정 기준입니다.</span></p></div><div class="store">보조</div></div>
 </div>
 
@@ -583,16 +583,16 @@ flowchart TB
 <div class="board">
 <div class="board-header"><span>먼저 — 만들 물건과 처음 보는 말</span><span class="status-pill">RecordV1 · 용어</span></div>
 <div class="panel-body">
-<p class="section-note" style="margin-top:0">이 코드가 뽑아내는 <strong>RecordV1</strong>은 이렇게 생긴 한 덩어리입니다(한글 키 = 계약, Ch0 데이터 계약). 지금은 한 줄씩 이해할 필요 없이 <em>판매처·금액·항목·문서유형 칸이 정해져 있다</em>는 것만 보세요(아래는 <code>--mock</code> 결정론 출력 — live로 같은 영수증을 돌리면 신뢰도나 표현이 조금 다를 수 있지만 칸은 같습니다):</p>
+<p class="section-note" style="margin-top:0">이 코드가 뽑아내는 <strong>RecordV1</strong>은 이렇게 생긴 한 덩어리입니다(저장 출력은 사람이 읽기 좋게 한글 키 — 코드·LLM 계약은 영문이고, 저장할 때만 한글로 변형합니다. Ch0 데이터 계약). 지금은 한 줄씩 이해할 필요 없이 <em>판매처·총액·항목·문서유형 칸이 정해져 있다</em>는 것만 보세요(아래는 <code>--mock</code> 결정론 출력 — live로 같은 영수증을 돌리면 신뢰도나 표현이 조금 다를 수 있지만 칸은 같습니다):</p>
 
 ```json
 {
-  "판매처": "GS25 역삼점", "금액": 8400.0, "통화": "KRW",
+  "판매처": "GS25 역삼점", "총액": 8400.0, "통화": "KRW",
   "날짜": "2026-05-13", "문서유형": "영수증",
-  "항목": [{"이름": "도시락(제육)", "금액": 4900.0, "수량": 1.0},
-          {"이름": "삼각김밥", "금액": 1200.0, "수량": 1.0},
-          {"이름": "컵라면", "금액": 1500.0, "수량": 1.0},
-          {"이름": "생수 500ml", "금액": 800.0, "수량": 1.0}],
+  "항목": [{"이름": "도시락(제육)", "단가": 4900.0, "수량": 1.0},
+          {"이름": "삼각김밥", "단가": 1200.0, "수량": 1.0},
+          {"이름": "컵라면", "단가": 1500.0, "수량": 1.0},
+          {"이름": "생수 500ml", "단가": 800.0, "수량": 1.0}],
   "신뢰도": 1.0, "원본경로": "sample_inbox/receipt_gs25.png"
 }
 ```
@@ -606,7 +606,7 @@ flowchart TB
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>왜 이렇게 쓰나</strong><span>설계 결정</span></div><div class="panel-body"><div class="list">
 <p><strong><code>temperature=0</code></strong> — 같은 영수증은 늘 같은 값으로 읽혀야 합니다. 재현성이 추출의 기본 요구입니다.</p>
-<p><strong>스키마를 프롬프트에</strong>(<code>schema_json()</code>) — 모델이 RecordV1 한글 키(판매처·금액…)에 맞춰 JSON을 내도록 형식을 못 박습니다.</p>
+<p><strong>스키마를 프롬프트에</strong>(<code>schema_json()</code>) — 모델이 RecordV1 <strong>영문 키</strong>(merchant·total…) 스키마에 맞춰 JSON을 내도록 형식을 못 박습니다. 한글은 추출이 아니라 저장할 때 입힙니다(<code>by_alias=True</code>).</p>
 <p><strong><code>model_validate_json</code></strong> — 모델 출력을 믿지 않고 계약으로 검증합니다. 필드가 빠지거나 타입이 틀리면 여기서 걸립니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>두 가지 함정</strong><span>자주 막히는 곳</span></div><div class="panel-body"><div class="list">

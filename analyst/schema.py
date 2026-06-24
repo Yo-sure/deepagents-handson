@@ -4,8 +4,9 @@
 이 구조로 정규화하면, 이후 단계(분류·조사·브리프·검증)는 파일 포맷이 아니라
 이 계약에만 의존한다 → 계약을 지키면 모듈을 교체할 수 있다.
 
-직렬화 키는 한글(판매처·금액 …)로 나간다(classified/*.json 가독성). 코드에서
-다루는 식별자는 영문이라 도구·LLM JSON 스키마와 호환된다(별칭 alias로 매핑).
+현지화는 출력 경계 한 곳에만 둔다. 코드·LLM 추출 스키마는 영문 식별자(merchant·
+total …)로 깨끗하게 두고, 사람이 읽는 산출물(classified/*.json)을 저장할 때만
+alias로 한글(판매처·총액 …)로 변형한다 — 즉 추출은 영문, 한글은 추출 후 변형이다.
 """
 
 from __future__ import annotations
@@ -34,7 +35,7 @@ class LineItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     name: str = Field(alias="이름", description="항목 이름")
-    amount: float | None = Field(default=None, alias="금액", description="항목 1개 단가(원). 라인 총액이 아님. 없으면 null")
+    amount: float | None = Field(default=None, alias="단가", description="항목 1개 단가(원). 라인 총액이 아님. 없으면 null")
     qty: float | None = Field(default=None, alias="수량", description="수량. 없으면 null")
 
 
@@ -44,7 +45,7 @@ class RecordV1(BaseModel):
     model_config = ConfigDict(populate_by_name=True, use_enum_values=True, extra="forbid")
 
     merchant: str = Field(alias="판매처", description="판매처/발행처 이름")
-    total: float = Field(alias="금액", description="총액(원). 통화는 currency 필드. 리포트 등 금액 없으면 0을 명시")
+    total: float = Field(alias="총액", description="총액(원). 통화는 currency 필드. 리포트 등 금액 없으면 0을 명시")
     currency: str = Field(default="KRW", alias="통화", description="ISO 4217 통화코드")
     doc_date: date | None = Field(default=None, alias="날짜", description="거래/발행일(ISO yyyy-mm-dd). 못 읽으면 null")
     doc_type: DocType = Field(alias="문서유형", description="문서 유형")
@@ -54,7 +55,10 @@ class RecordV1(BaseModel):
 
 
 def schema_json() -> str:
-    """프롬프트 삽입용 JSON Schema(한글 키). Ch1~2에서 출력 계약으로 보여 준다."""
+    """프롬프트 삽입용 JSON Schema(영문 키). LLM 추출 계약은 영문이다.
+
+    한글은 추출이 아니라 저장(model_dump(by_alias=True))에서만 입혀진다.
+    """
     import json
 
-    return json.dumps(RecordV1.model_json_schema(by_alias=True), ensure_ascii=False, indent=2)
+    return json.dumps(RecordV1.model_json_schema(by_alias=False), ensure_ascii=False, indent=2)

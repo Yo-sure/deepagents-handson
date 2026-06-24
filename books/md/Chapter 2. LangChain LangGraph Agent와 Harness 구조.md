@@ -400,7 +400,7 @@ def review(state: IntakeState) -> dict:
     decision = interrupt({                  # 여기서 실행이 멈춘다
         "사유": state["flagged"],           # 고액 / 저신뢰
         "판매처": state["record"]["판매처"],
-        "금액": state["record"]["금액"],
+        "총액": state["record"]["총액"],
         "질문": "이 분류를 그대로 적재할까요? (approve / reject)",
     })
     # approve일 때만 통과. reject·오타·빈 응답은 안전하게 보류한다(fail-closed).

@@ -147,10 +147,13 @@ def _strip_fences(text: str) -> str:
 # ── 합계 검산 (Ch2 파이프라인이 그대로 재사용하는 순수 함수) ──────
 
 
-def verify_total(rec: RecordV1) -> tuple[bool, float]:
-    """항목 합계(수량 반영)가 총액과 맞는지 계산한다. 명세서·은행은 부호가 섞여 영수증에만 쓴다."""
+def verify_total(rec: RecordV1, tol: float = 1.0) -> tuple[bool, float]:
+    """항목 합계(수량 반영)가 총액과 맞는지 계산한다. 명세서·은행은 부호가 섞여 영수증에만 쓴다.
+
+    tol = 허용 오차(원). 부동소수 반올림을 흡수한다. tol=0.0이면 1원만 어긋나도 실패.
+    """
     item_sum = sum((i.amount or 0) * (i.qty or 1) for i in rec.items if (i.amount or 0) > 0)
-    return abs(item_sum - rec.total) < 1.0, item_sum
+    return abs(item_sum - rec.total) < tol, item_sum
 
 
 def _pick_number(data: dict, *keys: str, default: float = 0.0) -> float:
@@ -164,7 +167,7 @@ class ReceiptToolItem(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     name: str | None = Field(default=None, alias="이름", description="품목명")
-    amount: float | None = Field(default=None, alias="금액", description="항목 1개 단가(원)")
+    amount: float | None = Field(default=None, alias="단가", description="항목 1개 단가(원)")
     qty: float | None = Field(default=None, alias="수량", description="수량")
 
 
@@ -174,7 +177,7 @@ def _normalize_tool_items(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
         data = dict(item)
         canonical = {
             "이름": data.get("이름", data.get("name")),
-            "금액": data.get("금액", data.get("amount")),
+            "단가": data.get("단가", data.get("amount", data.get("금액"))),
             "수량": data.get("수량", data.get("qty", data.get("quantity"))),
         }
         normalized.append(ReceiptToolItem.model_validate(canonical).model_dump())
@@ -187,15 +190,15 @@ def _normalize_tool_items(items: list[dict[str, Any]]) -> list[dict[str, Any]]:
 # 결정하고(Action) 그 결과를 보고(Observation) 다음 행동을 정한다. 아래는 그 루프다.
 
 
-def _receipt_sum_observation(items: list[dict], total: float) -> tuple[bool, str]:
+def _receipt_sum_observation(items: list[dict], total: float, tol: float = 1.0) -> tuple[bool, str]:
     items = _normalize_tool_items(items)
     s = 0.0
     for it in items:
-        amount = _pick_number(it, "amount", "금액")
+        amount = _pick_number(it, "amount", "단가", "금액")
         qty = _pick_number(it, "qty", "quantity", "수량", default=1.0)
         if amount > 0:
             s += amount * qty
-    ok = abs(s - total) < 1.0
+    ok = abs(s - total) < tol
     obs = (f"항목합={s:,.0f}원, 총액={total:,.0f}원 → "
            + ("일치. 이 추출을 그대로 최종 JSON으로 출력하라."
               if ok else "불일치. 문서를 다시 보고 항목이나 수량을 고쳐 재검산하라."))
@@ -218,7 +221,7 @@ def _check_sum_tool():
         """영수증 항목 합계가 총액과 맞는지 검산한다. 영수증으로 판단될 때 호출한다.
 
         Args:
-            items: [{"name": 품목, "amount": 단가(원), "qty": 수량}] 목록. 한글 키 "금액", "수량"도 허용.
+            items: [{"name": 품목, "amount": 단가(원), "qty": 수량}] 목록. 한글 키 "단가", "수량"도 허용.
             total: 영수증에 적힌 총액(원)
         """
         return _receipt_sum_observation(items, total)[1]

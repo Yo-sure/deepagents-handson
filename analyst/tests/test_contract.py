@@ -34,14 +34,14 @@ def test_amounts_equal_item_sum():
             continue
         if not gold["항목"]:
             continue
-        s = sum(int(it["금액"]) * int(it.get("수량", 1)) for it in gold["항목"])
-        assert s == int(gold["금액"]), f'{d["file"]}: 항목합 {s} != 금액 {gold["금액"]}'
+        s = sum(int(it["단가"]) * int(it.get("수량", 1)) for it in gold["항목"])
+        assert s == int(gold["총액"]), f'{d["file"]}: 항목합 {s} != 총액 {gold["총액"]}'
 
 
 def test_card_statement_matches_receipts():
     docs = {d["file"]: d["gold"] for d in _load()}
     card = docs["statement_card_2026-05.pdf"]
-    by_merchant = {it["이름"]: int(it["금액"]) for it in card["항목"]}
+    by_merchant = {it["이름"]: int(it["단가"]) for it in card["항목"]}
     # 카드명세서 거래줄 ↔ 개별 영수증 총액 일치
     pairs = {
         "스타벅스 강남R점": "receipt_starbucks.png",
@@ -51,7 +51,7 @@ def test_card_statement_matches_receipts():
         "카카오T 택시": "receipt_taxi.png",
     }
     for merchant, file in pairs.items():
-        assert by_merchant[merchant] == int(docs[file]["금액"]), f"{merchant}: 명세서↔영수증 불일치"
+        assert by_merchant[merchant] == int(docs[file]["총액"]), f"{merchant}: 명세서↔영수증 불일치"
     # 명세서엔 있으나 영수증 없는 '쿠팡 89,000' = Ch3 조사 대상 (의도된 갭)
     assert "쿠팡(주)" in by_merchant and by_merchant["쿠팡(주)"] == 89000
 

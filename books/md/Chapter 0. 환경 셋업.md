@@ -320,7 +320,7 @@ flowchart LR
 </div>
 
 <details class="deep">
-<summary>🔬 심화 — 왜 키는 한글인데 코드는 영문인가: <code>alias</code> 한 줄이 푸는 두 문제 <span style="color:var(--muted)">(RecordV1 내부)</span></summary>
+<summary>🔬 심화 — 왜 추출은 영문인데 저장은 한글인가: 현지화를 출력 경계 한 곳에만 두는 <code>alias</code> <span style="color:var(--muted)">(RecordV1 내부)</span></summary>
 <div class="reveal">
 <p>각 필드가 <em>영문 이름</em>(<code>merchant</code>)과 <em>한글 alias</em>(<code>판매처</code>)를 둘 다 가진다. 우연이 아니라 <strong>서로 충돌하는 두 요구</strong>를 한 줄로 가른 것이다:</p>
 <table>
@@ -331,9 +331,9 @@ flowchart LR
 </tbody>
 </table>
 <p><strong>둘을 잇는 게 <code>ConfigDict(populate_by_name=True)</code></strong> — 한글 alias로도, 영문 이름으로도 객체를 만들 수 있다. 그래서 mock은 gold(한글 키 dict)를 <code>model_validate</code>로 그대로 적재하고, 코드는 <code>rec.merchant</code>로 접근한다. 같은 객체, 두 입구.</p>
-<p><strong>LLM에 나가는 스키마도 한글</strong> — <code>schema_json()</code>은 <code>RecordV1.model_json_schema(by_alias=True)</code>다. <code>by_alias=True</code>라 모델이 받는 structured-output 스키마의 키가 <code>판매처·금액…</code>이고, 모델은 그 키로 채워 돌려준다. 즉 <em>여기선 한글이 외부 계약</em>이다(영문은 코드 내부용).</p>
-<p><strong>두 디테일</strong> — ① <code>use_enum_values=True</code>라 <code>doc_type</code>이 <code>DocType.receipt</code> 객체가 아니라 문자열 <code>"영수증"</code>으로 직렬화된다(JSON에 그대로 박힘). ② 최상위 <code>total</code>과 <code>LineItem.amount</code>이 <em>둘 다</em> alias <code>"금액"</code>이다 — 같은 한글이지만 중첩 위치로 갈린다(최상위 <code>금액</code>=총액, 항목 안 <code>금액</code>=품목 <strong>단가</strong>). 그래서 Ch1의 합계 검산은 항목 금액을 그냥 더하는 게 아니라 <strong>Σ(금액 × 수량) == 총액</strong>이다 — 광화문 국밥은 순대국밥 <code>9,000원 × 수량 3 = 27,000원</code>(=총액)이라, 수량을 빼먹고 9,000원만 더하면 27,000원과 어긋나 <em>멀쩡한 영수증을 틀렸다고</em> 잡는다. 중첩 위치(총액 vs 단가)와 수량을 함께 봐야 검산이 선다.</p>
-<p class="muted"><strong>핵심 정리</strong> — "<code>alias</code> + <code>populate_by_name</code> = 사람용 한글 JSON과 코드용 영문 식별자를 한 모델로. 직렬화는 한글, 접근은 영문, LLM 스키마는 <code>by_alias</code>로 한글." 지금은 schema.py를 읽고 'JSON은 한글인데 코드는 영문'만 잡으면 됩니다.</p>
+<p><strong>LLM·코드 계약은 영문, 한글은 저장에서만</strong> — <code>schema_json()</code>은 <code>RecordV1.model_json_schema(by_alias=False)</code>라 모델이 받는 structured-output 스키마의 키가 <code>merchant·total…</code> 영문이다. 모델은 영문으로 추출하고, 한글은 사람이 읽는 산출물을 <strong>저장할 때</strong> <code>model_dump(by_alias=True)</code>에서만 입는다. 즉 현지화가 LLM·코드 경계로 새지 않고 <em>출력 경계 한 곳</em>에 머문다 — 추출은 영문, 한글은 추출 후 변형이다.</p>
+<p><strong>두 디테일</strong> — ① <code>use_enum_values=True</code>라 <code>doc_type</code>이 <code>DocType.receipt</code> 객체가 아니라 문자열 <code>"영수증"</code>으로 직렬화된다(JSON에 그대로 박힘). ② 최상위 <code>total</code>의 alias는 <code>총액</code>, <code>LineItem.amount</code>의 alias는 <code>단가</code>로 서로 다르다 — 같은 한글이 두 뜻으로 겹치지 않는다. 그래서 Ch1의 합계 검산이 <strong>Σ(단가 × 수량) == 총액</strong>으로 깔끔히 읽힌다 — 광화문 국밥은 순대국밥 <code>단가 9,000원 × 수량 3 = 27,000원</code>(=총액)이라, 수량을 빼먹고 9,000원만 더하면 27,000원과 어긋나 <em>멀쩡한 영수증을 틀렸다고</em> 잡는다. 단가·수량·총액 셋을 함께 봐야 검산이 선다.</p>
+<p class="muted"><strong>핵심 정리</strong> — "<code>alias</code> + <code>populate_by_name</code> = 코드·LLM 계약은 영문(<code>merchant·total</code>), 사람용 산출물만 저장할 때 한글로 변형(<code>by_alias</code>). 현지화는 출력 경계 한 곳에." 지금은 schema.py를 읽고 '추출·코드는 영문, 저장 출력만 한글'만 잡으면 됩니다.</p>
 </div>
 </details>
 

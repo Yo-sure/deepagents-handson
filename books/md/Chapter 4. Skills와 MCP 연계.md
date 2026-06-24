@@ -199,7 +199,7 @@ sequenceDiagram
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~3분</span></div>
-<div class="cue-body"><strong>증명:</strong> 시작 시에는 <em>name·description·path</em> metadata만 올라가고 본문은 아직 안 읽힙니다(점진 공개 1단계). <code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. <strong>내 화면에 뜨는 것</strong>은 위 board와 같습니다 — <code>[before_agent]</code> 로드 줄과 <code>• inbox-brief → …/SKILL.md</code>, <code>• reconcile-rules → …/SKILL.md</code>, 그리고 <code>본문은 아직 안 읽음</code>이 보이면 1단계 성공입니다. 키가 있으면 <code>--run</code>으로 에이전트가 그 본문을 실제로 read_file 하는 2단계까지 볼 수 있습니다(live 호출은 몇 분 걸릴 수 있음).</div>
+<div class="cue-body"><strong>증명:</strong> 시작 시에는 <em>name·description·path</em> metadata만 올라가고 본문은 아직 안 읽힙니다(점진 공개 1단계). <code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. <strong>내 화면에 뜨는 것</strong>은 위 board와 같습니다 — <code>[before_agent]</code> 로드 줄과 <code>• inbox-brief → …/SKILL.md</code>, <code>• reconcile-rules → …/SKILL.md</code>, 그리고 <code>본문은 아직 안 읽음</code>이 보이면 1단계 성공입니다. 키가 있으면 <code>--run</code>으로 에이전트가 그 본문을 실제로 read_file 하는 2단계까지 볼 수 있습니다(live 호출은 몇 분 걸릴 수 있음). <span style="color:var(--muted)">이 챕터(와 Ch3)의 에이전트 live 모델은 도구 호출·Skills 안정성을 위해 Ch0에서 셋업한 기본(<code>gemini-3.5-flash</code>)이 아니라 <code>claude-haiku-4.5</code>입니다(<code>skill_agent.py</code>의 <code>LIVE_MODEL</code>). 같은 <code>OPENROUTER_API_KEY</code>로 라우팅되니 키는 그대로지만 벤더·과금이 다릅니다.</span></div>
 </div>
 
 <details class="deep">

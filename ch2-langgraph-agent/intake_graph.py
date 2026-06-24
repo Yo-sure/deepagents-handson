@@ -106,7 +106,7 @@ def classify(state: IntakeState) -> dict:
     print(f"  [classify] {rec.merchant} · {rec.total:,.0f}원 · 신뢰도 {rec.confidence:.2f}")
     dump = rec.model_dump(by_alias=True, mode="json")  # classified/*.json = 한글 키
     if state.get("break_sum") and is_receipt(rec.doc_type):
-        dump["금액"] = (dump.get("금액") or 0) + 1       # 합계를 1원 깨 retry를 발화시킨다
+        dump["총액"] = (dump.get("총액") or 0) + 1       # 합계를 1원 깨 retry를 발화시킨다
     return {"record": dump}
 
 
@@ -153,7 +153,7 @@ def review(state: IntakeState) -> dict:
     decision = interrupt({
         "사유": state["flagged"],
         "판매처": rec["판매처"],
-        "금액": rec["금액"],
+        "총액": rec["총액"],
         "문서유형": rec["문서유형"],
         "질문": "이 분류를 그대로 적재할까요? (approve / reject)",
     })
@@ -244,13 +244,13 @@ def run_one(graph, doc: str, mock: bool, auto: str = "ask", reject_ok: bool = Fa
             if sys.stdin.isatty():
                 decision = input(
                     f"  ⏸ interrupt — {payload['사유']} · {payload['판매처']} "
-                    f"{payload['금액']:,.0f}원 → approve/reject 입력: "
+                    f"{payload['총액']:,.0f}원 → approve/reject 입력: "
                 ).strip() or "reject"
             else:
                 decision = "reject"
                 print("  ⏸ interrupt — 비대화형 실행이라 안전하게 'reject'로 처리")
         else:
-            print(f"  ⏸ interrupt — {payload['사유']} · {payload['판매처']} {payload['금액']:,.0f}원"
+            print(f"  ⏸ interrupt — {payload['사유']} · {payload['판매처']} {payload['총액']:,.0f}원"
                   f" → 자동 결정 '{decision}'")
         result = graph.invoke(Command(resume=decision), config=config)
     if result.get("held"):

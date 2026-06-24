@@ -658,12 +658,12 @@ def build_agent(records: list[RecordV1], notes_dir: Path = RESEARCH_NOTES):
                 {
                     "문서유형": r.doc_type,
                     "판매처": r.merchant,
-                    "금액": r.total,
+                    "총액": r.total,
                     "통화": r.currency,
                     "날짜": r.doc_date.isoformat() if r.doc_date else None,
                     "원본경로": r.source_path,
                     "항목": [
-                        {"이름": item.name, "금액": item.amount, "수량": item.qty}
+                        {"이름": item.name, "단가": item.amount, "수량": item.qty}
                         for item in r.items
                     ],
                 }
