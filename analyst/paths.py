@@ -5,7 +5,8 @@
 
 입력(sample_inbox)만 레포에 커밋한다. 학생이 만드는 중간 산출물은 모두
 workspace/ 아래에 떨어지며 .gitignore 된다. 경로를 바꾸려면 ANALYST_WORKSPACE
-환경변수로 덮어쓸 수 있다(테스트·채점 격리용).
+환경변수로 덮어쓸 수 있다(테스트·채점 격리용). 상대경로로 주면 레포 루트 기준으로
+풀려 ~/lecture/workspace/... 안(=VSCode 작업트리)에 산출물이 보인다. 절대경로는 그대로.
 """
 
 from __future__ import annotations
@@ -21,7 +22,13 @@ SAMPLE_INBOX = PKG_DIR / "sample_inbox"
 MANIFEST = SAMPLE_INBOX / "_manifest.yaml"
 
 # 산출물(학생 생성, gitignore)
-WORKSPACE = Path(os.environ.get("ANALYST_WORKSPACE", REPO_ROOT / "workspace"))
+_ws = os.environ.get("ANALYST_WORKSPACE")
+if not _ws:
+    WORKSPACE = REPO_ROOT / "workspace"
+elif os.path.isabs(_ws):
+    WORKSPACE = Path(_ws)                       # 절대경로는 그대로(예: /tmp/...)
+else:
+    WORKSPACE = REPO_ROOT / _ws                 # 상대경로는 레포 루트 기준 → VSCode에서 보임
 CLASSIFIED = WORKSPACE / "classified"          # Ch2: RecordV1 JSON
 RESEARCH_NOTES = WORKSPACE / "research_notes"   # Ch3: fan-out 조사노트
 KNOWLEDGE_BASE = WORKSPACE / "knowledge_base"   # Ch4: OKF 지식 항목
