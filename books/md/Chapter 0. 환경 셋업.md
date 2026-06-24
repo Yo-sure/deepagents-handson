@@ -184,31 +184,11 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 더 비싼 모델은 비교가 필요할 때만 사용합니다.</p>
 </div>
 
-```python
-from dotenv import load_dotenv
-from langchain_openai import ChatOpenAI
-import os
-from pathlib import Path
-
-load_dotenv(Path.cwd() / ".env")     # 레포 루트에서 실행한다고 못 박는다
-
-llm = ChatOpenAI(
-    model="google/gemini-3.5-flash",
-    base_url="https://openrouter.ai/api/v1",
-    api_key=os.environ["OPENROUTER_API_KEY"],
-    temperature=0,
-    max_tokens=64,
-    timeout=30,
-    max_retries=1,
-)
-resp = llm.invoke("한 문장으로 자기소개 해줘")
-print(resp.content)
-print("→ model:", resp.response_metadata.get("model_name"))   # 실제 라우팅된 모델 확인
-```
+<<< ../../analyst/first_call.py{python}
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~1분</span></div>
-<div class="cue-body">이 코드를 레포 루트의 <code>first_call.py</code>로 저장하고 <code>uv run python3 first_call.py</code>로 실행합니다. 이게 학생이 직접 보는 첫 LLM 호출입니다. 통과하면 이어서 <code>bash scripts/preflight.sh</code>로 종합 live 점검 <code>✅ 14 / ❌ 0</code>을 확인하세요. <code>.env</code>의 <code>OPENROUTER_API_KEY</code>를 먼저 채워야 합니다. Gemini 3.5 Flash는 과금 모델이라 OpenRouter 계정에 크레딧이나 결제 한도가 없으면 402/credit 계열 오류가 날 수 있습니다.</div>
+<div class="cue-body">위 코드는 레포에 들어 있는 <code>analyst/first_call.py</code>입니다 — 따로 만들 필요 없이 <code>uv run python3 analyst/first_call.py</code>로 바로 실행합니다. 이게 학생이 직접 보는 첫 LLM 호출입니다. 통과하면 이어서 <code>bash scripts/preflight.sh</code>로 종합 live 점검 <code>✅ 14 / ❌ 0</code>을 확인하세요. <code>.env</code>의 <code>OPENROUTER_API_KEY</code>를 먼저 채워야 합니다. Gemini 3.5 Flash는 과금 모델이라 OpenRouter 계정에 크레딧이나 결제 한도가 없으면 402/credit 계열 오류가 날 수 있습니다.</div>
 </div>
 
 <div class="cue wait">
