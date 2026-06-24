@@ -345,20 +345,20 @@ flowchart LR
 </div>
 
 <details class="deep">
-<summary>🔬 심화 — 왜 추출은 영문인데 저장은 한글인가: 현지화를 출력 경계 한 곳에만 두는 <code>alias</code> <span style="color:var(--muted)">(RecordV1 내부)</span></summary>
+<summary>🔬 심화 — 왜 코드는 영문이고 JSON은 한글인가 <span style="color:var(--muted)">(RecordV1 alias)</span></summary>
 <div class="reveal">
-<p>각 필드가 <em>영문 이름</em>(<code>merchant</code>)과 <em>한글 alias</em>(<code>판매처</code>)를 둘 다 가진다. 우연이 아니라 <strong>서로 충돌하는 두 요구</strong>를 한 줄로 가른 것이다.</p>
+<p>RecordV1은 같은 필드에 이름을 두 개 둡니다. 코드에서 쓰는 이름은 <code>merchant</code> 같은 영문이고, 저장되는 JSON의 이름은 <code>판매처</code> 같은 한글입니다. 이렇게 나누는 이유는 간단합니다. <strong>코드는 개발 도구가 잘 이해하는 이름</strong>을 쓰고, <strong>사람이 여는 파일은 읽기 좋은 이름</strong>을 쓰기 위해서입니다.</p>
 <table>
 <thead><tr><th>요구</th><th>해법</th></tr></thead>
 <tbody>
-<tr><td>산출물 JSON을 사람이 읽기 좋게</td><td>직렬화 키 = <strong>한글 alias</strong>(<code>classified/*.json</code>에 <code>"판매처"</code>로 나감)</td></tr>
-<tr><td>코드 내부 식별자는 영문이 안전</td><td>필드 이름 = <strong>영문</strong>(<code>rec.merchant</code> — 파이썬 관례와 IDE·타입 검사에 맞춤)</td></tr>
+<tr><td>코드에서 안전하게 다루기</td><td>필드 이름은 영문: <code>rec.merchant</code>, <code>rec.total</code></td></tr>
+<tr><td>산출물 JSON을 사람이 읽기</td><td>저장할 때만 한글 alias: <code>"판매처"</code>, <code>"총액"</code></td></tr>
 </tbody>
 </table>
-<p><strong>둘을 잇는 게 <code>ConfigDict(populate_by_name=True)</code>다.</strong> 한글 alias로도, 영문 이름으로도 객체를 만들 수 있다. 그래서 mock은 gold(한글 키 dict)를 <code>model_validate</code>로 그대로 적재하고, 코드는 <code>rec.merchant</code>로 접근한다. 같은 객체, 두 입구.</p>
-<p><strong>LLM·코드 계약은 영문, 한글은 저장에서만.</strong> <code>schema_json()</code>은 <code>RecordV1.model_json_schema(by_alias=False)</code>라 모델이 받는 structured-output 스키마의 키가 <code>merchant·total…</code> 영문이다. 모델은 영문으로 추출하고, 한글은 사람이 읽는 산출물을 저장할 때 <code>model_dump(by_alias=True)</code>에서만 입는다. 즉 현지화가 LLM·코드 경계로 새지 않고 <em>출력 경계 한 곳</em>에 머문다. 추출은 영문, 한글은 추출 후 변형이다.</p>
-<p><strong>두 디테일.</strong> ① <code>use_enum_values=True</code>라 <code>doc_type</code>이 <code>DocType.receipt</code> 객체가 아니라 문자열 <code>"영수증"</code>으로 직렬화된다(JSON에 그대로 들어간다). ② 최상위 <code>total</code>의 alias는 <code>총액</code>, <code>LineItem.amount</code>의 alias는 <code>단가</code>로 서로 다르다. 같은 한글이 두 뜻으로 겹치지 않는다. 그래서 Ch1의 합계 검산이 <strong>Σ(단가 × 수량) == 총액</strong>으로 깔끔히 읽힌다. 광화문 국밥은 순대국밥 <code>단가 9,000원 × 수량 3 = 27,000원</code>(=총액)이라, 수량을 빼먹고 9,000원만 더하면 27,000원과 어긋나 <em>멀쩡한 영수증을 틀렸다고</em> 잡는다. 단가·수량·총액 셋을 함께 봐야 검산이 선다.</p>
-<p class="muted"><strong>핵심 정리.</strong> <code>alias</code> + <code>populate_by_name</code> = 코드·LLM 계약은 영문(<code>merchant·total</code>), 사람용 산출물만 저장할 때 한글로 변형(<code>by_alias</code>). 현지화는 출력 경계 한 곳에. 지금은 schema.py를 읽고 추출·코드는 영문, 저장 출력만 한글이라는 점만 잡으면 됩니다.</p>
+<p>모델에게 보여 주는 스키마도 영문입니다. <code>schema_json()</code>은 <code>RecordV1.model_json_schema(by_alias=False)</code>를 쓰므로 모델은 <code>merchant</code>, <code>total</code> 같은 키로 답합니다. 코드도 같은 이름으로 접근합니다. 한글은 마지막 저장 단계에서만 붙습니다. <code>model_dump(by_alias=True)</code>로 파일을 쓸 때 <code>merchant</code>가 <code>판매처</code>로 바뀝니다.</p>
+<p><code>populate_by_name=True</code>는 두 이름을 모두 입력으로 받아들이게 해 줍니다. 그래서 mock 데이터처럼 이미 한글 키로 된 dict도 <code>model_validate</code>로 읽을 수 있고, live 모델이 만든 영문 키도 같은 RecordV1 객체가 됩니다. 들어오는 문은 둘이지만, 코드 안에서는 하나의 객체입니다.</p>
+<p>디테일 두 개만 더 보면 됩니다. 첫째, <code>use_enum_values=True</code>라 <code>doc_type</code>은 <code>DocType.receipt</code> 객체가 아니라 문자열 <code>"영수증"</code>으로 저장됩니다. 둘째, 최상위 <code>total</code>은 <code>총액</code>, 항목의 <code>amount</code>는 <code>단가</code>입니다. 둘을 구분해야 Ch1의 검산이 <strong>Σ(단가 × 수량) == 총액</strong>으로 읽힙니다. 예를 들어 광화문 국밥은 순대국밥 <code>단가 9,000원 × 수량 3 = 총액 27,000원</code>입니다.</p>
+<p class="muted"><strong>핵심 정리.</strong> 추출·코드 계약은 영문입니다. 사람이 읽는 저장 파일만 한글입니다. 현지화는 LLM이나 코드 중간에 섞지 않고, 파일로 내보내는 마지막 경계 한 곳에서만 처리합니다.</p>
 </div>
 </details>
 
