@@ -20,12 +20,32 @@ const MIGRATED = [
 ]
 
 // Obsidian → VitePress 최소 전처리. (Ch1은 이미 VitePress-native라 대부분 no-op)
+function escapeHtml(value) {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function codeImportLabel(spec) {
+  const pathWithRegion = spec.replace(/\{[^}]*\}\s*$/, '').trim()
+  const [file, region] = pathWithRegion.split('#')
+  const repoPath = file.replace(/^(\.\.\/)+/, '').replace(/^\.\//, '')
+  return region ? `${repoPath} #${region}` : repoPath
+}
+
 function preprocess(src) {
   let s = src
   // PDF 시대 시계 마커 제거: <p align="right"><sub ...>⏱ ...</sub></p>
   s = s.replace(/<p align="right">\s*<sub[^>]*>[^<]*<\/sub>\s*<\/p>\n?/g, '')
   // <mark style="..."> → <mark> (VitePress는 인라인 style 허용하나 통일)
   s = s.replace(/<mark\s+style="[^"]*">/g, '<mark>')
+  // VitePress 코드 임베드(<<< ../../path.py#region{python})는 렌더 후 경로가 사라진다.
+  // 학생이 "이 코드는 어느 파일인가"를 바로 보도록, 임베드 직전에 repo 상대 경로 라벨을 붙인다.
+  s = s.replace(/^<<<\s+([^\n]+)$/gm, (line, spec) => {
+    return `<div class="code-file-label"><span>${escapeHtml(codeImportLabel(spec))}</span></div>\n\n${line}`
+  })
   return s
 }
 
