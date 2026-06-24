@@ -341,7 +341,7 @@ flowchart LR
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:18px">아래에 처음 나오는 말부터 풀고 갑니다. <strong>stdio</strong>: 한 컴퓨터 안에서 부모(에이전트)와 자식(서버) 프로세스가 표준입출력으로 주고받는 통로. <strong>subprocess</strong>: 에이전트가 직접 띄운 자식 프로그램. <strong>JSON-RPC</strong>: JSON으로 함수 호출 요청과 응답을 주고받는 약속. <strong>LSP</strong>: 에디터가 언어 도구를 한 규약으로 붙이는 방식(MCP가 참조한 구조). <strong>M×N→M+N</strong>: 앱 M개가 도구 N개에 각각 붙으면 M×N개 연결이지만, 표준 인터페이스를 두면 M+N개 연결로 줄어듭니다.
+<p class="section-note" style="margin-top:18px">아래에 처음 나오는 말부터 풀고 갑니다. <strong>stdio</strong>: 한 컴퓨터 안에서 부모(에이전트)와 자식(서버) 프로세스가 표준입출력으로 주고받는 통로. <strong>subprocess</strong>: 에이전트가 직접 띄운 자식 프로그램. <strong>JSON-RPC</strong>: JSON으로 함수 호출 요청과 응답을 주고받는 약속. <strong>LSP</strong>: 에디터가 언어 도구를 한 규약으로 붙이는 방식(MCP가 참조한 구조). <strong>M×N→M+N</strong>: 앱 M개가 도구 N개에 각각 붙으면 M×N개 연결이지만, 표준 인터페이스를 두면 M+N개 연결로 줄어듭니다.</p>
 
 <div class="board" style="margin-top:14px">
 <div class="board-header"><span>MCP 세 가지 기본 요소</span><span class="status-pill">primitives</span></div>
