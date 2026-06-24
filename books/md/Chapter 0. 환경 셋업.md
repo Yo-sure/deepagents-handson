@@ -188,7 +188,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 <div class="row"><div class="code">2</div><div class="copy"><strong>레포 받기 → 셋업</strong><p><code>git</code>이 없다면 먼저 <code>sudo apt-get update && sudo apt-get install -y git</code>. 그 다음 <code>git clone https://github.com/Yo-sure/deepagents-handson ~/lecture</code> → <code>cd ~/lecture</code> → <code>bash scripts/setup.sh</code>. 프리플라이트가 키 관련 두 줄만 남기면 정상입니다.</p></div><div class="store">.venv</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>VSCode를 WSL로 열기</strong><p>같은 폴더에서 <code>code .</code>. 첫 실행이면 VSCode가 WSL 서버를 자동 설치합니다(1분). 왼쪽 아래에 <code>WSL: Ubuntu</code>가 뜨면 성공.</p></div><div class="store">붙음</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>인터프리터 = .venv</strong><p><code>Ctrl+Shift+P</code> → <code>Python: Select Interpreter</code> → <code>./.venv/bin/python</code>. 안 보이면 <code>Developer: Reload Window</code> 한 번. 이걸 골라야 설치한 라이브러리가 잡힙니다.</p></div><div class="store">지정</div></div>
-<div class="row"><div class="code">5</div><div class="copy"><strong>키 발급 → .env 채우기</strong><p><code>openrouter.ai</code> 가입 → 결제/크레딧 한도 확인 → <strong>Keys</strong>에서 키 발급 → <code>.env</code>의 <code>OPENROUTER_API_KEY=sk-or-...</code> 줄에서 <code>sk-or-...</code> 전체를 지우고 새 키로 바꿉니다. 여기까지가 환경 준비입니다. 모델을 실제로 한 번 불러 보는 첫 호출은 바로 다음 Step 3에서 합니다. 교재 화면은 <code>npm --prefix book run dev</code>로 엽니다.</p></div><div class="store">키</div></div>
+<div class="row"><div class="code">5</div><div class="copy"><strong>키 받기 → .env 채우기</strong><p>API 키는 <strong><a href="https://awake-akubra-dae.notion.site/AI-Agent-260625-3895b72b6c5480c5be71fdfcb8e5ec69" target="_blank" rel="noopener">강의 안내 페이지(Notion)</a></strong>에서 받습니다(수업 당일 공개). 받은 키로 <code>.env</code>의 <code>OPENROUTER_API_KEY=sk-or-...</code> 줄에서 <code>sk-or-...</code> 전체를 지우고 바꿔 넣습니다. 여기까지가 환경 준비입니다. 모델을 실제로 한 번 불러 보는 첫 호출은 바로 다음 Step 3에서 합니다. 교재 화면은 <code>npm --prefix book run dev</code>로 엽니다.</p></div><div class="store">키</div></div>
 </div>
 </div>
 
@@ -231,7 +231,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~1분</span></div>
-<div class="cue-body">위 코드는 레포에 들어 있는 <code>analyst/first_call.py</code>입니다. 따로 만들 필요 없이 <code>uv run python3 analyst/first_call.py</code>로 바로 실행합니다. 이게 학생이 직접 보는 첫 LLM 호출입니다. 통과하면 이어서 <code>bash scripts/preflight.sh</code>로 종합 live 점검 <code>✅ 14 / ❌ 0</code>을 확인하세요. <code>.env</code>의 <code>OPENROUTER_API_KEY</code>를 먼저 채워야 합니다. Gemini 3.5 Flash는 과금 모델이라 OpenRouter 계정에 크레딧이나 결제 한도가 없으면 402/credit 계열 오류가 날 수 있습니다.</div>
+<div class="cue-body">위 코드는 레포에 들어 있는 <code>analyst/first_call.py</code>입니다. 따로 만들 필요 없이 <code>uv run python3 analyst/first_call.py</code>로 바로 실행합니다. 이게 학생이 직접 보는 첫 LLM 호출입니다. 통과하면 이어서 <code>bash scripts/preflight.sh</code>로 종합 live 점검 <code>✅ 14 / ❌ 0</code>을 확인하세요. <code>.env</code>의 <code>OPENROUTER_API_KEY</code>(강의 안내 페이지에서 받은 키)를 먼저 채워야 합니다. Gemini 3.5 Flash는 과금 모델이라, 받은 키의 크레딧·한도가 소진되면 402/credit 계열 오류가 날 수 있습니다(이 경우 강사에게 알리세요).</div>
 </div>
 
 <div class="cue wait">

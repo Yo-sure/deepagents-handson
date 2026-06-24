@@ -97,7 +97,7 @@ if [ ! -f .env ]; then
   if [ -f .env.example ]; then cp .env.example .env; else
     printf 'OPENROUTER_API_KEY=sk-or-...\nOPENAI_API_KEY=sk-or-...\nOPENAI_API_BASE=https://openrouter.ai/api/v1\nMAIL_BACKEND=mock\n' > .env
   fi
-  echo "· .env 생성됨 — OPENROUTER_API_KEY 를 입력하세요: https://openrouter.ai/keys"
+  echo "· .env 생성됨 — 강의 안내 페이지(Notion)에서 받은 OPENROUTER_API_KEY 를 .env에 입력하세요. (교재 Ch0 참고)"
   echo "  (analyst import 시 OPENROUTER_API_KEY를 OpenAI 호환 변수에 맞춥니다.)"
 fi
 
