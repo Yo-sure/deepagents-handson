@@ -73,7 +73,7 @@ pageClass: lec-page
 
 <a class="row" href="/deepagents-handson/chapters/chapter-5" style="text-decoration:none;color:inherit">
 <div class="code">5</div>
-<div class="copy"><strong>A2A 역할 분리 — 밖에 검증을 맡긴다</strong><p>서명 Agent Card · SendMessage · Task 라이프사이클 · verified_brief.md · a2a-sdk 1.1.0</p></div>
+<div class="copy"><strong>A2A 역할 분리 — 밖에 검증을 맡긴다</strong><p>Agent Card · SendMessage · Task 라이프사이클 · verified_brief.md · a2a-sdk 1.1.0</p></div>
 <div class="store">70분</div></a>
 
 <a class="row" href="/deepagents-handson/chapters/chapter-6" style="text-decoration:none;color:inherit">

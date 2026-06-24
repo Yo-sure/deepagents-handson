@@ -14,11 +14,20 @@ from dotenv import load_dotenv
 load_dotenv()
 
 openrouter_key = os.environ.get("OPENROUTER_API_KEY")
+openai_key = os.environ.get("OPENAI_API_KEY")
+openai_api_base = os.environ.get("OPENAI_API_BASE")
+openai_base_url = os.environ.get("OPENAI_BASE_URL")
+openai_base = openai_api_base or openai_base_url
 if openrouter_key and openrouter_key != "sk-or-...":
-    if not os.environ.get("OPENAI_API_KEY") or os.environ.get("OPENAI_API_KEY") == "sk-or-...":
+    if not openai_key or openai_key == "sk-or-..." or openai_key == "(auto)":
         os.environ["OPENAI_API_KEY"] = openrouter_key
-    os.environ.setdefault("OPENAI_API_BASE", "https://openrouter.ai/api/v1")
-    os.environ.setdefault("OPENAI_BASE_URL", os.environ["OPENAI_API_BASE"])
+    if not openai_base or openai_base == "(auto)":
+        os.environ["OPENAI_API_BASE"] = "https://openrouter.ai/api/v1"
+        os.environ["OPENAI_BASE_URL"] = os.environ["OPENAI_API_BASE"]
+    elif openai_api_base and not openai_base_url:
+        os.environ["OPENAI_BASE_URL"] = openai_api_base
+    elif openai_base_url and not openai_api_base:
+        os.environ["OPENAI_API_BASE"] = openai_base_url
 
 from analyst import paths
 from analyst.schema import SCHEMA_VERSION, DocType, LineItem, RecordV1

@@ -19,10 +19,19 @@ metadata:
 - `workspace/research_notes/*.md` — fan-out 조사 노트
 
 ## 절차
-1. classified 레코드를 읽어 영수증 지출 합계와 카테고리를 집계한다.
-2. knowledge_base에서 `type: gap`·`type: subscription` 항목을 모은다 — 이게 "짚을 점".
-3. 아래 형식으로 `workspace/brief.md`를 쓴다. 한 화면을 넘기지 않는다.
-4. 숫자는 반드시 레코드에서 가져온다. 지어내지 않는다. 근거가 없으면 "확인 필요"로 남긴다.
+1. `ls workspace/classified`, `ls workspace/knowledge_base`, `ls workspace/research_notes`로 입력 파일명을 확인한다.
+2. classified 레코드를 읽어 영수증 지출 합계와 카테고리를 집계한다.
+3. knowledge_base에서 `type: gap`·`type: subscription` 항목만 읽어 모은다 — 이게 "짚을 점".
+   `title`(또는 호환 필드 `name`)과 `amount`를 반드시 함께 가져온다.
+4. 필요하면 `workspace/research_notes/card_reconcile.md`, `bank_reconcile.md`, `spend_summary.md`를 근거로 확인한다.
+5. 아래 형식으로 `workspace/brief.md`를 쓴다. 한 화면을 넘기지 않는다.
+6. 숫자는 반드시 레코드나 OKF 머리말에서 가져온다. 지어내지 않는다. 근거가 없으면 "확인 필요"로 남긴다.
+
+## 도구 사용 규칙
+- `glob`·`grep`으로 전체 workspace를 뒤지지 않는다. `ls`로 파일명을 보고 필요한 파일만 `read_file`한다.
+- 읽는 범위는 `workspace/classified/*.json`, `workspace/knowledge_base/*.md`,
+  `workspace/research_notes/*.md`, 그리고 필요할 때 `references/brief_format.md`로 제한한다.
+- 마지막에는 반드시 `write_file`로 `workspace/brief.md`를 쓴다.
 
 ## 출력 형식
 세부 형식과 예시는 `references/brief_format.md`를 따른다(필요할 때만 읽는다 — 점진 공개).

@@ -28,7 +28,7 @@ pageClass: lec-page
 <div class="board">
 <div class="board-header"><span>이 챕터가 끝나면</span><span class="status-pill">산출물</span></div>
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>분류·정규화 StateGraph</strong><p>classify → verify →〈retry|review〉→ persist</p></div><div class="store">그래프</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>분류·정규화 StateGraph</strong><p>classify → verify →〈retry|review|hold〉→ persist</p></div><div class="store">그래프</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>checkpointer 재개</strong><p>멈춘 자리에서 같은 thread로 이어 실행</p></div><div class="store">상태</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>interrupt() HITL</strong><p>고액·저신뢰 건은 사람 승인 후 적재</p></div><div class="store">멈춤</div></div>
 </div>
@@ -222,11 +222,14 @@ flowchart TD
     CL --> VE{"verify · 합계·플래그"}
     VE -->|"합계 불일치 & 재시도 남음"| RT["retry · 재분류"]
     RT -->|"다시 분류"| CL
+    VE -->|"재시도 상한 뒤에도 불일치"| HD["hold · 적재 안 함"]
     VE -->|"고액·저신뢰 플래그"| RV["review · interrupt() 멈춤"]
-    VE -->|"플래그 없음 (상한 도달 포함)"| PS["persist · classified/ 적재"]
+    VE -->|"통과 & 플래그 없음"| PS["persist · classified/ 적재"]
     RV --> PS
+    HD --> E
     PS --> E([END])
     style RV fill:#fff3e0,stroke:#e09f3e
+    style HD fill:#ffebee,stroke:#c62828
     style PS fill:#e8f5e9,stroke:#0f766e
 ```
 
@@ -238,7 +241,7 @@ flowchart TD
 <div class="flow-step"><small>verify</small><strong>검증·분기</strong><p>합계를 보고, 어긋나면 retry로 되돌린다</p></div>
 <div class="flow-step"><small>retry</small><strong>재분류</strong><p>상한(2회)까지 classify로 되돌아간다</p></div>
 <div class="flow-step"><small>review</small><strong>사람 확인</strong><p>고액·저신뢰 플래그면 interrupt()로 멈춤</p></div>
-<div class="flow-step"><small>persist</small><strong>적재</strong><p>classified/&lt;문서&gt;.json 으로 저장한다</p></div>
+<div class="flow-step"><small>hold/persist</small><strong>보류·적재</strong><p>끝내 안 맞으면 보류, 통과하면 JSON 저장</p></div>
 </div>
 
 <p class="section-note" style="margin-top:16px">classify는 Ch1의 <code>extract</code>를 그대로 부릅니다. 모듈을 바꾸더라도 계약은 재사용한다는 원칙이 여기서 처음 작동합니다.</p>
@@ -252,19 +255,20 @@ flowchart TD
 ## 검증이 틀리면 되돌린다
 
 </div>
-<p class="section-note">verify가 영수증 합계를 봅니다. 항목 금액에 수량을 곱해 더한 값이 총액과 어긋나면 잘못 읽은 것입니다.<br>
-이때 조건부 엣지가 실행을 classify로 되돌립니다. 상한까지 다시 읽고, <strong>합계가 끝내 안 맞아도 고액·저신뢰(flagged)면 사람 검토(review)를 거쳐</strong> 적재합니다. 단 <em>flagged가 아닌 소액</em>은 합계가 틀린 채로 그냥 적재됩니다. 사람 검토는 "고액·저신뢰에만 건다"는 <strong>의도된 트레이드오프</strong>이지, 모든 불일치를 막는 보장이 아닙니다.</p>
+<p class="section-note">verify가 영수증 합계를 봅니다. 항목 금액에 수량을 곱해 더한 값이 총액과 어긋나면 잘못 읽은 것입니다. 또 이 실습 샘플은 <code>_manifest.yaml</code>에 정답 계약이 있으므로 live 추출도 <code>score</code> 임계값과 판매처·문서유형·총액·날짜·항목수·항목 금액/수량 구조 회귀 검증을 통과해야 합니다.<br>
+조건부 엣지는 실패를 classify로 되돌립니다. 상한까지 다시 읽고도 합계나 샘플 품질이 끝내 안 맞으면 <strong>hold</strong>로 보내 적재하지 않습니다. 고액·저신뢰처럼 사람이 볼 일은 review로 멈추지만, 검증 실패 자체는 사람 승인으로 덮지 않습니다 — 이 장의 기본 정책은 <strong>fail-closed</strong>입니다.</p>
 </div>
 
 ```python
 def after_verify(state: IntakeState) -> str:
     if state.get("sum_ok", True) is False and state["retries"] < MAX_RETRY:
         return "retry"                          # 합계 불일치 — 상한까지 재분류
-    # flagged(고액·저신뢰)면 항상 review 경유. 그 외(소액)는 합계 틀려도 적재 — 의도된 트레이드오프.
+    if state.get("sum_ok", True) is False:
+        return "hold"                           # 끝내 안 맞으면 fail-closed
     return "review" if state["flagged"] else "persist"
 
 g.add_conditional_edges("verify", after_verify,
-                        {"retry": "retry", "review": "review", "persist": "persist"})
+                        {"retry": "retry", "review": "review", "persist": "persist", "hold": "hold"})
 ```
 
 <div class="panel" style="margin-top:16px">
@@ -273,11 +277,13 @@ g.add_conditional_edges("verify", after_verify,
 
 ```mermaid
 flowchart TD
-    V{"합계 일치 & 재시도 남음?"}
+    V{"합계 불일치 & 재시도 남음?"}
     V -->|"불일치 & 재시도 < 2"| R["retry → classify"]
-    V -->|"flagged(고액·저신뢰)"| RV["review · 사람 확인"]
-    V -->|"flagged 없음"| P2["persist · 자동 적재"]
+    V -->|"불일치 & 재시도 소진"| H["hold · 적재 안 함"]
+    V -->|"통과 & flagged"| RV["review · 사람 확인"]
+    V -->|"통과 & flagged 없음"| P2["persist · 자동 적재"]
     style RV fill:#fff3e0,stroke:#e09f3e
+    style H fill:#ffebee,stroke:#c62828
 ```
 
 </div>
@@ -286,17 +292,17 @@ flowchart TD
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>재시도는 무한 루프가 아니다</span><span class="status-pill">상한</span></div>
 <div class="panel-body"><div class="list">
-<p>같은 실패를 계속 반복하면 비용만 듭니다. <code>MAX_RETRY</code>로 두 번까지만 되돌리고, 넘으면 사람이 볼 큐로 보냅니다.</p>
+<p>같은 실패를 계속 반복하면 비용만 듭니다. <code>MAX_RETRY</code>로 두 번까지만 되돌립니다. live 재시도에서는 이전 불일치 관측을 보고 Ch1의 ReAct 검산 경로로 다시 읽습니다. 그래도 안 맞으면 <code>hold</code>로 보내 JSON을 쓰지 않습니다. 검증 통과 후 고액·저신뢰 플래그가 남은 문서만 <code>review</code>로 사람에게 올립니다. 이 gold 회귀 게이트는 수업 샘플을 위한 장치이고, 실제 업무에서는 정답 manifest 대신 업무 규칙·상호참조 검증으로 바꿉니다. 현재 하니스는 Ch1의 <code>score()</code>가 5/6 미만이면 실패로 보고, 판매처·문서유형·총액·날짜·항목수·항목 금액/수량 구조 불일치는 로그에 직접 보여 줍니다.</p>
 <p class="tiny" style="color:var(--muted)"><strong>검증 자체의 한계도 알고 씁니다.</strong> <code>verify_total</code>은 "항목합(<code>금액×수량</code>) = 총액(±1원)"이라는 가정이라, 부가세 별도·서비스료·할인·반올림이 섞인 <em>실제</em> 영수증에선 모델이 옳게 읽어도 불일치가 날 수 있습니다. 그래서 이 검증은 <strong>정답 판정</strong>이 아니라 — 불일치를 재시도로 보내되 상한 + flagged 큐로 받치는 <em>층층 방어</em>의 한 겹일 뿐입니다.</p>
 <p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아, 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성).</p>
 <p>평소 mock은 gold가 고정이라 합계가 맞아 retry가 안 뜹니다(라이브 추출에선 비결정성으로 흔들려 의미가 있습니다). 그래서 <strong>아래 <code>--break-sum</code>으로 일부러 깨</strong> retry 루프를 눈으로 봅니다 — 한계를 정해 두는 게 하네스의 일입니다.</p>
-<p>재시도가 외부 부작용(메일 전송·DB 쓰기)을 가진 도구를 다시 부른다면 <strong>멱등성</strong>이 필요합니다 — 같은 작업을 두 번 해도 결과가 한 번과 같도록 idempotency key를 둬야 중복이 안 생깁니다(이 실습의 재분류는 부작용이 없어 안전). 그래프 차원의 마지막 안전망은 <code>recursion_limit</code>입니다 — 한 실행의 superstep 수가 이를 넘으면 <code>GraphRecursionError</code>가 납니다. langgraph 1.x 기본은 <strong>10007</strong>로, 평소엔 안 걸리는 <em>폭주 방지 backstop</em>입니다(노드 로직이 정하는 <code>MAX_RETRY</code> 재시도 횟수와는 다른 층). <code>graph.invoke(state, config=&#123;"recursion_limit": 5&#125;)</code>로 낮춰 일부러 터뜨려 보면 둘이 서로 다른 층이라는 게 또렷해집니다.</p>
+<p>재시도가 외부 부작용(메일 전송·DB 쓰기)을 가진 도구를 다시 부른다면 <strong>멱등성</strong>이 필요합니다 — 같은 작업을 두 번 해도 결과가 한 번과 같도록 idempotency key를 둬야 중복이 안 생깁니다(이 실습의 재분류는 부작용이 없어 안전). 그래프 차원의 마지막 안전망은 <code>recursion_limit</code>입니다 — 한 실행의 superstep 수가 이를 넘으면 <code>GraphRecursionError</code>가 납니다. 설치된 LangGraph의 기본은 <strong>25</strong>로, 평소엔 안 걸리는 <em>폭주 방지 backstop</em>입니다(노드 로직이 정하는 <code>MAX_RETRY</code> 재시도 횟수와는 다른 층). <code>graph.invoke(state, config=&#123;"recursion_limit": 5&#125;)</code>로 낮춰 일부러 터뜨려 보면 둘이 서로 다른 층이라는 게 또렷해집니다.</p>
 </div></div>
 </div>
 
 <div class="cue do" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기 — retry를 눈으로</span><span class="cue-time">~3분</span></div>
-<div class="cue-body"><strong>증명하려는 것: 재시도가 무한이 아니라 상한에서 멈춘다는 것.</strong> <code>--break-sum</code>으로 합계를 일부러 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. 이 플래그는 추출된 <em>총액(금액)에만 +1원</em>을 더합니다 — 항목 합계(8,400)는 그대로라 둘이 <em>영원히</em> 어긋나고(8,400 ≠ 8,401), 매 재분류마다 다시 깨지니 재시도 2회를 다 써도 안 맞아 상한 도달 후 <code>dry-run</code>으로 빠집니다: <code>[verify] 합계 불일치(항목합 8,400 ≠ 8,401) → [retry] 1/2 → 2/2 → dry-run</code>. 그래서 출력의 <strong>8,401</strong>이 어디서 왔는지(총액 +1) 알면, 왜 끝내 실패하는지가 보입니다. 다음 장 산출물을 오염시키지 않도록 JSON은 쓰지 않습니다.</div>
+<div class="cue-body"><strong>증명하려는 것: 재시도가 무한이 아니라 상한에서 멈추고, 끝내 실패하면 적재하지 않는다는 것.</strong> <code>--break-sum</code>으로 합계를 일부러 깨고 돌려 보세요: <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock --break-sum --doc receipt_gs25.png</code>. 이 플래그는 추출된 <em>총액(금액)에만 +1원</em>을 더합니다 — 항목 합계(8,400)는 그대로라 둘이 <em>영원히</em> 어긋나고(8,400 ≠ 8,401), 매 재분류마다 다시 깨지니 재시도 2회를 다 써도 안 맞아 <code>[hold] 검증 실패 — 적재 안 함</code>으로 끝납니다. 출력의 <strong>8,401</strong>이 어디서 왔는지(총액 +1) 알면, 왜 끝내 실패하는지가 보입니다.</div>
 </div>
 </section>
 
@@ -467,7 +473,7 @@ sequenceDiagram
 <p><code>add_conditional_edges(verify, after_verify, {...})</code> — <code>after_verify</code>가 돌려준 문자열로 다음 노드를 고릅니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>after_verify가 고르는 세 길</strong></div><div class="panel-body"><div class="list">
-<p>합계 불일치 → <code>retry</code>(상한 전), 플래그 있음 → <code>review</code>, 그 외 → <code>persist</code>.</p>
+<p>합계 불일치 → <code>retry</code>(상한 전) 또는 <code>hold</code>(상한 소진), 통과했지만 플래그 있음 → <code>review</code>, 통과했고 플래그 없음 → <code>persist</code>.</p>
 <p>노드 이름과 함수 이름은 달라도 됩니다 — <code>add_node("retry", bump_retry)</code>. 매핑의 <code>"retry"</code>는 <strong>노드 이름</strong>이지 <code>bump_retry</code> 함수가 아닙니다.</p>
 </div></div></div>
 </div>
@@ -481,18 +487,25 @@ sequenceDiagram
 ## 흘려보내고 멈춤을 본다
 
 </div>
-<p class="section-note">전체를 한 번 흘리고, 고액 한 건만 따로 돌려 interrupt를 눈으로 보고, 반려도 해 봅니다. 각 단계의 성공 기준을 확인하세요.</p>
+<p class="section-note">기본은 live 실행입니다. 전체를 한 번 흘리고, 고액 한 건만 따로 돌려 interrupt를 눈으로 보고, 반려도 해 봅니다. <code>--mock</code>은 키·네트워크 문제 때 같은 그래프 구조를 결정론적으로 확인하는 보조 경로입니다.</p>
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>전체 적재 — 자동 승인</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code> <span style="color:var(--muted)">(키 없이 결정론: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)"><strong>증명:</strong> 사람을 안 끼우면 고액건도 그냥 통과한다 — 그게 baseline. 성공 기준: 10건이 흐르고 금액 기준 고액 2건(invoice_photo·contract_freelance)에서 ⏸ interrupt 뒤 자동 승인 → <code>workspace/classified/</code>에 JSON 10개. live는 분류값·신뢰도가 조금씩 다르고 저신뢰 건에서 멈춤이 더 날 수 있습니다 — interrupt를 거는 <em>고액 기준은 코드</em>라 같습니다(<code>--mock</code>은 신뢰도 1.0이라 저신뢰 멈춤 없음).</span></p></div><div class="store">10건</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>한 건만 — 멈춤 관찰</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc invoice_photo.png</code> <span style="color:var(--muted)">(키 없이: <code>--mock</code> 추가)</span><br><span style="color:var(--muted)"><strong>증명:</strong> interrupt는 예외가 아니라 <em>반환값</em>(<code>__interrupt__</code>)으로 온다 — 한 건으로 또렷이. 성공 기준: <code>⏸ interrupt — 고액(1,650,000원)</code> 줄이 보이고 review→persist로 이어진다(금액은 live 추출이라 다를 수 있지만, 고액이면 멈춘다는 동작은 같다).</span></p></div><div class="store">interrupt</div></div>
-<div class="row"><div class="code">3</div><div class="copy"><strong>검토건 반려</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --reject-flagged</code> <span style="color:var(--muted)">(키 없이: <code>--mock</code> 추가)</span><br><span style="color:var(--muted)"><strong>증명:</strong> fail-closed — 반려·오타·빈 응답이 모두 보류로 가고 기존 JSON까지 회수된다(틀리면 안 들어간다). 성공 기준: 고액 건이 <code>[review] 보류 — 적재 안 함</code>으로 빠지고, 기존 JSON이 있으면 제거된다. 다시 정상 산출물을 만들려면 1번 전체 적재를 한 번 더 실행한다.</span></p></div><div class="store">보류</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>전체 적재 — live 기본</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code> <span style="color:var(--muted)">(장애·오프라인 확인: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)"><strong>증명:</strong> 실제 모델 추출값이 StateGraph를 지나간다. 시작할 때 기존 <code>classified</code> 산출물을 <code>workspace/classified_backup/</code>에 백업한 뒤 비워 이번 실행 결과만 보인다. 검토건은 터미널에서 <code>approve</code>/<code>reject</code>를 직접 입력한다. 성공 기준: 문서들이 <code>[classify]</code>→<code>[verify]</code>→필요시 <code>⏸ interrupt</code>→<code>[persist]</code> 또는 <code>[hold]</code> 흐름을 탄다. 샘플 품질 게이트가 PDF 오추출을 잡으면 JSON 10개가 아니라 실패/hold가 정상입니다. live는 값·신뢰도·저신뢰 멈춤이 달라질 수 있으므로, 글자 단위 일치가 아니라 <strong>거짓 성공을 막는 그래프 흐름</strong>을 본다.</span></p></div><div class="store">live</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>한 건만 — 멈춤 관찰</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc invoice_photo.png</code> <span style="color:var(--muted)">(장애·오프라인 확인: <code>--mock</code> 추가)</span><br><span style="color:var(--muted)"><strong>증명:</strong> interrupt는 예외가 아니라 <em>반환값</em>(<code>__interrupt__</code>)으로 온다 — 한 건으로 또렷이. 성공 기준: 고액 청구서로 분류되면 <code>approve/reject 입력</code> 프롬프트가 보이고, 직접 <code>approve</code>를 넣으면 review→persist로 이어진다. 금액·상호명은 live 추출이라 조금 다를 수 있다.</span></p></div><div class="store">interrupt</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>검토건 반려</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --reject-flagged --doc invoice_photo.png</code> <span style="color:var(--muted)">(장애·오프라인 확인: <code>--mock</code> 추가)</span><br><span style="color:var(--muted)"><strong>증명:</strong> fail-closed — 반려·오타·빈 응답이 모두 보류로 가고 기존 JSON까지 회수된다(틀리면 안 들어간다). 성공 기준: 고액 한 건이 <code>[review] 보류 — 적재 안 함</code>으로 빠지고, 기존 JSON이 있으면 제거된다. 다시 정상 산출물을 만들려면 1번 전체 적재를 한 번 더 실행한다.</span></p></div><div class="store">보류</div></div>
+<div class="row"><div class="code">4</div><div class="copy"><strong>품질 게이트 단건 확인</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc statement_bank_2026-05.pdf</code><br><span style="color:var(--muted)"><strong>증명:</strong> live 모델이 은행 PDF를 의미상 잘못 읽으면 <code>[verify] 샘플 품질 불일치(...)</code> 뒤 retry를 쓰고, 끝내 맞지 않으면 <code>[hold]</code>로 보류한다. 이 실패는 정상입니다 — 거짓 성공으로 JSON을 남기지 않는 것이 목표입니다.</span></p></div><div class="store">품질</div></div>
+<div class="row"><div class="code">5</div><div class="copy"><strong>결정론 비교</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><span style="color:var(--muted)">mock은 LLM을 대신하는 주 경로가 아니라 보조입니다. 같은 그래프가 gold 레코드로 어떻게 도는지 확인하고, live가 실패했을 때 문제가 모델/키인지 그래프 코드인지 가르는 데 씁니다. 성공 기준: 문서 10건 처리, 고액 2건(invoice_photo·contract_freelance) interrupt 뒤 자동 승인, JSON 10개.</span></p></div><div class="store">보조</div></div>
 </div>
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~5분</span></div>
-<div class="cue-body">먼저 1번 명령 <code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code>을 그대로 실행하세요. 10건이 흐르고 고액 2건에서 ⏸ 줄이 떠야 정상입니다. 이어 2번 <code>--doc invoice_photo.png</code>로 한 건만 돌려 멈춤을 또렷이 보세요.</div>
+<div class="cue-body">먼저 1번 명령 <code>uv run python3 ch2-langgraph-agent/intake_graph.py</code>을 그대로 실행하세요. live라 값은 조금 흔들릴 수 있지만, <code>[reset]</code> 뒤 <code>[classify]</code>→<code>[verify]</code>→필요시 <code>⏸</code>→<code>[persist]</code>/<code>[hold]</code> 흐름이 보여야 정상입니다. 검토건이 뜨면 직접 <code>approve</code> 또는 <code>reject</code>를 입력합니다. 한 문서가 실패하면 나머지를 계속 처리한 뒤 마지막에 <code>전체 적재 중 N건 실패</code>로 모읍니다. 이전 JSON이 있었다면 <code>classified_backup</code>에 보관됩니다. 키·네트워크 문제로 막히면 같은 명령에 <code>--mock</code>을 붙여 그래프 코드 자체는 정상인지 가릅니다.</div>
+</div>
+
+<div class="cue check" style="margin-top:12px">
+<div class="cue-head"><span class="cue-label">PDF 한 건 확인</span><span class="cue-time">~1분</span></div>
+<div class="cue-body">PDF 입력 경로만 따로 보고 싶으면 <code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc statement_card_2026-05.pdf</code>를 실행하세요. 이미지와 같은 StateGraph를 지나가되, Ch1의 멀티모달 입력 파트가 PDF 파일 데이터로 바뀝니다.</div>
 </div>
 
 <div class="panel" style="margin-top:18px">
@@ -503,7 +516,7 @@ sequenceDiagram
 ▶ invoice_photo.png
   [classify] 디자인스튜디오 레이 · 1,650,000원 · 신뢰도 1.00
   [verify] 통과 · 검토 필요: 고액(1,650,000원)
-  ⏸ interrupt — 고액(1,650,000원) · 디자인스튜디오 레이 1,650,000원 → 자동 결정 'approve'
+  ⏸ interrupt — 고액(1,650,000원) · 디자인스튜디오 레이 1,650,000원 → approve/reject 입력: approve
   [review] 승인 — 적재 진행
   [persist] → workspace/classified/invoice_photo.json
 ```
@@ -513,12 +526,12 @@ sequenceDiagram
 
 <div class="cue wait">
 <div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~20초</span></div>
-<div class="cue-body"><code>⏸ interrupt — 고액(1,650,000원)</code> 줄에서 그래프가 사람 결정을 기다립니다. 이 실습은 <code>approve</code>로 자동 응답하도록 짜여 있으니, 그 뒤 <code>[review] 승인</code>→<code>[persist]</code>까지 이어지는지 확인하세요. <code>--reject-flagged</code>로 돌리면 같은 자리에서 반려되어 JSON이 안 생기는 것까지 보면 HITL 한 바퀴를 다 본 셈입니다.</div>
+<div class="cue-body"><code>⏸ interrupt — 고액(1,650,000원)</code> 줄에서 그래프가 멈춘 사유를 <code>__interrupt__</code>로 돌려줍니다. 터미널에서 직접 <code>approve</code>를 입력하면 <code>Command(resume="approve")</code>로 재개되어 <code>[review] 승인</code>→<code>[persist]</code>로 이어집니다. <code>--reject-flagged</code>로 돌리면 같은 자리에서 반려되어 JSON이 안 생기는 것까지 보면 HITL 한 바퀴를 다 본 셈입니다. 자동 승인 데모가 필요할 때만 <code>--approve-flagged</code>를 씁니다.</div>
 </div>
 
 <div class="cue solve">
 <div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~4분</span></div>
-<div class="cue-body"><code>intake_graph.py</code>를 열어 맨 위 상수 <code>HIGH_VALUE = 1_000_000</code>을 <code>10_000</code>으로 직접 고치고(<em>플래그가 아니라 코드 상수입니다</em>) <code>--mock</code>으로 다시 실행하세요. interrupt가 몇 건에서 걸릴까요? 반대로 <code>5_000_000</code>으로 올리면? <span style="color:var(--muted)">(확인했으면 <code>1_000_000</code>으로 되돌려 두세요.)</span></div>
+<div class="cue-body"><code>intake_graph.py</code>를 열어 맨 위 상수 <code>HIGH_VALUE = 1_000_000</code>을 <code>10_000</code>으로 직접 고치고(<em>플래그가 아니라 코드 상수입니다</em>) <code>--mock</code>으로 다시 실행하세요. interrupt가 몇 건에서 걸릴까요? 반대로 <code>5_000_000</code>으로 올리면? 확인했으면 <code>1_000_000</code>으로 되돌리고 <code>rg "HIGH_VALUE = 1_000_000" ch2-langgraph-agent/intake_graph.py</code>로 복구를 확인하세요.</div>
 </div>
 
 <details>
@@ -542,8 +555,8 @@ sequenceDiagram
 </div>
 
 <div class="grid-2">
-<div class="panel"><div class="panel-head"><strong>interrupt가 안 걸림</strong><span>HITL</span></div><div class="panel-body"><div class="list">
-<p><code>compile(checkpointer=...)</code>를 빠뜨렸거나, 고액·저신뢰 기준에 걸리는 문서가 없습니다. <code>--doc invoice_photo.png</code>로 확인하세요.</p>
+<div class="panel"><div class="panel-head"><strong>interrupt 후 재개가 안 됨</strong><span>HITL</span></div><div class="panel-body"><div class="list">
+<p><code>compile(checkpointer=...)</code>를 빠뜨리면 interrupt 반환은 볼 수 있어도 <code>Command(resume=...)</code> 재개에서 깨집니다. interrupt 자체가 안 보이면 고액·저신뢰 기준에 걸리는 문서가 없는지 <code>--doc invoice_photo.png</code>로 확인하세요.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>KeyError: state 키</strong><span>상태</span></div><div class="panel-body"><div class="list">
 <p>노드가 돌려준 dict의 키가 <code>IntakeState</code>에 없으면 무시되거나 깨집니다. TypedDict에 필드를 선언했는지 봅니다.</p>
@@ -565,6 +578,42 @@ sequenceDiagram
 <section class="slide">
 <div class="section-head">
 <div>
+<div class="eyebrow">흐름 복습 · 2분</div>
+
+## 그래프의 계약은 상태다
+
+</div>
+<p class="section-note">Ch2의 핵심은 모델 호출이 아니라 상태 전이입니다. 각 노드는 <code>IntakeState</code> 일부를 채우고, 조건부 엣지는 그 상태를 보고 다음 노드를 고릅니다.</p>
+</div>
+
+<div class="panel">
+<div class="panel-head"><strong>IntakeState가 지나가는 길</strong><span>classify → verify → persist</span></div>
+<div class="panel-body">
+
+```mermaid
+flowchart LR
+    I["sample_inbox 문서"]
+    C["classify<br/>RecordV1 생성"]
+    V["verify<br/>스키마·금액 점검"]
+    H["human_review<br/>고액 승인"]
+    P[("workspace/classified/*.json")]
+    R["retry<br/>저신뢰 재분류"]
+    I --> C --> V
+    V -- "통과" --> P
+    V -- "고액" --> H --> P
+    V -- "저신뢰" --> R --> C
+    style C fill:#e3f2fd,stroke:#315f9c
+    style V fill:#fff3e0,stroke:#e09f3e
+    style P fill:#e8f5e9,stroke:#0f766e
+```
+
+</div>
+</div>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
 <div class="eyebrow">스스로 점검 · 3분</div>
 
 ## 넘어가기 전에 — 하네스 구조
@@ -578,7 +627,7 @@ sequenceDiagram
 <div class="panel-body"><div class="list">
 <p><strong>Q1.</strong> <code>create_agent</code>와 직접 짠 <code>StateGraph</code> 중, "고액이면 멈추고 합계 틀리면 되돌린다"는 적재 파이프라인엔 무엇이 맞나? 왜?</p>
 <p><strong>Q2.</strong> <code>interrupt()</code>로 멈춘 그래프를 <code>Command(resume=...)</code>로 재개하려면 <code>compile()</code>에 무엇이 반드시 있어야 하나? 없으면 어디서 깨지나?</p>
-<p><strong>Q3.</strong> <code>MAX_RETRY</code>(2)와 <code>recursion_limit</code>(기본 10007)은 같은 안전장치인가?</p>
+<p><strong>Q3.</strong> <code>MAX_RETRY</code>(2)와 <code>recursion_limit</code>(기본 25)은 같은 안전장치인가?</p>
 <p><strong>Q4.</strong> <code>Command(resume=...)</code>로 재개하면 멈췄던 노드는 어떻게 실행되나? 그래서 <code>interrupt()</code> <em>앞</em>에 무엇을 두면 안 되나?</p>
 <p><strong>Q5.</strong> <code>--mock</code> 실행에선 저신뢰(&lt;0.7) 분기가 왜 한 번도 안 걸리나? 그럼 mock에서 멈춤은 무엇 때문에 뜨나?</p>
 </div></div>

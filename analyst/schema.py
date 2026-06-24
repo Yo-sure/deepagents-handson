@@ -31,30 +31,30 @@ class DocType(str, Enum):
 class LineItem(BaseModel):
     """문서 안의 개별 항목(영수증 품목, 명세서 거래줄 등)."""
 
-    model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True, extra="forbid")
 
     name: str = Field(alias="이름", description="항목 이름")
-    amount: float | None = Field(default=None, alias="금액", description="항목 금액(원). 없으면 null")
+    amount: float | None = Field(default=None, alias="금액", description="항목 1개 단가(원). 라인 총액이 아님. 없으면 null")
     qty: float | None = Field(default=None, alias="수량", description="수량. 없으면 null")
 
 
 class RecordV1(BaseModel):
     """문서 한 장의 정규화 레코드. 멀티모달 추출의 목표 출력."""
 
-    model_config = ConfigDict(populate_by_name=True, use_enum_values=True)
+    model_config = ConfigDict(populate_by_name=True, use_enum_values=True, extra="forbid")
 
     merchant: str = Field(alias="판매처", description="판매처/발행처 이름")
-    total: float = Field(default=0.0, alias="금액", description="총액(원). 통화는 currency 필드. 리포트 등 금액 없으면 0")
+    total: float = Field(alias="금액", description="총액(원). 통화는 currency 필드. 리포트 등 금액 없으면 0을 명시")
     currency: str = Field(default="KRW", alias="통화", description="ISO 4217 통화코드")
     doc_date: date | None = Field(default=None, alias="날짜", description="거래/발행일(ISO yyyy-mm-dd). 못 읽으면 null")
     doc_type: DocType = Field(alias="문서유형", description="문서 유형")
-    items: list[LineItem] = Field(default_factory=list, alias="항목", description="개별 항목 목록")
+    items: list[LineItem] = Field(alias="항목", description="개별 항목 목록. 항목이 없으면 []를 명시")
     confidence: float = Field(alias="신뢰도", ge=0.0, le=1.0, description="추출 신뢰도 0~1")
     source_path: str = Field(alias="원본경로", description="원본 파일 경로(sample_inbox 기준)")
 
 
 def schema_json() -> str:
-    """LLM structured output용 JSON 스키마(한글 키). Ch1~2에서 프롬프트에 끼운다."""
+    """프롬프트 삽입용 JSON Schema(한글 키). Ch1~2에서 출력 계약으로 보여 준다."""
     import json
 
     return json.dumps(RecordV1.model_json_schema(by_alias=True), ensure_ascii=False, indent=2)
