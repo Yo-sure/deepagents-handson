@@ -243,7 +243,9 @@
 }
 
 /* mermaid — 박스 안 라벨이 회색으로 묻히는 문제 방지(명시적 진한 글자) */
-.lec .mermaid { margin: 6px 0 2px; }
+.lec .mermaid { margin: 6px 0 2px; overflow-x: auto; }
+/* 와이드 다이어그램은 좁은 폭에서 클리핑 대신 가로 스크롤, svg는 종횡비 보존 */
+.lec .mermaid svg { max-width: 100%; height: auto; }
 .lec .mermaid .nodeLabel,
 .lec .mermaid .edgeLabel,
 .lec .mermaid .label,
