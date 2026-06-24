@@ -552,7 +552,7 @@ flowchart TB
 </div>
 </div>
 
-<div class="panel" style="margin-top:12px">
+<div class="board" style="margin-top:12px">
 <div class="board-header"><span>내 화면에 뜨는 것 — <code>cat workspace/brief_draft.md</code></span><span class="status-pill">fan-out의 산출물</span></div>
 <div class="panel-body">
 
