@@ -425,11 +425,14 @@ sequenceDiagram
     participant G as 그래프
     participant CP as checkpointer
     G->>G: classify → verify (고액 플래그)
-    G->>CP: review 진입 직전 상태 저장
-    G-->>U: ⏸ interrupt(사유·판매처·금액) — 실행 중단
-    Note over G,CP: thread_id로 이 자리 복구 (프로세스 영속은 Sqlite·Postgres Saver)
+    G->>CP: verify 종료 스냅샷 저장
+    G->>G: review 노드 실행 → interrupt(...)
+    G-->>U: 정상 반환: __interrupt__[0].value = 사유·판매처·금액
     U->>G: Command(resume="approve")
+    G->>CP: 같은 thread_id의 스냅샷 로드
+    CP-->>G: 멈춘 실행 복구
     G->>G: review 노드를 위에서부터 재실행
+    G->>G: interrupt()가 "approve"를 반환
     G->>G: persist → classified/ 적재
 ```
 
