@@ -393,7 +393,7 @@ flowchart TB
 <div class="board-header"><span>왜 나누면 빠른가</span><span class="status-pill">독립 작업</span></div>
 <div class="panel-body"><div class="list">
 <p>세 조사는 서로의 결과를 기다리지 않습니다. 그래서 순서대로가 아니라 한꺼번에 돌립니다.</p>
-<p>실습 코드는 mock에서도 스레드로 동시에 실행해 fan-out 골격을 보여 줍니다. 키가 있으면 같은 세 관점을 서브에이전트가 맡고, 도구로 레코드 상세(JSON·항목 포함)를 읽어 노트를 씁니다.</p>
+<p>실습 코드는 live에서 서브에이전트가 세 관점을 병렬로 맡아, 도구로 레코드 상세(JSON·항목 포함)를 읽어 노트를 씁니다. 키 없이 구조만 확인할 때는 mock이 같은 fan-out 골격을 스레드로 재현합니다 — 주 경로는 live, mock은 보조입니다.</p>
 </div></div>
 </div>
 
@@ -612,7 +612,7 @@ flowchart TB
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">전체 파일은 <code>ch3-deepagents/research_orchestrator.py</code>. mock은 스레드 동시 실행으로 fan-out을, 키가 있으면 <code>create_deep_agent</code>가 서브에이전트로 같은 조사를 맡습니다.</p>
+<p class="section-note" style="margin-top:16px">전체 파일은 <code>ch3-deepagents/research_orchestrator.py</code>. live에서는 <code>create_deep_agent</code>가 서브에이전트로 세 조사를 병렬로 맡고, 키 없이 구조만 볼 때는 mock이 스레드 동시 실행으로 같은 fan-out을 재현합니다.</p>
 </section>
 
 <section class="slide">
