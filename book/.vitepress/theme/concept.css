@@ -139,7 +139,7 @@
 .lec div[class*="language-"] {
   position: relative; margin: 18px 0; border-radius: var(--radius);
   background: #1b2027; border: 1px solid var(--line);   /* OS 라이트/다크와 무관하게 항상 어두운 코드블록(에디터리얼 의도) */
-  overflow-x: auto;
+  overflow: visible;   /* 가로 스크롤은 pre가 가짐 — 컨테이너가 스크롤 컨테이너면 abspos 복사버튼이 같이 쓸려간다 */
 }
 .lec div[class*="language-"] pre { margin: 0; padding: 18px 0; background: transparent; overflow-x: auto; }
 .lec div[class*="language-"] code {
@@ -147,8 +147,32 @@
   font-family: var(--vp-font-family-mono); font-size: 13.5px;
   line-height: var(--vp-code-line-height, 1.7); color: #d6dae0;
 }
-.lec div[class*="language-"] .lang,
-.lec div[class*="language-"] .copy { display: none; }
+.lec div[class*="language-"] .lang { display: none; }
+/* 복사 버튼: .vp-doc 밖이라 기본 테마 스타일이 안 붙는다 — 직접 정의.
+   .copy 클래스는 에디터리얼 콘텐츠 행(div.copy)과 겹치므로 button.copy로만 좁혀 타겟. */
+.lec div[class*="language-"] > button.copy {
+  display: block; position: absolute; top: 9px; right: 9px; z-index: 3;
+  width: 32px; height: 32px; padding: 0;
+  border: 1px solid rgba(255,255,255,.16); border-radius: 6px;
+  background-color: rgba(255,255,255,.06);
+  opacity: .55; transition: opacity .2s, border-color .2s, background-color .2s;
+  cursor: pointer;
+}
+.lec div[class*="language-"]:hover > button.copy,
+.lec div[class*="language-"] > button.copy:focus { opacity: 1; }
+.lec div[class*="language-"] > button.copy:hover {
+  border-color: rgba(255,255,255,.36); background-color: rgba(255,255,255,.13);
+}
+.lec div[class*="language-"] > button.copy::before {
+  content: ""; display: block; width: 100%; height: 100%;
+  background-color: #c8cdd6;
+  -webkit-mask: var(--vp-icon-copy) no-repeat 50% / 16px;
+  mask: var(--vp-icon-copy) no-repeat 50% / 16px;
+}
+.lec div[class*="language-"] > button.copy.copied::before {
+  -webkit-mask-image: var(--vp-icon-copied); mask-image: var(--vp-icon-copied);
+  background-color: #5ec5a8;
+}
 /* 표도 마찬가지로 .vp-doc 스타일이 안 붙는다. 에디터리얼 팔레트로 직접 정의하고
    폰에서 5열 표가 페이지 폭을 깨지 않도록 블록 가로 스크롤로 가둔다. */
 .lec table {
