@@ -80,7 +80,7 @@ if [ "$live_check" -eq 1 ] && [ "$key_bad" -eq 0 ]; then
 from langchain_openai import ChatOpenAI
 import os
 import analyst
-model = os.environ.get("PREFLIGHT_MODEL", "google/gemini-3.5-flash")
+model = os.environ.get("PREFLIGHT_MODEL", "google/gemini-3.1-flash-lite")
 try:
     llm = ChatOpenAI(
         model=model,
@@ -93,11 +93,11 @@ try:
     )
     resp = llm.invoke("Reply with only OK.")
     model_name = resp.response_metadata.get("model_name", "")
-    if model == "google/gemini-3.5-flash" and not model_name.startswith("google/gemini-3.5-flash"):
+    if model == "google/gemini-3.1-flash-lite" and not model_name.startswith("google/gemini-3.1-flash-lite"):
         print(f"ROUTING_MISMATCH requested={model} actual={model_name or '(unknown)'}")
         raise SystemExit(1)
     content = (resp.content or "").strip()
-    if content.upper() != "OK":
+    if content.upper().strip(" .!?\"'\t\n") != "OK":   # 'OK.'·'OK!' 등 마침표/문장부호 허용
         print(f"UNEXPECTED_CONTENT expected=OK actual={content[:120]!r}")
         raise SystemExit(1)
     if not resp.response_metadata:

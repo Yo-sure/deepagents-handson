@@ -36,7 +36,7 @@ from analyst.paths import MANIFEST, SAMPLE_INBOX
 load_dotenv()
 
 # 이 과정 기본 실습 모델. 비교 모델은 수업 당일 계정에서 되는 슬러그를 환경변수로 확장한다.
-DEFAULT_MODEL = os.environ.get("ANALYST_MODEL", "google/gemini-3.5-flash")
+DEFAULT_MODEL = os.environ.get("ANALYST_MODEL", "google/gemini-3.1-flash-lite")
 COMPARE_MODELS = [
     m.strip() for m in os.environ.get("ANALYST_COMPARE_MODELS", DEFAULT_MODEL).split(",")
     if m.strip()

@@ -93,7 +93,7 @@ from langchain_openai import ChatOpenAI
 
 load_dotenv()  # Ch0의 OpenRouter 호환 환경변수 로드
 model = ChatOpenAI(
-    model="google/gemini-3.5-flash",
+    model="google/gemini-3.1-flash-lite",
     base_url="https://openrouter.ai/api/v1",
     api_key=os.environ["OPENROUTER_API_KEY"],
     temperature=0,
@@ -104,7 +104,7 @@ agent = create_agent(model=model, tools=[...])
 # 다만 그 그래프는 ReAct 루프 모양으로 고정 — 단계를 직접 정의하려면 StateGraph를 손으로 짠다 ↓
 ```
 
-<p class="section-note" style="margin-top:10px">OpenRouter는 OpenAI 호환 API라서 <code>ChatOpenAI(base_url="https://openrouter.ai/api/v1")</code>로 직접 지정합니다. 이후 챕터의 <code>openai:</code> 접두사는 같은 호환 게이트웨이 경로를 뜻하고, 실제 모델 슬러그는 <code>google/gemini-3.5-flash</code>처럼 별도로 들어갑니다.</p>
+<p class="section-note" style="margin-top:10px">OpenRouter는 OpenAI 호환 API라서 <code>ChatOpenAI(base_url="https://openrouter.ai/api/v1")</code>로 직접 지정합니다. 이후 챕터의 <code>openai:</code> 접두사는 같은 호환 게이트웨이 경로를 뜻하고, 실제 모델 슬러그는 <code>google/gemini-3.1-flash-lite</code>처럼 별도로 들어갑니다.</p>
 
 <p class="section-note" style="margin-top:16px"><code>create_agent</code>는 LangGraph 1.0 이전의 <code>create_react_agent</code>를 대체했습니다. 둘 다 같은 <code>CompiledStateGraph</code>를 돌려줍니다. 차이는 자유도이고, 그 자유도의 핵심은 LangChain 1.0이 더한 <strong>미들웨어</strong>입니다. Ch3의 <code>create_deep_agent</code>는 바로 이 <code>create_agent</code>에 미들웨어를 기본 탑재한 확장입니다. 훅은 여섯입니다: 에이전트 실행 1회 단위 <code>before_agent</code>·<code>after_agent</code>, 매 모델 호출 전후 <code>before_model</code>·<code>after_model</code>, 그리고 모델·도구 호출을 통째로 감싸는 <code>wrap_model_call</code>·<code>wrap_tool_call</code>(캐싱·재시도·결과 가로채기). <code>before_*</code>는 순차로, <code>after_*</code>는 역순으로, <code>wrap_*</code>는 실제 호출을 중첩으로 감쌉니다. <span style="color:var(--muted)">(이 훅들을 실제로 거는 건 Ch3의 <code>create_deep_agent</code>입니다. 이 챕터 핸즈온은 손으로 짠 StateGraph라 아직 안 씁니다. 여기선 "create_agent의 확장이 그 미들웨어 위에 선다"만 잡고, 동작은 Ch3에서 봅니다.)</span></p>
 
@@ -122,7 +122,7 @@ class RecordV1(BaseModel):      # Ch0의 계약을 그대로
     merchant: str
     total: float
 
-agent = Agent("openai:google/gemini-3.5-flash",   # 개념 예시 — 실제 제공자/base_url 설정은 별도 필요
+agent = Agent("openai:google/gemini-3.1-flash-lite",   # 개념 예시 — 실제 제공자/base_url 설정은 별도 필요
               output_type=RecordV1,                 # ← 출력이 이 타입으로 검증된다
               system_prompt="영수증을 읽어 RecordV1로 채워라")
 
@@ -266,7 +266,7 @@ flowchart TD
 ## 검증이 틀리면 되돌린다
 
 </div>
-<p class="section-note">verify가 영수증 합계를 봅니다. 항목 금액에 수량을 곱해 더한 값이 총액과 어긋나면 잘못 읽은 것입니다. 또 이 실습 샘플은 <code>_manifest.yaml</code>에 정답 계약이 있으므로 live 추출도 <code>score</code> 임계값과 판매처·문서유형·총액·날짜·항목수·항목 금액/수량 구조 회귀 검증을 통과해야 합니다.<br>
+<p class="section-note">verify가 영수증 합계를 봅니다. 항목 금액에 수량을 곱해 더한 값이 총액과 어긋나면 잘못 읽은 것입니다. 또 이 실습 샘플은 <code>_manifest.yaml</code>에 정답 계약이 있으므로 live 추출도 <code>score</code> 임계값과 판매처·문서유형·총액·날짜·항목수·항목 라인합(단가×수량) 회귀 검증을 통과해야 합니다.<br>
 조건부 엣지는 실패를 classify로 되돌립니다. 상한까지 다시 읽고도 합계나 샘플 품질이 끝내 안 맞으면 hold로 보내 적재하지 않습니다. 고액·저신뢰처럼 사람이 볼 일은 review로 멈추지만, 검증 실패 자체는 사람 승인으로 덮지 않습니다. 이 장의 기본 정책은 <strong>fail-closed</strong>입니다.</p>
 </div>
 
@@ -303,7 +303,7 @@ flowchart TD
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>재시도는 무한 루프가 아니다</span><span class="status-pill">상한</span></div>
 <div class="panel-body"><div class="list">
-<p>같은 실패를 계속 반복하면 비용만 듭니다. <code>MAX_RETRY</code>로 두 번까지만 되돌립니다. live 재시도에서는 이전 불일치 관측을 보고 Ch1의 ReAct 검산 경로로 다시 읽습니다. 그래도 안 맞으면 <code>hold</code>로 보내 JSON을 쓰지 않습니다. 검증 통과 후 고액·저신뢰 플래그가 남은 문서만 <code>review</code>로 사람에게 올립니다. 이 gold 회귀 게이트는 수업 샘플을 위한 장치이고, 실제 업무에서는 정답 manifest 대신 업무 규칙·상호참조 검증으로 바꿉니다. 현재 하니스는 Ch1의 <code>score()</code>가 5/6 미만이면 실패로 보고, 판매처·문서유형·총액·날짜·항목수·항목 금액/수량 구조 불일치는 로그에 직접 보여 줍니다.</p>
+<p>같은 실패를 계속 반복하면 비용만 듭니다. <code>MAX_RETRY</code>로 두 번까지만 되돌립니다. live 재시도에서는 이전 불일치 관측을 보고 Ch1의 ReAct 검산 경로로 다시 읽습니다. 그래도 안 맞으면 <code>hold</code>로 보내 JSON을 쓰지 않습니다. 검증 통과 후 고액·저신뢰 플래그가 남은 문서만 <code>review</code>로 사람에게 올립니다. 이 gold 회귀 게이트는 수업 샘플을 위한 장치이고, 실제 업무에서는 정답 manifest 대신 업무 규칙·상호참조 검증으로 바꿉니다. 현재 하니스는 Ch1의 <code>score()</code>가 5/6 미만이면 실패로 보고, 판매처·문서유형·총액·날짜·항목수·항목 라인합(단가×수량) 불일치는 로그에 직접 보여 줍니다. 항목은 라인합으로 보므로 '마스크팩 5매'를 6000×1로 읽든 1200×5로 읽든 같은 것으로 통과합니다(대사 불변식은 라인 합).</p>
 <p class="tiny" style="color:var(--muted)">검증 자체의 한계도 알고 씁니다. <code>verify_total</code>은 "항목합(<code>금액×수량</code>) = 총액(±1원)"이라는 가정이라, 부가세 별도·서비스료·할인·반올림이 섞인 실제 영수증에선 모델이 옳게 읽어도 불일치가 날 수 있습니다. 그래서 이 검증은 정답 판정이 아니라, 불일치를 재시도로 보내되 상한과 flagged 큐로 받치는 층층 방어의 한 겹일 뿐입니다.</p>
 <p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아, 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성).</p>
 <p>평소 mock은 gold가 고정이라 합계가 맞아 retry가 안 뜹니다(라이브 추출에선 비결정성으로 흔들려 의미가 있습니다). 그래서 <strong>아래 <code>--break-sum</code>으로 일부러 깨</strong> retry 루프를 눈으로 봅니다. 한계를 정해 두는 게 하네스의 일입니다.</p>

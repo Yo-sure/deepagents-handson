@@ -12,7 +12,7 @@ from pathlib import Path
 load_dotenv(Path.cwd() / ".env")     # 레포 루트에서 실행한다고 못 박는다
 
 llm = ChatOpenAI(
-    model="google/gemini-3.5-flash",
+    model="google/gemini-3.1-flash-lite",
     base_url="https://openrouter.ai/api/v1",
     api_key=os.environ["OPENROUTER_API_KEY"],
     temperature=0,

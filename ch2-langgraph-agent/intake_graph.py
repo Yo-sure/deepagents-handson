@@ -61,11 +61,10 @@ def is_receipt(doc_type) -> bool:
     return doc_type == DocType.receipt or doc_type == DocType.receipt.value
 
 
-def item_shape(rec: RecordV1) -> list[tuple[float, float]]:
-    return sorted(
-        (round(float(item.amount or 0), 2), round(float(item.qty or 1), 2))
-        for item in rec.items
-    )
+def item_line_totals(rec: RecordV1) -> list[float]:
+    """항목 라인 합(단가×수량) 목록. '마스크팩 5매'(6000×1)와 '마스크팩'(1200×5)처럼
+    단가/수량 분해가 갈려도 라인 합이 같으면 같은 것으로 본다 — 대사의 불변식은 라인 합이다."""
+    return sorted(round(float(item.amount or 0) * float(item.qty or 1), 2) for item in rec.items)
 
 
 def clear_outputs(docs: list[str]) -> Path | None:
@@ -138,8 +137,8 @@ def verify(state: IntakeState) -> dict:
             quality_issues.append(f"날짜 {rec.doc_date}≠{gold.doc_date}")
         if len(rec.items) != len(gold.items):
             quality_issues.append(f"항목수 {len(rec.items)}≠{len(gold.items)}")
-        elif item_shape(rec) != item_shape(gold):
-            quality_issues.append("항목 금액/수량 구조 불일치")
+        elif item_line_totals(rec) != item_line_totals(gold):
+            quality_issues.append("항목 라인합 불일치")
         if quality_issues:
             print("  [verify] 샘플 품질 불일치(" + ", ".join(quality_issues) + ")")
             return {"flagged": flagged, "sum_ok": False, "verify_issue": "샘플 품질 불일치"}

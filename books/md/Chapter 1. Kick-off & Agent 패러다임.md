@@ -341,7 +341,7 @@ xychart-beta
 <div class="board-header"><span>주의 — 추론형 모델은 온도 손잡이가 없다</span><span class="status-pill">2026 함정</span></div>
 <div class="panel-body"><div class="list">
 <p>추론형 모델은 내부 추론 단계가 길어 사용자가 <code>temperature</code>로 무작위성을 조절하는 의미가 작아졌습니다. 특히 o 시리즈(o1·o3 등)는 OpenAI 직결 시 1이 아닌 값을 주면 400 에러로 거부합니다. <code>logprobs</code>도 추론형에선 대개 노출되지 않습니다(온도와는 별개 제약). 그래서 토큰 확률을 직접 보는 1.5절 실험은 비추론 모델 <code>gpt-4o-mini</code>로 합니다.</p>
-<p>게다가 게이트웨이가 한 겹 더 가립니다. <strong>OpenRouter는 모델이 지원하지 않는 파라미터를 조용히 떨어뜨립니다.</strong> 추론형 모델에 <code>temperature=0</code>을 줘도 에러 없이 무시될 수 있어 0으로 고정했다고 착각하기 쉽습니다. 반대로 비추론 모델(이 과정 기본 <code>gemini-3.5-flash</code>)에선 <code>temperature=0</code>이 정상 적용되니, 결정적 추출은 그쪽을 씁니다.</p>
+<p>게다가 게이트웨이가 한 겹 더 가립니다. <strong>OpenRouter는 모델이 지원하지 않는 파라미터를 조용히 떨어뜨립니다.</strong> 추론형 모델에 <code>temperature=0</code>을 줘도 에러 없이 무시될 수 있어 0으로 고정했다고 착각하기 쉽습니다. 반대로 비추론 모델(이 과정 기본 <code>gemini-3.1-flash-lite</code>)에선 <code>temperature=0</code>이 정상 적용되니, 결정적 추출은 그쪽을 씁니다.</p>
 </div></div>
 </div>
 
@@ -686,7 +686,7 @@ flowchart TB
 <div class="row"><div class="code">1</div><div class="copy"><strong>live 추출 — 단발 호출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png</code> <span style="color:var(--muted)">(장애·오프라인 확인: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: 위 RecordV1 예시처럼 판매처·총액·항목이 든 JSON이 한글 키로 출력된다(최상위 키는 <code>총액</code>, 항목 안은 품목 <code>단가</code>). 실제 모델이 영수증을 읽으므로 값·신뢰도는 조금 다를 수 있고, <em>칸 구조</em>는 같습니다. <code>--mock</code>은 고정 출력으로 코드 경로를 확인하는 보조입니다.</span></p></div><div class="store">live</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>live 추출 — PDF 한 건</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc statement_card_2026-05.pdf</code> <span style="color:var(--muted)">(PDF 라우팅 진단)</span><br><span style="color:var(--muted)">성공 기준: PDF 명세서도 같은 RecordV1 칸으로 출력된다. 이미지가 되는데 PDF만 실패하면 모델·게이트웨이의 PDF 지원 문제로 좁혀 보고, Ch2에서도 같은 문서를 한 건만 다시 돌려 본다.</span></p></div><div class="store">PDF</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>ReAct 추출 — 도구로 검산</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code> <span style="color:var(--muted)">(장애·오프라인 확인: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)"><strong>증명:</strong> 한 번에 답하지 않고 도구로 검산한다. live면 모델이 직접 도구 호출 여부와 횟수를 정하므로 표현·검산 횟수가 달라질 수 있습니다. <code>--mock</code>이면 gold로 검산 한 번을 고정 재현해, live 실패가 모델/키 문제인지 코드 문제인지 가르는 데 씁니다.</span></p></div><div class="store">루프</div></div>
-<div class="row"><div class="code">4</div><div class="copy"><strong>모델 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 기본 모델의 정확도가 표로 나온다. 여러 모델을 비교하려면 실행 전 <code>ANALYST_COMPARE_MODELS="google/gemini-3.5-flash,..."</code>처럼 그날 계정에서 되는 슬러그를 쉼표로 넣는다. 이 단계는 실호출이라 키가 필요하고, 실패 원인은 <code>auth/key</code>·<code>credit</code>·<code>model-slug</code>·<code>json/schema</code>로 표시된다.</span></p></div><div class="store">키 필요</div></div>
+<div class="row"><div class="code">4</div><div class="copy"><strong>모델 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 기본 모델의 정확도가 표로 나온다. 여러 모델을 비교하려면 실행 전 <code>ANALYST_COMPARE_MODELS="google/gemini-3.1-flash-lite,..."</code>처럼 그날 계정에서 되는 슬러그를 쉼표로 넣는다. 이 단계는 실호출이라 키가 필요하고, 실패 원인은 <code>auth/key</code>·<code>credit</code>·<code>model-slug</code>·<code>json/schema</code>로 표시된다.</span></p></div><div class="store">키 필요</div></div>
 </div>
 
 <div class="cue solve" style="margin-top:18px">
@@ -719,7 +719,7 @@ flowchart TB
 <p><code>.env</code>의 <code>OPENROUTER_API_KEY</code>가 비었거나 <code>sk-or-...</code> placeholder 그대로입니다. 실제 키로 채웠는지 확인합니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>404 Model not found</strong><span>슬러그</span></div><div class="panel-body"><div class="list">
-<p>모델 슬러그 오타입니다. <code>google/gemini-3.5-flash</code>처럼 제공자/모델 형태가 맞는지 봅니다.</p>
+<p>모델 슬러그 오타입니다. <code>google/gemini-3.1-flash-lite</code>처럼 제공자/모델 형태가 맞는지 봅니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>JSON 파싱 오류</strong><span>출력 형식</span></div><div class="panel-body"><div class="list">
 <p>모델이 설명 문장을 덧붙였을 수 있습니다. <code>_strip_fences</code>가 앞뒤 설명과 울타리를 걷어내지만, 그래도 실패하면 <code>json/schema</code>로 표시됩니다.</p>
