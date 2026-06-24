@@ -56,6 +56,7 @@ export default withMermaid({
     nav: [
       { text: '홈', link: '/' },
       { text: '교재', link: '/toc' },
+      { text: 'GitHub', link: 'https://github.com/Yo-sure/deepagents-handson' },
     ],
     sidebar: [
       {
