@@ -393,7 +393,7 @@ flowchart LR
 <p class="section-note" style="margin-top:8px">여덟 역량은 각자 다른 챕터에서 처음 나왔지만, <strong>오른쪽 Ch6 열의 앰버 띠</strong>처럼 캡스톤에서 전부 다시 쓰입니다. 따로 배운 모듈이 하나의 파이프라인으로 합쳐진다는 뜻입니다.</p>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>하루를 관통한 축 — 네 계층</span><span class="status-pill">멘탈 모델</span></div>
+<div class="board-header"><span>전체 과정을 관통한 축 — 네 계층</span><span class="status-pill">멘탈 모델</span></div>
 <div class="panel-body">
 
 ```mermaid
@@ -491,10 +491,10 @@ flowchart TB
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>오늘 실습 → 프로덕션</span><span class="status-pill">바뀌는 것</span></div>
+<div class="board-header"><span>실습 버전 → 프로덕션</span><span class="status-pill">바뀌는 것</span></div>
 <div class="panel-body">
 
-| 항목 | 오늘 실습 | 프로덕션 |
+| 항목 | 실습 버전 | 프로덕션 |
 |---|---|---|
 | Checkpointer | InMemorySaver | Postgres/SQLite |
 | MCP 전송 | stdio(subprocess) | Streamable HTTP |
@@ -589,9 +589,9 @@ flowchart LR
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>오늘의 한 줄</span><span class="status-pill">정리</span></div>
+<div class="board-header"><span>마지막 한 줄</span><span class="status-pill">정리</span></div>
 <div class="panel-body"><div class="list">
-<p>오늘은 세 계층을 순서대로 실습했습니다. LLM 호출 위에 도구 사용과 상태 관리를 얹고, 그 위에 Skills·MCP·A2A로 절차·도구·검증 경계를 분리했습니다.</p>
+<p>이 과정에서는 세 계층을 순서대로 실습했습니다. LLM 호출 위에 도구 사용과 상태 관리를 얹고, 그 위에 Skills·MCP·A2A로 절차·도구·검증 경계를 분리했습니다.</p>
 <p style="font-weight:800">"에이전트 개발은 LLM 호출만이 아니라, LLM이 검증 가능한 방식으로 일할 실행 환경(Harness)을 설계하는 일이다."</p>
 </div></div>
 </div>

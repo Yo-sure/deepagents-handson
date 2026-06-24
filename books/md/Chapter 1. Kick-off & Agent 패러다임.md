@@ -38,27 +38,27 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">오늘의 로드맵 · 2분</div>
+<div class="eyebrow">과정 로드맵 · 2분</div>
 
 ## 8시간, 한 인박스를 끝까지
 
 </div>
-<p class="section-note">하루는 하나의 파이프라인을 단계별로 완성하는 구조입니다. <strong>오전</strong>은 왜 LLM만으론 부족한가를 체감하고 추출·파이프라인을 세웁니다. <strong>오후</strong>는 그 위에 지식·연결·역할 분리를 더해 검증된 브리프까지 잇습니다. 지금 어디쯤인지 이 표로 가늠하세요.</p>
+<p class="section-note">이 과정은 하나의 파이프라인을 단계별로 완성하는 구조입니다. <strong>초반부</strong>에서는 왜 LLM만으론 부족한가를 체감하고 추출·파이프라인을 세웁니다. <strong>후반부</strong>에서는 그 위에 지식·연결·역할 분리를 더해 검증된 브리프까지 잇습니다. 지금 어디쯤인지 이 표로 가늠하세요.</p>
 </div>
 
 <div class="board">
-<div class="board-header"><span>Ch0 → Ch6 · 약 440분 + 휴식</span><span class="status-pill">오전 · 오후</span></div>
+<div class="board-header"><span>Ch0 → Ch6 · 약 440분 + 휴식</span><span class="status-pill">초반 · 후반</span></div>
 <div class="panel-body">
 
-| 시간대 | 챕터 | 핵심 | 계층 | 산출물 |
+| 구간 | 챕터 | 핵심 | 계층 | 산출물 |
 |---|---|---|---|---|
-| 오전 | **Ch0** 환경 (20분) | uv·.env·VSCode·데이터 계약 | — | `.venv` · sample_inbox |
-| 오전 | **Ch1** 패러다임 (45분) | LLM 한계 → ReAct → 추출 | LLM | `classify_one.py` |
-| 오전 | **Ch2** LangGraph (70분) | 상태·분기·재시도·HITL | Framework·Runtime | `intake_graph.py` |
-| 오전 | **Ch3** DeepAgents (67분) | 하네스·fan-out·컨텍스트 외주 | Harness | `research_orchestrator.py` |
-| 오후 | **Ch4** Skills·MCP (80분) | 절차·연결·지식 표준화 | 지식·연결 | MCP 서버 · OKF |
-| 오후 | **Ch5** A2A (70분) | 역할 분리·독립 검증 | 협업 | `verified_brief.md` |
-| 오후 | **Ch6** 통합 (95분) | 모듈 배선·엔드투엔드·랩업 | 전체 | 검증된 브리프 |
+| 초반 | **Ch0** 환경 (20분) | uv·.env·VSCode·데이터 계약 | — | `.venv` · sample_inbox |
+| 초반 | **Ch1** 패러다임 (45분) | LLM 한계 → ReAct → 추출 | LLM | `classify_one.py` |
+| 초반 | **Ch2** LangGraph (70분) | 상태·분기·재시도·HITL | Framework·Runtime | `intake_graph.py` |
+| 중반 | **Ch3** DeepAgents (67분) | 하네스·fan-out·컨텍스트 외주 | Harness | `research_orchestrator.py` |
+| 후반 | **Ch4** Skills·MCP (80분) | 절차·연결·지식 표준화 | 지식·연결 | MCP 서버 · OKF |
+| 후반 | **Ch5** A2A (70분) | 역할 분리·독립 검증 | 협업 | `verified_brief.md` |
+| 후반 | **Ch6** 통합 (95분) | 모듈 배선·엔드투엔드·랩업 | 전체 | 검증된 브리프 |
 
 </div>
 </div>
@@ -78,9 +78,9 @@ flowchart LR
   class R,B step;
 ```
 
-<p class="section-note" style="margin-top:6px">이게 8시간의 전체 지도입니다. 인박스 입력은 디렉터리 단계를 지나 검증된 브리프로 바뀝니다. <strong>오늘(Ch1)은 노란 칸</strong>으로, 이미지/PDF 문서 한 장을 RecordV1 JSON으로 읽는 첫 모듈입니다. 파일로 모아 <code>classified/</code>에 저장하는 일은 Ch2가 맡습니다.</p>
+<p class="section-note" style="margin-top:6px">이게 전체 지도입니다. 인박스 입력은 디렉터리 단계를 지나 검증된 브리프로 바뀝니다. <strong>Ch1은 노란 칸</strong>으로, 이미지/PDF 문서 한 장을 RecordV1 JSON으로 읽는 첫 모듈입니다. 파일로 모아 <code>classified/</code>에 저장하는 일은 Ch2가 맡습니다.</p>
 
-<p class="section-note" style="margin-top:14px">하루의 기준 축은 <strong>Framework(LangChain) → Runtime(LangGraph) → Harness(DeepAgents)</strong>입니다. 이 위에 Skills·MCP·A2A를 얹고, Ch6에서 하나의 파이프라인으로 합칩니다.</p>
+<p class="section-note" style="margin-top:14px">전체 과정의 기준 축은 <strong>Framework(LangChain) → Runtime(LangGraph) → Harness(DeepAgents)</strong>입니다. 이 위에 Skills·MCP·A2A를 얹고, Ch6에서 하나의 파이프라인으로 합칩니다.</p>
 </section>
 
 <section class="slide">
@@ -91,7 +91,7 @@ flowchart LR
 ## 한 장을 바로 읽어 본다
 
 </div>
-<p class="section-note">이 장의 목표는 이론을 외우는 것이 아니라, 이미지/PDF 한 장을 실제 LLM 호출로 RecordV1 JSON에 맞춰 읽게 만드는 것입니다. 아래 명령을 먼저 실행해 오늘 만들 물건의 모양을 봅니다.</p>
+<p class="section-note">이 장의 목표는 이론을 외우는 것이 아니라, 이미지/PDF 한 장을 실제 LLM 호출로 RecordV1 JSON에 맞춰 읽게 만드는 것입니다. 아래 명령을 먼저 실행해 이 장에서 만들 물건의 모양을 봅니다.</p>
 </div>
 
 <div class="stack">
@@ -124,7 +124,7 @@ flowchart LR
 <div class="panel"><div class="panel-head"><strong>그래서 하네스다</strong><span>이 과정의 무게중심</span></div><div class="panel-body"><div class="list">
 <p>공개 사례들에서 모델을 그대로 두고도 하네스(재시도·검증·종료 조건)를 손보면 벤치 결과가 크게 달라졌습니다.</p>
 <p>가장 흔한 실패는 코드를 쓰고 자기 코드를 다시 보고 괜찮다며 멈추는 식의 거짓 완료입니다. 그래서 종료 전 검증을 강제하는 하네스가 점수를 가릅니다.</p>
-<p>오늘 ReAct 검산 루프로 확인할 패턴입니다.</p>
+<p>이 장의 ReAct 검산 루프로 확인할 패턴입니다.</p>
 </div></div></div>
 </div>
 
@@ -419,7 +419,7 @@ flowchart LR
 <div class="panel"><div class="panel-head"><strong>Tools</strong><span>손발</span></div><div class="panel-body"><div class="list"><p>외부 조회·실행. 없으면 환각만. <span class="badge blue">Ch4·5</span> MCP·A2A.</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>Memory</strong><span>기억</span></div><div class="panel-body"><div class="list"><p>단기(맥락)+장기(저장). 없으면 매번 백지. <span class="badge blue">Ch2</span> checkpointer.</p></div></div></div>
 </div>
-<p style="margin-top:8px">OpenAI(Model+Instructions+Tools)·Google·Lilian Weng(LLM+Planning+Memory+Tool) 모두 같은 골격을 다르게 부릅니다. 오늘 하루가 이 네 구성요소를 하나씩 붙이는 과정입니다.</p>
+<p style="margin-top:8px">OpenAI(Model+Instructions+Tools)·Google·Lilian Weng(LLM+Planning+Memory+Tool) 모두 같은 골격을 다르게 부릅니다. 이 과정은 네 구성요소를 하나씩 붙여 가는 흐름입니다.</p>
 </div>
 </div>
 </section>
@@ -516,7 +516,7 @@ flowchart LR
 
 </div>
 <p class="section-note">ReAct 루프만으로는 프로덕션 요구를 감당하기 어렵습니다. 컨텍스트가 차고, 장기 실행이 어렵고, 실패 후 재시작 지점이 모호합니다.<br>
-그래서 세 계층을 나눠 봅니다. 오늘은 Framework, Runtime, Harness를 차례로 다룹니다.</p>
+그래서 세 계층을 나눠 봅니다. 이 과정에서는 Framework, Runtime, Harness를 차례로 다룹니다.</p>
 </div>
 
 ```mermaid
@@ -561,7 +561,7 @@ flowchart TB
 </tbody>
 </table>
 <p><strong>하네스 없이 모델만 루프 돌리면</strong> 여섯 가지가 차례로 깨진다. ① 컨텍스트 소진(대화가 한도를 넘어 멈춤) · ② doom loop(같은 실패를 무한 반복) · ③ 상태 소실(중간에 죽으면 처음부터) · ④ 장기 실행 불가(몇 시간짜리 작업을 못 버팀) · ⑤ 보안 취약(인젝션·과권한 호출) · ⑥ 관찰 불가(무엇을 왜 했는지 추적 안 됨). 앞의 SWE-bench·Terminal-Bench 사례에서 "모델 고정, 하네스만 손봐 점수 상승"이 가능했던 건 바로 위 표의 여덟 통제 영역을 더 잘 짰기 때문이다. 이 여섯 가지 깨짐을 그 여덟 영역이 막는다.</p>
-<p class="muted"><strong>핵심 정리</strong> — 모델은 다음 한 동작만 정하고, 하네스가 나머지를 떠맡는다. 이 여덟이 없으면 데모는 되지만 운영은 안 된다. 이 표가 곧 오늘 하루의 지도입니다. 각 칸을 한 챕터씩 짓습니다.</p>
+<p class="muted"><strong>핵심 정리</strong> — 모델은 다음 한 동작만 정하고, 하네스가 나머지를 떠맡는다. 이 여덟이 없으면 데모는 되지만 운영은 안 된다. 이 표가 곧 전체 과정의 지도입니다. 각 칸을 한 챕터씩 짓습니다.</p>
 </div>
 </details>
 </section>
