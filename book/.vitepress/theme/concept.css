@@ -338,6 +338,9 @@
 .lec .mermaid .nodeLabel, .lec .mermaid .nodeLabel p,
 .lec .mermaid .label, .lec .mermaid .label p,
 .lec .mermaid foreignObject p { white-space: normal !important; word-break: keep-all !important; overflow-wrap: normal !important; }
+.lec .mermaid .nodeLabel p,
+.lec .mermaid .label p,
+.lec .mermaid foreignObject p { margin: 0 !important; line-height: 1.18 !important; }
 .lec .mermaid .edgeLabel, .lec .mermaid .actor-box { white-space: nowrap; }
 .lec .mermaid foreignObject { overflow: visible; }
 .lec .mermaid .node foreignObject { overflow: visible; }

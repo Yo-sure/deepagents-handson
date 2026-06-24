@@ -37,9 +37,9 @@ watch(
 <style scoped>
 .scroll-progress {
   position: fixed;
-  top: var(--vp-nav-height);
+  top: calc(var(--vp-nav-height) - 3px);
   left: 0;
-  z-index: 40;
+  z-index: 60;
   width: 100%;
   height: 3px;
   background: rgba(217, 205, 185, 0.45);
