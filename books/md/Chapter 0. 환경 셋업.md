@@ -248,10 +248,12 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>이 과정의 실행 규약 — live가 기본, <code>--mock</code>은 결정론 보조</span><span class="status-pill">전 챕터 공통</span></div>
+<div class="board-header"><span>실행 원칙 — 먼저 live, 필요할 때만 <code>--mock</code></span><span class="status-pill">전 챕터 공통</span></div>
 <div class="panel-body"><div class="list">
-<p>키를 받았으니 <strong>기본은 live 실행</strong>입니다. 실제 모델이 영수증을 읽고 분류합니다. 이 교재는 여러분이 키를 가졌다고 전제하고 <em>live 동작을 기준으로</em> 쓰여 있습니다. <code>--mock</code>은 주 경로가 아니라 보조입니다. 쓰는 자리는 둘뿐입니다. ① 키·네트워크가 없거나 모델이 흔들릴 때(장애·오프라인·CI)의 대비, ② 표현이 매번 달라지면 비교가 안 되는 곳에서 구조를 <em>결정론적으로 고정해 보여 줄 때</em>(예: Ch3 fan-out이 스레드로 동시에 도는 모양). 그 둘이 아니면 live로 보세요. 메커니즘 점검용 <code>--show</code>·<code>--protocol</code>·<code>--card</code>는 키가 필요 없지만 이건 mock과 달리 <em>실제 코드 경로</em>를 출력합니다.</p>
-<p>그래서 교재의 출력 패널엔 두 종류가 있습니다. ① <strong>모델이 추출하는 값</strong>(판매처·금액·신뢰도·ReAct 트레이스)은 live면 같은 입력에도 표현·값이 조금씩 다릅니다(Ch1의 temperature=0도 완전 결정론은 아니다). 교재가 그런 값을 보일 땐 대표 예시이고, 글자 그대로의 결정론 기준이 필요하면 <code>--mock</code>을 봅니다. ② <strong>코드가 정하는 출력</strong>(<code>--list</code> 도구 목록·<code>--trace</code> 하네스 구성·영수증 없는 거래 gap 계산·검증 PASS/NEEDS_REVISION 판정)은 키와 무관하게 항상 같습니다. 이건 화면과 글자 단위로 일치해야 합니다.</p>
+<p>이 과정은 <strong>키가 있는 상태</strong>를 기준으로 진행합니다. 아무 옵션 없이 실행하면 실제 모델이 샘플 문서를 읽고, 판매처·금액·항목을 추출해 RecordV1로 분류합니다. 교재의 설명과 성공 기준도 이 <strong>live 경로</strong>를 기준으로 씁니다.</p>
+<p><code>--mock</code>은 live를 대신하는 주 경로가 아닙니다. 쓰는 경우는 두 가지입니다. 첫째, 키·네트워크·모델 응답 문제로 live를 돌릴 수 없을 때입니다. 둘째, 모델 표현이 매번 달라 구조를 비교하기 어려운 장면을 고정해서 보여 줄 때입니다. 예를 들어 Ch3 fan-out처럼 여러 작업이 동시에 도는 모양을 확인할 때 <code>--mock</code>이 유용합니다. 그 외에는 먼저 live로 보세요.</p>
+<p>키 없이 보는 명령이 모두 mock은 아닙니다. <code>--show</code>·<code>--protocol</code>·<code>--card</code>는 모델을 부르지 않는 진단 명령입니다. 대신 실제 코드가 만든 도구 목록, 프로토콜 메시지, Agent Card를 그대로 출력합니다.</p>
+<p>출력 패널을 읽을 때는 기준을 나눕니다. 모델이 만든 값(판매처·금액·신뢰도·ReAct 트레이스)은 live에서 조금씩 달라질 수 있으므로 교재의 화면은 <strong>대표 예시</strong>입니다. 반대로 코드가 정하는 출력(<code>--list</code> 도구 목록, <code>--trace</code> 하네스 구성, gap 계산, PASS/NEEDS_REVISION 판정)은 키와 무관하게 같아야 하므로 화면과 글자 단위로 맞는지 확인합니다.</p>
 </div></div>
 </div>
 </section>
