@@ -476,6 +476,8 @@ flowchart TB
 
 <<< ../../ch3-deepagents/research_orchestrator.py#reconcile-card{python}
 
+<p class="tiny" style="margin-top:12px;color:var(--muted)"><strong>이건 mock 경로의 함수입니다</strong> — <code>@tool</code>도 LangGraph 노드도 아닙니다. mock은 이 함수를 스레드로 병렬 실행해 fan-out을 재현합니다. live에선 같은 일을 <code>card_reconcile</code> <strong>서브에이전트</strong>가 맡고, 그 워커가 쥐는 실제 도구(<code>@tool</code>)는 <code>list_records</code>·<code>write_note</code>입니다. (함수명 <code>reconcile_card</code> ↔ 서브에이전트·노트명 <code>card_reconcile</code> — 이름이 뒤집혀 있으니 주의.)</p>
+
 <p class="section-note" style="margin-top:12px">두 가지 짚을 점. ① <code>if not card</code> 가드가 없으면 카드 명세서가 없을 때 <code>card.items</code>에서 터집니다. ② 금액 단독 매칭(<code>next(...)</code>, first-match)은 <em>같은 금액 영수증이 둘이면 깨집니다</em>. 실무 대사는 (금액·날짜·가맹점) 다중키로 풉니다. 여기선 교육용으로 금액만 봅니다.</p>
 
 </div>
