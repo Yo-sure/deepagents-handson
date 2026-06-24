@@ -64,7 +64,7 @@ wsl -d Ubuntu-24.04
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">최초 5~15분 · 보통 수업 전</span></div>
-<div class="cue-body">진입한 뒤 <code>whoami</code>를 쳐서 <strong>만든 사용자명</strong>(예: <code>student</code>)이 나오면 준비된 것입니다. 프롬프트가 <code>사용자명@컴퓨터:~$</code> 모양이면 Ubuntu 안입니다. 이제부터 모든 명령은 이 터미널에서 칩니다. 최초 설치는 재부팅이 한 번 필요할 수 있습니다.</div>
+<div class="cue-body">진입한 뒤 <code>whoami</code>를 쳐서 <strong>만든 사용자명</strong>(예: <code>student</code>)이 나오면 Ubuntu 안입니다. PowerShell에서 <code>wsl -d</code>로 들어오면 보통 프롬프트가 <code>…:/mnt/c/Users/…$</code>처럼 <strong>윈도우 경로</strong>로 시작합니다 — 정상입니다. 다음 Step 1이 <code>cd ~</code>로 리눅스 홈으로 옮겨 주니 그대로 진행하면 됩니다. 이제부터 모든 명령은 이 터미널에서 칩니다. 최초 설치는 재부팅이 한 번 필요할 수 있습니다.</div>
 </div>
 
 <div class="board">
@@ -91,10 +91,11 @@ wsl -d Ubuntu-24.04
 </div>
 
 ```bash
+cd ~                                                                # 홈으로 — 최초 진입은 보통 /mnt/c(윈도우 경로)라 먼저 빠져나온다
 git --version || (sudo apt-get update && sudo apt-get install -y git)
-git clone https://github.com/Yo-sure/deepagents-handson ~/lecture
+git clone https://github.com/Yo-sure/deepagents-handson ~/lecture   # ~/lecture 폴더를 새로 만든다
 cd ~/lecture
-bash scripts/setup.sh        # .venv 생성 · uv sync · .env 템플릿
+bash scripts/setup.sh                                               # .venv 생성 · uv sync · .env 템플릿
 ```
 
 <div class="cue do">
@@ -308,7 +309,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 ```mermaid
 flowchart LR
     CARD["💳 카드 명세서<br/>거래 7건"]
-    CARD --> M["🧾 영수증 5장 매칭<br/>스타벅스 · GS25 · 택시<br/>국밥 · 올리브영"]
+    CARD --> M["🧾 영수증 매칭<br/>5건"]
     CARD --> X1["⚠️ 쿠팡 89,000원<br/>영수증 없음"]
     CARD --> X2["⚠️ 넷플릭스 17,000원<br/>영수증 없음"]
     style M fill:#e8f5e9,stroke:#0f766e
