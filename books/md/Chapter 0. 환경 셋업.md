@@ -57,7 +57,7 @@ bash scripts/setup.sh        # .venv 생성 · uv sync · .env 템플릿
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~3–6분</span></div>
-<div class="cue-body">레포 폴더(<code>~/lecture</code>) 안에서 이 명령을 실행하세요. 첫 실행은 의존성(deepagents·langchain·langgraph·mcp·a2a-sdk와 book 뷰어)을 내려받느라 네트워크에 따라 수 분 걸립니다. Node/npm이 없으면 apt로 설치하므로 sudo 비밀번호가 한 번 필요할 수 있습니다. 끝까지 돌면 프리플라이트 점검표가 뜹니다. 키 입력 전이라면 <code>OPENROUTER_API_KEY</code>와 <code>OpenAI 호환 라우팅</code> 두 줄만 빨갛고 나머지가 모두 ✅여야 합니다. 이 상태는 <strong>부분 준비 완료</strong>입니다. 키는 다음 단계에서 채웁니다.</div>
+<div class="cue-body">레포 폴더(<code>~/lecture</code>) 안에서 이 명령을 실행하세요. 첫 실행은 의존성(deepagents·langchain·langgraph·mcp·a2a-sdk와 book 뷰어)을 내려받느라 네트워크에 따라 수 분 걸립니다. Node/npm이 없으면 apt로 설치하므로 sudo 비밀번호가 한 번 필요할 수 있습니다. 끝까지 돌면 프리플라이트 점검표가 뜹니다. 키 입력 전이라면 <code>OPENROUTER_API_KEY</code>와 <code>OpenAI 호환 라우팅</code> 두 줄만 빨갛고 나머지가 모두 ✅여야 합니다. 이 상태가 부분 준비 완료입니다. 키는 다음 단계에서 채웁니다.</div>
 </div>
 
 <div class="grid-3">
@@ -78,7 +78,7 @@ bash scripts/setup.sh        # .venv 생성 · uv sync · .env 템플릿
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:18px">설치가 끝나면 마지막에 프리플라이트 점검표가 뜹니다. 키 관련 두 줄만 빼고 모두 ✅면 <strong>설치 단계는 성공</strong>입니다.<br>
+<p class="section-note" style="margin-top:18px">설치가 끝나면 마지막에 프리플라이트 점검표가 뜹니다. 키 관련 두 줄만 빼고 모두 ✅면 설치 단계는 성공입니다.<br>
 키를 채운 뒤에는 <code>bash scripts/preflight.sh</code>를 다시 실행해 <strong>✅ 14 / ❌ 0</strong>을 확인합니다. 이 기본 점검은 로컬 의존성·샘플 10건·계약 테스트·키 로딩뿐 아니라 실제 OpenRouter live 호출과 기본 모델 라우팅까지 확인합니다. 키 입력 전 설치 단계만 확인할 때는 setup.sh가 내부적으로 <code>--local</code> 점검을 씁니다.</p>
 
 ```text
@@ -145,7 +145,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 <div class="row"><div class="code">2</div><div class="copy"><strong>레포 받기 → 셋업</strong><p><code>git</code>이 없다면 먼저 <code>sudo apt-get update && sudo apt-get install -y git</code>. 그 다음 <code>git clone https://github.com/Yo-sure/deepagents-handson ~/lecture</code> → <code>cd ~/lecture</code> → <code>bash scripts/setup.sh</code>. 프리플라이트가 키 관련 두 줄만 남기면 정상입니다.</p></div><div class="store">.venv</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>VSCode를 WSL로 열기</strong><p>같은 폴더에서 <code>code .</code>. 첫 실행이면 VSCode가 WSL 서버를 자동 설치합니다(1분). 왼쪽 아래에 <code>WSL: Ubuntu</code>가 뜨면 성공.</p></div><div class="store">붙음</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>인터프리터 = .venv</strong><p><code>Ctrl+Shift+P</code> → <code>Python: Select Interpreter</code> → <code>./.venv/bin/python</code>. 안 보이면 <code>Developer: Reload Window</code> 한 번. 이걸 골라야 설치한 라이브러리가 잡힙니다.</p></div><div class="store">지정</div></div>
-<div class="row"><div class="code">5</div><div class="copy"><strong>키 발급 → .env 채우기</strong><p><code>openrouter.ai</code> 가입 → 결제/크레딧 한도 확인 → <strong>Keys</strong>에서 키 발급 → <code>.env</code>의 <code>OPENROUTER_API_KEY=sk-or-...</code> 줄에서 <code>sk-or-...</code> 전체를 지우고 새 키로 바꿉니다. 여기까지가 환경 준비입니다 — 모델을 실제로 한 번 불러 보는 첫 호출은 바로 다음 <strong>Step 3</strong>에서 합니다. 교재 화면은 <code>npm --prefix book run dev</code>로 엽니다.</p></div><div class="store">키</div></div>
+<div class="row"><div class="code">5</div><div class="copy"><strong>키 발급 → .env 채우기</strong><p><code>openrouter.ai</code> 가입 → 결제/크레딧 한도 확인 → <strong>Keys</strong>에서 키 발급 → <code>.env</code>의 <code>OPENROUTER_API_KEY=sk-or-...</code> 줄에서 <code>sk-or-...</code> 전체를 지우고 새 키로 바꿉니다. 여기까지가 환경 준비입니다. 모델을 실제로 한 번 불러 보는 첫 호출은 바로 다음 Step 3에서 합니다. 교재 화면은 <code>npm --prefix book run dev</code>로 엽니다.</p></div><div class="store">키</div></div>
 </div>
 </div>
 
@@ -155,7 +155,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 <summary>정답 확인</summary>
 <div class="reveal">
 <p>전역 Python으로 실행돼 레포 <code>.venv</code>를 안 거쳤기 때문입니다. 의존성은 <code>.venv</code>에만 깔려 있으므로 <code>uv run python3 ...</code>로 돌리거나, VSCode에서 인터프리터를 <code>.venv</code>로 지정한 뒤 실행해야 합니다.</p>
-<p><code>uv run</code>은 매번 자동으로 <code>.venv</code>를 활성화해 줍니다 — <code>source .venv/bin/activate</code>를 잊어도 됩니다. 그래서 이 과정의 실행 명령은 전부 <code>uv run</code>으로 시작합니다.</p>
+<p><code>uv run</code>은 매번 자동으로 <code>.venv</code>를 활성화하므로 <code>source .venv/bin/activate</code>를 잊어도 됩니다. 그래서 이 과정의 실행 명령은 전부 <code>uv run</code>으로 시작합니다.</p>
 </div>
 </details>
 
@@ -188,7 +188,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~1분</span></div>
-<div class="cue-body">위 코드는 레포에 들어 있는 <code>analyst/first_call.py</code>입니다 — 따로 만들 필요 없이 <code>uv run python3 analyst/first_call.py</code>로 바로 실행합니다. 이게 학생이 직접 보는 첫 LLM 호출입니다. 통과하면 이어서 <code>bash scripts/preflight.sh</code>로 종합 live 점검 <code>✅ 14 / ❌ 0</code>을 확인하세요. <code>.env</code>의 <code>OPENROUTER_API_KEY</code>를 먼저 채워야 합니다. Gemini 3.5 Flash는 과금 모델이라 OpenRouter 계정에 크레딧이나 결제 한도가 없으면 402/credit 계열 오류가 날 수 있습니다.</div>
+<div class="cue-body">위 코드는 레포에 들어 있는 <code>analyst/first_call.py</code>입니다. 따로 만들 필요 없이 <code>uv run python3 analyst/first_call.py</code>로 바로 실행합니다. 이게 학생이 직접 보는 첫 LLM 호출입니다. 통과하면 이어서 <code>bash scripts/preflight.sh</code>로 종합 live 점검 <code>✅ 14 / ❌ 0</code>을 확인하세요. <code>.env</code>의 <code>OPENROUTER_API_KEY</code>를 먼저 채워야 합니다. Gemini 3.5 Flash는 과금 모델이라 OpenRouter 계정에 크레딧이나 결제 한도가 없으면 402/credit 계열 오류가 날 수 있습니다.</div>
 </div>
 
 <div class="cue wait">
@@ -207,8 +207,8 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>이 과정의 실행 규약 — live가 기본, <code>--mock</code>은 결정론 보조</span><span class="status-pill">전 챕터 공통</span></div>
 <div class="panel-body"><div class="list">
-<p>키를 받았으니 <strong>기본은 live 실행</strong>입니다 — 실제 모델이 영수증을 읽고 분류합니다. 이 교재는 여러분이 키를 가졌다고 전제하고 <em>live 동작을 기준으로</em> 쓰여 있어요. <code>--mock</code>은 <strong>주 경로가 아니라 보조</strong>입니다 — 쓰는 자리는 둘뿐이에요: ① 키·네트워크가 없거나 모델이 흔들릴 때(<strong>장애·오프라인·CI</strong>)의 대비, ② 표현이 매번 달라지면 비교가 안 되는 곳에서 구조를 <em>결정론적으로 못 박아 보여 줄 때</em>(예: Ch3 fan-out이 스레드로 동시에 도는 모양). 그 둘이 아니면 <strong>live로 보세요</strong> — 메커니즘 점검용 <code>--show</code>·<code>--protocol</code>·<code>--card</code>는 키가 필요 없지만 이건 mock과 달리 <em>실제 코드 경로</em>를 출력합니다.</p>
-<p>그래서 교재의 출력 패널엔 <strong>두 종류</strong>가 있습니다. ① <strong>모델이 추출하는 값</strong>(판매처·금액·신뢰도·ReAct 트레이스)은 live면 같은 입력에도 표현·값이 조금씩 다릅니다(Ch1의 "temperature=0도 완전 결정론은 아니다") — 교재가 그런 값을 보일 땐 <strong>대표 예시</strong>이고, 글자 그대로의 결정론 기준이 필요하면 <code>--mock</code>을 봅니다. ② <strong>코드가 정하는 출력</strong>(<code>--list</code> 도구 목록·<code>--trace</code> 하네스 구성·영수증 없는 거래 gap 계산·검증 PASS/NEEDS_REVISION 판정)은 키와 무관하게 <strong>항상 같습니다</strong> — 이건 화면과 글자 단위로 일치해야 합니다.</p>
+<p>키를 받았으니 <strong>기본은 live 실행</strong>입니다. 실제 모델이 영수증을 읽고 분류합니다. 이 교재는 여러분이 키를 가졌다고 전제하고 <em>live 동작을 기준으로</em> 쓰여 있습니다. <code>--mock</code>은 주 경로가 아니라 보조입니다. 쓰는 자리는 둘뿐입니다. ① 키·네트워크가 없거나 모델이 흔들릴 때(장애·오프라인·CI)의 대비, ② 표현이 매번 달라지면 비교가 안 되는 곳에서 구조를 <em>결정론적으로 고정해 보여 줄 때</em>(예: Ch3 fan-out이 스레드로 동시에 도는 모양). 그 둘이 아니면 live로 보세요. 메커니즘 점검용 <code>--show</code>·<code>--protocol</code>·<code>--card</code>는 키가 필요 없지만 이건 mock과 달리 <em>실제 코드 경로</em>를 출력합니다.</p>
+<p>그래서 교재의 출력 패널엔 두 종류가 있습니다. ① <strong>모델이 추출하는 값</strong>(판매처·금액·신뢰도·ReAct 트레이스)은 live면 같은 입력에도 표현·값이 조금씩 다릅니다(Ch1의 temperature=0도 완전 결정론은 아니다). 교재가 그런 값을 보일 땐 대표 예시이고, 글자 그대로의 결정론 기준이 필요하면 <code>--mock</code>을 봅니다. ② <strong>코드가 정하는 출력</strong>(<code>--list</code> 도구 목록·<code>--trace</code> 하네스 구성·영수증 없는 거래 gap 계산·검증 PASS/NEEDS_REVISION 판정)은 키와 무관하게 항상 같습니다. 이건 화면과 글자 단위로 일치해야 합니다.</p>
 </div></div>
 </div>
 </section>
@@ -221,7 +221,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 ## 분석할 샘플 문서를 확인합니다
 
 </div>
-<p class="section-note">실습 내내 같은 입력을 씁니다. 2026년 5월 한 사람의 인박스 열 건 — 이미지(png) 6 + PDF 4입니다.<br>
+<p class="section-note">실습 내내 같은 입력을 씁니다. 2026년 5월 한 사람의 인박스 열 건, 이미지(png) 6 + PDF 4입니다.<br>
 멀티모달 입력이라 한 장(또는 한 PDF) 안에서 판매처·금액·항목을 그대로 읽어 냅니다.</p>
 </div>
 
@@ -232,7 +232,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>명세서 ×3</strong><span>카드·은행·청구서</span></div><div class="panel-body"><div class="list">
 <p>카드·은행 명세서는 PDF, 용역대금 청구서(invoice_photo)는 사진입니다</p>
-<p>셋 다 <code>문서유형: 명세서</code>로 정규화됩니다 — RecordV1엔 청구서·세금계산서 같은 세부 유형이 따로 없습니다</p>
+<p>셋 다 <code>문서유형: 명세서</code>로 정규화됩니다. RecordV1엔 청구서·세금계산서 같은 세부 유형이 따로 없습니다</p>
 <p>거래가 여러 줄이라 <code>항목</code>도 여러 개입니다</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>계약서 ×1</strong><span>PDF</span></div><div class="panel-body"><div class="list">
@@ -246,7 +246,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>실제 입력 미리보기 — 모델이 읽는 문서</span><span class="status-pill">sample_inbox</span></div>
 <div class="panel-body">
-<p class="section-note">아래가 실습 내내 모델이 그대로 받아 읽는 입력입니다 — 영수증 5장과 사진 청구서 하나. 이 픽셀에서 판매처·금액·항목을 뽑아 RecordV1로 채웁니다. (나머지 카드·은행 명세서·계약서·리포트는 PDF라 여기선 생략합니다.)</p>
+<p class="section-note">아래가 실습 내내 모델이 그대로 받아 읽는 입력입니다. 영수증 5장과 사진 청구서 하나입니다. 이 픽셀에서 판매처·금액·항목을 뽑아 RecordV1로 채웁니다. (나머지 카드·은행 명세서·계약서·리포트는 PDF라 여기선 생략합니다.)</p>
 <div class="inbox-gallery">
 <figure><img src="/images/inbox/receipt_starbucks.png" alt="스타벅스 영수증" loading="lazy"><figcaption>스타벅스 · 11,500원</figcaption></figure>
 <figure><img src="/images/inbox/receipt_gs25.png" alt="GS25 영수증" loading="lazy"><figcaption>GS25 · 8,400원</figcaption></figure>
@@ -286,7 +286,7 @@ flowchart LR
 ## 한 곳에서 정의한다 — RecordV1
 
 </div>
-<p class="section-note">문서가 영수증이든 계약서든 읽고 나면 모두 이 RecordV1 구조로 정규화됩니다. 그다음부터 모든 챕터는 파일 포맷이 아니라 이 계약 하나에만 기댑니다.<br>
+<p class="section-note">문서가 영수증이든 계약서든 읽고 나면 모두 이 RecordV1 구조로 정규화됩니다. 그다음부터 모든 챕터는 파일 포맷이 아니라 이 계약 하나에만 의존합니다.<br>
 코드가 정본입니다. 교재는 그 파일을 그대로 가져와 임베드합니다. 복사해 붙인 게 아닙니다.</p>
 </div>
 
@@ -302,7 +302,7 @@ flowchart LR
 <details class="deep">
 <summary>🔬 심화 — 왜 추출은 영문인데 저장은 한글인가: 현지화를 출력 경계 한 곳에만 두는 <code>alias</code> <span style="color:var(--muted)">(RecordV1 내부)</span></summary>
 <div class="reveal">
-<p>각 필드가 <em>영문 이름</em>(<code>merchant</code>)과 <em>한글 alias</em>(<code>판매처</code>)를 둘 다 가진다. 우연이 아니라 <strong>서로 충돌하는 두 요구</strong>를 한 줄로 가른 것이다:</p>
+<p>각 필드가 <em>영문 이름</em>(<code>merchant</code>)과 <em>한글 alias</em>(<code>판매처</code>)를 둘 다 가진다. 우연이 아니라 <strong>서로 충돌하는 두 요구</strong>를 한 줄로 가른 것이다.</p>
 <table>
 <thead><tr><th>요구</th><th>해법</th></tr></thead>
 <tbody>
@@ -310,10 +310,10 @@ flowchart LR
 <tr><td>코드 내부 식별자는 영문이 안전</td><td>필드 이름 = <strong>영문</strong>(<code>rec.merchant</code> — 파이썬 관례와 IDE·타입 검사에 맞춤)</td></tr>
 </tbody>
 </table>
-<p><strong>둘을 잇는 게 <code>ConfigDict(populate_by_name=True)</code></strong> — 한글 alias로도, 영문 이름으로도 객체를 만들 수 있다. 그래서 mock은 gold(한글 키 dict)를 <code>model_validate</code>로 그대로 적재하고, 코드는 <code>rec.merchant</code>로 접근한다. 같은 객체, 두 입구.</p>
-<p><strong>LLM·코드 계약은 영문, 한글은 저장에서만</strong> — <code>schema_json()</code>은 <code>RecordV1.model_json_schema(by_alias=False)</code>라 모델이 받는 structured-output 스키마의 키가 <code>merchant·total…</code> 영문이다. 모델은 영문으로 추출하고, 한글은 사람이 읽는 산출물을 <strong>저장할 때</strong> <code>model_dump(by_alias=True)</code>에서만 입는다. 즉 현지화가 LLM·코드 경계로 새지 않고 <em>출력 경계 한 곳</em>에 머문다 — 추출은 영문, 한글은 추출 후 변형이다.</p>
-<p><strong>두 디테일</strong> — ① <code>use_enum_values=True</code>라 <code>doc_type</code>이 <code>DocType.receipt</code> 객체가 아니라 문자열 <code>"영수증"</code>으로 직렬화된다(JSON에 그대로 박힘). ② 최상위 <code>total</code>의 alias는 <code>총액</code>, <code>LineItem.amount</code>의 alias는 <code>단가</code>로 서로 다르다 — 같은 한글이 두 뜻으로 겹치지 않는다. 그래서 Ch1의 합계 검산이 <strong>Σ(단가 × 수량) == 총액</strong>으로 깔끔히 읽힌다 — 광화문 국밥은 순대국밥 <code>단가 9,000원 × 수량 3 = 27,000원</code>(=총액)이라, 수량을 빼먹고 9,000원만 더하면 27,000원과 어긋나 <em>멀쩡한 영수증을 틀렸다고</em> 잡는다. 단가·수량·총액 셋을 함께 봐야 검산이 선다.</p>
-<p class="muted"><strong>핵심 정리</strong> — "<code>alias</code> + <code>populate_by_name</code> = 코드·LLM 계약은 영문(<code>merchant·total</code>), 사람용 산출물만 저장할 때 한글로 변형(<code>by_alias</code>). 현지화는 출력 경계 한 곳에." 지금은 schema.py를 읽고 '추출·코드는 영문, 저장 출력만 한글'만 잡으면 됩니다.</p>
+<p><strong>둘을 잇는 게 <code>ConfigDict(populate_by_name=True)</code>다.</strong> 한글 alias로도, 영문 이름으로도 객체를 만들 수 있다. 그래서 mock은 gold(한글 키 dict)를 <code>model_validate</code>로 그대로 적재하고, 코드는 <code>rec.merchant</code>로 접근한다. 같은 객체, 두 입구.</p>
+<p><strong>LLM·코드 계약은 영문, 한글은 저장에서만.</strong> <code>schema_json()</code>은 <code>RecordV1.model_json_schema(by_alias=False)</code>라 모델이 받는 structured-output 스키마의 키가 <code>merchant·total…</code> 영문이다. 모델은 영문으로 추출하고, 한글은 사람이 읽는 산출물을 저장할 때 <code>model_dump(by_alias=True)</code>에서만 입는다. 즉 현지화가 LLM·코드 경계로 새지 않고 <em>출력 경계 한 곳</em>에 머문다. 추출은 영문, 한글은 추출 후 변형이다.</p>
+<p><strong>두 디테일.</strong> ① <code>use_enum_values=True</code>라 <code>doc_type</code>이 <code>DocType.receipt</code> 객체가 아니라 문자열 <code>"영수증"</code>으로 직렬화된다(JSON에 그대로 들어간다). ② 최상위 <code>total</code>의 alias는 <code>총액</code>, <code>LineItem.amount</code>의 alias는 <code>단가</code>로 서로 다르다. 같은 한글이 두 뜻으로 겹치지 않는다. 그래서 Ch1의 합계 검산이 <strong>Σ(단가 × 수량) == 총액</strong>으로 깔끔히 읽힌다. 광화문 국밥은 순대국밥 <code>단가 9,000원 × 수량 3 = 27,000원</code>(=총액)이라, 수량을 빼먹고 9,000원만 더하면 27,000원과 어긋나 <em>멀쩡한 영수증을 틀렸다고</em> 잡는다. 단가·수량·총액 셋을 함께 봐야 검산이 선다.</p>
+<p class="muted"><strong>핵심 정리.</strong> <code>alias</code> + <code>populate_by_name</code> = 코드·LLM 계약은 영문(<code>merchant·total</code>), 사람용 산출물만 저장할 때 한글로 변형(<code>by_alias</code>). 현지화는 출력 경계 한 곳에. 지금은 schema.py를 읽고 추출·코드는 영문, 저장 출력만 한글이라는 점만 잡으면 됩니다.</p>
 </div>
 </details>
 
@@ -354,7 +354,7 @@ flowchart TB
 <div class="panel-body"><div class="list">
 <p><strong>Q1.</strong> 왜 <code>pip install</code>이 아니라 <code>uv</code>를 쓰나? 한 줄로.</p>
 <p><strong>Q2.</strong> 실습 코드를 <code>python3 x.py</code>가 아니라 <code>uv run python3 x.py</code>로 도는 이유는?</p>
-<p><strong>Q3.</strong> <code>.env</code>에 <strong>반드시</strong> 채워야 하는 키 한 줄은? 나머지 항목은 왜 그대로 둬도 되나?</p>
+<p><strong>Q3.</strong> <code>.env</code>에 반드시 채워야 하는 키 한 줄은? 나머지 항목은 왜 그대로 둬도 되나?</p>
 <p><strong>Q4.</strong> 첫 호출에서 <code>401</code>·<code>404</code>·빈 응답은 각각 무엇을 의심하나?</p>
 <p><strong>Q5.</strong> 모든 챕터가 공유하는 데이터 계약의 이름과, 그게 정의된 파일 경로는?</p>
 </div></div>

@@ -44,21 +44,21 @@ pageClass: lec-page
 
 </div>
 <p class="section-note">캡스톤의 핵심은 절제입니다. 각 챕터의 모듈을 import 해 그 함수를 부르고, 필요한 곳에만 얇은 배선 코드를 둡니다.<br>
-이게 가능한 이유는 처음부터 계약을 맞춰 뒀기 때문입니다. 모두 RecordV1을 주고받고, 같은 디렉터리 규약을 씁니다. 모듈을 바꿔도 계약은 그대로입니다.</p>
+이게 가능한 이유는 처음부터 계약을 맞춰 뒀기 때문입니다. 모두 RecordV1을 주고받고, 같은 디렉터리 규약을 씁니다. 모듈을 바꿔도 계약은 유지됩니다.</p>
 </div>
 
 <div class="grid-2">
-<div class="panel"><div class="panel-head"><strong>계약 — RecordV1</strong><span>Ch0에서 못박음</span></div><div class="panel-body"><div class="list">
+<div class="panel"><div class="panel-head"><strong>계약 · RecordV1</strong><span>Ch0에서 고정</span></div><div class="panel-body"><div class="list">
 <p>추출도 조사도 검증도 같은 레코드를 봅니다</p>
 <p>중간에 포맷이 바뀌지 않아 배선이 단순합니다</p>
 </div></div></div>
-<div class="panel"><div class="panel-head"><strong>규약 — 디렉터리</strong><span>workspace/ 단계별</span></div><div class="panel-body"><div class="list">
+<div class="panel"><div class="panel-head"><strong>규약 · 디렉터리</strong><span>workspace/ 단계별</span></div><div class="panel-body"><div class="list">
 <p>classified → research_notes + knowledge_base → brief → verified</p>
 <p>한 단계의 출력이 다음 단계의 입력입니다</p>
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">분류 모델을 더 좋은 것으로 바꿔도, 검증자를 다른 팀 것으로 바꿔도 배선은 그대로입니다. 단, <strong>새 모듈이 RecordV1과 디렉터리 규약을 똑같이 지킬 때만</strong>입니다. 계약을 어기는 모듈을 붙이면 그 경계에 어댑터가 필요합니다. 예컨대 새 분류기가 금액을 <code>"11,500원"</code> 문자열로 주면 RecordV1의 <code>total: float</code>과 어긋나므로, 그 경계에서 "쉼표·원 제거 후 float 변환" 어댑터를 둡니다. "자유 교체"가 아니라 "계약을 지키는 한 교체"입니다.</p>
+<p class="section-note" style="margin-top:16px">분류 모델을 더 좋은 것으로 바꿔도, 검증자를 다른 팀 것으로 바꿔도 배선은 그대로입니다. 단, <strong>새 모듈이 RecordV1과 디렉터리 규약을 똑같이 지킬 때만</strong>입니다. 계약을 어기는 모듈을 붙이면 그 경계에 어댑터가 필요합니다. 예컨대 새 분류기가 금액을 <code>"11,500원"</code> 문자열로 주면 RecordV1의 <code>total: float</code>과 어긋나므로, 그 경계에서 쉼표·원 제거 후 float 변환 어댑터를 둡니다. 자유 교체가 아니라 계약을 지키는 한에서의 교체입니다.</p>
 </section>
 
 <section class="slide">
@@ -99,10 +99,10 @@ flowchart LR
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>사람을 끼울 자리는 어디인가 — 부작용 단계에만</span><span class="status-pill">HITL 확장점</span></div>
 <div class="panel-body">
-<p>이 데모는 파일 생성과 검증까지 사람 입력 없이 실행됩니다. 실무로 올릴 때는 <strong>사람의 승인(HITL)</strong> 위치를 별도로 정해야 합니다. 기준은 <strong>되돌릴 수 없는 부작용이 있는 단계</strong>입니다.</p>
+<p>이 데모는 파일 생성과 검증까지 사람 입력 없이 실행됩니다. 실무로 올릴 때는 사람의 승인(HITL) 위치를 별도로 정해야 합니다. 기준은 <strong>되돌릴 수 없는 부작용이 있는 단계</strong>입니다.</p>
 <div class="grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-top:10px">
-<div class="panel"><div class="panel-head"><strong>그냥 두는 단계</strong><span>읽기·재계산</span></div><div class="panel-body"><div class="list"><p>분류·조사·지식 적재·브리프 작성은 파일을 읽고 만들 뿐이라 다시 돌리면 됨 — 멈출 이유가 없다</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>멈춰 물을 단계</strong><span>외부 영향</span></div><div class="panel-body"><div class="list"><p>메일 회신·결제·외부 제출처럼 한 번 나가면 못 되돌리는 단계 — 여기서 <code>interrupt()</code>로 멈춰 사람 승인을 받는다</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>그냥 두는 단계</strong><span>읽기·재계산</span></div><div class="panel-body"><div class="list"><p>분류·조사·지식 적재·브리프 작성은 파일을 읽고 만들 뿐이라 다시 돌리면 됩니다. 멈출 이유가 없습니다</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>멈춰 물을 단계</strong><span>외부 영향</span></div><div class="panel-body"><div class="list"><p>메일 회신·결제·외부 제출처럼 한 번 나가면 못 되돌리는 단계. 여기서 <code>interrupt()</code>로 멈춰 사람 승인을 받습니다</p></div></div></div>
 </div>
 <p class="section-note" style="margin-top:10px">메커니즘은 Ch2에서 본 것과 같습니다. <code>checkpointer</code>로 상태를 저장하고 <code>interrupt()</code>로 멈춘 뒤 <code>Command(resume=…)</code>로 같은 지점에서 이어 갑니다. 이 <code>analyst_app.py</code>는 여러 파일을 쓰지만 모두 로컬 workspace 산출물이라 다시 지우고 재생할 수 있습니다. 실제 메일 회신·결제·외부 제출을 붙인다면 그 단계 앞에 <code>interrupt()</code>를 둡니다.</p>
 </div>
@@ -119,7 +119,7 @@ flowchart LR
 </div>
 <p class="section-note">전 구간을 한 번에 실행합니다. 무플래그 기본 경로는 <strong><code>[1/6]</code> 분류, <code>[2/6]</code> 조사, <code>[4/6]</code> Skill 브리프 작성이 live LLM</strong>입니다. <code>--mock</code>을 붙이면 분류·조사·브리프 작성이 결정론 보조 경로로 바뀌어 키 없이 전체 배선을 확인합니다. <code>[5/6]</code> 검증은 <code>--a2a</code>를 붙이면 실제 A2A 서버(규칙 기반, LLM 아님)로 나갑니다.<br>
 각 단계가 앞서 만든 모듈을 부르고, Ch6는 그 반환값을 다음 디렉터리 규약에 맞게 넘기는 얇은 접착 코드만 둡니다. 예외는 키 없는 <code>--mock</code>에서 쓰는 결정론 브리프 작성 보조 경로입니다.<br>
-<span style="color:var(--muted)">⚠️ live는 모델 비결정성 때문에 드물게 <code>[2/6]</code> 조사 등에서 <code>RuntimeError</code>로 멈출 수 있습니다 — 이건 합성 결과가 기대 검증(fail-closed 가드)을 못 넘긴 <strong>정상적인 실패</strong>이지 버그가 아닙니다. 그대로 한 번 더 실행하거나, 결정론으로 확인하려면 <code>--mock</code>으로 돌립니다.</span></p>
+<span style="color:var(--muted)">⚠️ live는 모델 비결정성 때문에 드물게 <code>[2/6]</code> 조사 등에서 <code>RuntimeError</code>로 멈출 수 있습니다. 이건 합성 결과가 기대 검증(fail-closed 가드)을 못 넘긴 정상적인 실패이지 버그가 아닙니다. 그대로 한 번 더 실행하거나, 결정론으로 확인하려면 <code>--mock</code>으로 돌립니다.</span></p>
 </div>
 
 <div class="panel">
@@ -135,7 +135,7 @@ flowchart LR
 <div class="panel"><div class="panel-head"><strong>왜 import만으로 되나</strong></div><div class="panel-body"><div class="list">
 <p>각 단계가 돌려준 산출물(classified·notes·knowledge_base)을 다음 단계가 디렉터리 규약으로 집어 옵니다.</p>
 <p>단 OKF는 notes를 파싱하지 않습니다. Ch4의 지식 적재는 classified 레코드에서 거래처·gap·subscription을 다시 계산하고, Ch4 Skill 브리프가 notes와 knowledge_base를 함께 읽습니다.</p>
-<p>그래서 함수끼리 인자를 길게 주고받지 않아도 됩니다 — 파일이 계약입니다.</p>
+<p>그래서 함수끼리 인자를 길게 주고받지 않아도 됩니다. 파일이 계약입니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>두 실행 트랙</strong></div><div class="panel-body"><div class="list">
 <p><strong>기본</strong>: Ch2 live 분류, Ch3 live 조사, Ch4 Skill live 브리프 작성. 실제 모델 비용과 실패 가능성까지 본다.</p>
@@ -243,7 +243,7 @@ flowchart LR
 - 누락 항목 없음 — 검증 통과
 ```
 
-<p class="section-note" style="margin-top:10px">메일 한 더미에서 출발해 <strong>이 한 파일</strong>에 도착합니다. 위는 브리프(짚을 점·할 일), 구분선 아래는 <em>다른 에이전트가 원본 레코드로 기대 항목을 다시 계산한 뒤 브리프의 상호명·금액과 대조한</em> 검증 판정입니다. 8시간이 만든 결과물입니다.</p>
+<p class="section-note" style="margin-top:10px">메일 10건에서 출발해 <strong>이 한 파일</strong>에 도착합니다. 위는 브리프(짚을 점·할 일), 구분선 아래는 <em>다른 에이전트가 원본 레코드로 기대 항목을 다시 계산한 뒤 브리프의 상호명·금액과 대조한</em> 검증 판정입니다. 8시간이 만든 결과물입니다.</p>
 </div>
 </div>
 
@@ -308,7 +308,7 @@ flowchart LR
 
 <div class="cue check" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">🔎 live 실패 드릴</span><span class="cue-time">~4분</span></div>
-<div class="cue-body">캡스톤은 <code>--mock</code>으로 전체 배선을 안정적으로 확인하지만, 실제 모델 경로의 흔들림도 한 번은 봐야 합니다. 이 드릴은 Ch0 preflight가 통과했고 OpenRouter 키가 설정된 경우에만 실행합니다. 키가 없으면 건너뛰세요. <code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc statement_bank_2026-05.pdf</code>를 실행했을 때 모델이 은행 PDF를 의미상 잘못 읽으면 Ch2 품질 게이트가 <code>[verify] 샘플 품질 불일치</code>로 잡고 <code>[hold]</code>에 둡니다. 이 실패는 정상입니다 — 실모델의 비결정성과 PDF 라우팅 리스크를 캡스톤 전에 분리해 보는 드릴입니다.</div>
+<div class="cue-body">캡스톤은 <code>--mock</code>으로 전체 배선을 안정적으로 확인하지만, 실제 모델 경로의 흔들림도 한 번은 봐야 합니다. 이 드릴은 Ch0 preflight가 통과했고 OpenRouter 키가 설정된 경우에만 실행합니다. 키가 없으면 건너뛰세요. <code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc statement_bank_2026-05.pdf</code>를 실행했을 때 모델이 은행 PDF를 의미상 잘못 읽으면 Ch2 품질 게이트가 <code>[verify] 샘플 품질 불일치</code>로 잡고 <code>[hold]</code>에 둡니다. 이 실패는 정상입니다. 실모델의 비결정성과 PDF 라우팅 리스크를 캡스톤 전에 분리해 보는 드릴입니다.</div>
 </div>
 
 <div class="cue solve" style="margin-top:14px">
@@ -354,7 +354,7 @@ flowchart LR
 
 </div>
 <p class="section-note">하나의 인박스를 끝까지 처리하며 여덟 역량을 실습했습니다. 각 역량이 어느 모듈에서 처음 나왔는지 돌아봅니다.<br>
-<strong>정리할 원칙은 두 가지입니다</strong>. ① <strong>계약(RecordV1)을 지키면 모듈을 교체할 수 있다</strong>. ② <strong>고정 단계는 워크플로로 두고, 자율은 꼭 필요한 곳(Ch3)에만 둔다</strong>. 아래 표·스택은 그 두 원칙의 근거입니다.</p>
+정리할 원칙은 두 가지입니다. ① <strong>계약(RecordV1)을 지키면 모듈을 교체할 수 있다</strong>. ② <strong>고정 단계는 워크플로로 두고, 자율은 꼭 필요한 곳(Ch3)에만 둔다</strong>. 아래 표·스택은 그 두 원칙의 근거입니다.</p>
 </div>
 
 <div class="matrix matrix-7" style="grid-template-columns:116px repeat(6,minmax(84px,1fr))">
@@ -421,7 +421,7 @@ flowchart TB
 ```
 
 <p style="margin-top:8px">아래(①)가 위(④)의 기반입니다. LLM 호출(Framework) 위에 상태·분기(Runtime), 그 위에 계획·위임(Harness), 맨 위에 절차·연결·협업(생태계)을 둡니다. <strong>Ch2에서 LangChain(프레임워크)과 LangGraph(런타임)를 함께 익혔기에</strong> Ch2가 아래 두 층에 걸쳐 있습니다. 위 여덟 역량은 전부 이 네 층 어딘가에 속합니다.</p>
-<p class="muted" style="margin-top:6px">우리가 쓴 <strong>DeepAgents는 오픈소스 Harness</strong>입니다. Claude Code·Devin 같은 코딩 에이전트도 같은 Harness 층의 다른 구현체(독점·코딩 특화)예요 — 계획·파일·서브에이전트로 LLM을 감싸는 발상은 같습니다.</p>
+<p class="muted" style="margin-top:6px">우리가 쓴 <strong>DeepAgents는 오픈소스 Harness</strong>입니다. Claude Code·Devin 같은 코딩 에이전트도 같은 Harness 층의 다른 구현체(독점·코딩 특화)예요. 계획·파일·서브에이전트로 LLM을 감싸는 발상은 같습니다.</p>
 <p class="muted" style="margin-top:6px">④ 생태계 층의 표준은 계속 움직입니다. 그래서 교재는 거버넌스 뉴스보다 <strong>스키마·인증·운영 정책·테스트</strong>를 교체 가능성의 기준으로 둡니다. 표준 이름이 같아도 이 네 가지가 맞지 않으면 실제 교체는 되지 않습니다.</p>
 </div>
 </div>
@@ -459,7 +459,7 @@ flowchart TB
 <p><strong>A2.</strong> 계획(<code>write_todos</code>)·파일 퇴피(컨텍스트를 파일로 내보내기)·서브에이전트 위임. DeepAgents가 이 셋을 LLM 위에 얹는다.</p>
 <p><strong>A3.</strong> 목 함수는 즉답이라 겹칠 대기(I/O)가 없다. 실모델은 각 갈래가 네트워크 호출로 수백 ms~수초 대기하므로, 그 대기를 겹치는 <code>asyncio.gather</code>(+<code>return_exceptions=True</code>)가 맞다.</p>
 <p><strong>A4.</strong> Skill=절차(언제·어떻게, 점진 공개), MCP=연결(도구·데이터 소스로의 접속). 같은 생태계 층의 다른 축.</p>
-<p><strong>A5.</strong> 검증자를 독립 주체로 두어 producer 코드·상태와 분리하기 위해. 경계를 넘기면 다른 팀·런타임의 검증자로 교체 가능하고 판정을 감사할 수 있다. (단 매칭 함수를 import 공유하면 그 로직 버그는 여전히 공유된다 — Ch6 추적 답.)</p>
+<p><strong>A5.</strong> 검증자를 독립 주체로 두어 producer 코드·상태와 분리하기 위해. 경계를 넘기면 다른 팀·런타임의 검증자로 교체 가능하고 판정을 감사할 수 있다. (단 매칭 함수를 import 공유하면 그 로직 버그는 여전히 공유된다. Ch6 추적 답 참고.)</p>
 <p><strong>A6.</strong> 모든 모듈이 ① <code>RecordV1</code>(같은 레코드 타입)과 ② 디렉터리 규약(한 단계 출력이 다음 단계 입력)을 공유하기 때문. 파일이 계약이라 함수가 인자를 길게 주고받지 않는다.</p>
 <p><strong>A7.</strong> 경계 어댑터(<code>coerce_amount</code>류)를 그 새 입력원과 파이프라인 <em>사이</em>에 둔다. <code>₩·원·콤마·공백</code> 제거 후 <code>float</code>로 변환한다. 본체 파이프라인은 그대로 둔다. 교체 조건은 RecordV1과 디렉터리 규약을 만족하는 것이다.</p>
 <p><strong>A8.</strong> 고정 단계에 자율 루프를 쓰면 더 비싸고(토큰↑) 덜 안정적(매번 경로가 달라짐)이다. 자율성은 경로가 미리 안 정해진 곳(교차 조사)에만 두고, 나머지는 워크플로로 못 박는 게 싸고 재현 가능하다.</p>
@@ -480,13 +480,13 @@ flowchart TB
 
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>지금은 목이라 숨은 것</strong></div><div class="panel-body"><div class="list">
-<p><strong>추출 비결정성</strong> — <code>--mock</code>은 gold를 베껴 100% 재현됩니다. 실모델 멀티모달은 신뢰도가 흔들리고 같은 영수증을 넣어도 결과가 매번 달라져, 신뢰도 임계 HITL 멈춤(Ch2)이 실제 안전장치가 됩니다.</p>
-<p><strong>검증은 실모델 구간에서 의미가 커짐</strong> — 목 구간에선 브리프도 검증자도 같은 gold에서 나와 PASS가 사실상 보장됩니다(검증이 "도는지" 확인용). 추출이 흔들리는 실모델에서는 브리프 누락과 검증자 반려가 실제로 갈리므로, 외부 검증의 효과가 드러납니다.</p>
-<p><strong>fan-out 비용·실패</strong> — 세 갈래가 실제 LLM 호출이면 토큰·지연·부분 실패가 곱해집니다. 한 갈래가 죽어도 나머지가 끝나게(부분 산출 허용) 설계해야 합니다. <span style="color:var(--muted)">또 목의 <code>fan_out_mock</code>은 함수가 즉답이라 <code>ThreadPoolExecutor</code>가 사실상 직렬입니다(대기가 0이니 겹칠 게 없죠) — fan-out의 실이득은 각 갈래가 네트워크 LLM 호출로 수백 ms~수초 <em>대기</em>할 때 그 대기를 겹치는 데서 납니다. 그래서 실모델 전환 시엔 I/O 대기를 겹치는 <code>asyncio.gather</code>가 더 맞고, 한 갈래가 죽어도 나머지를 거두려면 <code>return_exceptions=True</code>로 받습니다.</span></p>
+<p><strong>추출 비결정성</strong>: <code>--mock</code>은 gold를 베껴 100% 재현됩니다. 실모델 멀티모달은 신뢰도가 흔들리고 같은 영수증을 넣어도 결과가 매번 달라져, 신뢰도 임계 HITL 멈춤(Ch2)이 실제 안전장치가 됩니다.</p>
+<p><strong>검증은 실모델 구간에서 의미가 커짐</strong>: 목 구간에선 브리프도 검증자도 같은 gold에서 나와 PASS가 사실상 보장됩니다(검증이 도는지 확인용). 추출이 흔들리는 실모델에서는 브리프 누락과 검증자 반려가 실제로 갈리므로, 외부 검증의 효과가 드러납니다.</p>
+<p><strong>fan-out 비용·실패</strong>: 세 갈래가 실제 LLM 호출이면 토큰·지연·부분 실패가 곱해집니다. 한 갈래가 죽어도 나머지가 끝나게(부분 산출 허용) 설계해야 합니다. <span style="color:var(--muted)">또 목의 <code>fan_out_mock</code>은 함수가 즉답이라 <code>ThreadPoolExecutor</code>가 사실상 직렬입니다(대기가 0이니 겹칠 게 없죠). fan-out의 실이득은 각 갈래가 네트워크 LLM 호출로 수백 ms~수초 <em>대기</em>할 때 그 대기를 겹치는 데서 납니다. 그래서 실모델 전환 시엔 I/O 대기를 겹치는 <code>asyncio.gather</code>가 더 맞고, 한 갈래가 죽어도 나머지를 거두려면 <code>return_exceptions=True</code>로 받습니다.</span></p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>경계를 넘을 때</strong></div><div class="panel-body"><div class="list">
-<p><strong>A2A 검증자 신뢰</strong> — 외부 에이전트의 PASS도 결국 하나의 판단입니다. Agent Card 서명·결과 재현 로그를 남겨야 판정을 감사할 수 있습니다.</p>
-<p><strong>상태·재현</strong> — workspace를 지워도 복원되는 건 입력이 커밋돼 있어서입니다. 실선 메일·DB에선 입력이 흐르므로 체크포인터(SQLite·Postgres)와 멱등 적재가 필요합니다.</p>
+<p><strong>A2A 검증자 신뢰</strong>: 외부 에이전트의 PASS도 결국 하나의 판단입니다. Agent Card 서명·결과 재현 로그를 남겨야 판정을 감사할 수 있습니다.</p>
+<p><strong>상태·재현</strong>: workspace를 지워도 복원되는 건 입력이 커밋돼 있어서입니다. 실선 메일·DB에선 입력이 계속 들어오므로 체크포인터(SQLite·Postgres)와 멱등 적재가 필요합니다.</p>
 </div></div></div>
 </div>
 
@@ -519,8 +519,8 @@ flowchart TB
 | 건당 지연 | 요청당 평균 처리 시간 | ≤5초 |
 | 건당 비용 | 요청당 평균 토큰·비용 | 예산 내 |
 
-<p class="section-note" style="margin-top:10px">오른쪽 수치는 <strong>업계 표준이 아니라 출발점</strong>입니다 — 도메인·태스크 난이도마다 직접 정해야 합니다. 핵심은 숫자가 아니라 "무엇을 어떻게 측정할지"를 먼저 합의하는 것입니다.</p>
-<p class="section-note" style="margin-top:8px"><strong>비용은 '건당'만으로 부족합니다.</strong> 하네스는 토큰을 더 쓰니(Ch3), 운영에선 비용을 토큰 단위로 쪼개 봅니다 — ① <strong>요청당 평균 입·출력 토큰</strong> · ② <strong>일간 총 토큰</strong>(팀·서비스 단위 추세) · ③ <strong>성공 1건당 평균 비용</strong>(실패까지 분모에) · ④ <strong>재시도·실패로 버린 토큰 비율</strong>. 특히 ④가 새는 곳을 드러냅니다.</p>
+<p class="section-note" style="margin-top:10px">오른쪽 수치는 <strong>업계 표준이 아니라 출발점</strong>입니다. 도메인·태스크 난이도마다 직접 정해야 합니다. 핵심은 숫자가 아니라 무엇을 어떻게 측정할지를 먼저 합의하는 것입니다.</p>
+<p class="section-note" style="margin-top:8px"><strong>비용은 건당만으로 부족합니다.</strong> 하네스는 토큰을 더 쓰니(Ch3), 운영에선 비용을 토큰 단위로 쪼개 봅니다. ① <strong>요청당 평균 입·출력 토큰</strong> · ② <strong>일간 총 토큰</strong>(팀·서비스 단위 추세) · ③ <strong>성공 1건당 평균 비용</strong>(실패까지 분모에) · ④ <strong>재시도·실패로 버린 토큰 비율</strong>. 특히 ④가 비용이 새는 곳을 드러냅니다.</p>
 
 </div>
 </div>
@@ -536,9 +536,9 @@ flowchart TB
 <tr><td>0.99</td><td>0.99⁶ ≈ <strong>0.94</strong></td><td>0.94¹⁰ ≈ <strong>0.54</strong></td></tr>
 </tbody>
 </table>
-<p>단계당 95%는 꽤 좋아 보이지만 6단계를 거치면 <strong>네 번에 한 번은 어딘가에서 깨진다</strong>(완료율 74%). 그리고 "매번 같은 결과"를 요구하는 <code>pass^k</code>로 보면 — 6단계×10회면 0.95⁶⁰ ≈ <strong>0.05</strong>, 즉 <em>거의 매번 한 군데는 다르게 나온다</em>. "돌았다"(한 번 운 좋게)와 "신뢰할 수 있다"(pass^k 높음)는 다른 세계다.</p>
-<p><strong>그래서 이 과정의 각 안전장치가 산수에 직접 기여한다.</strong> Ch2 fail-closed(틀리면 안 들어감)·HITL 멈춤, Ch5 외부 검증, 신뢰도 임계 멈춤은 전부 <em>단계 성공률을 0.95에서 0.99로 올리기 위한</em> 장치다. 위 표에서 0.95→0.99 한 칸이 완료율 74%→94%, pass^10 5%→54%로 갈린다. 단계 성공률은 곱으로 누적되므로, 낮은 성공률의 한 단계가 전체 완료율을 크게 낮춘다. 그래서 평가는 "전체 돌았나"가 아니라 단계별 성공률·실패 지점을 따로 재야 한다(위 측정자 표).</p>
-<p class="muted"><strong>핵심 정리</strong> — "직렬 N단계 신뢰도 = 단계 신뢰도의 N제곱. 데모 1회 PASS는 신뢰도의 증거가 아니고, 각 단계의 실패율을 따로 측정해야 한다."</p>
+<p>단계당 95%는 꽤 좋아 보이지만 6단계를 거치면 <strong>네 번에 한 번은 어딘가에서 깨진다</strong>(완료율 74%). 그리고 매번 같은 결과를 요구하는 <code>pass^k</code>로 보면, 6단계×10회면 0.95⁶⁰ ≈ <strong>0.05</strong>, 즉 <em>거의 매번 한 군데는 다르게 나온다</em>. "돌았다"(한 번 운 좋게)와 "신뢰할 수 있다"(pass^k 높음)는 다른 세계다.</p>
+<p><strong>그래서 이 과정의 각 안전장치가 산수에 직접 기여한다.</strong> Ch2 fail-closed(틀리면 안 들어감)·HITL 멈춤, Ch5 외부 검증, 신뢰도 임계 멈춤은 전부 <em>단계 성공률을 0.95에서 0.99로 올리기 위한</em> 장치다. 위 표에서 0.95→0.99 한 칸이 완료율 74%→94%, pass^10 5%→54%로 갈린다. 단계 성공률은 곱으로 누적되므로, 낮은 성공률의 한 단계가 전체 완료율을 크게 낮춘다. 그래서 평가는 전체가 돌았는지가 아니라 단계별 성공률·실패 지점을 따로 재야 한다(위 측정자 표).</p>
+<p class="muted"><strong>핵심 정리</strong>: 직렬 N단계 신뢰도 = 단계 신뢰도의 N제곱. 데모 1회 PASS는 신뢰도의 증거가 아니고, 각 단계의 실패율을 따로 측정해야 한다.</p>
 </div>
 </details>
 </section>
@@ -583,8 +583,8 @@ flowchart LR
 <p>HITL 멈춤 · 외부 검증 경계</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>더 볼 것</strong><span>다음</span></div><div class="panel-body"><div class="list">
-<p><strong>평가·관측</strong> — "돌았다"를 넘어 산출물 품질을 자동 채점(LLM-as-judge·골든셋)하고 단계별 토큰·지연·실패율을 추적해야 회귀를 잡습니다(<a href="https://docs.smith.langchain.com/">LangSmith</a> 류 트레이싱).</p>
-<p><strong>워크플로 vs 에이전트 규율</strong> — 이 파이프라인은 대부분 워크플로(고정 단계)이고 자율 루프는 Ch3 한 곳뿐. 단계가 정해졌으면 자율성을 일부러 줄이는 게 더 싸고 안정적입니다.</p>
+<p><strong>평가·관측</strong>: 돌았다를 넘어 산출물 품질을 자동 채점(LLM-as-judge·골든셋)하고 단계별 토큰·지연·실패율을 추적해야 회귀를 잡습니다(<a href="https://docs.smith.langchain.com/">LangSmith</a> 류 트레이싱).</p>
+<p><strong>워크플로 vs 에이전트 규율</strong>: 이 파이프라인은 대부분 워크플로(고정 단계)이고 자율 루프는 Ch3 한 곳뿐. 단계가 정해졌으면 자율성을 일부러 줄이는 게 더 싸고 안정적입니다.</p>
 </div></div></div>
 </div>
 
