@@ -20,6 +20,7 @@ export default withMermaid({
   lang: 'ko-KR',
   // GitHub Pages 프로젝트 페이지: https://yo-sure.github.io/deepagents-handson/
   base: '/deepagents-handson/',
+  head: [['link', { rel: 'icon', type: 'image/svg+xml', href: '/deepagents-handson/favicon.svg' }]],
   cleanUrls: true,
   // .lec은 의도된 라이트 에디토리얼(크림 페이퍼) 디자인 — 다크 토큰셋이 없어
   // 토글을 두면 본문은 그대로인 '반쪽 어둠'이 된다. 토글 자체를 제거해 일관성 확보.
