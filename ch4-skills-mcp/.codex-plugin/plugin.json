@@ -1,0 +1,6 @@
+{
+  "name": "inbox-analyst",
+  "version": "0.2.0",
+  "description": "Inbox research analyst skills for briefing and reconciliation",
+  "skills": "./"
+}

@@ -263,39 +263,37 @@ sequenceDiagram
 <div>
 <div class="eyebrow">2 · 패키징 · 8분</div>
 
-## plugin 예시는 얇게
+## plugin은 설치 단위다
 
 </div>
-<p class="section-note">여기서의 <code>plugin.json</code>은 Agent Skills 표준 파일이 아니라, 강의용으로 만든 얇은 패키징 예시입니다. 매니페스트 한 장으로 이름·버전·어떤 Skill을 담는지만 선언합니다.<br>
-핵심 내용은 SKILL.md와 MCP, OKF에 있습니다. 실제 호스트별 plugin 구조와 설치 방식은 제품마다 다르므로, 이 장에서는 패키징을 표준처럼 다루지 않습니다.</p>
+<p class="section-note">여기서 플러그인을 잠깐 보는 이유는 <strong>배포 단위</strong> 감각 때문입니다. <code>SKILL.md</code> 하나는 실행 절차이고, plugin은 그런 Skill 여러 개와 MCP·앱 연결·헬퍼 파일을 한 번에 설치할 수 있게 묶는 단위입니다.<br>
+ACDC처럼 Claude/Codex 양쪽에 여러 세션 회상·핸드오프 Skill을 실어 배포하는 프로젝트가 이 모양입니다. 우리 실습도 실제 설치까지 하지는 않지만, <code>inbox-brief</code>와 <code>reconcile-rules</code>를 한 패키지로 묶으면 어떤 형태가 되는지 봅니다.</p>
 </div>
 
 <div class="panel">
-<div class="panel-head"><strong>inbox-brief/plugin.json</strong><span>얇은 매니페스트</span></div>
+<div class="panel-head"><strong>ch4-skills-mcp/.codex-plugin/plugin.json</strong><span>Codex plugin 매니페스트 예시</span></div>
 <div class="panel-body">
 
 ```json
 {
-  "name": "inbox-brief",
+  "name": "inbox-analyst",
   "version": "0.2.0",
-  "description": "인박스 리서치 애널리스트의 월간 브리프 작성 스킬",
-  "author": "deepagents-handson",
-  "skills": ["./SKILL.md"],
-  "entry": "SKILL.md",
-  "tags": ["inbox", "brief", "okf"]
+  "description": "Inbox research analyst skills for briefing and reconciliation",
+  "skills": "./"
 }
 ```
 
-<p class="section-note" style="margin-top:8px">여기의 <code>version</code>·<code>author</code>는 강의용 <code>plugin.json</code> 매니페스트 필드입니다. SKILL.md 표준 frontmatter의 최상위 필드가 아닙니다.</p>
+<p class="section-note" style="margin-top:8px">실제 제품에서는 marketplace에 이 plugin 루트를 등록하고 설치합니다. 이 장의 핸즈온은 설치 과정이 아니라 <code>SkillsMiddleware(sources=["ch4-skills-mcp"])</code>로 같은 Skill들을 로컬에서 읽어, plugin이 묶는 내용물이 무엇인지 먼저 보는 단계입니다.</p>
 
 </div>
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>inbox-brief/ 구성</span><span class="status-pill">디렉터리</span></div>
+<div class="board-header"><span>plugin이 묶는 것</span><span class="status-pill">구성</span></div>
 <div class="panel-body"><div class="list">
-<p><code>SKILL.md</code> — 절차(1·2단계) · <code>references/brief_format.md</code> — 세부 형식(3단계)</p>
-<p><code>plugin.json</code> — 강의용 배포 매니페스트 예시. 세 파일을 한 단위로 묶어 재사용하는 모양만 보여 줍니다.</p>
+<p><code>inbox-brief/SKILL.md</code> — 브리프 작성 절차 · <code>references/brief_format.md</code> — 세부 형식</p>
+<p><code>reconcile-rules/SKILL.md</code> — 카드 명세서와 은행 출금 대사 규칙</p>
+<p><code>.codex-plugin/plugin.json</code> — 위 Skill 묶음을 설치 가능한 하나의 plugin으로 보이게 하는 매니페스트</p>
 </div></div>
 </div>
 </section>
