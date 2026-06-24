@@ -450,6 +450,8 @@ flowchart TB
 - ⚠️ 넷플릭스 17,000원 — 매칭 영수증 없음
 ```
 
+<p class="tiny" style="margin-top:10px;color:var(--muted)">미리 보기입니다 — 이 노트는 뒤 핸즈온에서 <code>research_orchestrator.py</code>를 돌리면 <code>research_notes/card_reconcile.md</code>로 그대로 생성됩니다(<code>--mock</code>도 같은 내용). 아직 안 돌렸으면 폴더가 비어 있는 게 정상입니다.</p>
+
 </div>
 </div>
 
