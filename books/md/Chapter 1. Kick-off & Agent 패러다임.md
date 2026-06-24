@@ -136,12 +136,12 @@ flowchart LR
 
 ```mermaid
 flowchart LR
-    B["벤치 점수<br/>시점·채점환경 의존"] --> M["모델 차이<br/>좁아지는 구간"]
-    M --> H["하네스 차이<br/>재시도·검증·종료조건"]
-    H --> O["운영 품질<br/>거짓 성공 차단"]
+    M["모델 차이 — 좁아짐<br/>가르는 힘 작아짐"] --> R["결과·순위"]
+    H["하네스 차이<br/>재시도·검증·종료조건<br/>가르는 힘 커짐"] --> R
+    R --> O["운영 품질<br/>거짓 성공 차단"]
 ```
 
-<p style="margin-top:8px">정확한 순위와 숫자는 시점·게이트웨이·평가 설정에 따라 바뀝니다. 여기서 볼 것은 특정 모델명이 아니라, 모델 단독 점수 차이가 줄수록 비교 기준이 어떤 모델인가에서 어떤 하네스로 실행하는가로 옮겨 간다는 흐름입니다.</p>
+<p style="margin-top:8px">읽는 법: 모델 차이와 하네스 차이가 함께 결과를 만들지만, <strong>모델끼리 점수 차가 좁아질수록 가르는 힘이 모델에서 하네스로 넘어갑니다</strong> — 비교의 무게중심이 ‘어떤 모델을 쓰나’에서 ‘어떤 하네스로 실행하나’로 이동합니다. 정확한 순위·숫자는 시점·게이트웨이·평가 설정마다 달라지니, 특정 모델명이 아니라 이 이동을 보세요.</p>
 </div>
 </div>
 
@@ -156,6 +156,7 @@ flowchart LR
 · 이 하네스 안에서 강화학습으로 검색 습관을 훈련했고, 학습 데이터는 4,400여 건뿐이었습니다.</p>
 <p>결과. 논문은 작은 모델도 상태 외부화 하네스를 얹으면 강한 검색 에이전트 기준선과 겨룰 수 있음을 보였습니다. 답을 맞히는 점수가 아니라 근거를 잘 모았는지를 재는 검색 지표라는 점, 모델 순위가 아니라 하네스 설계의 효과를 보는 사례라는 점만 잡습니다.</p>
 <p>교훈. 20B가 프런티어급 검색과 겨루는 건 모델이 더 똑똑해서가 아니라 하네스 설계와 환경 안에서의 학습 덕입니다. 기록을 모델 머릿속이 아니라 바깥에 두는 이 발상을, Ch2 체크포인터·Ch3 파일 퇴피에서 더 작은 형태로 다시 만납니다.</p>
+<p style="margin-top:10px;font-size:13px"><strong>출처</strong> — <a href="https://arxiv.org/abs/2606.02373" target="_blank" rel="noopener">Harness-1: RL for Search Agents with State-Externalizing Harnesses (UIUC·UC Berkeley·Chroma, 2026)</a> · <a href="https://github.com/pat-jj/harness-1" target="_blank" rel="noopener">코드(GitHub)</a></p>
 </div>
 </details>
 
@@ -240,7 +241,7 @@ flowchart LR
 · 관련 없어 보이는 문단이 끼면 정답도 흔들립니다(distractor).<br>
 · 창이 안 차도 입력이 길수록 출력 품질이 측정 가능하게 떨어집니다(<strong>context rot</strong>, Chroma가 18개 프런티어 모델에서 확인). 바늘 찾기(NIAH) 점수는 좁은 능력만 재서 이 저하를 가립니다.<br>
 · 맥락이 길수록 <strong>KV 캐시</strong>가 그만큼 커져 메모리·비용이 길이에 비례해 늘어납니다.</p>
-<p>그래서 다 욱여넣기보다 필요한 것만 골라 점진 로딩합니다(Ch3·4). <span class="badge blue">Liu 2307.03172</span> <span class="badge blue">Shi 2302.00093</span> <span class="badge blue">vLLM 2309.06180</span></p></div></div>
+<p>그래서 다 욱여넣기보다 필요한 것만 골라 점진 로딩합니다(Ch3·4). <a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener" style="text-decoration:none"><span class="badge blue">Liu 2307.03172</span></a> <a href="https://arxiv.org/abs/2302.00093" target="_blank" rel="noopener" style="text-decoration:none"><span class="badge blue">Shi 2302.00093</span></a> <a href="https://arxiv.org/abs/2309.06180" target="_blank" rel="noopener" style="text-decoration:none"><span class="badge blue">vLLM 2309.06180</span></a></p></div></div>
 <div class="row"><div class="code">H</div><div class="copy"><strong>Hallucination — 확률과 채점이 함께 만든다</strong><p>모델은 모르겠다가 기본이 아니라 늘 최상위 토큰을 골라 답을 냅니다. 이진 채점 벤치마크가 자신 있는 추측을 보상해 그 습관이 학습 뒤에도 남습니다(Kalai). 환각이 이렇게 다음-토큰 확률·샘플링과 이어진다는 걸 바로 다음 1.5절에서 <code>logprobs</code>로 직접 봅니다. 처방은 둘입니다. 추출은 온도를 낮춰 흔들림을 줄이고, Tool로 실제 값을 조회·검증합니다(Ch2·5). <span class="badge blue">Kalai 2509.04664</span></p></div></div>
 <div class="row"><div class="code">K</div><div class="copy"><strong>Knowledge Cutoff — 못 고치는 천장이라 도구를 쓴다</strong><p>가중치는 학습 시점에 고정됩니다. 그 뒤 사실(이번 달 영수증, 오늘 환율)은 파라미터에 없고, 이건 더 학습하기 전엔 못 고치는 천장입니다. 그래서 외부 저장소에서 그때그때 끌어오는 <strong>비파라미터 지식</strong>(검색·도구)이 필요합니다. RAG가 바로 이 파라미터 vs 비파라미터 분리를 정식화했습니다(Ch4 지식 연결). <span class="badge blue">Lewis 2005.11401</span></p></div></div>
 </div>
