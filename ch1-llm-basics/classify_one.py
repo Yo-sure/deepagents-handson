@@ -194,9 +194,10 @@ def _receipt_sum_observation(
     parsed = _coerce_tool_items(items)
     s = sum(item.amount * item.qty for item in parsed if item.amount > 0)
     ok = abs(s - total) < tol
+    # 관측(Observation)은 사실만 보고한다. '그럼 어떻게 하라'(일치→출력 / 불일치→재검산)는
+    # 시스템 프롬프트의 정책이고, 다음 행동은 모델이 이 사실을 보고 스스로 정한다.
     obs = (f"항목합={s:,.0f}원, 총액={total:,.0f}원 → "
-           + ("일치. 이 추출을 그대로 최종 JSON으로 출력하라."
-              if ok else "불일치. 문서를 다시 보고 항목이나 수량을 고쳐 재검산하라."))
+           + ("일치" if ok else f"불일치(차이 {abs(s - total):,.0f}원)"))
     return ok, obs
 
 
@@ -345,8 +346,7 @@ def _print_mock_react_trace(rec: RecordV1) -> None:
     is_receipt = rec.doc_type == DocType.receipt          # 영수증만 합계 검산 대상
     if is_receipt:
         print("  [Action] check_receipt_sum 호출")
-        verdict = ("일치. 이 추출을 그대로 최종 JSON으로 출력하라."
-                   if ok else "불일치. 문서를 다시 보고 항목이나 수량을 고쳐 재검산하라.")
+        verdict = "일치" if ok else f"불일치(차이 {abs(item_sum - rec.total):,.0f}원)"
         print(f"  [Observation] 항목합={item_sum:,.0f}원, 총액={rec.total:,.0f}원 → {verdict}")
     if is_receipt and not ok:
         raise RuntimeError("검산 불일치 — mock gold 레코드의 항목합과 총액이 맞지 않습니다")
