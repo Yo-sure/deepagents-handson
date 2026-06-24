@@ -1,5 +1,5 @@
 <template>
-  <div class="scroll-progress" aria-hidden="true">
+  <div class="scroll-progress" :style="{ top: `${top}px` }" aria-hidden="true">
     <div class="scroll-progress__bar" :style="{ transform: `scaleX(${progress})` }" />
   </div>
 </template>
@@ -10,10 +10,15 @@ import { useRoute } from 'vitepress'
 
 const route = useRoute()
 const progress = ref(0)
+const top = ref(0)
 
 function updateProgress() {
   const doc = document.documentElement
   const max = doc.scrollHeight - window.innerHeight
+  const nav = document.querySelector('.VPNavBar') ?? document.querySelector('.VPNav')
+  const navBottom = nav?.getBoundingClientRect().bottom ?? 0
+  const fallback = Number.parseFloat(getComputedStyle(doc).getPropertyValue('--vp-nav-height')) || 0
+  top.value = Math.max(0, Math.round((navBottom || fallback) - 3))
   progress.value = max > 0 ? Math.min(Math.max(window.scrollY / max, 0), 1) : 0
 }
 
@@ -37,7 +42,6 @@ watch(
 <style scoped>
 .scroll-progress {
   position: fixed;
-  top: calc(var(--vp-nav-height) - 3px);
   left: 0;
   z-index: 60;
   width: 100%;
