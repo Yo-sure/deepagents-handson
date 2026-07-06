@@ -126,6 +126,47 @@ def extract_singleshot(doc: str, model: str) -> RecordV1:
 #pragma endregion singleshot
 
 
+#pragma region structured
+def extract_structured(doc: str, model: str) -> RecordV1:
+    """structured output — 모델 출력을 RecordV1 타입으로 곧장 받는다(수동 JSON 파싱 없이).
+
+    extract_singleshot은 응답 텍스트를 받아 _strip_fences로 ```json 울타리를 걷어내고
+    RecordV1.model_validate_json으로 손수 검증한다 — 모델이 앞뒤에 설명을 붙이면 깨지기 쉽다.
+    with_structured_output은 그 파싱을 라이브러리에 맡긴다: RecordV1 스키마를 function-calling
+    도구로 모델에 실어 보내(ToolStrategy), 모델이 그 도구 인자로 값을 채우게 하고, 결과를 검증된
+    RecordV1 인스턴스로 돌려준다. 코드에서 파싱 단계가 통째로 사라진다.
+    """
+    from langchain_openai import ChatOpenAI
+
+    from analyst.schema import schema_json
+
+    key = os.environ.get("OPENROUTER_API_KEY")
+    if not key or key == "sk-or-...":
+        raise RuntimeError("OPENROUTER_API_KEY 미설정 — .env에 키를 넣거나 --mock 으로 실행")
+    path = SAMPLE_INBOX / doc
+    llm = ChatOpenAI(
+        model=model,
+        base_url="https://openrouter.ai/api/v1",
+        api_key=key,
+        temperature=0,
+    )
+    structured = llm.with_structured_output(RecordV1)   # ← RecordV1 스키마를 도구로 바인딩, 파싱 위임
+    prompt = EXTRACT_PROMPT.format(schema=schema_json(), source_path=f"sample_inbox/{doc}")
+    # structured.invoke가 돌려주는 건 str이 아니라 RecordV1 — _strip_fences도 model_validate_json도 없다.
+    return structured.invoke(
+        [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    _document_content_part(path),
+                ],
+            }
+        ]
+    )
+#pragma endregion structured
+
+
 def _strip_fences(text: str) -> str:
     """```json … ``` 울타리와 앞뒤 설명을 걷어내 JSON 객체 본문만 남긴다."""
     t = text.strip()
@@ -369,6 +410,8 @@ def main() -> None:
     ap.add_argument("--model", default=DEFAULT_MODEL)
     ap.add_argument("--mock", action="store_true", help="키 없이 gold RecordV1 출력(진단/오프라인 확인)")
     ap.add_argument("--react", action="store_true", help="합계 검증 루프 사용")
+    ap.add_argument("--structured", action="store_true",
+                    help="with_structured_output로 추출(수동 JSON 파싱 없이 RecordV1 타입 직접 수신)")
     ap.add_argument("--compare", action="store_true", help="모델 정확도 비교표(ANALYST_COMPARE_MODELS로 확장)")
     args = ap.parse_args()
 
@@ -384,7 +427,10 @@ def main() -> None:
                 print(f"{m:32} {'skip':>6}  ({classify_error(e)})")
         return
 
-    rec = extract(args.doc, args.model, args.mock, args.react)
+    if args.structured and not args.mock:
+        rec = extract_structured(args.doc, args.model)   # with_structured_output 경로(수동 파싱 없음)
+    else:
+        rec = extract(args.doc, args.model, args.mock, args.react)
     print(json.dumps(rec.model_dump(by_alias=True, mode="json"), ensure_ascii=False, indent=2))
 
     if not args.mock:

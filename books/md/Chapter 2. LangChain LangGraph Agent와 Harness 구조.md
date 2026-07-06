@@ -199,6 +199,38 @@ for _ in range(MAX_STEPS):
 <p class="muted">핵심 정리: "스키마는 매 호출 실린다 → 언어가 비용이자 정확도다. 모델용은 영어, 사람용은 한국어." 우리 실습 코드는 학습 가독성을 위해 한국어 docstring을 씁니다. 다국어·프로덕션에선 위 권장을 따릅니다.</p>
 </div>
 </details>
+
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span><code>create_agent</code>가 감춘 세 손잡이 — 실무에서 한 겹 내려가야 할 때</span><span class="status-pill">developer depth</span></div>
+<div class="panel-body">
+<p><code>create_agent</code>는 도구 선택·반복·출력 파싱을 알아서 합니다. 편하지만, 강제·정밀 제어가 필요한 순간 그 아래 세 손잡이로 내려가야 합니다. 셋 다 우리 <code>classify_one.py</code>에 실물이 있습니다.</p>
+<div class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:10px">
+<div class="panel"><div class="panel-head"><strong>① 스키마를 어떻게 만드나</strong><span>@tool · args_schema</span></div><div class="panel-body"><div class="list">
+<p><strong>추론</strong>: 타입힌트→<code>parameters</code>, docstring→<code>description</code>. 인자 설명은 없다.</p>
+<p><strong>선언</strong>: <code>@tool(args_schema=Model)</code> + <code>Field(description=…)</code> → 인자마다 설명을 실어 보내 모델이 헷갈리는 값을 정확히 채운다.</p>
+<p class="muted">우리 코드: <code>check_receipt_sum</code>이 <code>@tool(args_schema=CheckReceiptSumInput)</code>.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>② 부를지 누가 정하나</strong><span>tool_choice</span></div><div class="panel-body"><div class="list">
+<p><code>create_agent</code>엔 <code>tool_choice</code> 인자가 <strong>없다</strong>. 강제하려면 <code>model.bind_tools(tools, tool_choice=…)</code>로 내려간다.</p>
+<p><code>"auto"</code>=모델이 결정(ReAct의 기본) · <code>"required"</code>/<code>"any"</code>=아무 도구든 반드시 · <code>"도구명"</code>=콕 집어.</p>
+<p class="muted">우리 코드: <code>extract_react</code>의 <code>bind_tools([tool_fn])</code>는 <code>auto</code> — 모델이 검산 필요를 스스로 판단한다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>③ 출력을 타입으로 받나</strong><span>structured output</span></div><div class="panel-body"><div class="list">
+<p><code>extract_singleshot</code>은 텍스트를 받아 <code>_strip_fences</code>로 <code>```json</code> 울타리를 손으로 걷고 <code>model_validate_json</code> 한다 — 설명이 한 줄 붙으면 깨진다.</p>
+<p><code>llm.with_structured_output(RecordV1)</code>은 그 파싱을 라이브러리에 위임한다: 스키마를 도구로 실어 보내고 <strong>검증된 타입 객체를 곧장</strong> 돌려준다.</p>
+<p class="muted"><code>create_agent(response_format=…)</code>도 같은 원리(<code>ToolStrategy</code>/<code>ProviderStrategy</code>).</p>
+</div></div></div>
+</div>
+<p class="section-note" style="margin-top:12px">③의 실물 — <code>classify_one.py</code>의 <code>extract_structured</code>. <code>extract_singleshot</code>(위 1절)과 나란히 두면 파싱 단계가 통째로 사라진 게 보입니다.</p>
+</div>
+</div>
+
+<<< ../../ch1-llm-basics/classify_one.py#structured{python}
+
+<div class="cue do">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">노트북 · 10분</span></div>
+<div class="cue-body"><code>ch2-langgraph-agent/tool_internals.ipynb</code>를 열고 커널을 <code>.venv</code>로 맞춘 뒤 위에서부터 실행하세요. 세 손잡이를 셀 단위로 직접 돌려 봅니다 — <strong>실험1</strong>(스키마 해부)은 키 없이, <strong>실험2·3</strong>(<code>tool_choice</code>·structured output)은 <code>OPENROUTER_API_KEY</code>로 라이브. 각 실험 끝의 <strong>✏️ 직접 해보기</strong>에서 한 줄씩 바꿔 다시 돌려야 손에 남습니다. 터미널로도 확인: <code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --structured</code>.</div>
+</div>
 </section>
 
 <section class="slide">
