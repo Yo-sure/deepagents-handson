@@ -261,11 +261,13 @@ stateDiagram-v2
 </div>
 </div>
 
+<p class="section-note" style="margin-top:16px">위 상태 흐름은 <em>서버(검증자)</em>가 Task를 관리하는 관점입니다. 이제 <em>클라이언트</em>가 그 Task를 어떻게 여는지 코드로 봅니다 — <code>a2a_verify.py</code>는 Agent Card를 읽고(카드 조회) → <code>ClientFactory</code>로 클라이언트를 만들고 → 브리프를 <code>SendMessage</code>로 제출해 위 <code>submitted → working → completed</code>를 돌립니다.</p>
+
 <<< ../../ch5-a2a/a2a_verify.py#a2a-client{python}
 
 <p class="section-note" style="margin-top:16px">함정 둘. ① <code>message_id</code>를 빼면 서버가 메시지를 식별 못 해 거절합니다. ② <code>send_message</code>는 <code>StreamResponse</code>를 그대로 흘려보냅니다(a2a-sdk 1.1.0은 <code>AsyncIterator[StreamResponse]</code>). 구버전·호환 경로에선 <code>(StreamResponse, …)</code> 튜플이 올 수도 있어 코드는 <code>resp[0] if isinstance(resp, tuple) else resp</code>로 벗기는 방어를 둡니다. <code>StreamResponse</code>는 oneof(task·message·status_update·artifact_update 중 하나만 설정)라, 설정된 필드만 골라 읽어야 합니다.</p>
 
-<p class="section-note" style="margin-top:12px"><code>StreamResponse</code>의 이 네 필드는 모두 메시지형 oneof 멤버라 <code>HasField</code>가 예외 없이 <code>True</code>/<code>False</code>를 돌려줍니다(a2a-sdk 1.1.0 실측, 미설정이면 전부 <code>False</code>). <code>HasField</code>가 <code>ValueError</code>를 내는 건 oneof가 아닌 proto3 <em>스칼라</em> 필드(presence 정보가 없음)를 물을 때뿐입니다. 아래 <code>_has()</code>는 그런 경우까지 대비한 보수적 방어이고, 여기서는 설정된 oneof 필드만 골라 텍스트를 모읍니다.</p>
+<p class="section-note" style="margin-top:12px"><code>StreamResponse</code>의 이 네 필드는 모두 메시지형 oneof 멤버라 <code>HasField</code>가 예외 없이 <code>True</code>/<code>False</code>를 돌려줍니다(a2a-sdk 1.1.0 실측, 미설정이면 전부 <code>False</code>). <code>HasField</code>가 <code>ValueError</code>를 내는 건 oneof가 아닌 proto3 <em>스칼라</em> 필드(presence 정보가 없음)를 물을 때뿐입니다. 아래 <code>_has()</code>는 그런 경우까지 대비한 보수적 방어이고, 여기서는 설정된 oneof 필드만 골라 텍스트를 모읍니다. <span style="color:var(--muted)">a2a-sdk 1.1은 응답에서 텍스트를 뽑아 주는 상위 유틸을 제공하지 않아(0.x의 message 헬퍼가 protobuf 재작성에서 빠짐) oneof에서 직접 모읍니다. 설정된 필드 하나만 알면 될 땐 protobuf 기본 <code>resp.WhichOneof(...)</code>도 같은 일을 합니다.</span></p>
 
 <<< ../../ch5-a2a/a2a_verify.py#a2a-stream{python}
 
