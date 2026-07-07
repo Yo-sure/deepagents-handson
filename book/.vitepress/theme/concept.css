@@ -438,3 +438,8 @@
   .still-arrow { transform:rotate(90deg); align-self:center; }
   .still-props { grid-template-columns:1fr; }
 }
+
+/* 챕터 오프닝 스플래시(예: Ch3 하네스 히어로 이미지) — 극사실 렌더를 프레임에 담아 본문과 구분 */
+.lec .chapter-splash { margin: 0 0 10px; display: flex; flex-direction: column; align-items: center; }
+.lec .chapter-splash img { width: 100%; max-width: 900px; height: auto; display: block; border-radius: 14px; border: 1px solid var(--line); box-shadow: 0 20px 50px rgba(27,31,29,.16); }
+.lec .chapter-splash figcaption { margin-top: 12px; max-width: 900px; text-align: center; font-size: 14.5px; font-weight: 800; color: var(--forest); }

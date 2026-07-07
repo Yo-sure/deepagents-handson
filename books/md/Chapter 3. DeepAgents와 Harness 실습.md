@@ -9,6 +9,11 @@ pageClass: lec-page
 <div class="lec">
 <div class="deck">
 
+<figure class="chapter-splash">
+<img src="/images/ch3-harness-hero.webp" alt="세이프티 하네스와 라이프라인에 묶인 휴머노이드 AI 로봇이 고소 구조물 가장자리에서 용접한다. 옆 표지판: AI AGENT WORKING FOR YOU — RISK ASSESSED · SAFETY CONTROLS · HUMAN OVERSIGHT. 아래엔 낙하 위험 경고와 이동 기계·낙하물·고전압·구조물 위험 콜아웃." loading="lazy">
+<figcaption>하네스가 에이전트를 붙잡아 — 가장자리 밖에서도 안전하게 일하게 합니다.</figcaption>
+</figure>
+
 <section class="slide hero">
 <div>
 <div class="eyebrow">Chapter 3 · DeepAgents 하네스</div>
