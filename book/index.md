@@ -3,7 +3,7 @@ layout: home
 hero:
   name: AI Agent 개발
   text: 인박스 리서치 애널리스트
-  tagline: 영수증·명세서·계약서 한 더미를 읽어 검증된 브리프까지 — 8시간 핸즈온 · 2026 Edition
+  tagline: 영수증·명세서·계약서를 읽어 검증된 브리프까지 — 8시간 핸즈온 · 2026 Edition
   actions:
     - theme: brand
       text: Ch0부터 시작
@@ -15,9 +15,9 @@ hero:
 
 <div class="still">
 <div class="still-frame">
-<div class="still-eyebrow"><span class="bar"></span>한 편의 파이프라인<small>— 메일 한 더미가 검증된 브리프가 되기까지</small></div>
+<div class="still-eyebrow"><span class="bar"></span>한 편의 파이프라인<small>— 받은 메일이 검증된 브리프가 되기까지</small></div>
 <div class="still-rail">
-<div class="still-io in">📥 메일 한 더미<small>영수증·명세서·계약서·PDF</small></div>
+<div class="still-io in">📥 받은 메일<small>영수증·명세서·계약서·PDF</small></div>
 <div class="still-arrow">→</div>
 <div class="still-stop"><span class="n">1·2</span><strong>분류 · 파이프라인</strong><em>LLM → LangGraph</em></div>
 <div class="still-arrow">→</div>

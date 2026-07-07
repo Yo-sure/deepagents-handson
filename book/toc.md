@@ -15,8 +15,8 @@ pageClass: lec-page
 
 # 인박스 리서치<br>애널리스트
 
-<p class="lead">영수증·명세서·계약서 한 더미를 읽어 분류하고, 나눠 조사하고, 지식으로 쌓고, 외부 검증을 거쳐 브리프 한 장으로 끝냅니다.<br>
-매 챕터가 손에 잡히는 부품 하나로 끝나고, Ch6에서 한 줄기로 조립됩니다.</p>
+<p class="lead">영수증·명세서·계약서를 읽어 분류하고, 나눠 조사하고, 지식으로 쌓고, 외부 검증을 거쳐 브리프 한 장으로 끝냅니다.<br>
+매 챕터가 손에 잡히는 결과물 하나로 끝나고, Ch6에서 하나로 조립됩니다.</p>
 
 <div class="kicker">
 <div class="metric"><span class="num">7</span><strong>챕터</strong><span>Ch0 환경 + Ch1~6</span></div>
