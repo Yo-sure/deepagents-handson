@@ -416,9 +416,28 @@ flowchart LR
 <div class="board-header"><span>도구는 모델이 직접 실행하지 않는다</span><span class="status-pill">Tool Use의 실제</span></div>
 <div class="panel-body"><div class="list">
 <p>모델은 함수를 실행하는 대신 "이 함수를 이 인자로 부르라"는 구조화된 호출(<code>tool_calls</code>)을 냅니다. 런타임이 그걸 읽어 실제 함수를 돌리고 결과를 <code>ToolMessage</code>로 되돌려 줍니다.</p>
-<p>그래서 Action은 모델이 낸 <code>tool_calls</code>, Observation은 런타임이 돌려준 <code>ToolMessage</code>입니다. 무엇을·언제 부를지는 모델이 제안합니다. 단 영수증 검산처럼 깨지면 안 되는 불변식은 런타임이 최종 JSON에서 한 번 더 확인합니다. ReAct는 모델 제안과 하니스 검증이 같이 있어야 안전합니다.</p>
+<p>그래서 Action은 모델이 낸 <code>tool_calls</code>, Observation은 런타임이 돌려준 <code>ToolMessage</code>입니다. 무엇을·언제 부를지는 모델이 제안합니다. 단 영수증 검산처럼 깨지면 안 되는 불변식은 런타임이 최종 JSON에서 한 번 더 확인합니다. ReAct는 모델 제안과 하네스 검증이 같이 있어야 안전합니다.</p>
 </div></div>
 </div>
+
+<details class="deep" style="margin-top:14px">
+<summary>🔬 심화 — 실제로는 "구조화된 호출"이 아니라 토큰 시퀀스다</summary>
+<div class="reveal">
+
+<p><code>tool_calls</code>는 <strong>정규화된 뷰</strong>일 뿐, 모델이 낸 원문이 아닙니다. 모델은 자기가 파인튜닝된 포맷의 <em>토큰</em>을 뱉고, 추론 서버·게이트웨이의 <strong>tool-call 파서</strong>가 그걸 읽어 구조체로 만듭니다. 오픈 모델은 이 포맷이 공개돼 있습니다 — 예를 들어 gpt-oss의 Harmony 포맷은 툴 호출을 이런 토큰으로 냅니다:</p>
+
+```text
+<|channel|>commentary to=functions.get_weather <|constrain|>json<|message|>{"city":"서울"}<|call|>
+```
+
+<p>모델마다 다릅니다. Qwen·Hermes 계열은 <code>&lt;tool_call&gt;{"name":…,"arguments":…}&lt;/tool_call&gt;</code>, Mistral은 <code>[TOOL_CALLS][{…}]</code>, Llama 3.1은 <code>&lt;|python_tag|&gt;{…}&lt;|eom_id|&gt;</code>. vLLM의 <code>--tool-call-parser</code> 플래그(<code>hermes</code>·<code>mistral</code>·<code>llama3_json</code>…)가 바로 "어느 포맷을 파싱할지" 고르는 그 계층입니다.</p>
+
+<p><strong>이 수업 스택에선</strong> 기본 모델 Gemini 3.5 Flash가 네이티브로 <code>functionCall</code> 파트를 내고, <strong>OpenRouter</strong>가 OpenAI 호환 <code>tool_calls</code>로 정규화한 뒤 <strong>LangChain</strong>이 <code>AIMessage.tool_calls</code>로 감쌉니다. 위 본문에서 말한 "런타임"의 정규화가 실제로 이 일입니다. <code>arguments</code>가 객체가 아니라 JSON <em>문자열</em>로 오는 것도 이 계약의 흔적이고, 스트리밍 땐 그 문자열이 조각조각 델타로 도착해 중간에 깨질 수 있어 파싱 방어가 필요합니다.</p>
+
+<p style="margin-top:10px;font-size:13px"><strong>출처</strong> — <a href="https://developers.openai.com/cookbook/articles/openai-harmony" target="_blank" rel="noopener">OpenAI Harmony Response Format</a> · <a href="https://github.com/openai/harmony" target="_blank" rel="noopener">openai/harmony</a></p>
+
+</div>
+</details>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>에이전트의 네 구성요소</span><span class="status-pill">구성요소</span></div>
