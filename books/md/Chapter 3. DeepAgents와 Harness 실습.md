@@ -33,12 +33,22 @@ pageClass: lec-page
 <div class="row"><div class="code">3</div><div class="copy"><strong>brief_draft.md</strong><p>짚을 점을 모은 브리프 초안</p></div><div class="store">종합</div></div>
 </div>
 </div>
+
+<div class="board" style="margin-top:14px">
+<div class="board-header"><span>이 챕터를 읽는 순서</span><span class="status-pill">이론 · 기초 · 실습 · 심화</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>① 이론</strong> — Ch2의 손수 짠 <code>StateGraph</code>에서 한 칸 위로: 하네스(<code>create_deep_agent</code>)가 계획·서브에이전트·파일을 기본 장비로 얹습니다.</p>
+<p><strong>② 기초</strong> — <code>create_deep_agent</code> 한 줄 · 서브에이전트 fan-out · 하네스가 배선하는 것을 하나씩.</p>
+<p><strong>③ 실습(In Action)</strong> — 코드 정독 → fan-out 조사를 돌려 노트·브리프 초안 생성 → <code>--trace</code>로 하네스 배선 확인.</p>
+<p><strong>④ 심화</strong> — 각 절의 접이식 노트(메모리 3종 · 컨텍스트 오프로딩 · Select 전략 등). 첫 회독엔 건너뛰어도 됩니다.</p>
+</div></div>
+</div>
 </section>
 
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 위로 한 칸 · 9분</div>
+<div class="eyebrow">이론 · StateGraph에서 한 칸 위로 · 9분</div>
 
 ## StateGraph로는 버거운 일
 
@@ -174,7 +184,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">2 · 한 줄 · 8분</div>
+<div class="eyebrow">기초 · create_deep_agent 한 줄 · 8분</div>
 
 ## create_deep_agent의 기본 장비
 
@@ -319,7 +329,7 @@ agent = create_deep_agent(
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">3 · fan-out · 10분</div>
+<div class="eyebrow">기초 · 서브에이전트 fan-out · 10분</div>
 
 ## 주제를 나눠 동시에
 
@@ -426,7 +436,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">4 · 발견 · 6분</div>
+<div class="eyebrow">기초 · 하네스가 배선하는 것 · 6분</div>
 
 ## 영수증 없는 89,000원
 
@@ -461,7 +471,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ① · 코드 정독 · 8분</div>
+<div class="eyebrow">실습 In Action ① · 코드 정독 · 8분</div>
 
 ## 한 갈래의 조사를 읽는다
 
@@ -498,19 +508,19 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ② · 단계별 실행 · 18분</div>
+<div class="eyebrow">실습 In Action ② · 단계별 실행 · 18분</div>
 
 ## 돌리고, 노트를 연다
 
 </div>
-<p class="section-note">Ch2 적재가 먼저 있어야 조사할 레코드가 있습니다. live 기본 실행은 <code>workspace/classified/</code>의 JSON을 요구합니다. <code>--mock</code> 진단 경로만 classified가 비어 있을 때 gold 샘플로 보충합니다.</p>
+<p class="section-note">Ch2 적재가 먼저 있어야 조사할 레코드가 있습니다. live 기본 실행은 <code>workspace/classified/</code>의 JSON을 요구합니다. fan-out은 <em>어떤 갈래로 나눠 종합하나</em>가 핵심이라, 그 구조를 키 없이 결정론적으로 반복 재현하고 싶을 때 <code>--mock</code>으로 같은 3갈래 골격을 돌립니다.</p>
 </div>
 
 <div class="stack">
 <div class="row"><div class="code">1</div><div class="copy"><strong>먼저 — Ch2 적재(없으면)</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code> <span style="color:var(--muted)">(키 없이: <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: <code>workspace/classified/</code>에 JSON 10개.</span></p></div><div class="store">classified</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사 — live 기본</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py</code> <span style="color:var(--muted)">(장애·오프라인 확인: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준(live): 서브에이전트 3개(card·bank·spend)가 <code>write_note</code>로 노트 3개를 저장하고, 하니스가 그 증거 줄을 모아 <code>workspace/brief_draft.md</code>를 만든다. 성공은 모델 자기보고가 아니라 파일 상태와 하니스 검증으로 판단합니다.</span><br>
-<span style="color:var(--muted)" class="tiny">세부: 이 챕터 live 모델은 <code>claude-haiku-4.5</code>입니다(도구 호출 안정성. Ch0 기본 <code>gemini-3.1-flash-lite</code>과 다른 벤더·과금이고 키는 같음). 호출은 <code>timeout=90</code>·<code>max_retries=1</code>. live 노트는 <code>research_notes/.live_tmp/</code>에 먼저 쓰고, 기대 노트·fan-out·샘플 핵심 항목 검증이 통과하면 최종 <code>research_notes/*.md</code>로 교체합니다. Ch0 preflight가 통과해도 라우팅·지연은 별도로 실패할 수 있습니다. <code>--mock</code>은 같은 3갈래 골격을 <code>[plan]·[task]·[synthesize]</code>로 결정론 재현하는 보조 경로입니다.</span></p></div><div class="store">live</div></div>
-<div class="row"><div class="code">3</div><div class="copy"><strong>노트와 브리프 열어 보기</strong><p><code>cat workspace/research_notes/card_reconcile.md</code> · <code>cat workspace/brief_draft.md</code><br><span style="color:var(--muted)">성공 기준: live에서도 노트 3개와 <code>brief_draft.md</code>가 생긴다. 내용은 모델 판단이라 조금 달라질 수 있지만, 브리프의 주의 항목은 실제 노트에 적힌 줄에서 온다. 결정론적으로 쿠팡 89,000원 ⚠️를 확인하려면 <code>--mock</code>으로 다시 돌립니다. mock은 검산용 보조이지 기본 경로가 아닙니다.</span></p></div><div class="store">확인</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>fan-out 조사 — live 기본</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py</code><br><span style="color:var(--muted)">성공 기준(live): 서브에이전트 3개(card·bank·spend)가 <code>write_note</code>로 노트 3개를 저장하고, 하니스가 그 증거 줄을 모아 <code>workspace/brief_draft.md</code>를 만든다. 성공은 모델 자기보고가 아니라 파일 상태와 하니스 검증으로 판단합니다.</span><br>
+<span style="color:var(--muted)" class="tiny">세부: 이 챕터 live 모델은 <code>claude-haiku-4.5</code>입니다(도구 호출 안정성. Ch0 기본 <code>gemini-3.1-flash-lite</code>과 다른 벤더·과금이고 키는 같음). 호출은 <code>timeout=90</code>·<code>max_retries=1</code>. live 노트는 <code>research_notes/.live_tmp/</code>에 먼저 쓰고, 기대 노트·fan-out·샘플 핵심 항목 검증이 통과하면 최종 <code>research_notes/*.md</code>로 교체합니다. Ch0 preflight가 통과해도 라우팅·지연은 별도로 실패할 수 있습니다. <code>--mock</code>은 같은 3갈래 골격을 <code>[plan]·[task]·[synthesize]</code>로 키 없이 결정론 재현합니다.</span></p></div><div class="store">live</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>노트와 브리프 열어 보기</strong><p><code>cat workspace/research_notes/card_reconcile.md</code> · <code>cat workspace/brief_draft.md</code><br><span style="color:var(--muted)">성공 기준: live에서도 노트 3개와 <code>brief_draft.md</code>가 생긴다. 내용은 모델 판단이라 조금 달라질 수 있지만, 브리프의 주의 항목은 실제 노트에 적힌 줄에서 온다. 결정론적으로 쿠팡 89,000원 ⚠️를 확인하려면 <code>--mock</code>으로 다시 돌립니다.</span></p></div><div class="store">확인</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>하네스 내부 열어 보기</strong><p><code>uv run python3 ch3-deepagents/research_orchestrator.py --trace</code><br><span style="color:var(--muted)">성공 기준(키 불필요): 실제 호출이 아니라 정적 구성 출력입니다. <code>create_deep_agent</code>에 배선되는 기본 장비·오케스트레이터 프롬프트·전용 서브에이전트 3개 구성이 출력된다. DeepAgents 버전에 따라 general-purpose 기본 후보가 함께 보일 수 있지만, 이 실습 하니스가 요구·검증하는 대상은 card·bank·spend 세 전용 위임입니다.</span></p></div><div class="store">하네스</div></div>
 </div>
 
@@ -593,7 +603,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ③ · 트러블슈팅 · 참고</div>
+<div class="eyebrow">참고 · 트러블슈팅</div>
 
 ## 막히면 여기부터
 
