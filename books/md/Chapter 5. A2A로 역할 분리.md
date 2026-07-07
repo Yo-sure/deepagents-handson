@@ -144,6 +144,7 @@ flowchart LR
 <div class="panel-body"><div class="list">
 <p>"검증 요청 보내고 결과 받기"는 REST 한 번으로도 구현할 수 있습니다. A2A가 필요한 요구사항은 세 가지입니다. ① <strong>멀티턴</strong>: 작업 도중 <code>input-required</code>(추가 정보)·<code>auth-required</code>(인증) 상태가 필요함. ② <strong>장기 Task</strong>: 몇 분~몇 시간 걸리는 작업을 <code>submitted→working→completed</code> 상태로 추적함. ③ <strong>능력 협상</strong>: Agent Card의 <code>skills</code>에 따라 요청 가능한 작업을 확인함.</p>
 <p>그래서 A2A는 <em>도구 호출</em>이 아니라 <em>맡긴 일의 생애주기</em>를 표준화합니다. 우리 실습은 가장 단순한 블로킹 1왕복이라 이 중 일부만 씁니다. 장기 작업에서는 폴링, 스트리밍, 웹훅까지 같은 Task 모델로 확장합니다.</p>
+<p><strong>중요 — "REST냐 A2A냐"가 아닙니다.</strong> A2A는 전송 방식이 아니라 <em>Task 모델</em>이고, 그 모델을 <strong>JSON-RPC·gRPC·REST 세 바인딩</strong> 어느 것으로도 실어 나릅니다(같은 동작을 JSON-RPC <code>message/send</code> · REST <code>POST …/message:send</code> · gRPC <code>SendMessage</code>로 — 셋이 동일하게 동작하도록 스펙이 요구). REST 네이티브였던 <strong>ACP</strong>가 2025년 A2A로 통합되며 REST 바인딩이 더 탄탄해졌습니다. 그러니 진짜 대비는 "REST vs A2A"가 아니라 <strong>맨 단발 요청/응답 vs 상태 있는 Task 프로토콜</strong>입니다 — 손으로 짠 REST 엔드포인트 하나는 위 멀티턴·장기·능력협상 상태를 매번 다시 발명해야 하고, A2A는 그걸 표준으로 주면서 <em>REST로도 탈 수 있게</em> 합니다.</p>
 <p class="section-note" style="margin-top:6px">이 장의 범위는 로컬 JSON-RPC 바인딩입니다. 표준 현황, 레지스트리, 카드 서명 같은 운영 주제는 참고 자료로 넘기고, 실습에서는 Agent Card 조회 → SendMessage 제출 → Task 결과 수신만 정확히 봅니다.</p>
 
 ```mermaid
@@ -156,7 +157,7 @@ stateDiagram-v2
     auth_required --> working: 인증 완료
     working --> completed
     completed --> [*]
-    note right of input_required: REST 한 번으론<br/>표현 못 하는 구간
+    note right of input_required: 맨 단발 호출론<br/>표현 못 하는 구간
 ```
 
 </div></div>
@@ -189,6 +190,7 @@ flowchart LR
 </table>
 <p>그래서 한 시스템은 둘을 같이 쓴다. 에이전트끼리는 A2A로 협업하고, 각 에이전트는 자기 도구를 MCP로 쓴다(위 점선). 우리 검증자도 내부적으로 레코드(데이터)에 닿지만, 애널리스트와의 <em>사이</em>는 A2A다.</p>
 <p class="muted"><strong>핵심 정리.</strong> 협상·반복·상태유지가 필요하면 A2A, 도구·데이터 접근이면 MCP. 우리 1:1은 A2A의 가장 단순한 형태이고, 본격적인 쓰임은 여러 에이전트의 <em>양방향 반복</em>이다. 지금은 1왕복 실습으로 충분하고, 이 그림은 단순 함수 호출과 A2A의 차이를 보여 줍니다.</p>
+<p class="tiny" style="margin-top:8px;color:var(--muted)"><strong>실제 사례.</strong> 여러 에이전트가 나눠 조사하고 종합하는 대표 사례가 <a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener">Anthropic의 멀티에이전트 리서치 시스템</a>입니다 — 리드가 3~5개 서브에이전트를 병렬로 띄워 조사·종합해 단일 에이전트 대비 큰 향상을 얻었습니다(우리 Ch3 fan-out이 이 오케스트레이터–워커 패턴). 그 협업이 <em>같은 프로세스</em>면 서브에이전트, <em>프로세스·팀 경계</em>를 넘으면 A2A입니다.</p>
 </div>
 </details>
 </section>
