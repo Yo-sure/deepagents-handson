@@ -623,19 +623,51 @@ ORCHESTRATOR_PROMPT = (
 
 
 def trace_harness() -> None:
-    """create_deep_agent에 무엇이 배선되는지 연다 — 키 불필요(구성만 출력, 호출 안 함)."""
-    print("정적 trace — create_deep_agent에 배선되는 하네스 구성(키 없이 구성만 출력, 실제 호출 아님):\n")
-    print("  [기본 장비] write_todos(계획) · task(서브에이전트 위임)")
-    print("             · 파일시스템(ls·read_file·write_file·edit_file·glob·grep)\n")
-    print("  [런타임 참고] DeepAgents 버전에 따라 general-purpose 기본 후보가 함께 보일 수 있다.")
-    print("               이 실습 하니스가 요구·검증하는 전용 위임 대상은 아래 3개다.\n")
-    print("  [오케스트레이터 system_prompt]")
-    print(f"    {ORCHESTRATOR_PROMPT}\n")
-    print(f"  [서브에이전트 {len(SUBAGENT_SPECS)}개 — task로 fan-out 위임, 각자 격리 컨텍스트]")
+    """create_deep_agent가 '실제로 배선한' 하네스를 연다 — 키 없이 introspect(모델 호출 아님).
+
+    선언한 SUBAGENT_SPECS를 되읽는 게 아니라, 빌드된 CompiledStateGraph에서 실제 도구·미들웨어를
+    꺼낸다. 우리는 도구 하나만 넘겼는데 하네스가 나머지를 채웠음을 실물로 보여 준다.
+    """
+    from deepagents import create_deep_agent
+    from langchain_core.tools import tool
+    from langchain_openai import ChatOpenAI
+
+    @tool
+    def list_records() -> str:
+        """분류 레코드를 JSON으로 반환(trace 스텁 — 호출되지 않음)."""
+        return "[]"
+
+    # 키 없이 '구성만': ChatOpenAI 생성도 create_deep_agent 빌드도 모델을 호출하지 않는다.
+    llm = ChatOpenAI(
+        model=LIVE_MODEL.removeprefix("openai:"),
+        base_url=OPENROUTER_BASE_URL,
+        api_key="trace-no-call",
+    )
+    agent = create_deep_agent(
+        model=llm,
+        tools=[list_records],              # ← 우리가 넘긴 도구는 이 하나뿐
+        system_prompt=ORCHESTRATOR_PROMPT,
+        subagents=SUBAGENT_SPECS,
+    )
+
+    # 빌드된 그래프에서 실제로 꺼낸다(우리 선언이 아니라 실물).
+    tools_node = agent.nodes["tools"]
+    wired = list(getattr(getattr(tools_node, "bound", tools_node), "tools_by_name", {}))
+    added = [t for t in wired if t != "list_records"]
+    nodes = list(agent.get_graph().nodes)
+    middleware = [n for n in nodes if "Middleware" in n]
+
+    print("create_deep_agent가 빌드한 하네스를 실제로 열어 본다(키 없이 · 모델 호출 없음):\n")
+    print("  우리가 넘긴 도구        : list_records  (1개)")
+    print(f"  하네스가 자동 배선한 도구 : {', '.join(added)}  ({len(added)}개)")
+    print("      = write_todos(계획) · task(서브에이전트 위임) · 파일시스템(ls·read_file·write_file·edit_file·glob·grep) · execute\n")
+    print(f"  실행 그래프 노드        : {' → '.join(nodes)}")
+    print(f"  배선된 미들웨어         : {', '.join(middleware) or '(없음)'}\n")
+    print(f"  task로 fan-out 위임하는 서브에이전트 {len(SUBAGENT_SPECS)}개(각자 격리 컨텍스트):")
     for s in SUBAGENT_SPECS:
         print(f"    • {s['name']}: {s['description']}")
-    print("\n  핵심: 메인은 직접 조사하지 않는다 — task로 세 워커에 위임하고 요약만 돌려받아 종합한다.")
-    print("  task 위임에는 워커별 name·description·system_prompt·tools 정의가 필요하다.")
+    print("\n  핵심: 우리는 '도구 1개 + 서브에이전트 명세'만 넘겼다. 계획·위임·파일·미들웨어는")
+    print("        create_deep_agent가 채웠다 — 이게 '배터리 포함 하네스'(create_agent + 기본 배선)다.")
 
 
 def build_agent(records: list[RecordV1], notes_dir: Path = RESEARCH_NOTES):
