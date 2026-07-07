@@ -222,6 +222,11 @@ sequenceDiagram
 <div class="cue-body"><strong>증명:</strong> 시작 시에는 <em>name·description·path</em> metadata만 올라가고 본문은 아직 안 읽힙니다(점진 공개 1단계). <code>uv run python3 ch4-skills-mcp/skill_agent.py --show</code> 를 실행하세요. 내 화면에 뜨는 것은 위 board와 같습니다. <code>[before_agent]</code> 로드 줄과 <code>• inbox-brief → …/SKILL.md</code>, <code>• reconcile-rules → …/SKILL.md</code>, 그리고 <code>본문은 아직 안 읽음</code>이 보이면 1단계 성공입니다. 키가 있으면 <code>--run</code>으로 에이전트가 그 본문을 실제로 read_file 하는 2단계까지 볼 수 있습니다(live 호출은 몇 분 걸릴 수 있음). <span style="color:var(--muted)">이 챕터(와 Ch3)의 에이전트 live 모델은 도구 호출·Skills 안정성을 위해 Ch0에서 셋업한 기본(<code>gemini-3.1-flash-lite</code>)이 아니라 <code>claude-haiku-4.5</code>입니다(<code>skill_agent.py</code>의 <code>LIVE_MODEL</code>). 같은 <code>OPENROUTER_API_KEY</code>로 라우팅되니 키는 그대로지만 벤더·과금이 다릅니다.</span></div>
 </div>
 
+<div class="cue solve" style="margin-top:12px">
+<div class="cue-head"><span class="cue-label">✏️ 풀어보기 — Skill을 직접 배선한다</span><span class="cue-time">~12분 · 키 불필요</span></div>
+<div class="cue-body"><code>ch4-skills-mcp/exercise_skill.py</code>는 Skill 스캐폴드입니다. 두 칸만 채우면 됩니다 — ① <code>SKILL.md</code> 앞머리의 <code>name</code>·<code>description</code>(<code>name</code>은 디렉터리 이름 <code>inbox-alert</code>과 같아야 발견됨), ② <code>SkillsMiddleware(sources=…)</code>로 <code>before_agent</code> 발견. <code>uv run python3 ch4-skills-mcp/exercise_skill.py --check</code>로 <code>✅ 2/2</code>면 완성입니다(정답: <code>skill_agent.py</code>·<code>inbox-brief/SKILL.md</code>). 미들웨어가 앞머리만 읽어 목록에 싣는 '점진 공개 1단계'를 직접 세워 봅니다.</div>
+</div>
+
 <details class="deep">
 <summary>🔬 심화 — SkillsMiddleware는 내부에서 무엇을 하나 <span style="color:var(--muted)">(점진 공개 내부)</span></summary>
 <div class="reveal">
@@ -675,6 +680,11 @@ flowchart LR
 <div class="cue solve" style="margin-top:16px">
 <div class="cue-head"><span class="cue-label">✏️ 직접 해보기 — MCP 서버에 도구 하나 더</span><span class="cue-time">~5분 · 키 불필요</span></div>
 <div class="cue-body"><code>ch4-skills-mcp/mcp_text_server.py</code>에 <code>@mcp.tool()</code>을 하나 더 답니다(예: 텍스트를 뒤집는 <code>reverse_text(text: str) -&gt; str</code>). 저장 후 <code>uv run python3 ch4-skills-mcp/mcp_text_server.py --list</code>로 새 도구가 목록에 뜨는지 보고, 이어서 <code>uv run python3 ch4-skills-mcp/mcp_multi_client.py</code>를 돌리면 <strong>클라이언트 코드를 한 줄도 안 고쳤는데</strong> <code>text_reverse_text</code>가 모은 목록에 함께 나타납니다. 서버에 도구를 더하면 클라이언트가 자동으로 발견한다 — 이게 <code>tools/list</code> 발견의 값입니다.</div>
+</div>
+
+<div class="cue solve" style="margin-top:12px">
+<div class="cue-head"><span class="cue-label">✏️ 풀어보기 — MCP 서버를 처음부터 세운다</span><span class="cue-time">~15분 · 키 불필요</span></div>
+<div class="cue-body"><code>ch4-skills-mcp/exercise_mcp_server.py</code>는 FastMCP 서버 스캐폴드입니다. 도구 둘을 노출하는 두 칸만 채우면 됩니다 — ① <code>greet</code> 위에 <code>@mcp.tool()</code> 한 줄, ② <code>word_count</code> 도구를 통째로(데코레이터+함수). <code>uv run python3 ch4-skills-mcp/exercise_mcp_server.py --list</code>로 <code>✅ 2/2</code>가 나오면 완성입니다(정답: <code>mcp_text_server.py</code>). "함수에 <code>@mcp.tool()</code>을 달면 곧 MCP 도구"라는 핵심을 손으로 확인합니다.</div>
 </div>
 </section>
 
