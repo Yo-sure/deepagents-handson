@@ -632,6 +632,48 @@ inbox-mcp-server 도구 4개:
 <section class="slide">
 <div class="section-head">
 <div>
+<div class="eyebrow">실습 In Action · transport와 멀티서버 · 8분</div>
+
+## 전송을 바꾸고, 서버를 여럿 붙인다
+
+</div>
+<p class="section-note">MCP는 도구 <em>계약</em>과 <em>전송</em>을 나눴습니다. 그래서 ① 같은 서버를 stdio(로컬)에서 HTTP(원격·공유)로 바꿔도 도구는 그대로고, ② 서버 여럿을 클라이언트 하나로 붙일 수 있습니다. 앞에서 말로만 짚은 두 가지를 실제로 돌려 봅니다.</p>
+</div>
+
+<div class="grid-2">
+<div class="panel"><div class="panel-head"><strong>transport 전환 — stdio ↔ HTTP</strong><span>같은 도구, 다른 길</span></div><div class="panel-body"><div class="list">
+<p><strong>stdio</strong>(기본): 클라이언트가 서버를 subprocess로 띄워 표준입출력으로 대화. 로컬·1:1.</p>
+<p><strong>Streamable HTTP</strong>: <code>mcp.run(transport="streamable-http")</code> — 서버가 네트워크에 뜨고 여러 클라이언트가 붙는다. 원격·공유.</p>
+<p>바뀌는 건 <code>mcp.run()</code> 인자 하나. <code>tools/list·tools/call</code> 규약은 동일하다.</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>멀티서버 — MultiServerMCPClient</strong><span>서버 여럿을 한 목록으로</span></div><div class="panel-body"><div class="list">
+<p>연결 dict에 서버를 여러 개 담고 <code>get_tools()</code> 한 번이면, 각 서버 도구가 LangChain 도구로 <strong>한 목록</strong>에 합쳐진다.</p>
+<p>서버가 stdio든 HTTP든 클라이언트 코드는 같다 — 연결 dict의 <code>transport</code>만 다르다.</p>
+<p><code>tool_name_prefix=True</code>로 <code>inbox_…</code>·<code>text_…</code> 접두사를 붙여 이름 충돌을 막는다.</p>
+</div></div></div>
+</div>
+
+<p class="section-note" style="margin-top:16px"><code>mcp_multi_client.py</code>는 두 서버(<code>inbox</code>=지식 조회, <code>text</code>=텍스트 유틸)를 한 클라이언트로 붙입니다. 핵심은 연결 dict 하나이고, <code>--http</code>면 inbox 줄의 transport만 바뀝니다:</p>
+
+<<< ../../ch4-skills-mcp/mcp_multi_client.py#multi-client{python}
+
+<div class="board" style="margin-top:16px">
+<div class="board-header"><span>실습 — 두 방식으로 돌려 본다</span><span class="status-pill">In Action</span></div>
+<div class="stack">
+<div class="row"><div class="code">1</div><div class="copy"><strong>멀티서버(둘 다 stdio) — 자립 실행</strong><p><code>uv run python3 ch4-skills-mcp/mcp_multi_client.py</code><br><span style="color:var(--muted)">성공 기준: 클라이언트가 <code>inbox</code>·<code>text</code> 두 서버를 subprocess로 띄워 도구 <strong>6개</strong>(<code>inbox_…</code> 4 + <code>text_…</code> 2)를 한 목록으로 모으고, <code>text_word_count</code>를 실제 호출합니다. 서버를 미리 띄울 필요 없이 클라이언트가 직접 실행합니다.</span></p></div><div class="store">멀티</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>transport 전환 — inbox를 HTTP로</strong><p>터미널 A <code>uv run python3 ch4-skills-mcp/mcp_inbox_server.py --http</code> → 터미널 B <code>uv run python3 ch4-skills-mcp/mcp_multi_client.py --http</code><br><span style="color:var(--muted)">성공 기준: inbox가 <code>http://127.0.0.1:8848/mcp</code>로 뜨고, 클라이언트가 <code>inbox=HTTP · text=stdio</code>로 같은 6개 도구를 모읍니다. 서버·도구 코드는 한 줄도 안 바꿨고, 연결 dict의 transport만 바뀌었습니다.</span></p></div><div class="store">HTTP</div></div>
+</div>
+</div>
+
+<div class="cue solve" style="margin-top:16px">
+<div class="cue-head"><span class="cue-label">✏️ 직접 해보기 — MCP 서버에 도구 하나 더</span><span class="cue-time">~5분 · 키 불필요</span></div>
+<div class="cue-body"><code>ch4-skills-mcp/mcp_text_server.py</code>에 <code>@mcp.tool()</code>을 하나 더 답니다(예: 텍스트를 뒤집는 <code>reverse_text(text: str) -&gt; str</code>). 저장 후 <code>uv run python3 ch4-skills-mcp/mcp_text_server.py --list</code>로 새 도구가 목록에 뜨는지 보고, 이어서 <code>uv run python3 ch4-skills-mcp/mcp_multi_client.py</code>를 돌리면 <strong>클라이언트 코드를 한 줄도 안 고쳤는데</strong> <code>text_reverse_text</code>가 모은 목록에 함께 나타납니다. 서버에 도구를 더하면 클라이언트가 자동으로 발견한다 — 이게 <code>tools/list</code> 발견의 값입니다.</div>
+</div>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
 <div class="eyebrow">심화 · SKILL 표준·이식성 · 5분</div>
 
 ## SKILL.md 앞머리와 이식성

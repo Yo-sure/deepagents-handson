@@ -171,5 +171,13 @@ if __name__ == "__main__":
         _list_tools()
     elif "--protocol" in sys.argv:
         _show_protocol()
+    elif "--http" in sys.argv:
+        # 같은 도구를 stdio 대신 Streamable HTTP로 노출한다 — 원격·공유 서버가 되는 transport.
+        # 도구 정의·발견·호출 규약(tools/list·tools/call)은 그대로다. 실어 나르는 '길'만 바뀐다.
+        mcp.settings.host = "127.0.0.1"
+        mcp.settings.port = 8848
+        url = f"http://{mcp.settings.host}:{mcp.settings.port}{mcp.settings.streamable_http_path}"
+        print(f"inbox-mcp-server → Streamable HTTP  {url}   (Ctrl+C 종료)", flush=True)
+        mcp.run(transport="streamable-http")
     else:
-        mcp.run()  # stdio transport
+        mcp.run()  # stdio transport (기본 — 클라이언트가 subprocess로 띄운다)
