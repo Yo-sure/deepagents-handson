@@ -258,7 +258,7 @@ for _ in range(MAX_STEPS):
 ```python
 class IntakeState(TypedDict, total=False):
     doc: str        # sample_inbox 파일명
-    mock: bool      # --mock 플래그(gold로 추출, 키 불필요)
+    mock: bool      # --mock 플래그(정답값으로 추출, 키 불필요)
     record: dict    # 추출한 RecordV1 (노드 사이로 운반)
     retries: int    # 재분류 횟수
     flagged: str    # 사람 검토 사유("" 면 자동 통과)
@@ -345,10 +345,10 @@ flowchart TD
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>재시도는 무한 루프가 아니다</span><span class="status-pill">상한</span></div>
 <div class="panel-body"><div class="list">
-<p>같은 실패를 계속 반복하면 비용만 듭니다. <code>MAX_RETRY</code>로 두 번까지만 되돌립니다. live 재시도에서는 이전 불일치 관측을 보고 Ch1의 ReAct 검산 경로로 다시 읽습니다. 그래도 안 맞으면 <code>hold</code>로 보내 JSON을 쓰지 않습니다. 검증 통과 후 고액·저신뢰 플래그가 남은 문서만 <code>review</code>로 사람에게 올립니다. 이 gold 회귀 게이트는 수업 샘플을 위한 장치이고, 실제 업무에서는 정답 manifest 대신 업무 규칙·상호참조 검증으로 바꿉니다. 현재 하니스는 Ch1의 <code>score()</code>가 5/6 미만이면 실패로 보고, 판매처·문서유형·총액·날짜·항목수·항목 라인합(단가×수량) 불일치는 로그에 직접 보여 줍니다. 항목은 라인합으로 보므로 '마스크팩 5매'를 6000×1로 읽든 1200×5로 읽든 같은 것으로 통과합니다(대사 불변식은 라인 합).</p>
+<p>같은 실패를 계속 반복하면 비용만 듭니다. <code>MAX_RETRY</code>로 두 번까지만 되돌립니다. live 재시도에서는 이전 불일치 관측을 보고 Ch1의 ReAct 검산 경로로 다시 읽습니다. 그래도 안 맞으면 <code>hold</code>로 보내 JSON을 쓰지 않습니다. 검증 통과 후 고액·저신뢰 플래그가 남은 문서만 <code>review</code>로 사람에게 올립니다. 이 정답 회귀 게이트는 수업 샘플을 위한 장치이고, 실제 업무에서는 정답 manifest 대신 업무 규칙·상호참조 검증으로 바꿉니다. 현재 하니스는 Ch1의 <code>score()</code>가 5/6 미만이면 실패로 보고, 판매처·문서유형·총액·날짜·항목수·항목 라인합(단가×수량) 불일치는 로그에 직접 보여 줍니다. 항목은 라인합으로 보므로 '마스크팩 5매'를 6000×1로 읽든 1200×5로 읽든 같은 것으로 통과합니다(대사 불변식은 라인 합).</p>
 <p class="tiny" style="color:var(--muted)">검증 자체의 한계도 알고 씁니다. <code>verify_total</code>은 "항목합(<code>금액×수량</code>) = 총액(±1원)"이라는 가정이라, 부가세 별도·서비스료·할인·반올림이 섞인 실제 영수증에선 모델이 옳게 읽어도 불일치가 날 수 있습니다. 그래서 이 검증은 정답 판정이 아니라, 불일치를 재시도로 보내되 상한과 flagged 큐로 받치는 층층 방어의 한 겹일 뿐입니다.</p>
 <p><code>temperature=0</code>이어도 출력이 완전히 결정적이진 않아, 같은 입력에서도 추출이 흔들릴 수 있습니다(Ch1에서 본 비결정성).</p>
-<p>평소 mock은 gold가 고정이라 합계가 맞아 retry가 안 뜹니다(라이브 추출에선 비결정성으로 흔들려 의미가 있습니다). 그래서 <strong>아래 <code>--break-sum</code>으로 일부러 깨</strong> retry 루프를 눈으로 봅니다. 한계를 정해 두는 게 하네스의 일입니다.</p>
+<p>평소 mock은 정답값이 고정이라 합계가 맞아 retry가 안 뜹니다(라이브 추출에선 비결정성으로 흔들려 의미가 있습니다). 그래서 <strong>아래 <code>--break-sum</code>으로 일부러 깨</strong> retry 루프를 눈으로 봅니다. 한계를 정해 두는 게 하네스의 일입니다.</p>
 <p>재시도가 외부 부작용(메일 전송·DB 쓰기)을 가진 도구를 다시 부른다면 멱등성이 필요합니다. 같은 작업을 두 번 해도 결과가 한 번과 같도록 idempotency key를 둬야 중복이 안 생깁니다(이 실습의 재분류는 부작용이 없어 안전). 그래프 차원의 마지막 안전망은 <code>recursion_limit</code>으로, 한 실행의 superstep 수가 이를 넘으면 <code>GraphRecursionError</code>가 납니다. 기본값은 LangGraph 버전별로 달라질 수 있으니 수업 환경에서는 직접 확인합니다. 평소엔 안 걸리는 폭주 방지 backstop이고, 노드 로직이 정하는 <code>MAX_RETRY</code> 재시도 횟수와는 다른 층입니다. 이 챕터 그래프는 checkpointer를 쓰므로 낮춰 실험할 때도 <code>graph.invoke(state, config=&#123;"configurable": &#123;"thread_id": "rec-demo"&#125;, "recursion_limit": 5&#125;)</code>처럼 thread_id를 함께 줍니다.</p>
 </div></div>
 </div>
@@ -488,7 +488,7 @@ sequenceDiagram
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>실제로 멈추는 건</strong><span>sample_inbox · --mock</span></div><div class="panel-body"><div class="list">
 <p>명세서(invoice_photo) 1,650,000원 · 용역 계약 3,000,000원 — 고액 2건</p>
-<p>mock은 gold를 그대로 써 신뢰도가 1.0으로 주입됩니다. 저신뢰 분기는 키 있는 라이브 실행에서만 걸립니다</p>
+<p>mock은 정답값을 그대로 써 신뢰도가 1.0으로 주입됩니다. 저신뢰 분기는 키 있는 라이브 실행에서만 걸립니다</p>
 </div></div></div>
 </div>
 
@@ -543,7 +543,7 @@ sequenceDiagram
 ## 흘려보내고 멈춤을 본다
 
 </div>
-<p class="section-note">두 갈래로 봅니다. <strong>live 실행</strong>(스텝 1~4)은 실제 모델 추출값이 그래프를 지나는 걸 보고, <strong>결정론 실습</strong>(스텝 5)은 재시도·중단 같은 <em>그래프 흐름</em>을 키 없이 반복 재현합니다. 재시도·임계값 실험은 추출 품질이 아니라 흐름이 핵심이라, gold 레코드로 결정론적으로 도는 <code>--mock</code>이 오히려 정확한 도구입니다(그게 <code>--mock</code>이 있는 이유입니다).</p>
+<p class="section-note">두 갈래로 봅니다. <strong>live 실행</strong>(스텝 1~4)은 실제 모델 추출값이 그래프를 지나는 걸 보고, <strong>결정론 실습</strong>(스텝 5)은 재시도·중단 같은 <em>그래프 흐름</em>을 키 없이 반복 재현합니다. 재시도·임계값 실험은 추출 품질이 아니라 흐름이 핵심이라, 정답 레코드로 결정론적으로 도는 <code>--mock</code>이 오히려 정확한 도구입니다(그게 <code>--mock</code>이 있는 이유입니다).</p>
 </div>
 
 <div class="stack">
@@ -551,7 +551,7 @@ sequenceDiagram
 <div class="row"><div class="code">2</div><div class="copy"><strong>한 건만 — 멈춤 관찰</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc invoice_photo.png</code><br><span style="color:var(--muted)"><strong>증명:</strong> interrupt는 예외가 아니라 반환값(<code>__interrupt__</code>)으로 온다. 한 건으로 또렷이 본다. 성공 기준: 고액 청구서로 분류되면 <code>approve/reject 입력</code> 프롬프트가 보이고, 직접 <code>approve</code>를 넣으면 review→persist로 이어진다. 금액·상호명은 live 추출이라 조금 다를 수 있다.</span></p></div><div class="store">interrupt</div></div>
 <div class="row"><div class="code">3</div><div class="copy"><strong>검토건 반려</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --reject-flagged --doc invoice_photo.png</code><br><span style="color:var(--muted)"><strong>증명:</strong> fail-closed — 반려·오타·빈 응답이 모두 보류로 가고 기존 JSON까지 회수된다(틀리면 안 들어간다). 성공 기준: 고액 한 건이 <code>[review] 보류 — 적재 안 함</code>으로 빠지고, 기존 JSON이 있으면 제거된다. 다시 정상 산출물을 만들려면 1번 전체 적재를 한 번 더 실행한다.</span></p></div><div class="store">보류</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>품질 게이트 단건 확인</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc statement_bank_2026-05.pdf</code><br><span style="color:var(--muted)"><strong>증명:</strong> live 모델이 은행 PDF를 의미상 잘못 읽으면 <code>[verify] 샘플 품질 불일치(...)</code> 뒤 retry를 쓰고, 끝내 맞지 않으면 <code>[hold]</code>로 보류한다. 이 실패는 정상입니다 — 거짓 성공으로 JSON을 남기지 않는 것이 목표입니다.</span></p></div><div class="store">품질</div></div>
-<div class="row"><div class="code">5</div><div class="copy"><strong>결정론 실습 — 키 없이 그래프 흐름</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><span style="color:var(--muted)">gold 레코드로 같은 그래프를 결정론적으로 돌립니다(키 불필요). 추출값이 매번 같으니 <em>흐름</em>을 반복 재현하기 좋고, 아래 재시도·임계값 실험의 기본 경로입니다. 성공 기준: 문서 10건 처리, 고액 2건(invoice_photo·contract_freelance) interrupt 뒤 자동 승인, JSON 10개.</span></p></div><div class="store">결정론</div></div>
+<div class="row"><div class="code">5</div><div class="copy"><strong>결정론 실습 — 키 없이 그래프 흐름</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><span style="color:var(--muted)">정답 레코드로 같은 그래프를 결정론적으로 돌립니다(키 불필요). 추출값이 매번 같으니 <em>흐름</em>을 반복 재현하기 좋고, 아래 재시도·임계값 실험의 기본 경로입니다. 성공 기준: 문서 10건 처리, 고액 2건(invoice_photo·contract_freelance) interrupt 뒤 자동 승인, JSON 10개.</span></p></div><div class="store">결정론</div></div>
 </div>
 
 <div class="cue do">
@@ -739,7 +739,7 @@ flowchart LR
 <p><strong>A2.</strong> checkpointer. 없어도 interrupt 자체는 동작해 <code>__interrupt__</code>를 반환값에 담고 멈추지만, resume 시 멈춘 상태를 저장한 곳이 없어 <code>RuntimeError</code>가 난다.</p>
 <p><strong>A3.</strong> 아니다. <code>MAX_RETRY</code>는 노드 로직이 정하는 재분류 횟수 상한. <code>recursion_limit</code>은 그래프 차원의 backstop으로, 한 실행의 superstep 수가 넘으면 <code>GraphRecursionError</code>가 난다 — 평소엔 안 걸리는 폭주 방지용. 설치본의 기본값은 <code>uv run python3 -c "from langgraph._internal._config import DEFAULT_RECURSION_LIMIT; print(DEFAULT_RECURSION_LIMIT)"</code>로 확인한다. 서로 다른 층이다.</p>
 <p><strong>A4.</strong> 노드를 위에서부터 통째로 다시 실행한다 — <code>interrupt()</code> 앞 코드도 한 번 더 돈다. 그래서 DB 쓰기·카운터 증가 같은 부수효과를 <code>interrupt()</code> 앞에 두면 두 번 실행된다. 부수효과는 뒤 노드로 미룬다.</p>
-<p><strong>A5.</strong> mock은 gold를 그대로 써 신뢰도가 1.0으로 주입되니 저신뢰 기준에 못 미친다. mock에서 멈추는 건 오직 고액(≥1,000,000) 기준 — invoice_photo·contract_freelance 2건이다. 저신뢰 분기는 키 있는 라이브에서만 본다.</p>
+<p><strong>A5.</strong> mock은 정답값을 그대로 써 신뢰도가 1.0으로 주입되니 저신뢰 기준에 못 미친다. mock에서 멈추는 건 오직 고액(≥1,000,000) 기준 — invoice_photo·contract_freelance 2건이다. 저신뢰 분기는 키 있는 라이브에서만 본다.</p>
 </div>
 </details>
 </section>

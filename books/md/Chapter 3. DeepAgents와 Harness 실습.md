@@ -613,10 +613,10 @@ flowchart TB
 
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>노트가 비어 있음</strong><span>입력</span></div><div class="panel-body"><div class="list">
-<p><code>classified/</code>가 비었습니다. live 기본 실행은 여기서 멈춥니다. Ch2 intake를 먼저 돌리세요. 키 없이 Ch3 구조만 확인하려면 <code>--mock</code>을 붙이면 gold 샘플로 보충합니다.<br><strong>"일부만 있습니다"</strong>로 멈추면(예: 9/10) 이전 실행이 덜 끝난 것입니다. <code>uv run python3 ch2-langgraph-agent/intake_graph.py</code>를 다시 돌려 <code>workspace/classified/</code>에 JSON 10개를 모두 채운 뒤 재실행합니다(부분 입력은 조용한 성공을 막으려 일부러 하드에러로 멈춥니다).</p>
+<p><code>classified/</code>가 비었습니다. live 기본 실행은 여기서 멈춥니다. Ch2 intake를 먼저 돌리세요. 키 없이 Ch3 구조만 확인하려면 <code>--mock</code>을 붙이면 정답 샘플로 보충합니다.<br><strong>"일부만 있습니다"</strong>로 멈추면(예: 9/10) 이전 실행이 덜 끝난 것입니다. <code>uv run python3 ch2-langgraph-agent/intake_graph.py</code>를 다시 돌려 <code>workspace/classified/</code>에 JSON 10개를 모두 채운 뒤 재실행합니다(부분 입력은 조용한 성공을 막으려 일부러 하드에러로 멈춥니다).</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>쿠팡이 안 잡힘</strong><span>매칭</span></div><div class="panel-body"><div class="list">
-<p>분류가 금액을 잘못 읽었을 수 있습니다. classified의 카드 명세서 항목 금액을 확인하세요. mock이면 gold라 항상 잡힙니다.</p>
+<p>분류가 금액을 잘못 읽었을 수 있습니다. classified의 카드 명세서 항목 금액을 확인하세요. mock이면 정답값이라 항상 잡힙니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>키 모드가 느림</strong><span>실호출</span></div><div class="panel-body"><div class="list">
 <p>키를 넣으면 <code>create_deep_agent</code>가 실제로 추론하며 도구를 부르므로 수십 초 걸립니다. 90초 제한을 넘거나 모델 라우팅 오류가 나면 live 경로는 실패로 멈추고, 구조 확인은 <code>--mock</code> 또는 <code>--trace</code>로 분리합니다.</p>

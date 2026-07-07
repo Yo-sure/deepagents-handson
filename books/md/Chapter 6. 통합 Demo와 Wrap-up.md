@@ -148,7 +148,7 @@ flowchart LR
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>두 실행 트랙</strong></div><div class="panel-body"><div class="list">
 <p><strong>기본</strong>: Ch2 live 분류, Ch3 live 조사, Ch4 Skill live 브리프 작성. 실제 모델 비용과 실패 가능성까지 본다.</p>
-<p><strong><code>--mock</code></strong>: Ch2 gold 분류, Ch3 결정론 조사, Ch4 결정론 브리프 작성. 키 없이 산출물 계약을 확인한다.</p>
+<p><strong><code>--mock</code></strong>: Ch2 정답 분류, Ch3 결정론 조사, Ch4 결정론 브리프 작성. 키 없이 산출물 계약을 확인한다.</p>
 <p><code>--a2a</code>를 붙이면 검증만 실제 외부 서버로 나가고, 빼면 같은 검증 함수를 인프로세스로 부릅니다.</p>
 </div></div></div>
 </div>
@@ -163,7 +163,7 @@ flowchart LR
 ## 캡스톤을 실행한다
 
 </div>
-<p class="section-note">명령은 두 트랙입니다. <strong>live</strong>는 Ch2·Ch3·Ch4에서 배운 모듈을 실제로 호출하고, <strong><code>--mock</code></strong>은 키 없이 전 구간 배선과 검증 판정을 결정론적으로 확인합니다(분류·조사·브리프를 gold·규칙으로 대체). 캡스톤은 <em>모듈이 하나로 이어지는지</em>가 핵심이라, 키가 없거나 배선만 빠르게 보고 싶을 때 <code>--mock</code>이 제격입니다.</p>
+<p class="section-note">명령은 두 트랙입니다. <strong>live</strong>는 Ch2·Ch3·Ch4에서 배운 모듈을 실제로 호출하고, <strong><code>--mock</code></strong>은 키 없이 전 구간 배선과 검증 판정을 결정론적으로 확인합니다(분류·조사·브리프를 정답값·규칙으로 대체). 캡스톤은 <em>모듈이 하나로 이어지는지</em>가 핵심이라, 키가 없거나 배선만 빠르게 보고 싶을 때 <code>--mock</code>이 제격입니다.</p>
 </div>
 
 <div class="cue do">
@@ -489,8 +489,8 @@ flowchart TB
 
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>지금은 목이라 숨은 것</strong></div><div class="panel-body"><div class="list">
-<p><strong>추출 비결정성</strong>: <code>--mock</code>은 gold를 베껴 100% 재현됩니다. 실모델 멀티모달은 신뢰도가 흔들리고 같은 영수증을 넣어도 결과가 매번 달라져, 신뢰도 임계 HITL 멈춤(Ch2)이 실제 안전장치가 됩니다.</p>
-<p><strong>검증은 실모델 구간에서 의미가 커짐</strong>: 목 구간에선 브리프도 검증자도 같은 gold에서 나와 PASS가 사실상 보장됩니다(검증이 도는지 확인용). 추출이 흔들리는 실모델에서는 브리프 누락과 검증자 반려가 실제로 갈리므로, 외부 검증의 효과가 드러납니다.</p>
+<p><strong>추출 비결정성</strong>: <code>--mock</code>은 정답값을 베껴 100% 재현됩니다. 실모델 멀티모달은 신뢰도가 흔들리고 같은 영수증을 넣어도 결과가 매번 달라져, 신뢰도 임계 HITL 멈춤(Ch2)이 실제 안전장치가 됩니다.</p>
+<p><strong>검증은 실모델 구간에서 의미가 커짐</strong>: 목 구간에선 브리프도 검증자도 같은 정답값에서 나와 PASS가 사실상 보장됩니다(검증이 도는지 확인용). 추출이 흔들리는 실모델에서는 브리프 누락과 검증자 반려가 실제로 갈리므로, 외부 검증의 효과가 드러납니다.</p>
 <p><strong>fan-out 비용·실패</strong>: 세 갈래가 실제 LLM 호출이면 토큰·지연·부분 실패가 곱해집니다. 한 갈래가 죽어도 나머지가 끝나게(부분 산출 허용) 설계해야 합니다. <span style="color:var(--muted)">또 목의 <code>fan_out_mock</code>은 함수가 즉답이라 <code>ThreadPoolExecutor</code>가 사실상 직렬입니다(대기가 0이니 겹칠 게 없죠). fan-out의 실이득은 각 갈래가 네트워크 LLM 호출로 수백 ms~수초 <em>대기</em>할 때 그 대기를 겹치는 데서 납니다. 그래서 실모델 전환 시엔 I/O 대기를 겹치는 <code>asyncio.gather</code>가 더 맞고, 한 갈래가 실패해도 나머지 결과를 받으려면 <code>return_exceptions=True</code>로 받습니다.</span></p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>경계를 넘을 때</strong></div><div class="panel-body"><div class="list">

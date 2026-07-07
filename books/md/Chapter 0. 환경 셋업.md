@@ -205,19 +205,20 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 </div>
 </div>
 
-<div class="ask" style="margin-top:18px"><strong>생각해보기 (30초).</strong> 곧 Step 3에서 만들 코드를 <code>uv run</code> 없이 그냥 <code>python3 first_call.py</code>로 돌리면 <code>ModuleNotFoundError: langchain_openai</code>가 납니다. 무엇이 빠졌을까요?</div>
+<div class="ask" style="margin-top:18px"><strong>생각해보기 (30초).</strong> 다음 Step 3에서 <code>first_call.py</code>를 돌렸더니 마지막 줄에 <code>openai.AuthenticationError: 401 - {'message': 'User not found'}</code>가 떴습니다. 코드도 <code>.venv</code>도 멀쩡한데 왜일까요?</div>
 
 <details>
 <summary>정답 확인</summary>
 <div class="reveal">
-<p>전역 Python으로 실행돼 레포 <code>.venv</code>를 안 거쳤기 때문입니다. 의존성은 <code>.venv</code>에만 깔려 있으므로 <code>uv run python3 ...</code>로 돌리거나, VSCode에서 인터프리터를 <code>.venv</code>로 지정한 뒤 실행해야 합니다.</p>
-<p><code>uv run</code>은 매번 자동으로 <code>.venv</code>를 활성화하므로 <code>source .venv/bin/activate</code>를 잊어도 됩니다. 그래서 이 과정의 실행 명령은 전부 <code>uv run</code>으로 시작합니다.</p>
+<p><code>.env</code>에 <strong>API 키가 아직 안 들어간</strong> 것입니다 — 플레이스홀더 <code>sk-or-...</code>가 그대로거나 빈 값이면, 게이트웨이가 그 키로 사용자를 못 찾아 401 <code>User not found</code>를 돌려줍니다. 코드·환경 문제가 아니라 키 문제입니다.</p>
+<p>고치는 법: <strong>강의 안내 페이지(Notion)</strong>에서 받은 키로 <code>.env</code>의 <code>OPENROUTER_API_KEY=</code> 줄을 채우고 다시 실행합니다. (<code>ModuleNotFoundError</code>가 난다면 그건 다른 문제 — <code>uv run</code> 없이 전역 Python으로 돌려 <code>.venv</code>를 안 거친 경우입니다.)</p>
 </div>
 </details>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>막히면 — 자주 나는 것</span><span class="status-pill">트러블슈팅</span></div>
 <div class="stack">
+<div class="row"><div class="code">!</div><div class="copy"><strong><code>401 User not found</code></strong><p>실행은 되는데 이 에러가 나면 <code>.env</code>에 키가 안 들어간 것(플레이스홀더 <code>sk-or-...</code> 그대로). <strong>강의 안내 페이지(Notion)</strong>에서 키를 받아 <code>OPENROUTER_API_KEY=</code>에 넣고 다시 실행하세요.</p></div><div class="store">키</div></div>
 <div class="row"><div class="code">!</div><div class="copy"><strong><code>code .</code>가 안 먹힘</strong><p>Ubuntu 앱 안에서 실행했는지 먼저 확인합니다. 그래도 안 되면 VSCode 설치, Remote - WSL 확장, PATH 연동을 확인한 뒤 Windows에서 VSCode를 한 번 열고 WSL 터미널을 새로 여세요.</p></div><div class="store">WSL</div></div>
 <div class="row"><div class="code">!</div><div class="copy"><strong><code>uv: command not found</code></strong><p>설치 직후 PATH가 안 잡힌 것. <code>source ~/.bashrc</code> 또는 터미널을 새로 여세요(<code>~/.local/bin</code>).</p></div><div class="store">PATH</div></div>
 <div class="row"><div class="code">!</div><div class="copy"><strong><code>WSL2 환경이 아닌 것 같습니다</code></strong><p>Windows Git Bash/macOS/일반 Linux에서 실수로 실행하면 <code>setup.sh</code>가 중단합니다. 수업 기준은 WSL2 Ubuntu 24.04입니다. 연구실 Linux 등에서 의도적으로 돌릴 때만 <code>ACDC_ALLOW_NON_WSL=1 bash scripts/setup.sh</code>로 우회하세요.</p></div><div class="store">격리</div></div>
@@ -280,7 +281,7 @@ bash scripts/preflight.sh
 <div class="board-header"><span>실행 원칙 — live로 값을, <code>--mock</code>으로 구조를</span><span class="status-pill">전 챕터 공통</span></div>
 <div class="panel-body"><div class="list">
 <p>이 과정은 <strong>키가 있는 상태</strong>를 기준으로 진행합니다. 아무 옵션 없이 실행하면 실제 모델이 샘플 문서를 읽고, 판매처·금액·항목을 추출해 RecordV1로 분류합니다. 교재의 설명과 성공 기준도 이 <strong>live 경로</strong>를 기준으로 씁니다.</p>
-<p><strong><code>--mock</code>은 그래프·fan-out 같은 <em>구조</em>를 키 없이 결정론적으로 재현하는 도구입니다.</strong> 실습에 따라서는 추출값보다 <em>흐름</em>이 중요합니다 — 재시도가 상한에서 멈추는지(Ch2), 세 요청이 동시에 실행되는지(Ch3), 전 단계가 끝까지 이어지는지(Ch6). 이런 건 값이 매번 흔들리는 live보다 gold·규칙으로 고정된 <code>--mock</code>이 오히려 정확히 보여 줍니다(키가 없을 때의 대체 경로이기도 합니다). 반대로 <em>값·판정 자체</em>가 궁금한 장면(추출 품질 등)은 먼저 live로 봅니다. 그래서 각 챕터는 이 둘을 필요한 쪽으로만 안내합니다.</p>
+<p><strong><code>--mock</code>은 그래프·fan-out 같은 <em>구조</em>를 키 없이 결정론적으로 재현하는 도구입니다.</strong> 실습에 따라서는 추출값보다 <em>흐름</em>이 중요합니다 — 재시도가 상한에서 멈추는지(Ch2), 세 요청이 동시에 실행되는지(Ch3), 전 단계가 끝까지 이어지는지(Ch6). 이런 건 값이 매번 흔들리는 live보다 정답값·규칙으로 고정된 <code>--mock</code>이 오히려 정확히 보여 줍니다(키가 없을 때의 대체 경로이기도 합니다). 반대로 <em>값·판정 자체</em>가 궁금한 장면(추출 품질 등)은 먼저 live로 봅니다. 그래서 각 챕터는 이 둘을 필요한 쪽으로만 안내합니다.</p>
 <p>키 없이 보는 명령이 모두 mock은 아닙니다. <code>--show</code>·<code>--protocol</code>·<code>--card</code>는 모델을 부르지 않는 진단 명령입니다. 대신 실제 코드가 만든 도구 목록, 프로토콜 메시지, Agent Card를 그대로 출력합니다.</p>
 <p>출력 패널을 읽을 때는 기준을 나눕니다. 모델이 만든 값(판매처·금액·신뢰도·ReAct 트레이스)은 live에서 조금씩 달라질 수 있으므로 교재의 화면은 <strong>대표 예시</strong>입니다. 반대로 코드가 정하는 출력(<code>--list</code> 도구 목록, <code>--trace</code> 하네스 구성, gap 계산, PASS/NEEDS_REVISION 판정)은 키와 무관하게 같아야 하므로 화면과 글자 단위로 맞는지 확인합니다.</p>
 </div></div>
