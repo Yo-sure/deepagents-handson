@@ -401,7 +401,7 @@ sequenceDiagram
 ## OKF — 사람도 읽고 에이전트도 읽는다
 
 </div>
-<p class="section-note">노트는 이번 달용 메모입니다. 다음 달에도 쓰려면 표준 형식으로 쌓아야 합니다. OKF(Open Knowledge Format)는 Google Cloud가 2026-06 공개한 벤더 중립 오픈 스펙(아직 채택 초기)으로, 압축도 런타임도 없이 YAML 프런트매터를 단 마크다운 파일이 곧 지식 항목입니다. 강제하는 건 <code>type</code> 하나뿐이고, 권장 필드로 <code>title·description·tags·timestamp</code>를 둡니다. 우리는 호환용 확장 필드 <code>name·amount</code>도 함께 둡니다.<br>
+<p class="section-note">노트는 이번 달용 메모입니다. 다음 달에도 쓰려면 표준 형식으로 쌓아야 합니다. OKF(Open Knowledge Format)는 Google Cloud가 2026-06 공개한 벤더 중립 오픈 스펙(아직 채택 초기)으로, 압축도 런타임도 없이 YAML 프런트매터를 단 마크다운 파일이 곧 지식 항목입니다. 강제하는 건 <code>type</code> 하나뿐이고, 권장 필드로 <code>title·description·resource·tags·timestamp</code>를 둡니다(<code>resource</code>는 출처 링크용 — 이 실습 항목엔 생략). 미지의 키는 소비자가 관용해야 합니다. 우리는 호환용 확장 필드 <code>name·amount</code>도 함께 둡니다.<br>
 조사에서 세 종류의 지식을 뽑습니다. 거래처, 구독, 확인 필요입니다. 영수증 없는 89,000원이 gap 항목으로 남습니다.</p>
 </div>
 
