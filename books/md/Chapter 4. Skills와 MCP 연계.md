@@ -657,7 +657,7 @@ inbox-mcp-server 도구 4개:
 <summary>🔬 심화 — 스킬 이식성과 최신 동향</summary>
 <div class="reveal">
 <p><strong>SKILLOPT</strong> 같은 연구는 SKILL.md를 학습 가능한 산출물로 보고, rollout→채점→문서 수정→검증 점수 상승 시 채택 흐름을 제안합니다. 본 실습은 그 연구를 구현하지 않습니다. 핵심은 더 단순합니다. 표준 필드로 쓰고, 벤더 전용 필드는 선택 확장으로 둡니다.</p>
-<p><strong>FORK</strong>는 전체 컨텍스트를 복제하는 위임 방식입니다. 비용과 컨텍스트 한도 때문에 기본값이 아니라, 요약 위임으로 맥락 손실이 치명적일 때만 검토합니다.</p>
+<p><strong>FORK</strong>(Claude Code/Agent SDK의 <code>/fork</code>)는 서브에이전트에 부모 대화 전체를 그대로 상속하는 위임입니다. 요약 위임(일반 서브에이전트)이 기본이고, 맥락 손실이 치명적일 때만 씁니다 — 서브에이전트·FORK·A2A 세 방식의 비교는 <strong>Ch5</strong>에서 봅니다.</p>
 </div>
 </details>
 </section>
