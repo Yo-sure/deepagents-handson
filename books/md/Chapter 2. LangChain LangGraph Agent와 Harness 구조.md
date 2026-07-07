@@ -150,7 +150,7 @@ rec: RecordV1 = result.output                       # 타입 안전한 구조화
 </details>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>프레임워크가 지우는 것 — 손으로 짠 루프</span><span class="status-pill">왜 필요한가</span></div>
+<div class="board-header"><span>프레임워크가 감춘 것 — 손으로 짠 루프</span><span class="status-pill">왜 필요한가</span></div>
 <div class="panel-body">
 
 ```python
@@ -165,7 +165,7 @@ for _ in range(MAX_STEPS):
         messages.append(ToolMessage(run_tool(tc), tool_call_id=tc["id"]))
 ```
 
-<p style="margin-top:8px">동작은 하지만 상태·에러·재시도·분기·중단점이 전부 내 몫입니다. 조건이 늘면 이 루프가 얽혀 관리하기 어려워집니다. 그래서 이 챕터에서는 단계를 노드와 엣지로 다루는 StateGraph로 올라갑니다.</p>
+<p style="margin-top:8px">동작은 하지만 상태·에러·재시도·분기·중단점이 전부 내 몫입니다. 조건이 늘면 이 루프가 얽혀 관리하기 어려워집니다. 그래서 이 챕터에서는 단계를 노드와 엣지로 다루는 StateGraph를 씁니다.</p>
 </div>
 </div>
 
@@ -211,9 +211,9 @@ for _ in range(MAX_STEPS):
 </details>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span><code>create_agent</code>가 감춘 세 손잡이 — 실무에서 한 겹 내려가야 할 때</span><span class="status-pill">developer depth</span></div>
+<div class="board-header"><span><code>create_agent</code>가 감춘 세 제어 지점 — 정밀 제어가 필요할 때</span><span class="status-pill">developer depth</span></div>
 <div class="panel-body">
-<p><code>create_agent</code>는 도구 선택·반복·출력 파싱을 알아서 합니다. 편하지만, 강제·정밀 제어가 필요한 순간 그 아래 세 손잡이로 내려가야 합니다. 셋 다 우리 <code>classify_one.py</code>에 실물이 있습니다.</p>
+<p><code>create_agent</code>는 도구 선택·반복·출력 파싱을 자동으로 처리합니다. 편하지만, 강제·정밀 제어가 필요하면 그 아래 세 지점으로 직접 내려가야 합니다. 셋 다 우리 <code>classify_one.py</code>에 실물이 있습니다.</p>
 <div class="grid" style="grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:10px">
 <div class="panel"><div class="panel-head"><strong>① 스키마를 어떻게 만드나</strong><span>@tool · args_schema</span></div><div class="panel-body"><div class="list">
 <p><strong>추론</strong>: 타입힌트→<code>parameters</code>, docstring→<code>description</code>. 인자 설명은 없다.</p>
@@ -223,7 +223,7 @@ for _ in range(MAX_STEPS):
 <div class="panel"><div class="panel-head"><strong>② 부를지 누가 정하나</strong><span>tool_choice</span></div><div class="panel-body"><div class="list">
 <p><code>create_agent</code>엔 <code>tool_choice</code> 인자가 <strong>없다</strong>. 강제하려면 <code>model.bind_tools(tools, tool_choice=…)</code>로 내려간다.</p>
 <p><code>"auto"</code>=모델이 결정(ReAct의 기본) · <code>"required"</code>/<code>"any"</code>=아무 도구든 반드시 · <code>"도구명"</code>=콕 집어.</p>
-<p class="muted">우리 코드: <code>extract_react</code>의 <code>bind_tools([tool_fn])</code>는 <code>auto</code> — 모델이 검산 필요를 스스로 판단한다.</p>
+<p class="muted">우리 코드: <code>extract_react</code>의 <code>bind_tools([tool_fn])</code>는 <code>auto</code> — 모델이 검산 필요 여부를 판단한다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>③ 출력을 타입으로 받나</strong><span>structured output</span></div><div class="panel-body"><div class="list">
 <p><code>extract_singleshot</code>은 텍스트를 받아 <code>_strip_fences</code>로 <code>```json</code> 울타리를 손으로 걷고 <code>model_validate_json</code> 한다 — 설명이 한 줄 붙으면 깨진다.</p>
@@ -297,7 +297,7 @@ flowchart TD
 <div class="flow-step"><small>hold/persist</small><strong>보류·적재</strong><p>끝내 안 맞으면 보류, 통과하면 JSON 저장</p></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">classify는 Ch1의 <code>extract</code>를 그대로 부릅니다. 모듈을 바꿔도 계약은 그대로 재사용한다 — 그 원칙이 여기서 처음 드러납니다.</p>
+<p class="section-note" style="margin-top:16px">classify는 Ch1의 <code>extract</code>를 그대로 부릅니다. 모듈을 바꿔도 계약은 그대로 재사용합니다. 이 원칙을 여기서 처음 확인합니다.</p>
 </section>
 
 <section class="slide">
@@ -364,7 +364,7 @@ flowchart TD
 <div>
 <div class="eyebrow">기초 · checkpointer로 상태 저장 · 7분</div>
 
-## checkpointer가 자리를 기억한다
+## checkpointer가 멈춘 자리를 저장한다
 
 </div>
 <p class="section-note">interrupt로 멈추면 그 순간의 상태를 어딘가 저장해야 재개할 수 있습니다. 그 일을 checkpointer가 합니다.<br>
@@ -671,7 +671,7 @@ sequenceDiagram
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">전체 실행 파일은 <code>ch2-langgraph-agent/intake_graph.py</code>. classify는 Ch1의 <code>extract</code>를 import해 그대로 씁니다. 모듈을 바꿔도 계약을 재사용한다는 원칙이 처음 드러나는 곳입니다.</p>
+<p class="section-note" style="margin-top:16px">전체 실행 파일은 <code>ch2-langgraph-agent/intake_graph.py</code>. classify는 Ch1의 <code>extract</code>를 import해 그대로 씁니다. 모듈을 바꿔도 계약을 재사용한다는 원칙을 여기서 처음 확인합니다.</p>
 </section>
 
 <section class="slide">
@@ -682,7 +682,7 @@ sequenceDiagram
 ## 그래프의 계약은 상태다
 
 </div>
-<p class="section-note">Ch2의 핵심은 모델 호출이 아니라 상태 전이입니다. 각 노드는 <code>IntakeState</code> 일부를 채우고, 조건부 엣지는 그 상태를 보고 다음 노드를 고릅니다.</p>
+<p class="section-note">Ch2의 핵심은 모델 호출보다 상태 전이에 있습니다. 각 노드는 <code>IntakeState</code> 일부를 채우고, 조건부 엣지는 그 상태를 보고 다음 노드를 고릅니다.</p>
 </div>
 
 <div class="panel">

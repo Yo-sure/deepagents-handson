@@ -37,7 +37,7 @@ pageClass: lec-page
 <div class="board" style="margin-top:14px">
 <div class="board-header"><span>이 챕터를 읽는 순서</span><span class="status-pill">이론 · 기초 · 실습 · 심화</span></div>
 <div class="panel-body"><div class="list">
-<p><strong>① 이론</strong> — Ch2의 손수 짠 <code>StateGraph</code>에서 한 칸 위로: 하네스(<code>create_deep_agent</code>)가 계획·서브에이전트·파일을 기본 장비로 얹습니다.</p>
+<p><strong>① 이론</strong> — Ch2의 손수 짠 <code>StateGraph</code> 다음 단계: 하네스(<code>create_deep_agent</code>)가 계획·서브에이전트·파일을 기본으로 제공합니다.</p>
 <p><strong>② 기초</strong> — <code>create_deep_agent</code> 한 줄 · 서브에이전트 fan-out · 하네스가 배선하는 것을 하나씩.</p>
 <p><strong>③ 실습(In Action)</strong> — 코드 정독 → fan-out 조사를 돌려 노트·브리프 초안 생성 → <code>--trace</code>로 하네스 배선 확인.</p>
 <p><strong>④ 심화</strong> — 각 절의 접이식 노트(메모리 3종 · 컨텍스트 오프로딩 · Select 전략 등). 첫 회독엔 건너뛰어도 됩니다.</p>
@@ -48,7 +48,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">이론 · StateGraph에서 한 칸 위로 · 9분</div>
+<div class="eyebrow">이론 · StateGraph 다음 단계 · 9분</div>
 
 ## StateGraph로는 버거운 일
 
@@ -143,7 +143,7 @@ flowchart LR
 <div class="board-header"><span>하네스는 공짜가 아니다 — 토큰을 더 쓴다</span><span class="status-pill">트레이드오프</span></div>
 <div class="panel-body"><div class="list">
 <p>기본 미들웨어 스택은 매 호출에 <strong>~3,500 토큰</strong>을 고정으로 더합니다(기본 프롬프트·서브에이전트·할 일·파일·도구 스키마, deepagents 코드 기준 추정). 계획·위임·파일 관리를 쓰는 데 드는 비용입니다. 게다가 이 고정 오버헤드는 서브에이전트마다 한 번씩 붙어, fan-out 폭이 N이면 대략 N배로 늘죠. 그래서 갈래 수를 규모에 맞추라는 아래 ③ 규칙은 정확도뿐 아니라 비용 면에서도 중요합니다.</p>
-<p>성능은 또 다른 이야기입니다. 위의 +13.7%p는 토큰을 더 썼다고 저절로 따라온 게 아니라, 하네스를 반복해 다듬어(harness engineering) 얻은 결과입니다. 토큰 비용과 성능 향상은 출처상 별개입니다. 반복되는 앞부분은 프롬프트 캐싱(Ch1)으로 비용을 다시 줄일 수 있습니다.</p>
+<p>성능 향상은 그 자체로 따라오지 않습니다. 위의 +13.7%p는 토큰을 더 썼다고 저절로 나온 게 아니라, 하네스를 반복해 다듬어(harness engineering) 얻은 결과입니다. 토큰 비용과 성능 향상은 출처상 별개입니다. 반복되는 앞부분은 프롬프트 캐싱(Ch1)으로 비용을 다시 줄일 수 있습니다.</p>
 <p class="muted" style="margin-top:6px">덜 쓰는 게 더 나을 때도 많습니다. 전체 이력을 다 들고 가기보다 <em>최근 도구 호출 몇 개 + 자동 요약</em>만 남기는 식의 압축·선택 전략이 비용과 안정성에 유리한 사례가 계속 보고됩니다. 그래서 위 네 전략 중 Compress·Select를 실제 하네스 기능으로 봅니다.</p>
 </div></div>
 </div>
@@ -174,7 +174,7 @@ flowchart LR
 <tr><td>Filesystem</td><td>~210</td><td>파일 도구</td></tr>
 </tbody>
 </table>
-<p>여기까진 호출당 <em>고정</em>이다. <strong>진짜 비용 폭발은 다른 데서 온다.</strong> 모델은 상태가 없어서(Ch1), 매 호출마다 <em>지금까지의 대화 전체</em>를 다시 보낸다. 그래서 멀티콜 에이전트의 토큰은 "3,500 × 호출 수"가 아니라, 고정 오버헤드(매번 재전송) + 계속 쌓이는 대화 기록(매번 재전송) + 도구 결과로 불어난다. 한 측정에서 ~22,000 토큰짜리 실행을 쪼개 보니 대략 <strong>고정 오버헤드 63% · 누적 대화 기록 27% · 도구 결과 10%</strong>였다. 호출이 늘수록 가운데 27% 칸이 커지며 비용이 <em>호출 수에 초선형</em>으로 증가한다.</p>
+<p>여기까진 호출당 <em>고정</em>이다. <strong>비용이 크게 느는 지점은 따로 있다.</strong> 모델은 상태가 없어서(Ch1), 매 호출마다 <em>지금까지의 대화 전체</em>를 다시 보낸다. 그래서 멀티콜 에이전트의 토큰은 "3,500 × 호출 수"가 아니라, 고정 오버헤드(매번 재전송) + 계속 쌓이는 대화 기록(매번 재전송) + 도구 결과로 불어난다. 한 측정에서 ~22,000 토큰짜리 실행을 쪼개 보니 대략 <strong>고정 오버헤드 63% · 누적 대화 기록 27% · 도구 결과 10%</strong>였다. 호출이 늘수록 가운데 27% 칸이 커지며 비용이 <em>호출 수에 초선형</em>으로 증가한다.</p>
 <p><strong>그래서 Agent는 마지막 수단이다.</strong> 자율성을 키우면 호출이 늘고, 호출마다 누적 기록을 통째로 다시 사니 비용이 빠르게 뛴다. 줄이는 방법은 셋: ① <strong>fan-out 폭을 규모에 맞추기</strong>(N갈래 = 고정 오버헤드 N배), ② <strong>프롬프트 캐싱</strong>(반복되는 앞부분 재계산 면제, Ch1), ③ <strong>컨텍스트 압축·선택</strong>(누적 기록을 요약/잘라 27% 칸을 억제).</p>
 <p class="muted"><strong>핵심 정리</strong>: "토큰은 호출 수에 곱하기가 아니라 <em>제곱에 가깝게</em> 는다. 매 호출이 과거 전체를 다시 사기 때문. 그래서 단계가 정해졌으면 워크플로(Ch2)가 싸다." 숫자는 예시이고, 외워야 할 건 <em>재전송 구조</em>입니다.</p>
 </div>
@@ -225,7 +225,7 @@ agent = create_deep_agent(
 </div>
 
 <div class="board" style="margin-top:20px">
-<div class="board-header"><span>덜어낸 파일은 어디 사는가 — 백엔드를 갈아끼운다</span><span class="status-pill">deepagents</span></div>
+<div class="board-header"><span>덜어낸 파일은 어디에 저장되나 — 백엔드를 갈아끼운다</span><span class="status-pill">deepagents</span></div>
 <div class="panel-body">
 <p><code>filesystem</code> 도구가 파일을 어디에 두는지는 <strong>백엔드</strong>가 정합니다. 코드는 그대로 두고 저장 위치만 바꿉니다.</p>
 <div class="grid" style="grid-template-columns:repeat(2,1fr);gap:12px;margin-top:10px">
@@ -293,7 +293,7 @@ agent = create_deep_agent(
 </tbody>
 </table>
 <p>핵심 통찰은 "끝났다"를 모델 자기보고가 아니라 관측 가능한 상태로 정의한다는 것이다. Anthropic도 긴 작업을 한 번(one-shot)에 시키면 중간 실패에서 복구 불능이 되고, 단계를 외부 상태로 못 박아야 재개·감사·부분 재시도가 가능하다고 본다. 우리 랩의 fan-out도 작은 버전이다(<code>write_todos</code> 계획 상태→갈래별 노트 파일→대조). 갈래 하나가 죽어도 이미 쓴 노트는 디스크에 남는다.</p>
-<p class="muted"><strong>핵심 정리</strong>: "긴 작업의 적은 컨텍스트 한도다. 답은 <em>상태를 밖으로 빼는 것</em>이다. todo/state로 진행을 관리하고, 큰 산출물은 파일·스토어에 두면 감사와 재시도가 쉬워진다." <code>git revert</code>·<code>init.sh</code>·<code>progress.txt</code>는 특정 API가 아니라 그 패턴을 구현하는 흔한 도구입니다.</p>
+<p class="muted"><strong>핵심 정리</strong>: "긴 작업의 근본 제약은 컨텍스트 한도다. 이를 <em>상태를 밖으로 빼서</em> 우회한다. todo/state로 진행을 관리하고, 큰 산출물은 파일·스토어에 두면 감사와 재시도가 쉬워진다." <code>git revert</code>·<code>init.sh</code>·<code>progress.txt</code>는 특정 API가 아니라 그 패턴을 구현하는 흔한 도구입니다.</p>
 </div>
 </details>
 
@@ -416,14 +416,14 @@ flowchart TB
 <p><strong>② 워커는 각자 격리된 컨텍스트.</strong> 3~5개를 병렬로 띄우되, 각 워커에 <em>목표·출력형식·도구·작업경계</em>를 명시해 줍니다. 위임이 모호하면 워커끼리 같은 걸 중복 조사합니다.</p>
 <p><strong>③ 노력을 규모에 맞춘다.</strong> "단순 사실=워커 1개·도구 3~10회, 복잡=워커 10+개로 범위 분할". 사소한 질문에 50개를 띄우는 게 대표적 실패입니다.</p>
 <p><strong>④ 종합은 한 에이전트가.</strong> 합치고 인용을 다는 마지막 글쓰기는 <em>쪼개지 않고</em> 한 곳에서. 병렬 작성자는 서로 충돌하기 때문입니다.</p>
-<p class="tiny" style="margin-top:6px;color:var(--muted)"><strong>한 발 더 — 무엇이 '동시'이고 무엇이 '동기'인가.</strong> deepagents의 <code>task</code> 도구는 호출 하나하나가 동기입니다(<code>subagent.invoke</code>가 그 워커가 끝날 때까지 블록). 병렬은 리드가 <strong>한 턴에 여러 <code>task</code> 호출을 함께 내보낼 때</strong> 생깁니다. 도구 설명이 모델에게 그러라고 명시하고("launch multiple agents concurrently … a single message with multiple tool uses"), 런타임이 그 호출들을 같이 실행합니다. 그래서 진짜 동기적인 건 워커 실행이 아니라 <strong>리드의 재계획 장벽</strong>입니다. 한 배치가 다 돌아오기 전엔 방향을 못 바꿉니다. 즉시 task id만 받고 따로 진행을 지켜보는 fire-and-forget 비동기는 기본이 아니라 별도 <code>async_subagents</code> 미들웨어(원격 Agent Protocol 서버)에서만 됩니다. 토큰을 단일 채팅의 여러 배까지 쓰므로 가치 높고 병렬 가능한 일에만 씁니다.</p>
+<p class="tiny" style="margin-top:6px;color:var(--muted)"><strong>한 발 더 — 무엇이 '동시'이고 무엇이 '동기'인가.</strong> deepagents의 <code>task</code> 도구는 호출 하나하나가 동기입니다(<code>subagent.invoke</code>가 그 워커가 끝날 때까지 블록). 병렬은 리드가 <strong>한 턴에 여러 <code>task</code> 호출을 함께 내보낼 때</strong> 생깁니다. 도구 설명이 모델에게 그러라고 명시하고("launch multiple agents concurrently … a single message with multiple tool uses"), 런타임이 그 호출들을 같이 실행합니다. 그래서 동기적으로 묶이는 건 워커 실행이 아니라 <strong>리드의 재계획 시점</strong>입니다. 한 배치가 다 돌아오기 전엔 방향을 못 바꿉니다. 즉시 task id만 받고 따로 진행을 지켜보는 fire-and-forget 비동기는 기본이 아니라 별도 <code>async_subagents</code> 미들웨어(원격 Agent Protocol 서버)에서만 됩니다. 토큰을 단일 채팅의 여러 배까지 쓰므로 가치 높고 병렬 가능한 일에만 씁니다.</p>
 </div></div>
 </div>
 
 <div class="board" style="margin-top:16px">
 <div class="board-header"><span>패턴 지도 — 우리 파이프라인이 어디에 닿나</span><span class="status-pill">classify→research→verify→brief</span></div>
 <div class="panel-body"><div class="list">
-<p><strong>프롬프트 체이닝</strong>: 고정 순서로 단계마다 출력을 넘김. <em>분류→브리프의 등뼈</em>가 이것.</p>
+<p><strong>프롬프트 체이닝</strong>: 고정 순서로 단계마다 출력을 넘김. <em>분류→브리프의 큰 흐름</em>이 이것.</p>
 <p><strong>라우팅</strong>: 입력을 분류해 전담 핸들러로 보냄. <em>뉴스레터/회의요청/조사필요로 가르고, 쉬운 건 싼 모델·어려운 건 강한 모델로.</em></p>
 <p><strong>병렬화</strong>: 쪼개기(독립 하위작업 동시 실행)와 투표(같은 작업 N번 후 다수결). <em>조사 fan-out은 쪼개기, 피싱 판정 3번 다수결은 투표.</em></p>
 <p><strong>오케스트레이터-워커</strong>: 리드가 워커에 위임하고 결과를 종합. <em>이번 절은 고정 3갈래 버전, 동적 갈래 선택은 확장.</em></p>
@@ -441,7 +441,7 @@ flowchart TB
 ## 영수증 없는 89,000원
 
 </div>
-<p class="section-note">카드 대조에서 불일치가 드러납니다. 명세서에는 일곱 건이 있는데 영수증은 다섯 장뿐입니다. 두 건이 비어 있습니다.<br>
+<p class="section-note">카드를 대조하면 불일치가 보입니다. 명세서에는 일곱 건이 있는데 영수증은 다섯 장뿐입니다. 두 건이 비어 있습니다.<br>
 쿠팡 89,000원에는 영수증이 없습니다. 넷플릭스 17,000원도 없습니다. 쿠팡 건은 분실 또는 미수령, 넷플릭스 건은 구독으로 추정됩니다. 조사가 내놓는 실제 결과입니다.</p>
 </div>
 
@@ -465,7 +465,7 @@ flowchart TB
 </div>
 </div>
 
-<p class="section-note" style="margin-top:16px">Ch0에서 문서를 서로 연결해 둔 설계가 여기서 효과를 냅니다. 카드 명세서와 영수증이 서로 어긋나는 항목이 섞여 있어, 조사가 누락 항목을 찾아냅니다.</p>
+<p class="section-note" style="margin-top:16px">Ch0에서 문서를 서로 연결해 둔 덕분에 여기서 대조가 됩니다. 카드 명세서와 영수증이 서로 어긋나는 항목이 섞여 있어, 조사가 누락 항목을 찾아냅니다.</p>
 </section>
 
 <section class="slide">
@@ -637,7 +637,7 @@ flowchart TB
 ## 계약은 파일로 남는다
 
 </div>
-<p class="section-note">Ch3가 다음 장으로 넘기는 건 말이 아니라 파일입니다. 분류 레코드는 조사 입력이고, 갈래별 노트는 브리프 초안의 근거이며, 초안은 Ch4 OKF·Skill과 Ch5 검증으로 이어집니다.</p>
+<p class="section-note">Ch3의 산출물은 다음 장으로 파일로 넘어갑니다. 분류 레코드는 조사 입력이고, 갈래별 노트는 브리프 초안의 근거이며, 초안은 Ch4 OKF·Skill과 Ch5 검증으로 이어집니다.</p>
 </div>
 
 <div class="panel">

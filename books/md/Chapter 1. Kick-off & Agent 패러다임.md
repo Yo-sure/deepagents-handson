@@ -15,7 +15,7 @@ pageClass: lec-page
 
 # 영수증을 읽고,<br>판단하게 만든다
 
-<p class="lead">애널리스트의 첫 일은 문서를 읽어 숫자로 바꾸는 것입니다. 이 챕터에서는 영수증 이미지와 PDF 문서를 모델에 보여 주고 RecordV1 구조로 뽑아냅니다.<br>
+<p class="lead">애널리스트의 첫 일은 문서를 읽어 숫자로 바꾸는 일입니다. 이 챕터에서는 영수증 이미지와 PDF 문서를 모델에 보여 주고 RecordV1 구조로 뽑아냅니다.<br>
 그 과정에서 LLM이 왜 혼자서는 부족한지, 에이전트가 무엇을 더하는지를 손으로 확인합니다.</p>
 
 <div class="kicker">
@@ -78,7 +78,7 @@ flowchart LR
   class R,B step;
 ```
 
-<p class="section-note" style="margin-top:6px">이게 전체 지도입니다. 인박스 입력은 디렉터리 단계를 지나 검증된 브리프로 바뀝니다. <strong>Ch1은 노란 칸</strong>으로, 이미지/PDF 문서 한 장을 RecordV1 JSON으로 읽는 첫 모듈입니다. 파일로 모아 <code>classified/</code>에 저장하는 일은 Ch2가 맡습니다.</p>
+<p class="section-note" style="margin-top:6px">이게 전체 흐름입니다. 인박스 입력은 여러 디렉터리 단계를 거쳐 검증된 브리프가 됩니다. <strong>Ch1은 노란 칸</strong>으로, 이미지/PDF 문서 한 장을 RecordV1 JSON으로 읽는 첫 모듈입니다. 파일로 모아 <code>classified/</code>에 저장하는 일은 Ch2가 맡습니다.</p>
 
 <p class="section-note" style="margin-top:14px">전체 과정의 기준 축은 <strong>Framework(LangChain) → Runtime(LangGraph) → Harness(DeepAgents)</strong>입니다. 이 위에 Skills·MCP·A2A를 얹고, Ch6에서 하나의 파이프라인으로 합칩니다.</p>
 </section>
@@ -107,17 +107,17 @@ flowchart LR
 <div>
 <div class="eyebrow">이론 · LLM은 지금 어디까지 · 2분</div>
 
-## 순위를 가르는 건 모델이 아니다
+## 결과를 좌우하는 건 모델만이 아니다
 
 </div>
 <p class="section-note">SWE-bench Verified는 실제 GitHub 이슈를 주고 코드를 고쳐 테스트를 통과시키는 벤치마크입니다. 최근 주력 모델들은 좁은 구간에 몰려 있고, 최상위 프런티어도 벤치마크 포화의 영향을 받습니다.<br>
-모델 단독 점수가 비슷해지면서 무게중심이 옮겨 갔습니다. 같은 모델이라도 어떤 실행 환경으로 감싸느냐가 결과를 가릅니다.</p>
+모델 단독 점수가 비슷해지면서 비교의 초점이 옮겨 갔습니다. 같은 모델이라도 어떤 실행 환경에서 돌리느냐에 따라 결과가 달라집니다.</p>
 </div>
 
 <div class="grid-2">
-<div class="panel"><div class="panel-head"><strong>성능은 평평해졌다</strong><span>공개 벤치 흐름</span></div><div class="panel-body"><div class="list">
+<div class="panel"><div class="panel-head"><strong>성능 차이가 좁아졌다</strong><span>공개 벤치 흐름</span></div><div class="panel-body"><div class="list">
 <p>주력 모델 정확도가 좁은 구간에 빽빽이 몰렸습니다(아래 그림은 개념 흐름).</p>
-<p>저비용 모델도 많은 실무 분류·추출 작업에서는 충분한 기준선이 됩니다. 프런티어 주력끼리는 체감 차이가 하네스에 묻히기도 합니다.</p>
+<p>저비용 모델도 많은 실무 분류·추출 작업에서는 충분한 기준선이 됩니다. 프런티어 주력끼리는 체감 차이가 하네스 설계에 따라 거의 드러나지 않기도 합니다.</p>
 <p>기존 벤치가 포화될수록 더 어려운 변형·상위 벤치가 등장합니다. 그래서 단일 순위보다, 같은 모델을 어떤 하네스로 실행하고 검증했는지를 함께 봐야 합니다.</p>
 <p>정확한 수치와 순위는 벤치 버전·채점 환경·시점마다 바뀝니다.</p>
 </div></div></div>
@@ -128,7 +128,7 @@ flowchart LR
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:14px"><strong>점수 자체도 의심합니다.</strong> 에이전트 벤치는 채점 환경·정답 접근·격리 설정에 민감합니다. 문제를 푸는 능력이 아니라 채점 파이프라인의 빈틈을 타면 숫자가 부풀 수 있습니다. 그래서 점수를 인용할 땐 격리 실행·정답 차단이 전제이고, 단일 숫자보다 추세(주력끼리 몰렸다)를 봅니다.</p>
+<p class="section-note" style="margin-top:14px"><strong>점수 자체도 의심합니다.</strong> 에이전트 벤치는 채점 환경·정답 접근·격리 설정에 민감합니다. 문제를 푸는 능력이 아니라 채점 파이프라인의 허점을 이용하면 점수가 실제보다 높게 나올 수 있습니다. 그래서 점수를 인용할 땐 격리 실행·정답 차단이 전제이고, 단일 숫자보다 추세(주력끼리 몰렸다)를 봅니다.</p>
 
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>주력 모델이 좁은 구간에 몰렸다 — 그래서 모델보다 하네스</span><span class="status-pill">개념도</span></div>
@@ -141,7 +141,7 @@ flowchart LR
     R --> O["운영 품질<br/>거짓 성공 차단"]
 ```
 
-<p style="margin-top:8px">읽는 법: 모델 차이와 하네스 차이가 함께 결과를 만들지만, <strong>모델끼리 점수 차가 좁아질수록 가르는 힘이 모델에서 하네스로 넘어갑니다</strong> — 비교의 무게중심이 ‘어떤 모델을 쓰나’에서 ‘어떤 하네스로 실행하나’로 이동합니다. 정확한 순위·숫자는 시점·게이트웨이·평가 설정마다 달라지니, 특정 모델명이 아니라 이 이동을 보세요.</p>
+<p style="margin-top:8px">읽는 법: 모델 차이와 하네스 차이가 함께 결과를 만들지만, <strong>모델끼리 점수 차가 좁아질수록 가르는 힘이 모델에서 하네스로 넘어갑니다</strong> — 비교의 초점이 ‘어떤 모델을 쓰나’에서 ‘어떤 하네스로 실행하나’로 옮겨 갑니다. 정확한 순위·숫자는 시점·게이트웨이·평가 설정마다 달라지니, 특정 모델명이 아니라 이 이동을 보세요.</p>
 </div>
 </div>
 
@@ -155,12 +155,12 @@ flowchart LR
 · 모델은 한 번에 한 동작(8개 도구 중 하나)만 내고, 하네스가 실행해 다음 상태를 정리해 보여 줍니다.<br>
 · 이 하네스 안에서 강화학습으로 검색 습관을 훈련했고, 학습 데이터는 4,400여 건뿐이었습니다.</p>
 <p>결과. 논문은 작은 모델도 상태 외부화 하네스를 얹으면 강한 검색 에이전트 기준선과 겨룰 수 있음을 보였습니다. 답을 맞히는 점수가 아니라 근거를 잘 모았는지를 재는 검색 지표라는 점, 모델 순위가 아니라 하네스 설계의 효과를 보는 사례라는 점만 잡습니다.</p>
-<p>교훈. 20B가 프런티어급 검색과 겨루는 건 모델이 더 똑똑해서가 아니라 하네스 설계와 환경 안에서의 학습 덕입니다. 기록을 모델 머릿속이 아니라 바깥에 두는 이 발상을, Ch2 체크포인터·Ch3 파일 퇴피에서 더 작은 형태로 다시 만납니다.</p>
+<p>교훈. 20B가 프런티어급 검색과 겨루는 건 모델이 더 똑똑해서가 아니라 하네스 설계와 환경 안에서의 학습 덕입니다. 기록을 모델 내부가 아니라 바깥에 두는 이 방식을, Ch2 체크포인터·Ch3 파일 퇴피에서 더 작은 형태로 다시 봅니다.</p>
 <p style="margin-top:10px;font-size:13px"><strong>출처</strong> — <a href="https://arxiv.org/abs/2606.02373" target="_blank" rel="noopener">Harness-1: RL for Search Agents with State-Externalizing Harnesses (UIUC·UC Berkeley·Chroma, 2026)</a> · <a href="https://github.com/pat-jj/harness-1" target="_blank" rel="noopener">코드(GitHub)</a></p>
 </div>
 </details>
 
-<p class="section-note" style="margin-top:18px">코딩 에이전트에서 먼저 보인 변화는 "문서를 읽고 판단해 행동으로 옮긴다"는 지식 업무 전반으로 번지고 있습니다. 우리가 만들 인박스 애널리스트도 그 한 갈래이고, 같은 패턴을 다른 업무로 옮겨 쓸 수 있습니다.</p>
+<p class="section-note" style="margin-top:18px">코딩 에이전트에서 먼저 보인 변화는 "문서를 읽고 판단해 행동으로 옮긴다"는 지식 업무 전반으로 퍼지고 있습니다. 우리가 만들 인박스 애널리스트도 그중 하나이고, 같은 패턴을 다른 업무에도 적용할 수 있습니다.</p>
 </section>
 
 <section class="slide">
@@ -172,7 +172,7 @@ flowchart LR
 
 </div>
 <p class="section-note">LLM이 기본적으로 하는 일은 한 문장으로 정리됩니다. 지금까지의 입력을 보고 다음 토큰을 예측합니다.<br>
-모델은 입력 문맥에서 그럴듯한 다음 출력을 만듭니다. 그래서 최신 사실, 실제 계산, 장기 상태는 바깥 도구와 검증으로 보강해야 합니다. 여기서 네 가지 한계가 나오고, 이 넷이 에이전트의 존재 이유입니다.</p>
+모델은 입력 문맥에서 그럴듯한 다음 출력을 만듭니다. 그래서 최신 사실, 실제 계산, 장기 상태는 바깥 도구와 검증으로 보강해야 합니다. 여기서 네 가지 한계가 나오고, 에이전트는 이 넷을 보완하기 위해 필요합니다.</p>
 </div>
 
 <div class="grid-4">
@@ -216,7 +216,7 @@ flowchart LR
 <details>
 <summary>정답 확인</summary>
 <div class="reveal">
-<p>답할 수 없습니다. 가중치에는 학습 시점까지의 통계 패턴만 들어 있어 실시간 값(환율·주가·내 영수증)에 닿을 길이 없습니다. 이건 4번 Knowledge Cutoff이자 3번 Hallucination의 뿌리입니다.</p>
+<p>답할 수 없습니다. 가중치에는 학습 시점까지의 통계 패턴만 들어 있어 실시간 값(환율·주가·내 영수증)에는 접근할 수 없습니다. 이것이 4번 Knowledge Cutoff이자 3번 Hallucination의 근본 원인입니다.</p>
 <p>그럼에도 모델은 모른다고 하는 대신 그럴듯한 숫자를 자신 있게 내놓곤 합니다. 그래서 Tool로 실제 환율 API를 붙이는 에이전트가 필요합니다. 우리 실습에서는 같은 원리를 영수증 합계 검증으로 체험합니다.</p>
 </div>
 </details>
@@ -243,7 +243,7 @@ flowchart LR
 · 맥락이 길수록 <strong>KV 캐시</strong>가 그만큼 커져 메모리·비용이 길이에 비례해 늘어납니다.</p>
 <p>그래서 다 욱여넣기보다 필요한 것만 골라 점진 로딩합니다(Ch3·4). <a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener" style="text-decoration:none"><span class="badge blue">Liu 2307.03172</span></a> <a href="https://arxiv.org/abs/2302.00093" target="_blank" rel="noopener" style="text-decoration:none"><span class="badge blue">Shi 2302.00093</span></a> <a href="https://arxiv.org/abs/2309.06180" target="_blank" rel="noopener" style="text-decoration:none"><span class="badge blue">vLLM 2309.06180</span></a></p></div></div>
 <div class="row"><div class="code">H</div><div class="copy"><strong>Hallucination — 확률과 채점이 함께 만든다</strong><p>모델은 모르겠다가 기본이 아니라 늘 최상위 토큰을 골라 답을 냅니다. 이진 채점 벤치마크가 자신 있는 추측을 보상해 그 습관이 학습 뒤에도 남습니다(Kalai). 환각이 이렇게 다음-토큰 확률·샘플링과 이어진다는 걸 바로 다음 1.5절에서 <code>logprobs</code>로 직접 봅니다. 처방은 둘입니다. 추출은 온도를 낮춰 흔들림을 줄이고, Tool로 실제 값을 조회·검증합니다(Ch2·5). <span class="badge blue">Kalai 2509.04664</span></p></div></div>
-<div class="row"><div class="code">K</div><div class="copy"><strong>Knowledge Cutoff — 못 고치는 천장이라 도구를 쓴다</strong><p>가중치는 학습 시점에 고정됩니다. 그 뒤 사실(이번 달 영수증, 오늘 환율)은 파라미터에 없고, 이건 더 학습하기 전엔 못 고치는 천장입니다. 그래서 외부 저장소에서 그때그때 끌어오는 <strong>비파라미터 지식</strong>(검색·도구)이 필요합니다. RAG가 바로 이 파라미터 vs 비파라미터 분리를 정식화했습니다(Ch4 지식 연결). <span class="badge blue">Lewis 2005.11401</span></p></div></div>
+<div class="row"><div class="code">K</div><div class="copy"><strong>Knowledge Cutoff — 재학습 전엔 못 바꾸는 한계라 도구를 쓴다</strong><p>가중치는 학습 시점에 고정됩니다. 그 뒤 사실(이번 달 영수증, 오늘 환율)은 파라미터에 없고, 이건 더 학습하기 전에는 바꿀 수 없는 한계입니다. 그래서 외부 저장소에서 그때그때 끌어오는 <strong>비파라미터 지식</strong>(검색·도구)이 필요합니다. RAG가 바로 이 파라미터 vs 비파라미터 분리를 정식화했습니다(Ch4 지식 연결). <span class="badge blue">Lewis 2005.11401</span></p></div></div>
 </div>
 
 <div class="board" style="margin-top:18px">
@@ -266,8 +266,8 @@ xychart-beta
 <div class="board-header"><span>압축하면 안 되나? — 캐시와의 실제 관계</span><span class="status-pill">바로잡기</span></div>
 <div class="panel-body"><div class="list">
 <p><strong>충돌은 딱 한 지점입니다.</strong> 캐시는 프리픽스가 <strong>글자 단위로 같아야</strong> 적중하는데, 요약은 그 앞부분을 고쳐 쓰니 요약하는 순간 그 프리픽스의 캐시가 깨집니다(다시 전체 요금 + 새 캐시 쓰기 비용). 충돌은 그 한 지점뿐이고, 압축하지 마라는 뜻이 아닙니다.</p>
-<p>오히려 압축은 자주 <strong>필수</strong>입니다. 컨텍스트가 창을 넘으면 압축(또는 파일 퇴피·검색)은 선택이 아니고, 길어질수록 가운데를 놓쳐(lost-in-the-middle) 품질로도 줄이는 게 낫습니다. 비용도 그렇습니다. 긴 기록은 캐시 읽기(~10%)라도 길이에 비례해 매 턴 쌓이지만, 한 번 줄이면 그 작은 프리픽스를 다시 캐시할 수 있어 턴이 쌓이면 대개 압축이 이깁니다(게다가 캐시는 TTL 5분~1시간 지나면 어차피 만료).</p>
-<p>그래서 운영 규칙은 <strong>너무 자주 요약하지 마라</strong>입니다. 매 턴 요약하면 캐시가 본전을 뽑기 전에 계속 깨집니다. 안 바뀌는 앞부분(시스템 프롬프트·고정 문서)은 캐시로 두고, 휘발성 뒷부분은 쌓일 때 한꺼번에(batch) 요약합니다. 둘은 충돌이 아니라 분업입니다. <span style="color:var(--muted)">(공급사마다 다릅니다. Anthropic은 캐시 읽기가 원본의 ~10%(90%↓)지만 캐시 쓰기에 1.25×~2×를 더 받아 같은 프리픽스를 대략 5회 이상 재사용해야 본전입니다. OpenAI는 1,024토큰 넘으면 자동으로 캐시 입력 ~50% 할인·쓰기료 없음으로, Anthropic보다 얕지만 설정이 필요 없습니다.)</span></p>
+<p>오히려 압축은 자주 <strong>필수</strong>입니다. 컨텍스트가 창을 넘으면 압축(또는 파일 퇴피·검색)은 선택이 아니고, 길어질수록 가운데를 놓쳐(lost-in-the-middle) 품질로도 줄이는 게 낫습니다. 비용도 그렇습니다. 긴 기록은 캐시 읽기(~10%)라도 길이에 비례해 매 턴 쌓이지만, 한 번 줄이면 그 작은 프리픽스를 다시 캐시할 수 있어 턴이 쌓이면 대개 압축하는 편이 비용에서 유리합니다(게다가 캐시는 TTL 5분~1시간 지나면 어차피 만료).</p>
+<p>그래서 운영 규칙은 <strong>너무 자주 요약하지 마라</strong>입니다. 매 턴 요약하면 캐시가 본전을 뽑기 전에 계속 깨집니다. 안 바뀌는 앞부분(시스템 프롬프트·고정 문서)은 캐시로 두고, 휘발성 뒷부분은 쌓일 때 한꺼번에(batch) 요약합니다. 둘은 서로 충돌하지 않고 역할이 나뉩니다. <span style="color:var(--muted)">(공급사마다 다릅니다. Anthropic은 캐시 읽기가 원본의 ~10%(90%↓)지만 캐시 쓰기에 1.25×~2×를 더 받아 같은 프리픽스를 대략 5회 이상 재사용해야 본전입니다. OpenAI는 1,024토큰 넘으면 자동으로 캐시 입력 ~50% 할인·쓰기료 없음으로, Anthropic보다 얕지만 설정이 필요 없습니다.)</span></p>
 </div></div>
 </div>
 
@@ -341,7 +341,7 @@ xychart-beta
 <div class="board-header"><span>주의 — 추론형 모델은 온도 손잡이가 없다</span><span class="status-pill">2026 함정</span></div>
 <div class="panel-body"><div class="list">
 <p>추론형 모델은 내부 추론 단계가 길어 사용자가 <code>temperature</code>로 무작위성을 조절하는 의미가 작아졌습니다. 특히 o 시리즈(o1·o3 등)는 OpenAI 직결 시 1이 아닌 값을 주면 400 에러로 거부합니다. <code>logprobs</code>도 추론형에선 대개 노출되지 않습니다(온도와는 별개 제약). 그래서 토큰 확률을 직접 보는 1.5절 실험은 비추론 모델 <code>gpt-4o-mini</code>로 합니다.</p>
-<p>게다가 게이트웨이가 한 겹 더 가립니다. <strong>OpenRouter는 모델이 지원하지 않는 파라미터를 조용히 떨어뜨립니다.</strong> 추론형 모델에 <code>temperature=0</code>을 줘도 에러 없이 무시될 수 있어 0으로 고정했다고 착각하기 쉽습니다. 반대로 비추론 모델(이 과정 기본 <code>gemini-3.1-flash-lite</code>)에선 <code>temperature=0</code>이 정상 적용되니, 결정적 추출은 그쪽을 씁니다.</p>
+<p>게다가 게이트웨이가 동작을 한 번 더 가립니다. <strong>OpenRouter는 모델이 지원하지 않는 파라미터를 경고 없이 무시합니다.</strong> 추론형 모델에 <code>temperature=0</code>을 줘도 에러 없이 무시될 수 있어 0으로 고정했다고 착각하기 쉽습니다. 반대로 비추론 모델(이 과정 기본 <code>gemini-3.1-flash-lite</code>)에선 <code>temperature=0</code>이 정상 적용되니, 결정적 추출은 그쪽을 씁니다.</p>
 </div></div>
 </div>
 
@@ -424,10 +424,10 @@ flowchart LR
 <div class="board-header"><span>에이전트의 네 구성요소</span><span class="status-pill">구성요소</span></div>
 <div class="panel-body">
 <div class="grid-4">
-<div class="panel"><div class="panel-head"><strong>Model</strong><span>두뇌</span></div><div class="panel-body"><div class="list"><p>추론·도구 선택. 없으면 판단이 없습니다.</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>Model</strong><span>판단</span></div><div class="panel-body"><div class="list"><p>추론·도구 선택. 없으면 판단이 없습니다.</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>Instructions</strong><span>가드레일</span></div><div class="panel-body"><div class="list"><p>역할·절차·형식. 없으면 제멋대로. <span class="badge blue">Ch4</span> SKILL.md.</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>Tools</strong><span>손발</span></div><div class="panel-body"><div class="list"><p>외부 조회·실행. 없으면 환각만. <span class="badge blue">Ch4·5</span> MCP·A2A.</p></div></div></div>
-<div class="panel"><div class="panel-head"><strong>Memory</strong><span>기억</span></div><div class="panel-body"><div class="list"><p>단기(맥락)+장기(저장). 없으면 매번 백지. <span class="badge blue">Ch2</span> checkpointer.</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>Tools</strong><span>외부 실행</span></div><div class="panel-body"><div class="list"><p>외부 조회·실행. 없으면 환각만. <span class="badge blue">Ch4·5</span> MCP·A2A.</p></div></div></div>
+<div class="panel"><div class="panel-head"><strong>Memory</strong><span>기억</span></div><div class="panel-body"><div class="list"><p>단기(맥락)+장기(저장). 없으면 매 호출이 처음부터. <span class="badge blue">Ch2</span> checkpointer.</p></div></div></div>
 </div>
 <p style="margin-top:8px">OpenAI(Model+Instructions+Tools)·Google·Lilian Weng(LLM+Planning+Memory+Tool) 모두 같은 골격을 다르게 부릅니다. 이 과정은 네 구성요소를 하나씩 붙여 가는 흐름입니다.</p>
 </div>
@@ -485,7 +485,7 @@ flowchart LR
 <div>
 <div class="eyebrow">기초 · 모델 선택 · 2분</div>
 
-## 제일 똑똑한 모델이 정답은 아니다
+## 가장 똑똑한 모델이 항상 최선은 아니다
 
 </div>
 <p class="section-note">에이전트의 두뇌는 모델입니다. 다만 가장 비싼 모델을 항상 쓰는 건 속도와 비용에서 손해입니다.<br>
@@ -556,7 +556,7 @@ flowchart TB
 <details class="deep">
 <summary>🔬 심화 — "하네스가 차이를 만든다"는 무슨 뜻인가: 8영역과 없을 때의 사고 <span style="color:var(--muted)">(이 챕터의 핵심 명제)</span></summary>
 <div class="reveal">
-<p>하네스(Harness)는 LLM을 감싸 일이 되게 만드는 통제층(control plane)이다. 모델은 한 번에 다음 한 수만 정하고, 그 한 수가 실제로 동작하게 하는 여덟 가지를 하네스가 떠맡는다. 이 과정은 그 여덟을 챕터별로 하나씩 짓는다:</p>
+<p>하네스(Harness)는 LLM을 감싸 일이 되게 만드는 통제층(control plane)이다. 모델은 한 번에 다음 한 동작만 정하고, 그 동작이 실제로 실행되게 하는 여덟 가지를 하네스가 맡는다. 이 과정은 그 여덟을 챕터별로 하나씩 짓는다:</p>
 <table>
 <thead><tr><th>영역</th><th>하네스가 하는 일</th><th>이 과정에서</th></tr></thead>
 <tbody>
@@ -571,7 +571,7 @@ flowchart TB
 </tbody>
 </table>
 <p><strong>하네스 없이 모델만 루프 돌리면</strong> 여섯 가지가 차례로 깨진다. ① 컨텍스트 소진(대화가 한도를 넘어 멈춤) · ② doom loop(같은 실패를 무한 반복) · ③ 상태 소실(중간에 죽으면 처음부터) · ④ 장기 실행 불가(몇 시간짜리 작업을 못 버팀) · ⑤ 보안 취약(인젝션·과권한 호출) · ⑥ 관찰 불가(무엇을 왜 했는지 추적 안 됨). 앞의 SWE-bench·Terminal-Bench 사례에서 "모델 고정, 하네스만 손봐 점수 상승"이 가능했던 건 바로 위 표의 여덟 통제 영역을 더 잘 짰기 때문이다. 이 여섯 가지 깨짐을 그 여덟 영역이 막는다.</p>
-<p class="muted"><strong>핵심 정리</strong> — 모델은 다음 한 동작만 정하고, 하네스가 나머지를 떠맡는다. 이 여덟이 없으면 데모는 되지만 운영은 안 된다. 이 표가 곧 전체 과정의 지도입니다. 각 칸을 한 챕터씩 짓습니다.</p>
+<p class="muted"><strong>핵심 정리</strong> — 모델은 다음 한 동작만 정하고, 하네스가 나머지를 떠맡는다. 이 여덟이 없으면 데모 수준에 그치고 실제 운영은 어렵다. 이 표가 곧 전체 과정의 얼개입니다. 각 칸을 한 챕터씩 짓습니다.</p>
 </div>
 </details>
 </section>
@@ -613,7 +613,7 @@ flowchart TB
 <div class="grid-2">
 <div class="panel"><div class="panel-head"><strong>왜 이렇게 쓰나</strong><span>설계 결정</span></div><div class="panel-body"><div class="list">
 <p><strong><code>temperature=0</code></strong> — 같은 영수증은 늘 같은 값으로 읽혀야 합니다. 재현성이 추출의 기본 요구입니다.</p>
-<p><strong>스키마를 프롬프트에</strong>(<code>schema_json()</code>) — 모델이 RecordV1 영문 키(merchant·total…) 스키마에 맞춰 JSON을 내도록 형식을 못 박습니다. 한글은 추출이 아니라 저장할 때 입힙니다(<code>by_alias=True</code>).</p>
+<p><strong>스키마를 프롬프트에</strong>(<code>schema_json()</code>) — 모델이 RecordV1 영문 키(merchant·total…) 스키마에 맞춰 JSON을 내도록 형식을 고정합니다. 한글은 추출이 아니라 저장할 때 입힙니다(<code>by_alias=True</code>).</p>
 <p><strong><code>model_validate_json</code></strong> — 모델 출력을 믿지 않고 계약으로 검증합니다. 필드가 빠지거나 타입이 틀리면 여기서 걸립니다.</p>
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>두 가지 함정</strong><span>자주 막히는 곳</span></div><div class="panel-body"><div class="list">
