@@ -420,7 +420,16 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="board-header"><span>한 걸음 더 — 장기 메모리와 durability 모드</span><span class="status-pill">LangGraph</span></div>
 <div class="panel-body"><div class="list">
 <p>checkpointer는 단기입니다. 한 thread = 한 작업의 상태입니다. thread를 넘어 오래 남길 것(사용자 프로필·지난 결과)은 <code>Store</code>(cross-thread, JSON namespace/key)에 둡니다. Ch3에서 볼 메모리 분류의 '장기'가 바로 이것이고, LangMem SDK가 그 위에서 의미를 추출·관리합니다.</p>
-<p>durability는 셋으로 조절합니다. <code>"exit"</code>(끝날 때만 저장, 가장 빠름) · <code>"async"</code>(다음 단계와 겹쳐 저장, 균형) · <code>"sync"</code>(매 단계 저장 후 진행, 가장 안전). 속도와 복구 보장을 맞바꾸는 설정으로, 기본은 <code>async</code>이고 <code>graph.invoke(…, durability=…)</code>로 실행할 때 지정합니다. 우리 실습은 기본값으로 충분합니다.</p>
+<p>durability는 <strong>체크포인트를 언제 저장하느냐</strong>를 조절합니다(checkpointer가 있을 때만 유효). <code>"sync"</code>·<code>"async"</code>는 <em>매 단계</em> 저장하는 건 같고 <strong>저장을 기다리느냐</strong>가 다른데, 여기서 성능이 갈립니다 — 저장은 디스크·DB 쓰기라 매 단계 기다리면 느려집니다.</p>
+
+<table>
+<thead><tr><th>모드</th><th>저장 시점</th><th>속도</th><th>중간에 죽으면</th></tr></thead>
+<tr><td><code>sync</code></td><td>다음 단계 <strong>전</strong>에 저장 완료(대기)</td><td>가장 느림</td><td>마지막 완료 단계까지 복구</td></tr>
+<tr><td><code>async</code> <span style="color:var(--muted)">(기본)</span></td><td>다음 단계 실행과 <strong>겹쳐</strong> 저장</td><td>빠름</td><td>직전 한 단계는 유실 가능</td></tr>
+<tr><td><code>exit</code></td><td>끝날 때 한 번만</td><td>가장 빠름</td><td>처음부터 다시</td></tr>
+</table>
+
+<p class="muted"><code>async</code>가 빠른 건 쓰기를 다음 단계 <em>계산과 겹쳐</em> 백그라운드로 돌리기 때문이고, 그 대가로 저장이 아직 안 끝난 찰나에 죽으면 최신 한 스텝을 못 건질 수 있습니다. 즉 <strong>속도 ↔ 복구 보장</strong>의 맞바꿈입니다 — 돈·외부 부작용이 걸린 긴 워크플로면 <code>"sync"</code>로 안전을, 대량·저위험 배치면 <code>"async"</code>/<code>"exit"</code>로 속도를 삽니다. <code>graph.invoke(…, durability=…)</code>로 지정하며, 우리 실습은 기본 <code>async</code>로 충분합니다.</p>
 </div></div>
 </div>
 </section>
