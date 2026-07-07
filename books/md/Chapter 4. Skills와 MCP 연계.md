@@ -277,6 +277,26 @@ flowchart LR
 </div></div>
 </div>
 
+<details class="deep" style="margin-top:14px">
+<summary>🔬 심화 — 고수준 <code>FastMCP</code> vs 저수준 <code>Server</code>, 그리고 진짜 외부 시스템에 붙일 때</summary>
+<div class="reveal">
+<p><strong>두 층의 서버 API.</strong> MCP Python SDK는 두 층을 줍니다. <strong><code>FastMCP</code></strong>(고수준)는 <code>@mcp.tool()</code> 데코레이터가 함수에서 <code>tools/list</code>·<code>tools/call</code> 라우팅을 <em>자동 생성</em>합니다(우리가 쓰는 것). <strong>저수준 <code>Server</code></strong>는 <code>@server.list_tools()</code>·<code>@server.call_tool()</code>로 그 라우팅을 <em>직접</em> 구현합니다 — 커스텀 발견 로직이나 동적 도구처럼 프로토콜 내부를 손으로 다뤄야 할 때 씁니다. FastMCP가 자동으로 만들어 주는 게 바로 이 두 핸들러입니다.</p>
+<p><strong>진짜 외부 시스템에 붙일 때.</strong> 우리 서버의 <code>fetch_inbox</code>는 <em>샘플 메일</em>이지만, 같은 <code>@mcp.tool()</code> 자리에 실제 API를 넣으면 그대로 프로덕션이 됩니다. 예컨대 진짜 메일함이라면:</p>
+
+```python
+@mcp.tool()
+def check_inbox(filter: str = "unread") -> str:
+    """메일함의 메일 목록을 확인한다."""      # 계약(이름·설명·시그니처)은 그대로
+    mail = imaplib.IMAP4_SSL("imap.gmail.com")   # ← 안만 실제 백엔드로
+    mail.login(user, app_password)
+    mail.select("inbox"); _, ids = mail.search(None, "UNSEEN")
+    ...                                          # 메일 파싱 후 str로 반환
+```
+
+<p>도구의 <em>계약(이름·설명·시그니처)</em>은 그대로 두고 <em>안</em>만 real 백엔드로 바꾸면, 에이전트(클라이언트) 코드는 한 줄도 안 고쳐도 됩니다. 이게 MCP가 표준 인터페이스로 얻는 것 — <strong>백엔드를 갈아끼워도 계약은 유지</strong>됩니다. 그래서 실습은 샘플로 배우고, 배포 때 real 백엔드만 끼웁니다. (전송을 <code>stdio</code>에서 <code>Streamable HTTP</code>로 바꾸면 같은 도구가 원격 서버로도 그대로 나갑니다.)</p>
+</div>
+</details>
+
 <div class="board" style="margin-top:14px">
 <div class="board-header"><span>JSON-RPC 한 왕복 — <code>tools/call</code> 실물</span><span class="status-pill">search_knowledge</span></div>
 <div class="panel-body">
