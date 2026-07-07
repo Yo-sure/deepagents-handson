@@ -741,23 +741,66 @@ def build_agent(records: list[RecordV1], notes_dir: Path = RESEARCH_NOTES):
     )
 
 
+FANOUT_INSTRUCTION = (
+    "인박스를 교차 조사해라. 반드시 write_todos로 계획한 뒤 task로 "
+    "card_reconcile, bank_reconcile, spend_summary 세 서브에이전트에 "
+    "위임하고, 각 워커는 write_note로 같은 이름의 노트를 저장해야 한다. "
+    "마지막에는 저장한 파일명과 핵심 요약만 답해라."
+)
+
+
+def verify_fanout(out: dict, tmp_notes: Path) -> dict[str, str]:
+    """live 결과(out=최종 상태)가 하네스 계약을 지켰는지 검증한다 — 어긋나면 멈춘다(fail-closed).
+
+    ① write_todos로 계획했나 ② 기대 서브에이전트를 task 했나 ③ 같은 턴에 함께 던졌나(fan-out)
+    ④ 노트가 저장됐나. 넷을 통과하면 저장된 노트 dict를 돌려준다. 검증자가 이 함수다.
+    """
+    if "write_todos" not in tool_call_names(out["messages"]):
+        raise RuntimeError(
+            "live 실행에서 write_todos 계획 호출이 빠졌습니다. "
+            "조사 전에 TodoListMiddleware 계획을 남긴 뒤 task fan-out으로 위임해야 합니다."
+        )
+    print("  [verify] write_todos 계획 호출 확인")
+
+    expected = set(EXPECTED_NOTES)
+    batches = task_call_batches(out["messages"])
+    all_targets = set().union(*batches) if batches else set()
+    if not expected.issubset(all_targets):
+        raise RuntimeError(
+            "live fan-out에서 기대 서브에이전트 task 호출이 빠졌습니다: "
+            + ", ".join(sorted(expected - all_targets))
+            + " — 메인이 직접 처리하지 말고 세 워커에 위임해야 합니다."
+        )
+    if not any(expected.issubset(batch) for batch in batches):
+        raise RuntimeError(
+            "live fan-out에서 세 서브에이전트가 같은 턴에 함께 호출되지 않았습니다. "
+            "순차 호출이 아니라 한 번에 위임해야 fan-out입니다."
+        )
+    print(f"  [verify] task 호출 대상 확인: {', '.join(sorted(expected))}")
+
+    notes, missing = read_expected_notes(tmp_notes)
+    if missing:
+        raise RuntimeError(
+            "live fan-out 후 기대 노트가 없습니다: "
+            + ", ".join(f"research_notes/.live_tmp/{name}.md" for name in missing)
+            + " — 모델이 task/write_note 지시를 따르지 않았습니다. --trace로 배선을 확인하거나 --mock으로 하네스만 점검하세요."
+        )
+    return notes
+
+
 def fan_out_live(records: list[RecordV1]) -> dict[str, str]:
-    """DeepAgents live fan-out을 실행하고 노트·브리프 계약을 검증한다."""
+    """DeepAgents live fan-out: run(하네스 실행) → verify(설계대로 했나) → synthesize(브리프 종합)."""
     ensure_workspace()
     tmp_notes = RESEARCH_NOTES / ".live_tmp"
     if tmp_notes.exists():
         shutil.rmtree(tmp_notes)
     tmp_notes.mkdir(parents=True, exist_ok=True)
+
+    # 1) run — 하네스가 계획→fan-out→워커→종합을 끝까지 돈다. out은 최종 상태(state) dict.
     try:
         agent = build_agent(records, notes_dir=tmp_notes)
         print(f"  [live] create_deep_agent → task 서브에이전트 3개 위임 요청 (timeout={LIVE_TIMEOUT}s)")
-        out = agent.invoke({"messages": [{"role": "user",
-              "content": (
-                  "인박스를 교차 조사해라. 반드시 write_todos로 계획한 뒤 task로 "
-                  "card_reconcile, bank_reconcile, spend_summary 세 서브에이전트에 "
-                  "위임하고, 각 워커는 write_note로 같은 이름의 노트를 저장해야 한다. "
-                  "마지막에는 저장한 파일명과 핵심 요약만 답해라."
-              )}]})
+        out = agent.invoke({"messages": [{"role": "user", "content": FANOUT_INSTRUCTION}]})
     except Exception as e:
         raise RuntimeError(
             f"DeepAgents live 호출 실패: {type(e).__name__}: {e}. "
@@ -767,39 +810,13 @@ def fan_out_live(records: list[RecordV1]) -> dict[str, str]:
             "키/크레딧/모델 라우팅/응답 지연을 확인하고, "
             "하네스 구조만 보려면 --mock 또는 --trace를 실행하세요."
         ) from e
-    final = message_text(out["messages"][-1].content)
-    if final:
-        print("  [model] 최종 요약 수신 — 성공 판정은 아래 하니스 검증과 파일 상태로 판단")
-    names = tool_call_names(out["messages"])
-    if "write_todos" not in names:
-        raise RuntimeError(
-            "live 실행에서 write_todos 계획 호출이 빠졌습니다. "
-            "조사 전에 TodoListMiddleware 계획을 남긴 뒤 task fan-out으로 위임해야 합니다."
-        )
-    print("  [verify] write_todos 계획 호출 확인")
-    batches = task_call_batches(out["messages"])
-    expected = set(EXPECTED_NOTES)
-    all_targets = set().union(*batches) if batches else set()
-    if not expected.issubset(all_targets):
-        missing_targets = sorted(expected - all_targets)
-        raise RuntimeError(
-            "live fan-out에서 기대 서브에이전트 task 호출이 빠졌습니다: "
-            + ", ".join(missing_targets)
-            + " — 메인이 직접 처리하지 말고 세 워커에 위임해야 합니다."
-        )
-    if not any(expected.issubset(batch) for batch in batches):
-        raise RuntimeError(
-            "live fan-out에서 세 서브에이전트가 같은 턴에 함께 호출되지 않았습니다. "
-            "순차 호출이 아니라 한 번에 위임해야 fan-out입니다."
-        )
-    print(f"  [verify] task 호출 대상 확인: {', '.join(sorted(expected))}")
-    notes, missing = read_expected_notes(tmp_notes)
-    if missing:
-        raise RuntimeError(
-            "live fan-out 후 기대 노트가 없습니다: "
-            + ", ".join(f"research_notes/.live_tmp/{name}.md" for name in missing)
-            + " — 모델이 task/write_note 지시를 따르지 않았습니다. --trace로 배선을 확인하거나 --mock으로 하네스만 점검하세요."
-        )
+    if message_text(out["messages"][-1].content):
+        print("  [model] 최종 요약 수신 — 성공 판정은 하네스 검증과 파일 상태로 한다")
+
+    # 2) verify — 검증자가 병목. 설계대로 안 됐으면 여기서 멈춘다(fail-closed).
+    notes = verify_fanout(out, tmp_notes)
+
+    # 3) synthesize — 교차검산 보강 후 브리프 초안으로 종합·커밋.
     notes = apply_cross_record_guards(notes, records, notes_dir=tmp_notes)
     tmp_brief = tmp_notes / "brief_draft.md"
     synthesize(notes, records, out_path=tmp_brief)
