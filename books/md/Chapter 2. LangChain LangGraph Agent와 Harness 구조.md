@@ -454,6 +454,7 @@ def review(state: IntakeState) -> dict:
 <div class="panel-body"><div class="list">
 <p><code>Command(resume=...)</code>로 이어지면 LangGraph는 멈췄던 <strong>노드 전체를 위에서 다시 실행</strong>합니다. <code>interrupt()</code> 앞 코드도 한 번 더 돌고, 그 지점에서 <code>interrupt()</code>가 저장해 둔 결정값을 돌려줄 뿐입니다.</p>
 <p>그래서 <code>interrupt()</code> 앞에 DB 쓰기·카운터 증가 같은 부수효과를 두면 두 번 실행됩니다. 우리 <code>review</code>는 앞에서 state를 읽기만 하므로 안전합니다. 부수효과는 전부 뒤 노드(<code>persist</code>)로 미룹니다.</p>
+<p class="muted" style="margin-top:8px">키 없이 직접 확인: <code>ch2-langgraph-agent/graph_internals.ipynb</code>를 열어 실행하면 <code>interrupt()</code> 앞 코드가 재개 때 <strong>2번</strong>, 뒤 코드가 <strong>1번</strong> 도는 걸 카운터로 눈으로 봅니다.</p>
 </div></div>
 </div>
 
