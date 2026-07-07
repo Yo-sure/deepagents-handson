@@ -480,6 +480,48 @@ flowchart LR
 </div></div></div>
 </div>
 
+<div class="board" style="margin-top:18px">
+<div class="board-header"><span>워크플로 패턴 — 모양으로 보기</span><span class="status-pill">패턴</span></div>
+<div class="panel-body">
+
+<p style="margin:0 0 6px"><strong>체이닝</strong> — 정해진 순서를 코드로 고정</p>
+
+```mermaid
+flowchart LR
+    A["분류"] --> B["정규화"] --> C["적재"]
+```
+
+<p style="margin:14px 0 6px"><strong>라우팅</strong> — 유형에 따라 다른 길로 분기</p>
+
+```mermaid
+flowchart LR
+    I["문서"] --> R{"유형?"}
+    R -->|"영수증"| A["영수증 처리"]
+    R -->|"명세서"| B["명세서 처리"]
+```
+
+<p style="margin:14px 0 6px"><strong>병렬화</strong> — 나눠 동시에 처리하고 합산</p>
+
+```mermaid
+flowchart LR
+    I["문서들"] --> A["문서 1"] --> S["합산"]
+    I --> B["문서 2"] --> S
+    I --> C["문서 3"] --> S
+```
+
+<p style="margin:14px 0 6px"><strong>오케스트레이터–워커</strong> — 나눠 위임하고 취합 (Ch3 fan-out)</p>
+
+```mermaid
+flowchart LR
+    O["오케스트레이터"] --> A["워커 · 카드"] --> M["취합"]
+    O --> B["워커 · 은행"] --> M
+    O --> C["워커 · 지출"] --> M
+```
+
+<p style="margin-top:10px;font-size:13px" class="muted">단일 호출(입력 하나 → 출력 하나)은 그림이 필요 없는 가장 단순한 형태입니다. 패턴 출처: <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener">Anthropic — Building Effective Agents</a>.</p>
+</div>
+</div>
+
 <p class="section-note" style="margin-top:18px">이 과정의 파이프라인은 대부분 워크플로입니다. 분류·정규화는 순서가 정해져 있습니다. 에이전트가 필요한 곳은 "여러 문서를 나눠 조사하고 교차 검산"하는 Ch3 한 구간입니다. 도구를 고를 때 이 구분이 첫 질문이 됩니다.</p>
 
 <div class="cue solve">
