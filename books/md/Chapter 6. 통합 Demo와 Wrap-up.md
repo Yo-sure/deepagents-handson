@@ -555,6 +555,59 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
+<div class="eyebrow">실습 In Action · 루프를 닫는다 · 8분</div>
+
+## 루프 엔지니어링 — 하네스 다음 칸
+
+</div>
+<p class="section-note">여기까지가 하네스입니다 — 한 번 잘 도는 시스템. 2026의 다음 칸은 <strong>루프 엔지니어링</strong>입니다. 그 하네스를 <em>스스로 고치며 도는 순환</em>으로 감쌉니다. 검증자가 미달을 잡으면 그 지적을 반영해 다시 만들고 다시 검증합니다 — 통과하거나 반복 상한에 닿을 때까지.</p>
+</div>
+
+<div class="board">
+<div class="board-header"><span>프롬프트 → 컨텍스트 → 하네스 → 루프</span><span class="status-pill">엔지니어링 사다리</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>① 프롬프트</strong> 무엇을 시키나 · <strong>② 컨텍스트</strong> 무엇을 보여 주나(창 관리·파일 오프로딩) · <strong>③ 하네스</strong> 어떤 환경에서 도나(도구·상태·검증 — Ch2~5) · <strong>④ 루프</strong> 그 환경을 <em>굴리는 순환</em>을 설계한다. "프롬프트 치는 사람"에서 "프롬프트 치는 시스템을 짜는 사람"으로 무게가 옮겨 갑니다.</p>
+<p>루프는 시간 척도로 겹칩니다(Ng의 세 순환). <strong>에이전트 루프</strong>(초~분, 한 작업 안에서 generate→verify→refine) · <strong>개발 피드백 루프</strong>(분~시간, 사람이 하네스·검증 기준을 다듬음) · <strong>외부 피드백 루프</strong>(시간~주, 운영 데이터로 정책·재학습). 이 실습은 첫 번째를 손으로 닫습니다.</p>
+<p><strong>순환의 품질은 검증자가 정합니다.</strong> 루프가 자동으로 돌수록, 무엇을 "됐다"로 칠지 정하는 검증이 전체 품질을 정합니다(Ch3의 "병목은 모델이 아니라 검증자"). 검증 게이트를 못 믿으면, 나쁜 루프는 나쁜 산출을 더 빨리 찍어낼 뿐입니다.</p>
+</div></div>
+</div>
+
+<div class="panel" style="margin-top:16px">
+<div class="panel-head"><strong>ch6-integration/refine_loop.py — 루프 본체</strong><span>generate → verify → refine</span></div>
+<div class="panel-body">
+
+<<< ../../ch6-integration/refine_loop.py#refine-loop{python}
+
+</div>
+</div>
+
+<div class="cue do" style="margin-top:16px">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~4분</span></div>
+<div class="cue-body">일부러 gap(쿠팡)을 빠뜨린 미달 초안으로 루프를 돌립니다(키 불필요 — 먼저 Ch2 intake로 <code>classified/</code>를 채워 두세요). <code>uv run python3 ch6-integration/refine_loop.py</code>. 검증자가 <code>NEEDS_REVISION</code>으로 누락을 잡고, 그 지적을 반영해 다시 만든 뒤, 다음 반복에서 <code>PASS</code>로 올라가는지 보세요.</div>
+</div>
+
+```text
+▶ 루프: generate → verify → refine (검증 통과까지)
+  [반복 1] 검증: NEEDS_REVISION — 누락 1건
+           교정 반영 → 쿠팡(주)
+  [반복 2] 검증: PASS
+최종: PASS — 루프가 미달 초안을 통과로 끌어올렸다
+```
+
+<details class="deep" style="margin-top:14px">
+<summary>🔬 심화 — 루프 엔지니어링의 프런티어 <span style="color:var(--muted)">(2026)</span></summary>
+<div class="reveal">
+<p>이 실습의 refine는 결정론(규칙)으로 재생성해 루프 <em>구조</em>를 드러냅니다. 실무의 refine 자리엔 여러 방식이 들어갑니다.</p>
+<p><strong>Reflexion·Self-Refine</strong>: 실패를 언어로 반성해 다음 시도를 고친다(모델이 검증 피드백을 받아 다시 씀). <strong>테스트 주도 루프</strong>: 먼저 실패하는 테스트·기대를 쓰고 통과할 때까지 고친다. <strong>PRM(과정 보상 모델)</strong>: 최종 결과만이 아니라 <em>중간 단계</em>를 채점해 어긋난 순간 되돌린다. <strong>Self-Harness</strong>: 실행 트레이스에서 반복 실패 패턴을 찾아 하네스·스킬 문서 자체를 후보 수정 → 회귀 통과 시 채택(Ch4 SKILLOPT과 같은 결).</p>
+<p>공통점은 하나입니다. <strong>사람이 쏟을 곳이 프롬프트에서 검증 기준으로 옮겨갑니다.</strong> 좋은 검증자(무엇을 "됐다"로 칠지)를 설계하면 루프가 나머지를 대신합니다. 그래서 이 과정의 <code>verify_brief</code>·<code>pass^k</code>·fail-closed가 곧 루프 엔지니어링의 재료입니다.</p>
+<p class="muted">참고: <a href="https://arxiv.org/abs/2303.11366">Reflexion(Shinn 2023)</a> · <a href="https://arxiv.org/abs/2303.17651">Self-Refine(Madaan 2023)</a> · <a href="https://arxiv.org/abs/2305.20050">Let's Verify Step by Step — PRM(Lightman 2023)</a> · <a href="https://arxiv.org/abs/2509.02360">Course-Correcting SWE Agents with PRMs(2025)</a></p>
+</div>
+</details>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
 <div class="eyebrow">전이 · 2분</div>
 
 ## 내 업무에 적용하기
