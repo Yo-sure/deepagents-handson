@@ -244,8 +244,24 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~1분</span></div>
-<div class="cue-body">위 코드는 레포에 들어 있는 <code>analyst/first_call.py</code>입니다. 따로 만들 필요 없이 <code>uv run python3 analyst/first_call.py</code>로 바로 실행합니다. 이게 학생이 직접 보는 첫 LLM 호출입니다. 통과하면 이어서 <code>bash scripts/preflight.sh</code>로 종합 live 점검 <code>✅ 14 / ❌ 0</code>을 확인하세요. <code>.env</code>의 <code>OPENROUTER_API_KEY</code>(강의 안내 페이지에서 받은 키)를 먼저 채워야 합니다. Gemini 3.1 Flash Lite는 과금 모델이라, 받은 키의 크레딧·한도가 소진되면 402/credit 계열 오류가 날 수 있습니다(이 경우 강사에게 알리세요).</div>
+<div class="cue-body">위 코드는 레포에 들어 있는 <code>analyst/first_call.py</code>입니다 — 따로 만들 필요 없이 아래 명령으로 바로 실행합니다. 학생이 직접 보는 첫 LLM 호출입니다. 먼저 <code>.env</code>의 <code>OPENROUTER_API_KEY</code>(강의 안내 페이지에서 받은 키)를 채워야 합니다.</div>
 </div>
+
+<div class="runbar">지금 실행<span class="hint">복사 → 터미널에 붙여넣기</span></div>
+
+```bash
+uv run python3 analyst/first_call.py
+```
+
+<p class="section-note">통과하면 이어서 종합 live 점검으로 <code>✅ 14 / ❌ 0</code>을 확인합니다.</p>
+
+<div class="runbar">이어서 실행</div>
+
+```bash
+bash scripts/preflight.sh
+```
+
+<p class="section-note">Gemini 3.1 Flash Lite는 과금 모델이라, 받은 키의 크레딧·한도가 소진되면 402/credit 계열 오류가 날 수 있습니다(이 경우 강사에게 알리세요).</p>
 
 <div class="cue wait">
 <div class="cue-head"><span class="cue-label">⏳ 기다렸다 확인</span><span class="cue-time">~20초</span></div>
