@@ -541,6 +541,11 @@ flowchart TB
 <div class="cue-body">live 출력은 모델이 쓴 요약이라 매번 조금 다릅니다. 구조를 확인하려면 <code>--trace</code>에서 서브에이전트 3개와 <code>task</code> 도구 배선을 보고, 장애 시 <code>--mock</code>에서 <code>[task]</code> 세 줄이 한꺼번에 던져지는지 확인합니다. mock은 함수가 즉시 끝나 속도 이득은 안 보이고, 실제 속도 이득은 live의 네트워크 LLM 호출 대기가 겹칠 때 납니다.</div>
 </div>
 
+<div class="cue do" style="margin-top:14px">
+<div class="cue-head"><span class="cue-label">✋ 직접 해보기 — 노트북</span><span class="cue-time">~6분 · 키 불필요</span></div>
+<div class="cue-body"><code>ch3-deepagents/harness_internals.ipynb</code>를 열어 위에서부터 실행하세요. <code>--trace</code>가 하던 introspection을 셀 단위로 직접 합니다. <strong>실험1</strong>: 넘긴 도구 1개 vs 하네스가 자동 배선한 9개를 빌드된 그래프에서 꺼내 보고, <strong>✏️ 직접 해보기</strong>에서 <code>SUBAGENT_SPECS</code>에 워커를 하나 더해 재배선을 확인합니다. <strong>실험2</strong>: <code>agent.invoke(...)</code>의 <code>out</code>이 마지막 답 하나가 아니라 <strong>최종 상태(<code>messages</code>·<code>todos</code>·<code>files</code>)</strong>임을 스키마로 확인합니다 — <code>fan_out_live</code>가 그 <code>messages</code> 기록을 훑어 검증하는 이유입니다.</div>
+</div>
+
 <div class="panel" style="margin-top:18px">
 <div class="panel-head"><strong>출력 — 위임하고 종합된다</strong><span>brief_draft.md</span></div>
 <div class="panel-body">
