@@ -486,6 +486,8 @@ flowchart TB
 
 <<< ../../ch3-deepagents/research_orchestrator.py#reconcile-card{python}
 
+<p class="tiny" style="margin-top:12px;color:var(--muted)"><strong>읽는 법.</strong> ① 카드 명세서를 찾는다(<code>명세서</code> 중 상호에 '카드'가 든 것 — 없으면 바로 종료). ② 명세서의 <em>거래줄마다</em>(<code>card.items</code>) <code>total</code>이 ±1원(<code>MATCH_TOL</code>) 안에 드는 영수증을 찾아 <code>✅</code>(매칭)·<code>⚠️</code>(없음)로 적고, 없는 줄만 <code>unmatched</code>에 모은다. ③ 그 미매칭 줄을 '확인 필요'에서 <code>&lt;3만원 → 구독 추정</code>, <code>≥3만원 → 영수증 분실/미수령</code>으로 가른다. 데모 데이터에선 5건 매칭 + 2건(쿠팡·넷플릭스) 미매칭입니다. <br><strong>왜 <code>item.amount</code>(단가)를 영수증 <code>total</code>과 비교하나</strong> — 카드 거래줄은 각각 한 건의 결제라 <strong>수량이 1</strong>이고, 그래서 단가가 곧 결제액이라 총액과 바로 맞댈 수 있습니다.</p>
+
 <p class="tiny" style="margin-top:12px;color:var(--muted)"><strong>이건 mock 경로의 함수입니다</strong> — <code>@tool</code>도 LangGraph 노드도 아닙니다. mock은 이 함수를 스레드로 병렬 실행해 fan-out을 재현합니다. live에선 같은 일을 <code>card_reconcile</code> <strong>서브에이전트</strong>가 맡고, 그 워커가 쥐는 실제 도구(<code>@tool</code>)는 <code>list_records</code>·<code>write_note</code>입니다. (함수명 <code>reconcile_card</code> ↔ 서브에이전트·노트명 <code>card_reconcile</code> — 이름이 뒤집혀 있으니 주의.)</p>
 
 <p class="section-note" style="margin-top:12px">두 가지 짚을 점. ① <code>if not card</code> 가드가 없으면 카드 명세서가 없을 때 <code>card.items</code>에서 터집니다. ② 금액 단독 매칭(<code>next(...)</code>, first-match)은 <em>같은 금액 영수증이 둘이면 깨집니다</em>. 실무 대사는 (금액·날짜·가맹점) 다중키로 풉니다. 여기선 교육용으로 금액만 봅니다.</p>
