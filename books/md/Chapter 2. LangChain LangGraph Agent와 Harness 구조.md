@@ -265,6 +265,23 @@ class IntakeState(TypedDict, total=False):
     sum_ok: bool    # 영수증 합계 검증 결과(분기용)
 ```
 
+<div class="board" style="margin-top:16px">
+<div class="board-header"><span>State가 노드를 지나는 법 — 부분 업데이트와 리듀서</span><span class="status-pill">State · reducer</span></div>
+<div class="panel-body">
+<p class="section-note">노드는 <strong>상태 전체를 받아, 바꾸는 채널만</strong> 담은 부분 업데이트(dict)를 돌려줍니다(State in → node → 부분 업데이트). 그 업데이트를 기존 상태에 <em>어떻게 합칠지</em> 정하는 게 <strong>리듀서</strong>입니다.</p>
+
+```mermaid
+flowchart LR
+    S["State (dict)"] --> N["node(state)"]
+    N -->|"바꾼 채널만 반환"| R{"리듀서로 병합"}
+    R -->|"기본: 덮어쓰기(마지막 값)"| S2["다음 State"]
+    R -->|"Annotated[list, add]: 누적"| S2
+```
+
+<p class="section-note" style="margin-top:6px">기본 리듀서는 <strong>덮어쓰기</strong>(마지막 값이 이김)라 위 <code>record</code>·<code>retries</code>는 매번 새 값으로 갈립니다. 반대로 쌓아야 하는 채널(대화 <code>messages</code>)엔 <code>Annotated[list, add_messages]</code>로 <strong>누적 리듀서</strong>를 붙여 append 하게 만듭니다. <strong>superstep</strong>에서 여러 노드가 같은 채널에 동시에 쓰면(Ch3 fan-out), 리듀서가 그 동시 쓰기를 안전하게 합칩니다 — 리듀서가 없으면 채널당 한 번만 허용돼 충돌 오류가 납니다.</p>
+</div>
+</div>
+
 <div class="panel">
 <div class="panel-head"><strong>다섯 노드와 분기 — verify가 세 갈래로 갈라진다</strong><span>그래프 토폴로지</span></div>
 <div class="panel-body">
@@ -388,7 +405,7 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="board-header"><span>checkpointer가 실제로 저장하는 것 — superstep 스냅샷</span><span class="status-pill">Pregel 실행모델</span></div>
 <div class="panel-body">
 <p>LangGraph는 노드를 superstep 단위로 돕니다. 실행 가능한 노드를 (병렬로) 돌려 출력을 모으고 상태를 동기화한 뒤 다음 superstep으로 넘어갑니다(Google Pregel에서 온 모델). checkpointer는 매 superstep 끝의 스냅샷을 <code>thread_id</code>별로 저장합니다. 그래서 그 자리부터 재개됩니다.</p>
-<p class="tiny" style="color:var(--muted)">한 발 더: 이 챕터 그래프는 직선(classify→verify→분기→다음 하나)이라 한 superstep에 노드가 늘 하나뿐입니다. 여러 노드가 같은 상태 채널에 동시에 쓰는 진짜 병렬 superstep과, 그 동시 쓰기를 안전하게 합치는 reducer(<code>Annotated[list, add]</code>)는 <strong>Ch3 fan-out</strong>에서 봅니다. 여기 "(병렬로)"는 Pregel 모델의 일반 성질이고, 우리 그래프에선 아직 나타나지 않습니다.</p>
+<p class="tiny" style="color:var(--muted)">한 발 더: 이 챕터 그래프는 직선(classify→verify→분기→다음 하나)이라 한 superstep에 노드가 늘 하나뿐입니다. 여러 노드가 같은 상태 채널에 동시에 쓰는 진짜 병렬 superstep은 <strong>Ch3 fan-out</strong>에서 봅니다(그때 동시 쓰기를 합치는 reducer는 위 "State가 노드를 지나는 법"에서 다뤘습니다). 여기 "(병렬로)"는 Pregel 모델의 일반 성질이고, 우리 그래프에선 아직 나타나지 않습니다.</p>
 <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
 <div class="panel"><div class="panel-head"><strong>channel_values</strong><span>상태 본문</span></div><div class="panel-body"><div class="list"><p>지금 상태의 실제 값. 분류 중인 문서·추출 레코드·재시도 횟수 같은 State 필드</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>channel_versions</strong><span>버전</span></div><div class="panel-body"><div class="list"><p>각 채널이 몇 번 갱신됐는지. 무엇이 바뀌었는지 추적</p></div></div></div>
