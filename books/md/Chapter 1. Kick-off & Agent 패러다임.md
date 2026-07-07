@@ -86,7 +86,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">0 · 먼저 실행 · 3분</div>
+<div class="eyebrow">실습 · 먼저 한 번 실행 · 3분</div>
 
 ## 한 장을 바로 읽어 본다
 
@@ -105,7 +105,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 지금 · 2분</div>
+<div class="eyebrow">이론 · LLM은 지금 어디까지 · 2분</div>
 
 ## 순위를 가르는 건 모델이 아니다
 
@@ -166,7 +166,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 한계 · 4분</div>
+<div class="eyebrow">이론 · LLM의 한계 · 4분</div>
 
 ## LLM의 기본 출력은 다음 토큰 예측이다
 
@@ -225,7 +225,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1.2 · 더 들여다보면 · 3분</div>
+<div class="eyebrow">이론 · 더 들여다보면 · 3분</div>
 
 ## 네 한계가 설계로 이어지는 방식
 
@@ -284,7 +284,7 @@ xychart-beta
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1.5 · 들여다보기 · 2분</div>
+<div class="eyebrow">심화 · logprobs 들여다보기 · 2분</div>
 
 ## "예측"을 눈으로 — logprobs와 temperature
 
@@ -390,7 +390,7 @@ xychart-beta
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">2 · 루프 · 4분</div>
+<div class="eyebrow">이론 · ReAct 루프 · 4분</div>
 
 ## 에이전트는 한 번에 답하지 않는다
 
@@ -437,7 +437,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">3 · 절제 · 2분</div>
+<div class="eyebrow">이론 · 절제(언제 에이전트가 아닌가) · 2분</div>
 
 ## 에이전트는 마지막 수단
 
@@ -483,7 +483,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">4 · 모델 · 2분</div>
+<div class="eyebrow">기초 · 모델 선택 · 2분</div>
 
 ## 제일 똑똑한 모델이 정답은 아니다
 
@@ -520,7 +520,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">5 · 3계층 · 2분</div>
+<div class="eyebrow">이론 · 3계층 구조 · 2분</div>
 
 ## Framework → Runtime → Harness
 
@@ -579,7 +579,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ① · 코드 정독 · 4분</div>
+<div class="eyebrow">실습 In Action ① · 코드 정독 · 4분</div>
 
 ## 멀티모달 호출을 뜯어본다
 
@@ -628,7 +628,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ② · 코드 정독 · 4분</div>
+<div class="eyebrow">실습 In Action ② · 코드 정독 · 4분</div>
 
 ## 합계를 검증한다 — ReAct
 
@@ -674,7 +674,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ③ · 단계별 실행 · 9분</div>
+<div class="eyebrow">실습 In Action ③ · 단계별 실행 · 9분</div>
 
 ## 돌리고, 관찰하고, 바꿔 본다
 
@@ -683,9 +683,9 @@ flowchart TB
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>live 추출 — 단발 호출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png</code> <span style="color:var(--muted)">(장애·오프라인 확인: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)">성공 기준: 위 RecordV1 예시처럼 판매처·총액·항목이 든 JSON이 한글 키로 출력된다(최상위 키는 <code>총액</code>, 항목 안은 품목 <code>단가</code>). 실제 모델이 영수증을 읽으므로 값·신뢰도는 조금 다를 수 있고, <em>칸 구조</em>는 같습니다. <code>--mock</code>은 고정 출력으로 코드 경로를 확인하는 보조입니다.</span></p></div><div class="store">live</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>live 추출 — 단발 호출</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png</code><br><span style="color:var(--muted)">성공 기준: 위 RecordV1 예시처럼 판매처·총액·항목이 든 JSON이 한글 키로 출력된다(최상위 키는 <code>총액</code>, 항목 안은 품목 <code>단가</code>). 실제 모델이 영수증을 읽으므로 값·신뢰도는 조금 다를 수 있고, <em>칸 구조</em>는 같습니다. 키가 없으면 <code>--mock</code>으로 고정 출력을 확인합니다.</span></p></div><div class="store">live</div></div>
 <div class="row"><div class="code">2</div><div class="copy"><strong>live 추출 — PDF 한 건</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc statement_card_2026-05.pdf</code> <span style="color:var(--muted)">(PDF 라우팅 진단)</span><br><span style="color:var(--muted)">성공 기준: PDF 명세서도 같은 RecordV1 칸으로 출력된다. 이미지가 되는데 PDF만 실패하면 모델·게이트웨이의 PDF 지원 문제로 좁혀 보고, Ch2에서도 같은 문서를 한 건만 다시 돌려 본다.</span></p></div><div class="store">PDF</div></div>
-<div class="row"><div class="code">3</div><div class="copy"><strong>ReAct 추출 — 도구로 검산</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code> <span style="color:var(--muted)">(장애·오프라인 확인: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)"><strong>증명:</strong> 한 번에 답하지 않고 도구로 검산한다. live면 모델이 직접 도구 호출 여부와 횟수를 정하므로 표현·검산 횟수가 달라질 수 있습니다. <code>--mock</code>이면 gold로 검산 한 번을 고정 재현해, live 실패가 모델/키 문제인지 코드 문제인지 가르는 데 씁니다.</span></p></div><div class="store">루프</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>ReAct 추출 — 도구로 검산</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --react</code><br><span style="color:var(--muted)"><strong>증명:</strong> 한 번에 답하지 않고 도구로 검산한다. live면 모델이 직접 도구 호출 여부와 횟수를 정하므로 표현·검산 횟수가 달라질 수 있습니다. <code>--mock</code>이면 gold로 검산 한 번을 고정 재현해, live 실패가 모델/키 문제인지 코드 문제인지 가르는 데 씁니다.</span></p></div><div class="store">루프</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>모델 비교</strong><p><code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --compare</code><br><span style="color:var(--muted)">성공 기준: 기본 모델의 정확도가 표로 나온다. 여러 모델을 비교하려면 실행 전 <code>ANALYST_COMPARE_MODELS="google/gemini-3.1-flash-lite,..."</code>처럼 그날 계정에서 되는 슬러그를 쉼표로 넣는다. 이 단계는 실호출이라 키가 필요하고, 실패 원인은 <code>auth/key</code>·<code>credit</code>·<code>model-slug</code>·<code>json/schema</code>로 표시된다.</span></p></div><div class="store">키 필요</div></div>
 </div>
 
@@ -706,7 +706,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ④ · 트러블슈팅 · 참고</div>
+<div class="eyebrow">참고 · 트러블슈팅</div>
 
 ## 막히면 여기부터
 
