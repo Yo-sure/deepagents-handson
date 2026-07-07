@@ -100,7 +100,7 @@ wsl -d Ubuntu-24.04
 </div>
 <p class="section-note">처음이면 먼저 레포 폴더로 들어옵니다. 그 다음 <code>bash scripts/setup.sh</code>를 실행합니다.<br>
 런타임은 WSL2(Ubuntu 24.04) · Python 3.12 · uv · Node 18+입니다. setup.sh가 uv, Node/npm, 가상환경, Python·book 의존성, .env 템플릿까지 처리하니, 실행한 뒤 키만 채우면 됩니다.<br>
-<strong>왜 pip이 아니라 uv?</strong> Ubuntu 24.04는 시스템 Python을 보호하려고 전역 <code>pip install</code>을 막습니다(PEP 668, <code>externally-managed-environment</code> 에러). uv는 레포 <code>.venv</code>에 격리 설치하고 <code>uv run</code>이 자동으로 그 환경을 쓰므로, 가상환경을 깜빡할 일이 없습니다. 그래서 이 과정은 처음부터 uv만 씁니다.</p>
+<strong>uv란?</strong> 파이썬 패키지·가상환경 관리자입니다(<code>pip</code>과 <code>venv</code>를 한 도구로). Ubuntu 24.04가 전역 <code>pip install</code>을 막기 때문에(PEP 668), 이 과정은 uv로 레포 <code>.venv</code>에 격리 설치하고 <code>uv run</code>으로 실행합니다.</p>
 </div>
 
 ```bash
