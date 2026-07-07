@@ -36,6 +36,37 @@ export default {
         }
       })
       document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close() })
+
+      // 실습 명령을 클릭=복사 칩으로. 명령처럼 생긴 인라인 <code>에 .cmd를 붙여 전 챕터 자동 적용.
+      const CMD = /^(uv run |bash |python3? |npm |sudo |source |git clone)/
+      const tagCmds = () => {
+        document.querySelectorAll<HTMLElement>('.lec :not(pre) > code').forEach((c) => {
+          if (!c.classList.contains('cmd') && CMD.test((c.textContent || '').trim())) {
+            c.classList.add('cmd')
+            c.setAttribute('title', '클릭하면 복사')
+          }
+        })
+      }
+      const copyText = (text: string) => {
+        if (navigator.clipboard?.writeText) { navigator.clipboard.writeText(text); return }
+        const ta = document.createElement('textarea')
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'
+        document.body.appendChild(ta); ta.select()
+        try { document.execCommand('copy') } catch {}
+        ta.remove()
+      }
+      document.addEventListener('click', (e) => {
+        const c = (e.target as HTMLElement)?.closest?.('code.cmd') as HTMLElement | null
+        if (!c) return
+        copyText((c.textContent || '').trim())
+        c.classList.add('copied')
+        setTimeout(() => c.classList.remove('copied'), 1200)
+      })
+      // 최초 + 라우트 전환(콘텐츠 교체) 때마다 재태깅. class 변경은 childList를 안 건드려 루프 없음.
+      let re: ReturnType<typeof setTimeout>
+      const obs = new MutationObserver(() => { clearTimeout(re); re = setTimeout(tagCmds, 60) })
+      obs.observe(document.documentElement, { childList: true, subtree: true })
+      setTimeout(tagCmds, 0)
     }
   },
 }

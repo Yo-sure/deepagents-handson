@@ -164,6 +164,21 @@
   margin-top:0; border-top-left-radius:0; border-top-right-radius:0;
   border-color:var(--amber);
 }
+
+/* 실행 명령 인라인 칩 — 클릭하면 복사(테마 index.ts가 명령형 <code>에 .cmd를 붙인다). 러너바와 같은 앰버 ▶ 언어. */
+.lec code.cmd {
+  position:relative; cursor:copy; padding-left:16px;
+  border:1px solid rgba(224,159,62,.55); background:rgba(224,159,62,.12);
+  border-radius:5px; transition:background .15s, border-color .15s;
+}
+.lec code.cmd::before {
+  content:"▶"; position:absolute; left:6px; top:50%; transform:translateY(-50%);
+  font-size:7.5px; color:var(--amber);
+}
+.lec code.cmd:hover { background:rgba(224,159,62,.2); border-color:var(--amber); }
+/* 복사 완료 피드백 — ▶를 ✓로 바꾸고 청록 틴트. in-place라 board의 overflow:hidden에도 안 잘린다 */
+.lec code.cmd.copied { border-color:var(--teal); background:rgba(15,118,110,.14); }
+.lec code.cmd.copied::before { content:"✓"; color:var(--teal); font-size:9px; }
 .lec div[class*="language-"] {
   position: relative; margin: 18px 0; border-radius: var(--radius);
   background: #1b2027; border: 1px solid var(--line);   /* OS 라이트/다크와 무관하게 항상 어두운 코드블록(에디터리얼 의도) */
