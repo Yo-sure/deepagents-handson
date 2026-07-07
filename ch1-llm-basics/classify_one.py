@@ -306,7 +306,7 @@ def extract_react(doc: str, model: str, max_steps: int = 5) -> RecordV1:
     for _ in range(max_steps):
         ai = llm.invoke(messages)
         messages.append(ai)
-        if ai.content and isinstance(ai.content, str) and ai.content.strip() and ai.tool_calls:
+        if ai.tool_calls and isinstance(ai.content, str) and ai.content.strip():
             print(f"  [Thought] {ai.content.strip()[:80]}")
         if ai.tool_calls:                                   # Action — 모델이 도구 호출을 결정
             for tc in ai.tool_calls:
@@ -322,16 +322,11 @@ def extract_react(doc: str, model: str, max_steps: int = 5) -> RecordV1:
         must_verify = is_receipt_doc(doc, rec)
         if must_verify and verified is None:
             raise RuntimeError("영수증인데 check_receipt_sum 검산 없이 최종 JSON을 냈습니다")
-        final_ok, final_sum = verify_total(rec)
+        final_ok, _ = verify_total(rec)
         if must_verify and (verified is False or not final_ok):
             raise RuntimeError("검산 불일치 — 모델이 재검산 없이 최종 JSON을 냈습니다")
-        # tool_calls 없음 = 종료. 검산 대상 여부와 마지막 검산 상태를 분리해 보여 준다.
-        if verified is True:
-            final_status = "검산 통과"
-        elif verified is False:
-            final_status = "마지막 검산 불일치였으나 최종 유형은 검산 대상 아님"
-        else:
-            final_status = "검산 불필요(영수증 아님)"
+        # tool_calls 없음 = 종료. (여기 도달했으면 검산 대상은 이미 통과한 상태다.)
+        final_status = "검산 통과" if verified else "검산 불필요(영수증 아님)"
         print(f"  [Final] {final_status} — 최종 JSON 출력")
         return rec
     raise RuntimeError("ReAct 루프가 max_steps 안에 끝나지 않았다")
@@ -370,7 +365,7 @@ def classify_error(e: Exception) -> str:
         return "auth/key"
     if "402" in text or "credit" in text or "payment" in text:
         return "credit"
-    if "404" in text or "model" in text and "not found" in text:
+    if "404" in text or ("model" in text and "not found" in text):
         return "model-slug"
     if "json" in text or "validation" in text:
         return "json/schema"
