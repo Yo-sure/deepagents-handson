@@ -248,10 +248,10 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>실행 원칙 — 먼저 live, 필요할 때만 <code>--mock</code></span><span class="status-pill">전 챕터 공통</span></div>
+<div class="board-header"><span>실행 원칙 — live로 값을, <code>--mock</code>으로 구조를</span><span class="status-pill">전 챕터 공통</span></div>
 <div class="panel-body"><div class="list">
 <p>이 과정은 <strong>키가 있는 상태</strong>를 기준으로 진행합니다. 아무 옵션 없이 실행하면 실제 모델이 샘플 문서를 읽고, 판매처·금액·항목을 추출해 RecordV1로 분류합니다. 교재의 설명과 성공 기준도 이 <strong>live 경로</strong>를 기준으로 씁니다.</p>
-<p><code>--mock</code>은 live를 대신하는 주 경로가 아닙니다. 쓰는 경우는 두 가지입니다. 첫째, 키·네트워크·모델 응답 문제로 live를 돌릴 수 없을 때입니다. 둘째, 모델 표현이 매번 달라 구조를 비교하기 어려운 장면을 고정해서 보여 줄 때입니다. 예를 들어 Ch3 fan-out처럼 여러 작업이 동시에 도는 모양을 확인할 때 <code>--mock</code>이 유용합니다. 그 외에는 먼저 live로 보세요.</p>
+<p><strong><code>--mock</code>은 그래프·fan-out 같은 <em>구조</em>를 키 없이 결정론적으로 재현하는 도구입니다.</strong> 실습의 어떤 장면은 추출값이 아니라 <em>흐름</em>이 핵심입니다 — 재시도가 상한에서 멈추는지(Ch2), 세 갈래가 한꺼번에 던져지는지(Ch3), 전 구간이 이어지는지(Ch6). 이런 건 값이 매번 흔들리는 live보다 gold·규칙으로 고정된 <code>--mock</code>이 오히려 정확히 보여 줍니다(키가 없을 때의 대체 경로이기도 합니다). 반대로 <em>값·판정 자체</em>가 궁금한 장면(추출 품질 등)은 먼저 live로 봅니다. 그래서 각 챕터는 이 둘을 필요한 쪽으로만 안내합니다.</p>
 <p>키 없이 보는 명령이 모두 mock은 아닙니다. <code>--show</code>·<code>--protocol</code>·<code>--card</code>는 모델을 부르지 않는 진단 명령입니다. 대신 실제 코드가 만든 도구 목록, 프로토콜 메시지, Agent Card를 그대로 출력합니다.</p>
 <p>출력 패널을 읽을 때는 기준을 나눕니다. 모델이 만든 값(판매처·금액·신뢰도·ReAct 트레이스)은 live에서 조금씩 달라질 수 있으므로 교재의 화면은 <strong>대표 예시</strong>입니다. 반대로 코드가 정하는 출력(<code>--list</code> 도구 목록, <code>--trace</code> 하네스 구성, gap 계산, PASS/NEEDS_REVISION 판정)은 키와 무관하게 같아야 하므로 화면과 글자 단위로 맞는지 확인합니다.</p>
 </div></div>
