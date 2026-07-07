@@ -239,7 +239,7 @@ for _ in range(MAX_STEPS):
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">노트북 · 10분</span></div>
-<div class="cue-body"><code>ch2-langgraph-agent/tool_internals.ipynb</code>를 열고 커널을 <code>.venv</code>로 맞춘 뒤 위에서부터 실행하세요. 세 손잡이를 셀 단위로 직접 돌려 봅니다 — <strong>실험1</strong>(스키마 해부)은 키 없이, <strong>실험2·3</strong>(<code>tool_choice</code>·structured output)은 <code>OPENROUTER_API_KEY</code>로 라이브. 각 실험 끝의 <strong>✏️ 직접 해보기</strong>에서 한 줄씩 바꿔 다시 돌려야 손에 남습니다. 터미널로도 확인: <code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --structured</code>.</div>
+<div class="cue-body"><code>ch2-langgraph-agent/tool_internals.ipynb</code>를 열고 커널을 <code>.venv</code>로 맞춘 뒤 위에서부터 실행하세요. 세 가지 제어점을 셀 단위로 직접 돌려 봅니다 — <strong>실험1</strong>(스키마 해부)은 키 없이, <strong>실험2·3</strong>(<code>tool_choice</code>·structured output)은 <code>OPENROUTER_API_KEY</code>로 라이브. 각 실험 끝의 <strong>✏️ 직접 해보기</strong>에서 한 줄씩 바꿔 다시 돌려야 손에 남습니다. 터미널로도 확인: <code>uv run python3 ch1-llm-basics/classify_one.py --doc receipt_gs25.png --structured</code>.</div>
 </div>
 </section>
 

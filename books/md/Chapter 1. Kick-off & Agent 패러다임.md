@@ -338,7 +338,7 @@ xychart-beta
 </div>
 
 <div class="board" style="margin-top:18px">
-<div class="board-header"><span>주의 — 추론형 모델은 온도 손잡이가 없다</span><span class="status-pill">2026 함정</span></div>
+<div class="board-header"><span>주의 — 추론형 모델은 온도 조절이 안 먹힌다</span><span class="status-pill">2026 함정</span></div>
 <div class="panel-body"><div class="list">
 <p>추론형 모델은 내부 추론 단계가 길어 사용자가 <code>temperature</code>로 무작위성을 조절하는 의미가 작아졌습니다. 특히 o 시리즈(o1·o3 등)는 OpenAI 직결 시 1이 아닌 값을 주면 400 에러로 거부합니다. <code>logprobs</code>도 추론형에선 대개 노출되지 않습니다(온도와는 별개 제약). 그래서 토큰 확률을 직접 보는 1.5절 실험은 비추론 모델 <code>gpt-4o-mini</code>로 합니다.</p>
 <p>게다가 게이트웨이가 동작을 한 번 더 가립니다. <strong>OpenRouter는 모델이 지원하지 않는 파라미터를 경고 없이 무시합니다.</strong> 추론형 모델에 <code>temperature=0</code>을 줘도 에러 없이 무시될 수 있어 0으로 고정했다고 착각하기 쉽습니다. 반대로 비추론 모델(이 과정 기본 <code>gemini-3.1-flash-lite</code>)에선 <code>temperature=0</code>이 정상 적용되니, 결정적 추출은 그쪽을 씁니다.</p>
