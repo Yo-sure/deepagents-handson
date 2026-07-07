@@ -306,9 +306,9 @@ sequenceDiagram
 
 <div class="matrix" style="grid-template-columns:88px repeat(3,minmax(0,1fr))">
 <div class="cell head">바인딩</div>
-<div class="cell head">JSON-RPC</div>
-<div class="cell head">gRPC</div>
-<div class="cell head">REST</div>
+<div class="cell head"><span class="ldot" style="display:inline-block;vertical-align:middle;margin-right:5px"></span>JSON-RPC</div>
+<div class="cell head"><span class="ldot blue" style="display:inline-block;vertical-align:middle;margin-right:5px"></span>gRPC</div>
+<div class="cell head"><span class="ldot blue" style="display:inline-block;vertical-align:middle;margin-right:5px"></span>REST</div>
 <div class="cell axis">형식</div>
 <div class="cell">JSON over HTTP</div>
 <div class="cell">protobuf</div>
