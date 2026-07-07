@@ -237,7 +237,7 @@ def synthesize(notes: dict[str, str], records: list[RecordV1], out_path: Path = 
         seen.add(key)
         flags.append(stripped)
     parts = ["# 인박스 브리프 (초안)", "", f"문서 {len(records)}건을 교차 조사했습니다.", ""]
-    parts.append("## 짚어야 할 것")
+    parts.append("## 짚을 점")
     parts += (flags or ["- 특이사항 없음"])
     parts += ["", "## 조사 노트", ""]
     for name in notes:
@@ -618,7 +618,7 @@ ORCHESTRATOR_PROMPT = (
     "너는 인박스 리서치 애널리스트의 오케스트레이터다. 직접 조사하지 말고, "
     "write_todos로 세 조사를 계획한 뒤 task로 card_reconcile·bank_reconcile·"
     "spend_summary 서브에이전트에 한 번에 위임해 fan-out 한다. 세 노트가 모이면 "
-    "각 노트의 '- ⚠️ ... — ...' 증거 줄을 모아 '짚어야 할 것'으로 brief 초안을 정리한다."
+    "각 노트의 '- ⚠️ ... — ...' 증거 줄을 모아 '짚을 점'으로 brief 초안을 정리한다."
 )
 
 

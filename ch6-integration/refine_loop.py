@@ -28,22 +28,22 @@ MAX_ITERS = 3
 # 일부러 gap 항목(쿠팡)을 빠뜨린 첫 초안 — 루프가 이걸 스스로 채워 PASS로 만든다.
 DRAFT = """# 이번 달 인박스 브리프
 
-### 짚을 점
+## 짚을 점
 - 넷플릭스 17,000원 — 구독 추정
 """
 
 
 #pragma region refine-loop
 def refine(brief: str, missing: list[tuple[str, float]]) -> str:
-    """검증자가 짚은 누락 항목을 브리프의 '### 짚을 점'에 채워 넣는다(다음 생성).
+    """검증자가 짚은 누락 항목을 브리프의 '## 짚을 점'에 채워 넣는다(다음 생성).
 
     실무에선 이 자리에 LLM이 검증 피드백을 받아 다시 쓴다(Reflexion). 여기선 결정론.
     """
     add = "\n".join(f"- {name} {amount:,.0f}원 — 대응 영수증 없음(확인 필요)"
                     for name, amount in missing)
-    if "### 짚을 점" in brief:
-        return brief.replace("### 짚을 점", "### 짚을 점\n" + add, 1)
-    return brief.rstrip() + "\n\n### 짚을 점\n" + add + "\n"
+    if "## 짚을 점" in brief:
+        return brief.replace("## 짚을 점", "## 짚을 점\n" + add, 1)
+    return brief.rstrip() + "\n\n## 짚을 점\n" + add + "\n"
 
 
 def refine_loop(brief: str, max_iters: int = MAX_ITERS) -> tuple[str, bool]:
