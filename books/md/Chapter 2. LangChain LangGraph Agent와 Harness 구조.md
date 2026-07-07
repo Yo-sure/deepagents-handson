@@ -33,12 +33,22 @@ pageClass: lec-page
 <div class="row"><div class="code">3</div><div class="copy"><strong>interrupt() HITL</strong><p>고액·저신뢰 건은 사람 승인 후 적재</p></div><div class="store">멈춤</div></div>
 </div>
 </div>
+
+<div class="board" style="margin-top:14px">
+<div class="board-header"><span>이 챕터를 읽는 순서</span><span class="status-pill">이론 · 기초 · 실습 · 심화</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>① 이론</strong> — <code>create_agent</code>(자율 루프)와 <code>StateGraph</code>(직접 정의)를 언제 가르나.</p>
+<p><strong>② 기초</strong> — 노드·엣지·상태 · 검증/재시도 분기 · checkpointer · interrupt(HITL)를 하나씩.</p>
+<p><strong>③ 실습(In Action)</strong> — 코드 정독 → 그래프를 직접 흘려보고 멈춤을 관찰 → 빈 그래프 직접 엮기.</p>
+<p><strong>④ 심화</strong> — 각 절의 접이식 노트(<code>@tool</code> 내부 · structured output · checkpointer 백엔드 등). 첫 회독엔 건너뛰어도 됩니다.</p>
+</div></div>
+</div>
 </section>
 
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 두 갈래 · 6분</div>
+<div class="eyebrow">이론 · create_agent vs StateGraph · 6분</div>
 
 ## create_agent와 StateGraph
 
@@ -236,7 +246,7 @@ for _ in range(MAX_STEPS):
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">2 · 해부 · 8분</div>
+<div class="eyebrow">기초 · 노드·엣지·상태 · 8분</div>
 
 ## 노드 · 엣지 · 상태
 
@@ -293,7 +303,7 @@ flowchart TD
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">3 · 분기 · 8분</div>
+<div class="eyebrow">기초 · 검증·재시도 분기 · 8분</div>
 
 ## 검증이 틀리면 되돌린다
 
@@ -352,7 +362,7 @@ flowchart TD
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">4 · 상태 · 7분</div>
+<div class="eyebrow">기초 · checkpointer로 상태 저장 · 7분</div>
 
 ## checkpointer가 자리를 기억한다
 
@@ -418,7 +428,7 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">5 · 멈춤 · 8분</div>
+<div class="eyebrow">기초 · interrupt · HITL 멈춤 · 8분</div>
 
 ## 자동으로 넘기지 않는 것들
 
@@ -496,7 +506,7 @@ sequenceDiagram
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ① · 코드 정독 · 8분</div>
+<div class="eyebrow">실습 In Action ① · 코드 정독 · 8분</div>
 
 ## 그래프를 손으로 엮는다
 
@@ -528,25 +538,25 @@ sequenceDiagram
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ② · 단계별 실행 · 17분</div>
+<div class="eyebrow">실습 In Action ② · 단계별 실행 · 17분</div>
 
 ## 흘려보내고 멈춤을 본다
 
 </div>
-<p class="section-note">기본은 live 실행입니다. 전체를 한 번 흘리고, 고액 한 건만 따로 돌려 interrupt를 눈으로 보고, 반려도 해 봅니다. <code>--mock</code>은 키·네트워크 문제 때 같은 그래프 구조를 결정론적으로 확인하는 보조 경로입니다.</p>
+<p class="section-note">두 갈래로 봅니다. <strong>live 실행</strong>(스텝 1~4)은 실제 모델 추출값이 그래프를 지나는 걸 보고, <strong>결정론 실습</strong>(스텝 5)은 재시도·중단 같은 <em>그래프 흐름</em>을 키 없이 반복 재현합니다. 재시도·임계값 실험은 추출 품질이 아니라 흐름이 핵심이라, gold 레코드로 결정론적으로 도는 <code>--mock</code>이 오히려 정확한 도구입니다(그게 <code>--mock</code>이 있는 이유입니다).</p>
 </div>
 
 <div class="stack">
-<div class="row"><div class="code">1</div><div class="copy"><strong>격리 전체 적재 — live 기본</strong><p><code>ANALYST_WORKSPACE=workspace/ch2-live uv run python3 ch2-langgraph-agent/intake_graph.py</code> <span style="color:var(--muted)">(장애·오프라인 확인: 끝에 <code>--mock</code>)</span><br><span style="color:var(--muted)"><strong>증명:</strong> 실제 모델 추출값이 StateGraph를 지나간다. 첫 실습은 <code>workspace/ch2-live</code> 격리 workspace에 써서 기존 <code>workspace/classified</code> 산출물을 건드리지 않는다. 검토건은 터미널에서 <code>approve</code>/<code>reject</code>를 직접 입력한다. 성공 기준: 문서들이 <code>[classify]</code>→<code>[verify]</code>→필요시 <code>⏸ interrupt</code>→<code>[persist]</code> 또는 <code>[hold]</code> 흐름을 탄다. 샘플 품질 게이트가 PDF 오추출을 잡으면 JSON 10개가 아니라 실패나 hold가 정상입니다. live는 값·신뢰도·저신뢰 멈춤이 달라질 수 있으므로, 글자 단위 일치가 아니라 <strong>거짓 성공을 막는 그래프 흐름</strong>을 본다.</span></p></div><div class="store">live</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>한 건만 — 멈춤 관찰</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc invoice_photo.png</code> <span style="color:var(--muted)">(장애·오프라인 확인: <code>--mock</code> 추가)</span><br><span style="color:var(--muted)"><strong>증명:</strong> interrupt는 예외가 아니라 반환값(<code>__interrupt__</code>)으로 온다. 한 건으로 또렷이 본다. 성공 기준: 고액 청구서로 분류되면 <code>approve/reject 입력</code> 프롬프트가 보이고, 직접 <code>approve</code>를 넣으면 review→persist로 이어진다. 금액·상호명은 live 추출이라 조금 다를 수 있다.</span></p></div><div class="store">interrupt</div></div>
-<div class="row"><div class="code">3</div><div class="copy"><strong>검토건 반려</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --reject-flagged --doc invoice_photo.png</code> <span style="color:var(--muted)">(장애·오프라인 확인: <code>--mock</code> 추가)</span><br><span style="color:var(--muted)"><strong>증명:</strong> fail-closed — 반려·오타·빈 응답이 모두 보류로 가고 기존 JSON까지 회수된다(틀리면 안 들어간다). 성공 기준: 고액 한 건이 <code>[review] 보류 — 적재 안 함</code>으로 빠지고, 기존 JSON이 있으면 제거된다. 다시 정상 산출물을 만들려면 1번 전체 적재를 한 번 더 실행한다.</span></p></div><div class="store">보류</div></div>
+<div class="row"><div class="code">1</div><div class="copy"><strong>격리 전체 적재 — live 기본</strong><p><code>ANALYST_WORKSPACE=workspace/ch2-live uv run python3 ch2-langgraph-agent/intake_graph.py</code><br><span style="color:var(--muted)"><strong>증명:</strong> 실제 모델 추출값이 StateGraph를 지나간다. 첫 실습은 <code>workspace/ch2-live</code> 격리 workspace에 써서 기존 <code>workspace/classified</code> 산출물을 건드리지 않는다. 검토건은 터미널에서 <code>approve</code>/<code>reject</code>를 직접 입력한다. 성공 기준: 문서들이 <code>[classify]</code>→<code>[verify]</code>→필요시 <code>⏸ interrupt</code>→<code>[persist]</code> 또는 <code>[hold]</code> 흐름을 탄다. 샘플 품질 게이트가 PDF 오추출을 잡으면 JSON 10개가 아니라 실패나 hold가 정상입니다. live는 값·신뢰도·저신뢰 멈춤이 달라질 수 있으므로, 글자 단위 일치가 아니라 <strong>거짓 성공을 막는 그래프 흐름</strong>을 본다.</span></p></div><div class="store">live</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>한 건만 — 멈춤 관찰</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc invoice_photo.png</code><br><span style="color:var(--muted)"><strong>증명:</strong> interrupt는 예외가 아니라 반환값(<code>__interrupt__</code>)으로 온다. 한 건으로 또렷이 본다. 성공 기준: 고액 청구서로 분류되면 <code>approve/reject 입력</code> 프롬프트가 보이고, 직접 <code>approve</code>를 넣으면 review→persist로 이어진다. 금액·상호명은 live 추출이라 조금 다를 수 있다.</span></p></div><div class="store">interrupt</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>검토건 반려</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --reject-flagged --doc invoice_photo.png</code><br><span style="color:var(--muted)"><strong>증명:</strong> fail-closed — 반려·오타·빈 응답이 모두 보류로 가고 기존 JSON까지 회수된다(틀리면 안 들어간다). 성공 기준: 고액 한 건이 <code>[review] 보류 — 적재 안 함</code>으로 빠지고, 기존 JSON이 있으면 제거된다. 다시 정상 산출물을 만들려면 1번 전체 적재를 한 번 더 실행한다.</span></p></div><div class="store">보류</div></div>
 <div class="row"><div class="code">4</div><div class="copy"><strong>품질 게이트 단건 확인</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --doc statement_bank_2026-05.pdf</code><br><span style="color:var(--muted)"><strong>증명:</strong> live 모델이 은행 PDF를 의미상 잘못 읽으면 <code>[verify] 샘플 품질 불일치(...)</code> 뒤 retry를 쓰고, 끝내 맞지 않으면 <code>[hold]</code>로 보류한다. 이 실패는 정상입니다 — 거짓 성공으로 JSON을 남기지 않는 것이 목표입니다.</span></p></div><div class="store">품질</div></div>
-<div class="row"><div class="code">5</div><div class="copy"><strong>결정론 비교</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><span style="color:var(--muted)">mock은 LLM을 대신하는 주 경로가 아니라 보조입니다. 같은 그래프가 gold 레코드로 어떻게 도는지 확인하고, live가 실패했을 때 문제가 모델/키인지 그래프 코드인지 가르는 데 씁니다. 성공 기준: 문서 10건 처리, 고액 2건(invoice_photo·contract_freelance) interrupt 뒤 자동 승인, JSON 10개.</span></p></div><div class="store">보조</div></div>
+<div class="row"><div class="code">5</div><div class="copy"><strong>결정론 실습 — 키 없이 그래프 흐름</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py --mock</code><br><span style="color:var(--muted)">gold 레코드로 같은 그래프를 결정론적으로 돌립니다(키 불필요). 추출값이 매번 같으니 <em>흐름</em>을 반복 재현하기 좋고, 아래 재시도·임계값 실험의 기본 경로입니다. 성공 기준: 문서 10건 처리, 고액 2건(invoice_photo·contract_freelance) interrupt 뒤 자동 승인, JSON 10개.</span></p></div><div class="store">결정론</div></div>
 </div>
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~5분</span></div>
-<div class="cue-body">먼저 1번 명령 <code>ANALYST_WORKSPACE=workspace/ch2-live uv run python3 ch2-langgraph-agent/intake_graph.py</code>을 그대로 실행하세요. live라 값은 조금 흔들릴 수 있지만, <code>[reset]</code> 뒤 <code>[classify]</code>→<code>[verify]</code>→필요시 <code>⏸</code>→<code>[persist]</code>/<code>[hold]</code> 흐름이 보여야 정상입니다. 검토건이 뜨면 직접 <code>approve</code> 또는 <code>reject</code>를 입력합니다. 한 문서가 실패하면 나머지를 계속 처리한 뒤 마지막에 <code>전체 적재 중 N건 실패</code>로 모읍니다. 레포 안 하위폴더라 본 실습의 <code>workspace/classified</code> 산출물은 그대로 보존되고, 이번 격리 산출물은 VSCode 탐색기의 <code>workspace/ch2-live/classified/</code>에서 바로 열어 볼 수 있습니다(상대경로는 레포 루트 기준으로 풀립니다). 키·네트워크 문제로 막히면 같은 명령에 <code>--mock</code>을 붙여 그래프 코드 자체는 정상인지 가릅니다.</div>
+<div class="cue-body">먼저 1번 명령 <code>ANALYST_WORKSPACE=workspace/ch2-live uv run python3 ch2-langgraph-agent/intake_graph.py</code>을 그대로 실행하세요. live라 값은 조금 흔들릴 수 있지만, <code>[reset]</code> 뒤 <code>[classify]</code>→<code>[verify]</code>→필요시 <code>⏸</code>→<code>[persist]</code>/<code>[hold]</code> 흐름이 보여야 정상입니다. 검토건이 뜨면 직접 <code>approve</code> 또는 <code>reject</code>를 입력합니다. 한 문서가 실패하면 나머지를 계속 처리한 뒤 마지막에 <code>전체 적재 중 N건 실패</code>로 모읍니다. 레포 안 하위폴더라 본 실습의 <code>workspace/classified</code> 산출물은 그대로 보존되고, 이번 격리 산출물은 VSCode 탐색기의 <code>workspace/ch2-live/classified/</code>에서 바로 열어 볼 수 있습니다(상대경로는 레포 루트 기준으로 풀립니다).</div>
 </div>
 
 <div class="cue check" style="margin-top:12px">
@@ -635,7 +645,7 @@ sequenceDiagram
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 ③ · 트러블슈팅 · 참고</div>
+<div class="eyebrow">참고 · 트러블슈팅</div>
 
 ## 막히면 여기부터
 
