@@ -275,10 +275,10 @@ flowchart LR
 <div>
 <div class="eyebrow">실습 In Action · 변형</div>
 
-## 실패 실험과 경계 어댑터
+## 실패 실험 — 계약이 어디서 깨지나
 
 </div>
-<p class="section-note">정상 실행을 확인한 뒤에는 일부러 한 단계를 빼거나 새 금액 표기를 넣어 봅니다. 목적은 모듈 계약이 어디에서 깨지고, 어떤 어댑터가 필요한지 확인하는 것입니다.</p>
+<p class="section-note">정상 실행을 확인한 뒤에는 일부러 한 단계를 빼 봅니다. 목적은 모듈 계약이 어디에서 깨지고, 검증자가 그걸 어떻게 잡아내는지 확인하는 것입니다.</p>
 </div>
 
 <div class="cue wait">
@@ -311,21 +311,6 @@ flowchart LR
 <p>임시 워크스페이스를 지우고 다시 돌리면 처음부터 같은 순서로 재생됩니다. 입력(sample_inbox)과 코드만 커밋돼 있으면 누가 돌려도 같은 산출물이 나옵니다. 감사 가능한 실행의 조건입니다.</p>
 </div>
 </details>
-
-<div class="board" style="margin-top:18px">
-<div class="board-header"><span>읽고 변형한다 — 경계 어댑터</span><span class="status-pill">레퍼런스</span></div>
-<div class="panel-body">
-<p class="section-note">캡스톤 본체는 앞 챕터 모듈을 그대로 연결합니다. 아래 경계 어댑터는 새 입력원이 들어올 때 외부 표기(<code>"11,500원"·"₩1,650,000"</code>)를 계약의 타입(<code>total: float</code>)으로 바꾸는 얇은 코드가 어디에 놓이는지 보여 주는 레퍼런스입니다. <code>analyst_app.py</code> 성공 여부와 별개이며, 본체 파이프라인은 이미 계약을 지키는 모듈들로 동작합니다.</p>
-
-<<< ../../ch6-integration/exercise_adapter.py#coerce{python}
-
-</div>
-</div>
-
-<div class="cue do" style="margin-top:14px">
-<div class="cue-head"><span class="cue-label">✋ 직접 해보기 — 변형</span><span class="cue-time">~8분</span></div>
-<div class="cue-body"><code>uv run python3 ch6-integration/exercise_adapter.py</code>를 먼저 돌려 다섯 케이스가 ✅와 <strong>[PASS]</strong>로 끝나는지 확인하세요. 그다음 <code>CASES</code>에 <code>"총액 0원"</code>, <code>"USD 12.50"</code> 같은 새 표기를 하나 추가해 어떤 입력은 받아들이고 어떤 입력은 별도 통화 처리로 보내야 하는지 토론합니다. 새 입력원(다른 표기의 금액)을 붙일 때 경계 어댑터를 두면 본체 파이프라인은 그대로 두고 계약을 맞출 수 있습니다.</div>
-</div>
 
 <div class="cue check" style="margin-top:14px">
 <div class="cue-head"><span class="cue-label">🔎 live 실패 드릴</span><span class="cue-time">~4분</span></div>
@@ -482,7 +467,7 @@ flowchart TB
 <p><strong>A4.</strong> Skill=절차(언제·어떻게, 점진 공개), MCP=연결(도구·데이터 소스로의 접속). 같은 생태계 층의 다른 축.</p>
 <p><strong>A5.</strong> 검증자를 독립 주체로 두어 producer 코드·상태와 분리하기 위해. 경계를 넘기면 다른 팀·런타임의 검증자로 교체 가능하고 판정을 감사할 수 있다. (단 매칭 함수를 import 공유하면 그 로직 버그는 여전히 공유된다. Ch6 추적 답 참고.)</p>
 <p><strong>A6.</strong> 모든 모듈이 ① <code>RecordV1</code>(같은 레코드 타입)과 ② 디렉터리 규약(한 단계 출력이 다음 단계 입력)을 공유하기 때문. 파일 규약이 인터페이스라 함수가 인자를 길게 주고받지 않는다.</p>
-<p><strong>A7.</strong> 경계 어댑터(<code>coerce_amount</code>류)를 그 새 입력원과 파이프라인 <em>사이</em>에 둔다. <code>₩·원·콤마·공백</code> 제거 후 <code>float</code>로 변환한다. 본체 파이프라인은 그대로 둔다. 교체 조건은 RecordV1과 디렉터리 규약을 만족하는 것이다.</p>
+<p><strong>A7.</strong> 외부 표기를 계약 타입으로 바꾸는 <strong>얇은 경계 어댑터</strong>를 그 새 입력원과 파이프라인 <em>사이</em>에 둔다. <code>₩·원·콤마·공백</code> 제거 후 <code>float</code>로 변환한다. 본체 파이프라인은 그대로 둔다. 교체 조건은 RecordV1과 디렉터리 규약을 만족하는 것이다.</p>
 <p><strong>A8.</strong> 고정 단계에 자율 루프를 쓰면 더 비싸고(토큰↑) 덜 안정적(매번 경로가 달라짐)이다. 자율성은 경로가 미리 안 정해진 곳(교차 조사)에만 두고, 나머지는 워크플로로 못 박는 게 싸고 재현 가능하다.</p>
 </div>
 </details>
