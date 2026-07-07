@@ -358,10 +358,26 @@ sequenceDiagram
 <details class="deep">
 <summary>🔬 심화 — A2A 한 왕복을 서버·클라이언트 양쪽 코드로 <span style="color:var(--muted)">(우리 모듈 기준)</span></summary>
 <div class="reveal">
-<p><strong>서버(<code>verifier_agent.py</code>).</strong> 핵심은 <code>AgentExecutor.execute</code> 하나다. <code>DefaultRequestHandler(executor, task_store, card)</code>가 그걸 감싸고, <code>create_agent_card_routes</code>(<code>/.well-known/agent-card.json</code>)+<code>create_jsonrpc_routes(rpc_url="/", enable_v0_3_compat=True)</code>를 <code>Starlette</code>에 얹어 <code>uvicorn</code>으로 띄운다. <code>execute</code> 안의 순서가 곧 Task 라이프사이클이다: <code>get_user_input()</code>(브리프) → <code>enqueue_event(Task(state=SUBMITTED))</code> 먼저 → <code>TaskUpdater.start_work()</code>(WORKING) → <code>verify_brief</code>(독립 재계산) → <code>add_artifact(verdict)</code> → <code>complete()</code>(COMPLETED). <em>Task를 먼저 등록</em>해야 하는 건 클라이언트가 추적할 대상(id)이 없으면 이후 상태 갱신이 갈 곳을 잃기 때문이고, 어기면 <code>InvalidAgentResponseError</code>가 난다(핸즈온 ①의 깨뜨리기).</p>
-<p><strong>클라이언트(<code>a2a_verify.py</code>).</strong> <code>A2ACardResolver(base_url).get_agent_card()</code>로 <em>먼저 카드를 읽어</em> endpoint와 skill을 확인 → <code>ClientFactory(config).create(card)</code>로 그 카드에 맞는 클라이언트를 만든다 → <code>send_message(SendMessageRequest(Message(role, parts=[Part(text=brief)]), configuration=SendMessageConfiguration(return_immediately=False)))</code>로 제출 → 돌아오는 <code>StreamResponse</code>(task·message·status_update·artifact_update)를 <code>async for</code>로 훑는다. 구현은 여러 필드에서 텍스트를 안전하게 모은 뒤 진행 메시지를 제외하고 verdict 본문만 남긴다. <span style="color:var(--muted)">(코드는 네트워크 없이 <code>verify_brief</code>를 직접 부르는 오프라인 폴백도 두지만, 실습은 위 두 터미널 실통신 경로만 씁니다.)</span></p>
-<p><strong>wire.</strong> a2a 1.x 타입은 protobuf라 JSON 직렬화 시 필드가 <code>camelCase</code>가 된다(코드의 <code>supported_interfaces</code> → 카드 JSON의 <code>supportedInterfaces</code>). <code>enable_v0_3_compat=True</code>는 v1.0 서버가 옛 v0.3 클라이언트도 받게 하는 버전 협상이다. <code>--card</code>로 카드와 <code>SendMessageRequest</code> 본문 구조를 직접 확인할 수 있다.</p>
-<p class="muted"><strong>핵심 정리.</strong> A2A = ① 카드로 발견 → ② <code>SendMessage</code>로 제출 → ③ Task 상태로 추적. 서버는 <em>Task부터 등록</em>하고, 클라이언트는 <em>카드부터 읽는다</em>. 지금은 <code>--card</code>(원리)와 스텝 a/b/c(실통신·독립서빙·오프라인)를 보면 충분합니다.</p>
+<p class="section-note">한 왕복을 양쪽 코드로 나눠 봅니다. <strong>서버는 Task부터 등록</strong>하고 <strong>클라이언트는 카드부터 읽습니다</strong> — 그 순서가 각 패널의 위에서 아래입니다.</p>
+
+<div class="grid-2" style="margin-top:12px">
+<div class="panel"><div class="panel-head"><strong>서버 · verifier_agent.py</strong><span><code>execute</code> = Task 라이프사이클</span></div><div class="panel-body"><div class="list">
+<p><code>get_user_input()</code> — 브리프를 꺼낸다</p>
+<p><code>enqueue_event(Task(SUBMITTED))</code> — <strong>Task부터 등록</strong>(추적 id 생성)</p>
+<p><code>start_work()</code> → WORKING</p>
+<p><code>verify_brief</code> 독립 재계산 → <code>add_artifact(verdict)</code></p>
+<p><code>complete()</code> → COMPLETED</p>
+</div></div></div>
+<div class="panel"><div class="panel-head"><strong>클라이언트 · a2a_verify.py</strong><span>카드부터 읽는다</span></div><div class="panel-body"><div class="list">
+<p><code>get_agent_card()</code> — 먼저 카드로 endpoint·skill 확인</p>
+<p><code>ClientFactory(config).create(card)</code> — 카드에 맞는 클라이언트</p>
+<p><code>send_message(SendMessageRequest(…))</code> — 브리프 제출</p>
+<p><code>async for StreamResponse</code> — verdict 텍스트만 추린다</p>
+</div></div></div>
+</div>
+
+<p class="tiny" style="margin-top:12px;color:var(--muted)"><strong>함정 둘.</strong> ① 서버가 <em>Task를 먼저 등록</em>하지 않으면 이후 상태 갱신이 갈 곳(id)이 없어 <code>InvalidAgentResponseError</code>(핸즈온 ①의 깨뜨리기). ② a2a 1.x는 protobuf라 카드 JSON 필드가 <code>camelCase</code>(<code>supported_interfaces</code>→<code>supportedInterfaces</code>)이고, <code>enable_v0_3_compat=True</code>는 옛 v0.3 클라이언트도 받는 버전 협상.</p>
+<p class="muted"><strong>한 줄.</strong> A2A = 카드로 발견 → <code>SendMessage</code>로 제출 → Task 상태로 추적. <code>--card</code>로 카드·요청 본문을 키 없이 바로 볼 수 있습니다.</p>
 </div>
 </details>
 </section>
