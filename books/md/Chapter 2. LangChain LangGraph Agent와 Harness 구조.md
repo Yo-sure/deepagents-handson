@@ -297,7 +297,7 @@ flowchart TD
 <div class="flow-step"><small>hold/persist</small><strong>보류·적재</strong><p>끝내 안 맞으면 보류, 통과하면 JSON 저장</p></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">classify는 Ch1의 <code>extract</code>를 그대로 부릅니다. 모듈을 바꾸더라도 계약은 재사용한다는 원칙이 여기서 처음 작동합니다.</p>
+<p class="section-note" style="margin-top:16px">classify는 Ch1의 <code>extract</code>를 그대로 부릅니다. 모듈을 바꿔도 계약은 그대로 재사용한다 — 그 원칙이 여기서 처음 드러납니다.</p>
 </section>
 
 <section class="slide">
@@ -388,7 +388,7 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="board-header"><span>checkpointer가 실제로 저장하는 것 — superstep 스냅샷</span><span class="status-pill">Pregel 실행모델</span></div>
 <div class="panel-body">
 <p>LangGraph는 노드를 superstep 단위로 돕니다. 실행 가능한 노드를 (병렬로) 돌려 출력을 모으고 상태를 동기화한 뒤 다음 superstep으로 넘어갑니다(Google Pregel에서 온 모델). checkpointer는 매 superstep 끝의 스냅샷을 <code>thread_id</code>별로 저장합니다. 그래서 그 자리부터 재개됩니다.</p>
-<p class="tiny" style="color:var(--muted)">한 발 더: 이 챕터 그래프는 직선(classify→verify→분기→다음 하나)이라 한 superstep에 노드가 늘 하나뿐입니다. 여러 노드가 같은 상태 채널에 동시에 쓰는 진짜 병렬 superstep과, 그 동시 쓰기를 안전하게 합치는 reducer(<code>Annotated[list, add]</code>)는 <strong>Ch3 fan-out</strong>에서 봅니다. 여기 "(병렬로)"는 Pregel 모델의 일반 성질이고, 우리 그래프에선 아직 발현되지 않습니다.</p>
+<p class="tiny" style="color:var(--muted)">한 발 더: 이 챕터 그래프는 직선(classify→verify→분기→다음 하나)이라 한 superstep에 노드가 늘 하나뿐입니다. 여러 노드가 같은 상태 채널에 동시에 쓰는 진짜 병렬 superstep과, 그 동시 쓰기를 안전하게 합치는 reducer(<code>Annotated[list, add]</code>)는 <strong>Ch3 fan-out</strong>에서 봅니다. 여기 "(병렬로)"는 Pregel 모델의 일반 성질이고, 우리 그래프에선 아직 나타나지 않습니다.</p>
 <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
 <div class="panel"><div class="panel-head"><strong>channel_values</strong><span>상태 본문</span></div><div class="panel-body"><div class="list"><p>지금 상태의 실제 값. 분류 중인 문서·추출 레코드·재시도 횟수 같은 State 필드</p></div></div></div>
 <div class="panel"><div class="panel-head"><strong>channel_versions</strong><span>버전</span></div><div class="panel-body"><div class="list"><p>각 채널이 몇 번 갱신됐는지. 무엇이 바뀌었는지 추적</p></div></div></div>
@@ -412,7 +412,7 @@ if result.get("__interrupt__"):                  # 멈춤은 예외가 아니라
 <div class="panel-body"><div class="list">
 <p>checkpointer는 각 superstep(LangGraph가 노드를 실행하는 단위)이 끝날 때마다 상태를 저장합니다. 그래서 interrupt뿐 아니라 중간에 끊겨도 같은 thread로 다시 부르면 마지막 superstep부터 이어집니다. 처음부터 다시 안 합니다.</p>
 <p class="muted" style="margin-top:6px">단, 우리 데모의 <code>InMemorySaver</code>는 같은 프로세스 안에서만 상태를 들고 있습니다(예외를 잡고 재시도, 같은 런 안의 재개). 프로세스가 정말 죽었다 살아나도 복구하려면 디스크에 쓰는 영속 체크포인터가 필요합니다. 저장소만 바꾸는 구조는 맞지만, sqlite/postgres 구현은 별도 패키지를 설치해야 import됩니다.</p>
-<p>Ch3에서 여러 문서를 동시에 조사할 때 이 성질이 비용을 아낍니다. 여러 갈래 중 일부가 끝난 뒤 끊겨도, 재개는 남은 것만 처리합니다.</p>
+<p>Ch3에서 여러 문서를 동시에 조사할 때 이 성질이 비용을 아낍니다. 여러 갈래 중 일부가 끝난 뒤 끊겨도, 재개하면 남은 것만 처리합니다.</p>
 </div></div>
 </div>
 
@@ -671,7 +671,7 @@ sequenceDiagram
 </div></div></div>
 </div>
 
-<p class="section-note" style="margin-top:16px">전체 실행 파일은 <code>ch2-langgraph-agent/intake_graph.py</code>. classify는 Ch1의 <code>extract</code>를 import해 그대로 씁니다. 모듈 교체·계약 재사용의 첫 작동입니다.</p>
+<p class="section-note" style="margin-top:16px">전체 실행 파일은 <code>ch2-langgraph-agent/intake_graph.py</code>. classify는 Ch1의 <code>extract</code>를 import해 그대로 씁니다. 모듈을 바꿔도 계약을 재사용한다는 원칙이 처음 드러나는 곳입니다.</p>
 </section>
 
 <section class="slide">

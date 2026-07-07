@@ -171,7 +171,7 @@ flowchart LR
 ## LLM의 기본 출력은 다음 토큰 예측이다
 
 </div>
-<p class="section-note">LLM의 기본 출력 방식은 한 문장으로 줄어듭니다. 지금까지의 입력을 보고 다음 토큰을 예측합니다.<br>
+<p class="section-note">LLM이 기본적으로 하는 일은 한 문장으로 정리됩니다. 지금까지의 입력을 보고 다음 토큰을 예측합니다.<br>
 모델은 입력 문맥에서 그럴듯한 다음 출력을 만듭니다. 그래서 최신 사실, 실제 계산, 장기 상태는 바깥 도구와 검증으로 보강해야 합니다. 여기서 네 가지 한계가 나오고, 이 넷이 에이전트의 존재 이유입니다.</p>
 </div>
 
@@ -304,7 +304,7 @@ flowchart LR
     C --> D["맑습니다 0.42<br/>흐립니다 0.31<br/>비가 0.18 …"]
 ```
 
-<p style="margin-top:10px">모델이 보는 건 글자가 아니라 토큰 숫자입니다(①). 그 토큰들이 서로를 참고해(②) 문맥을 만들고, 마지막에 다음 토큰의 확률분포가 나옵니다(③). 아래 <code>logprobs</code> 막대가 바로 이 ③의 분포이고, <code>temperature</code>는 그 분포에서 얼마나 모험적으로 하나를 고를지를 정하는 값입니다. <code>classify_one</code>이 <code>temperature=0</code>인 건 이 분포에서 늘 최상위만 골라 재현성을 얻으려는 것입니다.</p>
+<p style="margin-top:10px">모델이 보는 건 글자가 아니라 토큰 숫자입니다(①). 그 토큰들이 서로를 참고해(②) 문맥을 만들고, 마지막에 다음 토큰의 확률분포가 나옵니다(③). 아래 <code>logprobs</code> 막대가 바로 이 ③의 분포이고, <code>temperature</code>는 그 분포에서 얼마나 과감하게(무작위로) 하나를 고를지 정하는 값입니다. <code>classify_one</code>이 <code>temperature=0</code>인 건 이 분포에서 늘 최상위만 골라 재현성을 얻으려는 것입니다.</p>
 <p class="tiny" style="margin-top:6px;color:var(--muted)">엄밀히는 ③의 확률분포도 ②Transformer 마지막 층(LM head)이 만들어 냅니다. ①~③은 글자→숫자→문맥→다음 토큰의 흐름을 끊어 본 단계 구분입니다.</p>
 </div>
 </div>

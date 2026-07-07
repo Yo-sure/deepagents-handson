@@ -446,7 +446,7 @@ flowchart TB
 </div>
 
 <div class="panel" style="margin-top:18px">
-<div class="panel-head"><strong>세 겹이 에이전트를 가운데 두고 브리프를 만든다</strong><span>데이터 흐름</span></div>
+<div class="panel-head"><strong>에이전트가 세 겹을 모아 브리프를 만든다</strong><span>데이터 흐름</span></div>
 <div class="panel-body">
 
 ```mermaid

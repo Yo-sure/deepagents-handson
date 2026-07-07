@@ -251,7 +251,7 @@ code .          # VSCode가 'WSL: Ubuntu' 모드로 열린다
 <div class="board-header"><span>실행 원칙 — live로 값을, <code>--mock</code>으로 구조를</span><span class="status-pill">전 챕터 공통</span></div>
 <div class="panel-body"><div class="list">
 <p>이 과정은 <strong>키가 있는 상태</strong>를 기준으로 진행합니다. 아무 옵션 없이 실행하면 실제 모델이 샘플 문서를 읽고, 판매처·금액·항목을 추출해 RecordV1로 분류합니다. 교재의 설명과 성공 기준도 이 <strong>live 경로</strong>를 기준으로 씁니다.</p>
-<p><strong><code>--mock</code>은 그래프·fan-out 같은 <em>구조</em>를 키 없이 결정론적으로 재현하는 도구입니다.</strong> 실습의 어떤 장면은 추출값이 아니라 <em>흐름</em>이 핵심입니다 — 재시도가 상한에서 멈추는지(Ch2), 세 갈래가 한꺼번에 던져지는지(Ch3), 전 구간이 이어지는지(Ch6). 이런 건 값이 매번 흔들리는 live보다 gold·규칙으로 고정된 <code>--mock</code>이 오히려 정확히 보여 줍니다(키가 없을 때의 대체 경로이기도 합니다). 반대로 <em>값·판정 자체</em>가 궁금한 장면(추출 품질 등)은 먼저 live로 봅니다. 그래서 각 챕터는 이 둘을 필요한 쪽으로만 안내합니다.</p>
+<p><strong><code>--mock</code>은 그래프·fan-out 같은 <em>구조</em>를 키 없이 결정론적으로 재현하는 도구입니다.</strong> 실습의 어떤 장면은 추출값이 아니라 <em>흐름</em>이 핵심입니다 — 재시도가 상한에서 멈추는지(Ch2), 세 갈래가 한꺼번에 나가는지(Ch3), 전 구간이 이어지는지(Ch6). 이런 건 값이 매번 흔들리는 live보다 gold·규칙으로 고정된 <code>--mock</code>이 오히려 정확히 보여 줍니다(키가 없을 때의 대체 경로이기도 합니다). 반대로 <em>값·판정 자체</em>가 궁금한 장면(추출 품질 등)은 먼저 live로 봅니다. 그래서 각 챕터는 이 둘을 필요한 쪽으로만 안내합니다.</p>
 <p>키 없이 보는 명령이 모두 mock은 아닙니다. <code>--show</code>·<code>--protocol</code>·<code>--card</code>는 모델을 부르지 않는 진단 명령입니다. 대신 실제 코드가 만든 도구 목록, 프로토콜 메시지, Agent Card를 그대로 출력합니다.</p>
 <p>출력 패널을 읽을 때는 기준을 나눕니다. 모델이 만든 값(판매처·금액·신뢰도·ReAct 트레이스)은 live에서 조금씩 달라질 수 있으므로 교재의 화면은 <strong>대표 예시</strong>입니다. 반대로 코드가 정하는 출력(<code>--list</code> 도구 목록, <code>--trace</code> 하네스 구성, gap 계산, PASS/NEEDS_REVISION 판정)은 키와 무관하게 같아야 하므로 화면과 글자 단위로 맞는지 확인합니다.</p>
 </div></div>
@@ -356,7 +356,7 @@ flowchart LR
 </tbody>
 </table>
 <p>모델에게 보여 주는 스키마도 영문입니다. <code>schema_json()</code>은 <code>RecordV1.model_json_schema(by_alias=False)</code>를 쓰므로 모델은 <code>merchant</code>, <code>total</code> 같은 키로 답합니다. 코드도 같은 이름으로 접근합니다. 한글은 마지막 저장 단계에서만 붙습니다. <code>model_dump(by_alias=True)</code>로 파일을 쓸 때 <code>merchant</code>가 <code>판매처</code>로 바뀝니다.</p>
-<p><code>populate_by_name=True</code>는 두 이름을 모두 입력으로 받아들이게 해 줍니다. 그래서 mock 데이터처럼 이미 한글 키로 된 dict도 <code>model_validate</code>로 읽을 수 있고, live 모델이 만든 영문 키도 같은 RecordV1 객체가 됩니다. 들어오는 문은 둘이지만, 코드 안에서는 하나의 객체입니다.</p>
+<p><code>populate_by_name=True</code>를 켜면 두 이름을 모두 입력으로 받습니다. 그래서 한글 키로 된 mock dict도, 영문 키로 오는 live 모델 출력도 똑같이 <code>model_validate</code>로 읽어 같은 RecordV1이 됩니다. 입력 키는 영문·한글 두 가지지만, 코드가 다루는 객체는 하나입니다.</p>
 <p>디테일 두 개만 더 보면 됩니다. 첫째, <code>use_enum_values=True</code>라 <code>doc_type</code>은 <code>DocType.receipt</code> 객체가 아니라 문자열 <code>"영수증"</code>으로 저장됩니다. 둘째, 최상위 <code>total</code>은 <code>총액</code>, 항목의 <code>amount</code>는 <code>단가</code>입니다. 둘을 구분해야 Ch1의 검산이 <strong>Σ(단가 × 수량) == 총액</strong>으로 읽힙니다. 예를 들어 광화문 국밥은 순대국밥 <code>단가 9,000원 × 수량 3 = 총액 27,000원</code>입니다.</p>
 <p class="muted"><strong>핵심 정리.</strong> 추출·코드 계약은 영문입니다. 사람이 읽는 저장 파일만 한글입니다. 현지화는 LLM이나 코드 중간에 섞지 않고, 파일로 내보내는 마지막 경계 한 곳에서만 처리합니다.</p>
 </div>
