@@ -132,9 +132,11 @@ def extract_structured(doc: str, model: str) -> RecordV1:
 
     extract_singleshot은 응답 텍스트를 받아 _strip_fences로 ```json 울타리를 걷어내고
     RecordV1.model_validate_json으로 손수 검증한다 — 모델이 앞뒤에 설명을 붙이면 깨지기 쉽다.
-    with_structured_output은 그 파싱을 라이브러리에 맡긴다: RecordV1 스키마를 function-calling
-    도구로 모델에 실어 보내(ToolStrategy), 모델이 그 도구 인자로 값을 채우게 하고, 결과를 검증된
-    RecordV1 인스턴스로 돌려준다. 코드에서 파싱 단계가 통째로 사라진다.
+    with_structured_output은 그 파싱을 라이브러리에 맡긴다. langchain-openai 1.x 기본값은
+    method="json_schema" — 스키마를 function/tool calling이 아니라 response_format(제공자의
+    네이티브 structured output)으로 실어 보내 모델 출력을 스키마에 맞게 제약하고, 검증된 RecordV1을
+    돌려준다. (method="function_calling"을 명시하면 스키마를 도구로 바인딩하는 다른 경로를 쓴다.)
+    코드에서 파싱 단계가 통째로 사라진다.
     """
     from langchain_openai import ChatOpenAI
 
@@ -150,7 +152,7 @@ def extract_structured(doc: str, model: str) -> RecordV1:
         api_key=key,
         temperature=0,
     )
-    structured = llm.with_structured_output(RecordV1)   # ← RecordV1 스키마를 도구로 바인딩, 파싱 위임
+    structured = llm.with_structured_output(RecordV1)   # ← 기본 method=json_schema: response_format으로 바인딩(도구 아님), 파싱 위임
     prompt = EXTRACT_PROMPT.format(schema=schema_json(), source_path=f"sample_inbox/{doc}")
     # structured.invoke가 돌려주는 건 str이 아니라 RecordV1 — _strip_fences도 model_validate_json도 없다.
     return structured.invoke(

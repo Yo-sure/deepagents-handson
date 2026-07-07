@@ -227,8 +227,8 @@ for _ in range(MAX_STEPS):
 </div></div></div>
 <div class="panel"><div class="panel-head"><strong>③ 출력을 타입으로 받나</strong><span>structured output</span></div><div class="panel-body"><div class="list">
 <p><code>extract_singleshot</code>은 텍스트를 받아 <code>_strip_fences</code>로 <code>```json</code> 울타리를 손으로 걷고 <code>model_validate_json</code> 한다 — 설명이 한 줄 붙으면 깨진다.</p>
-<p><code>llm.with_structured_output(RecordV1)</code>은 그 파싱을 라이브러리에 위임한다: 스키마를 도구로 실어 보내고 <strong>검증된 타입 객체를 곧장</strong> 돌려준다.</p>
-<p class="muted"><code>create_agent(response_format=…)</code>도 같은 원리(<code>ToolStrategy</code>/<code>ProviderStrategy</code>).</p>
+<p><code>llm.with_structured_output(RecordV1)</code>은 그 파싱을 라이브러리에 위임한다: langchain-openai 1.x 기본값 <code>method="json_schema"</code>로 스키마를 <code>response_format</code>(네이티브 structured output)에 실어 출력을 스키마에 맞게 제약하고 <strong>검증된 타입 객체를 곧장</strong> 돌려준다 — function/tool calling과는 다른 API 경로다.</p>
+<p class="muted"><code>create_agent(response_format=…)</code>도 스키마를 강제하되, 도구로 넘기는 <code>ToolStrategy</code>와 네이티브 <code>response_format</code>인 <code>ProviderStrategy</code> 중 골라 쓴다(둘은 다른 메커니즘).</p>
 </div></div></div>
 </div>
 <p class="section-note" style="margin-top:12px">③의 실물 — <code>classify_one.py</code>의 <code>extract_structured</code>. <code>extract_singleshot</code>(위 1절)과 나란히 두면 파싱 단계가 통째로 사라진 게 보입니다.</p>
