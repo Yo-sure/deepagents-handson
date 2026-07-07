@@ -653,6 +653,13 @@ inbox-mcp-server 도구 4개:
 </div></div></div>
 </div>
 
+```mermaid
+flowchart LR
+    C["MultiServerMCPClient<br/>get_tools() → 도구 6개"]
+    C -->|"stdio 또는 HTTP"| S1["inbox 서버<br/>inbox_… 도구 4"]
+    C -->|"stdio"| S2["text 서버<br/>text_… 도구 2"]
+```
+
 <p class="section-note" style="margin-top:16px"><code>mcp_multi_client.py</code>는 두 서버(<code>inbox</code>=지식 조회, <code>text</code>=텍스트 유틸)를 한 클라이언트로 붙입니다. 핵심은 연결 dict 하나이고, <code>--http</code>면 inbox 줄의 transport만 바뀝니다:</p>
 
 <<< ../../ch4-skills-mcp/mcp_multi_client.py#multi-client{python}
