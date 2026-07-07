@@ -336,7 +336,7 @@ bash scripts/preflight.sh
 <div class="board" style="margin-top:18px">
 <div class="board-header"><span>문서가 서로 연결된다</span><span class="status-pill">교차 참조</span></div>
 <div class="panel-body">
-<p>카드 명세서의 거래 항목은 개별 영수증과 금액이 맞물리고, 은행 명세서는 계약서·청구서와 이어집니다. 일부러 짝이 어긋나게 설계돼 있어, 명세서엔 있지만 영수증이 없는 거래를 Ch3에서 조사합니다.</p>
+<p>카드 명세서의 거래 항목은 개별 영수증과 금액이 맞물리고, 은행 명세서는 계약서·청구서와 이어집니다. 일부러 짝이 어긋나게 설계돼 있어, 명세서엔 있지만 영수증이 없는 거래를 Ch3에서 조사합니다. 아래 <strong>'거래 7건'은 카드 명세서 한 장 안의 결제 줄 수</strong>(영수증 매칭 5건 + 미매칭 2건 = 7)로, 인박스 <em>문서</em> 수(다음 절의 10건)와는 다른 축입니다.</p>
 
 ```mermaid
 flowchart LR
@@ -408,7 +408,7 @@ flowchart TB
     style D fill:#f3e5f5,stroke:#6b4fa3
 ```
 
-<p style="margin-top:12px">입력(<code>analyst/sample_inbox/</code>)만 저장소에 들어 있고, 만들어 내는 산출물은 모두 <code>workspace/</code> 아래에 쌓입니다.</p>
+<p style="margin-top:12px"><strong>문서 10건</strong> = 영수증 5장 + 사진 청구서 1장 + PDF 4장(카드 명세서·은행 명세서·계약서·리포트). 앞의 카드 보드는 이 중 카드 명세서 한 장의 <em>거래 줄</em>만 펼친 것이라, 나머지 문서(사진 청구서·은행 명세서·계약서·리포트)까지 합쳐야 10건이 됩니다. 입력(<code>analyst/sample_inbox/</code>)만 저장소에 들어 있고, 만들어 내는 산출물은 모두 <code>workspace/</code> 아래에 쌓입니다.</p>
 </div>
 </div>
 </section>
