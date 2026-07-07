@@ -33,12 +33,21 @@ pageClass: lec-page
 <div class="row"><div class="code">3</div><div class="copy"><strong>적용 메모</strong><p>내 업무에 옮길 항목 정리</p></div><div class="store">전이</div></div>
 </div>
 </div>
+
+<div class="board" style="margin-top:14px">
+<div class="board-header"><span>이 챕터를 읽는 순서</span><span class="status-pill">이론 · 실습 · 심화</span></div>
+<div class="panel-body"><div class="list">
+<p><strong>① 이론</strong> — 새로 짜지 않는다: Ch1~5 모듈을 계약(RecordV1·디렉터리 규약)으로 이어붙입니다. live·mock·a2a 실행 경로의 차이.</p>
+<p><strong>② 실습(In Action)</strong> — <code>analyst_app.py</code>로 <strong>전 구간 1회</strong>: 분류 → 조사 → 지식 → 브리프 → 검증. 결과 확인과 변형(가드 깨기).</p>
+<p><strong>③ 심화 · 마무리</strong> — 실무의 현실·한계, 역량 점검, 내 업무로의 전이.</p>
+</div></div>
+</div>
 </section>
 
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">1 · 원리 · 5분</div>
+<div class="eyebrow">이론 · 통합 원리 · 5분</div>
 
 ## 새로 짜지 않는다
 
@@ -64,7 +73,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">2 · 경로 · 5분</div>
+<div class="eyebrow">이론 · 실행 경로(live · mock · a2a) · 5분</div>
 
 ## 샘플 입력이 처리되는 경로
 
@@ -112,7 +121,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 65분</div>
+<div class="eyebrow">실습 In Action · 65분</div>
 
 ## 직접 배선한다 — analyst_app.py
 
@@ -149,12 +158,12 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 실행</div>
+<div class="eyebrow">실습 In Action · 실행</div>
 
 ## 캡스톤을 실행한다
 
 </div>
-<p class="section-note">명령은 두 트랙입니다. 기본 경로는 Ch2, Ch3, Ch4에서 배운 live 모듈을 실제로 호출합니다. <code>--mock</code>은 키 없이 같은 산출물 계약과 검증 판정을 확인하는 보조 경로입니다.</p>
+<p class="section-note">명령은 두 트랙입니다. <strong>live</strong>는 Ch2·Ch3·Ch4에서 배운 모듈을 실제로 호출하고, <strong><code>--mock</code></strong>은 키 없이 전 구간 배선과 검증 판정을 결정론적으로 확인합니다(분류·조사·브리프를 gold·규칙으로 대체). 캡스톤은 <em>모듈이 하나로 이어지는지</em>가 핵심이라, 키가 없거나 배선만 빠르게 보고 싶을 때 <code>--mock</code>이 제격입니다.</p>
 </div>
 
 <div class="cue do">
@@ -176,7 +185,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 결과</div>
+<div class="eyebrow">실습 In Action · 결과</div>
 
 ## verified_brief.md를 확인한다
 
@@ -252,7 +261,7 @@ flowchart LR
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">핸즈온 · 변형</div>
+<div class="eyebrow">실습 In Action · 변형</div>
 
 ## 실패 실험과 경계 어댑터
 
@@ -470,7 +479,7 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">현실 · 5분</div>
+<div class="eyebrow">심화 · 실무의 현실 · 5분</div>
 
 ## 데모와 프로덕션 사이
 
