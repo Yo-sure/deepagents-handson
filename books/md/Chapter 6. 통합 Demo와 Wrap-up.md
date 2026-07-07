@@ -131,8 +131,20 @@ flowchart LR
 <span style="color:var(--muted)">⚠️ live는 모델 비결정성 때문에 드물게 <code>[2/6]</code> 조사 등에서 <code>RuntimeError</code>로 멈출 수 있습니다. 이건 합성 결과가 기대 검증(fail-closed 가드)을 못 넘긴 정상적인 실패이지 버그가 아닙니다. 그대로 한 번 더 실행하거나, 결정론으로 확인하려면 <code>--mock</code>으로 돌립니다.</span></p>
 </div>
 
-<div class="panel">
-<div class="panel-head"><strong>analyst_app.py — 배선의 모양</strong><span>새 로직 없이 모듈 호출</span></div>
+<div class="board" style="margin-top:12px">
+<div class="board-header"><span>✏️ 랩업 실습 — 코어 5칸을 채워 완성한다</span><span class="status-pill">exercise · 30~40분 · 키 불필요</span></div>
+<div class="panel-body">
+<p class="section-note">전체를 새로 짜지 않습니다. 각 챕터에서 만든 부품은 이미 있으니(<code>import</code>만) <code>exercise_capstone.py</code>의 <strong>파이프라인 다섯 칸</strong>만 순서대로 채웁니다 — ① 분류(Ch2) → ② 조사(Ch3) → ③ OKF 지식(Ch4) → ④ 브리프(Ch4) → ⑤ 검증(Ch5). 전부 mock·결정론이라 키·네트워크가 필요 없습니다. 교재를 옆에 두고 채우세요.</p>
+<div class="stack" style="margin-top:12px">
+<div class="row"><div class="code">1</div><div class="copy"><strong>채우고 자가 점검</strong><p><code>uv run python3 ch6-integration/exercise_capstone.py --check</code><br><span style="color:var(--muted)">순서대로 돌다 <strong>첫 빈칸에서 멈춰</strong> "여기부터 채우세요"를 알려 줍니다. 한 칸 채울 때마다 다시 돌리면 <code>✅ [n/5]</code>가 하나씩 늘고, 다 채우면 <code>결과: 5/5 🎉</code>.</span></p></div><div class="store">check</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>완성하면 한 바퀴</strong><p><code>uv run python3 ch6-integration/exercise_capstone.py</code><br><span style="color:var(--muted)">다섯 단계가 <code>[1/5]…[5/5]</code>로 찍히고 <code>workspace/verified_brief.md</code>가 나옵니다 — 8시간의 결과물.</span></p></div><div class="store">완성</div></div>
+</div>
+<p class="tiny" style="margin-top:12px;color:var(--muted)"><strong>답지.</strong> 막히면 각 칸의 정답은 바로 아래 <code>analyst_app.py</code>(<code>run_intake·run_research·run_okf·write_brief_deterministic·run_verify</code>)에 있습니다 — 배선의 모양을 보고 그대로 채우면 됩니다.</p>
+</div>
+</div>
+
+<div class="panel" style="margin-top:16px">
+<div class="panel-head"><strong>analyst_app.py — 배선의 모양 <em>(답지 겸 레퍼런스)</em></strong><span>새 로직 없이 모듈 호출</span></div>
 <div class="panel-body">
 
 <<< ../../ch6-integration/analyst_app.py#wiring{python}
