@@ -152,7 +152,7 @@ def run_verify(use_a2a: bool) -> None:
                     proc.wait()
     else:
         from verifier_agent import verify_brief
-        ok, notes = verify_brief(brief)
+        ok, notes, _ = verify_brief(brief)
         block = (f"## 외부 검증 결과 — {'PASS' if ok else 'NEEDS_REVISION'}\n"
                  "검증 주체: 세무·정합성 검증 에이전트 (직접 호출)\n\n"
                  + "\n".join(f"- {n}" for n in notes))
