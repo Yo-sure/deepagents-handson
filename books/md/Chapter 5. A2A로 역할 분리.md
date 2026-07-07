@@ -39,7 +39,7 @@ pageClass: lec-page
 <div class="panel-body"><div class="list">
 <p><strong>① 이론</strong> — 왜 A2A인가: 서브에이전트(같은 프로세스)와 달리 <strong>다른 프로세스·다른 팀</strong>의 에이전트와 협업합니다. Task 생애주기가 REST 한 번과 다른 이유.</p>
 <p><strong>② 기초</strong> — 최소 단위: <strong>server(검증자)</strong>가 Agent Card로 신원을 노출하고, <strong>client(애널리스트)</strong>가 카드를 읽어 SendMessage로 브리프를 보냅니다.</p>
-<p><strong>③ 실습(In Action)</strong> — <strong>터미널 두 개</strong>로 직접: 터미널 A에 <strong>서버</strong>, 터미널 B에 <strong>클라이언트</strong>. 두 프로세스가 실제 HTTP/JSON-RPC로 통신합니다(모의 아님).</p>
+<p><strong>③ 실습(In Action)</strong> — <strong>터미널 셋</strong>으로 직접: 검증자·교정자 두 에이전트 서버 + 클라이언트. 검증자가 문제를 찾으면 교정자에게 <strong>A2A로 위임</strong>하는 에이전트 체인을 눈으로 봅니다(모의 아님).</p>
 <p><strong>④ 심화</strong> — 접이식으로 더: 바인딩(폴링·스트리밍·웹훅) · 신뢰 경계·보안 · Task 순서 규칙 깨뜨리기. 첫 회독엔 건너뛰어도 됩니다.</p>
 </div></div>
 </div>
@@ -378,6 +378,37 @@ sequenceDiagram
 <p class="section-note" style="margin-top:10px"><strong>한 발 더 · 이 검증의 남은 구멍.</strong> 검증자는 레코드에서 '영수증 없는 거래'(쿠팡 89,000·넷플릭스 17,000)를 다시 계산한 뒤, 브리프에 상호명과 금액이 모두 있는지 대조합니다. 그래서 "쿠팡(주) 5원"처럼 금액을 틀리면 통과하지 않습니다. 다만 여전히 단순 문자열 대조라 동의어·오타·문장형 표현에는 약합니다. 실무 검증자는 여기서 금액 허용오차, 상호명 정규화, 날짜까지 포함한 다중키 또는 LLM 판정으로 보강합니다.</p>
 
 <div class="board" style="margin-top:18px">
+<div class="board-header"><span>에이전트 → 에이전트 위임 — 검증자가 교정자를 부른다</span><span class="status-pill">A2A의 이름값</span></div>
+<div class="panel-body">
+<p>여기까지 검증자는 <strong>무엇이 틀렸나</strong>(detect)만 합니다. <strong>어떻게 고치나</strong>(draft)는 또 다른 에이전트에 맡깁니다. 검증자가 <code>NEEDS_REVISION</code>을 내면 그 누락 항목을 <strong>교정 에이전트(:9620)</strong>에게 <em>A2A로</em> 넘겨 구체적 교정 제안을 받아 함께 돌려줍니다. 이때 검증자는 애널리스트에겐 <em>서버</em>, 교정자에겐 <em>클라이언트</em>가 됩니다 — client↔server 1왕복을 넘어선 <strong>에이전트 간 협업(A2A)</strong>이 여기서 드러납니다.</p>
+
+```mermaid
+sequenceDiagram
+    participant C as 애널리스트(client)
+    participant V as 검증자 :9610
+    participant R as 교정자 :9620
+    C->>V: 브리프 검증 요청 (A2A)
+    V->>V: 레코드로 독립 재계산
+    Note over V: PASS면 여기서 끝
+    V->>R: NEEDS_REVISION → 누락 항목 위임 (A2A)
+    R-->>V: 교정 제안 (Artifact)
+    V-->>C: 검증 판정 + 교정 제안
+```
+
+<p class="section-note" style="margin-top:8px"><strong>조건부 위임</strong>입니다 — 문제가 없으면(PASS) 검증자가 혼자 답하고, 문제가 있을 때만 교정자를 부릅니다(원본 실습의 "확인 에이전트 → 알림 에이전트"와 같은 골격). 교정자가 안 떠 있으면 검증 결과만 돌려주고 조용히 넘어갑니다(느슨한 결합). 두 에이전트는 서로의 내부를 모른 채 Task 메시지만 주고받습니다 — 블랙박스.</p>
+</div>
+</div>
+
+<div class="panel" style="margin-top:16px">
+<div class="panel-head"><strong>ch5-a2a/reviser_agent.py — draft_revision</strong><span>교정자의 판정 로직(규칙 기반)</span></div>
+<div class="panel-body">
+
+<<< ../../ch5-a2a/reviser_agent.py#draft-revision{python}
+
+</div>
+</div>
+
+<div class="board" style="margin-top:18px">
 <div class="board-header"><span>왜 독립 검증인가</span><span class="status-pill">설계 근거</span></div>
 <div class="panel-body"><div class="list">
 <p>Ch1에서 봤듯, 평가가 "모름"보다 자신 있는 추측을 보상해 모델이 단정하는 습관이 남습니다(Kalai). 브리프를 쓴 모델에게 "맞아?"라고 다시 물으면, 같은 가정·같은 사각을 공유해 자기 누락을 잘 못 봅니다.</p>
@@ -440,21 +471,22 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
-<div class="eyebrow">실습 In Action ② · 서버·클라 두 터미널 · 20분</div>
+<div class="eyebrow">실습 In Action ② · 에이전트 체인 세 터미널 · 20분</div>
 
 ## 띄우고, 보내고, 받는다
 
 </div>
-<p class="section-note">터미널을 <strong>두 개</strong> 엽니다. 하나는 <strong>검증 서버</strong>(<code>verifier_agent.py</code>), 하나는 <strong>클라이언트</strong>(<code>a2a_verify.py</code>). 서버를 먼저 띄우고, 클라이언트가 Ch4에서 만든 <code>brief.md</code>를 보냅니다. 두 프로세스가 실제 HTTP/JSON-RPC로 통신하는 걸 눈으로 봅니다 — 모의가 아닙니다.</p>
+<p class="section-note">터미널을 <strong>셋</strong> 엽니다 — <strong>검증자</strong>(:9610)·<strong>교정자</strong>(:9620) 두 에이전트 서버와 <strong>클라이언트</strong>. 클라이언트가 브리프를 검증자에게 보내고, 검증자는 문제를 찾으면 교정자에게 <em>A2A로 위임</em>합니다. 세 프로세스가 실제 HTTP/JSON-RPC로 오가는 걸 눈으로 봅니다 — 모의가 아닙니다.</p>
 </div>
 
 <div class="stack">
 <div class="row"><div class="code">0</div><div class="copy"><strong>먼저 — 브리프를 만든다</strong><p><code>uv run python3 ch2-langgraph-agent/intake_graph.py</code> → <code>uv run python3 ch3-deepagents/research_orchestrator.py</code> → <code>uv run python3 ch4-skills-mcp/okf_store.py</code> → <code>uv run python3 ch4-skills-mcp/skill_agent.py --run</code><br><span style="color:var(--muted)">Ch4까지 돌리면 <code>workspace/brief.md</code>가 준비됩니다. 이제 이 브리프를 외부 검증자에게 보냅니다.</span></p></div><div class="store">선행</div></div>
 <div class="row"><div class="code">1</div><div class="copy"><strong>[server 역할] 터미널 A — 검증 서버를 띄운다</strong><p><code>uv run python3 ch5-a2a/verifier_agent.py</code><br><span style="color:var(--muted)">성공 기준: <code>localhost:9610</code>에 A2A 서버가 뜬다. 브라우저로 <code>localhost:9610/.well-known/agent-card.json</code>을 열면 Agent Card가 200으로 보인다. <strong>이 터미널은 서버가 계속 점유하니 끄지 말고 그대로 둡니다.</strong></span></p></div><div class="store">서버</div></div>
-<div class="row"><div class="code">2</div><div class="copy"><strong>[client 역할] 터미널 B — 클라이언트가 브리프를 보낸다</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py</code><br><span style="color:var(--muted)">성공 기준: <strong>새 터미널</strong>에서 클라이언트가 서버의 카드를 읽고(<code>Agent Card: 세무·정합성 검증 에이전트</code>) 브리프를 SendMessage로 보낸 뒤 Task 결과를 받아 <code>검증 판정: PASS</code> → <code>workspace/verified_brief.md</code>. 서버 터미널엔 요청 로그가, 클라 터미널엔 판정이 뜹니다. Ch3 초안만 보내는 변형은 <code>--draft</code>.</span></p></div><div class="store">클라</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>[server 역할] 터미널 B — 교정 에이전트를 띄운다</strong><p><code>uv run python3 ch5-a2a/reviser_agent.py</code><br><span style="color:var(--muted)">성공 기준: <code>localhost:9620</code>에 <strong>두 번째</strong> A2A 서버가 뜬다. 검증자가 문제를 찾을 때만 여기에 위임합니다(느슨한 결합 — 안 띄우면 검증 결과만 나옵니다). <strong>이 터미널도 계속 점유하니 그대로 둡니다.</strong></span></p></div><div class="store">교정자</div></div>
+<div class="row"><div class="code">3</div><div class="copy"><strong>[client 역할] 터미널 C — 클라이언트가 브리프를 보낸다</strong><p><code>uv run python3 ch5-a2a/a2a_verify.py</code><br><span style="color:var(--muted)">성공 기준: 클라이언트가 검증자의 카드를 읽고 브리프를 SendMessage로 보낸 뒤 판정을 받는다(<code>검증 판정: PASS</code> 또는 <code>NEEDS_REVISION</code>) → <code>workspace/verified_brief.md</code>. <strong>브리프에 누락이 있으면</strong> 검증자 터미널(A)에 <code>[위임] … 교정 에이전트 호출</code>이 찍히고, 결과 파일에 <strong>교정 제안</strong>이 함께 붙습니다. 정상 브리프(PASS)면 위임 없이 검증자가 혼자 답합니다.</span></p></div><div class="store">클라</div></div>
 </div>
 
-<div class="ask" style="margin-top:14px"><strong>한 번에 하려면.</strong> 터미널 하나로 끝내고 싶으면 <code>uv run python3 ch5-a2a/a2a_verify.py --serve</code> — 클라이언트가 서버를 자동 기동한 뒤 통신합니다. 편하지만 <strong>서버·클라가 한 화면에 섞여</strong> 두 프로세스의 경계가 안 보이니, 처음엔 위처럼 터미널 둘로 나눠 보세요.</div>
+<div class="ask" style="margin-top:14px"><strong>한 번에 하려면.</strong> 검증자만 자동 기동하려면 <code>uv run python3 ch5-a2a/a2a_verify.py --serve</code>도 있습니다(편하지만 두 프로세스 경계가 한 화면에 섞이고, 교정자는 따로 띄워야 위임이 보입니다). 에이전트 <strong>체인</strong>을 눈으로 보려면 위처럼 터미널 셋으로 나누세요.</div>
 
 <div class="cue do">
 <div class="cue-head"><span class="cue-label">✋ 직접 해보기</span><span class="cue-time">~5분</span></div>
@@ -491,7 +523,7 @@ flowchart TB
 
 <div class="cue solve" style="margin-top:18px">
 <div class="cue-head"><span class="cue-label">✏️ 풀어보기</span><span class="cue-time">~5분</span></div>
-<div class="cue-body">두 가지를 해보세요. 원본 <code>brief.md</code> 대신 <code>workspace/brief_draft.md</code> 복사본을 고치고 <code>--draft</code>로 보냅니다. ① 브리프에서 "쿠팡" 줄을 지우고 보내면? ② 줄은 두되 금액만 "쿠팡(주) 5원"으로 틀리게 바꿔 보내면? 둘 다 실제로 고쳐 보내고 결과를 비교하세요.</div>
+<div class="cue-body">두 가지를 해보세요. 원본 <code>brief.md</code> 대신 <code>workspace/brief_draft.md</code> 복사본을 고치고 <code>--draft</code>로 보냅니다(터미널 A·B의 두 에이전트는 계속 띄워 둔 채). ① 브리프에서 "쿠팡" 줄을 지우고 보내면? ② 줄은 두되 금액만 "쿠팡(주) 5원"으로 틀리게 바꿔 보내면? 둘 다 <code>NEEDS_REVISION</code>이 나면서, <strong>검증자 터미널(A)에 <code>[위임]</code> 줄이 찍히고 결과 파일에 교정 에이전트의 <code>## 교정 제안</code>이 붙는지</strong>까지 확인하세요 — 그게 에이전트→에이전트 위임이 실제로 도는 증거입니다.</div>
 </div>
 
 <details>
@@ -500,6 +532,7 @@ flowchart TB
 <p>① <strong>지우면 <code>NEEDS_REVISION</code></strong>. 검증자는 브리프 문장을 믿지 않고 레코드에서 직접 다시 세기 때문에, 쿠팡 89,000원이 빠진 걸 잡아냅니다(<code>브리프가 누락했거나 금액을 틀린 항목: 쿠팡(주) — 보완 필요</code>).</p>
 <p>② 금액만 틀리게 바꿔도 <code>NEEDS_REVISION</code>. 검증자가 레코드에서 다시 계산한 89,000원과 브리프의 금액 표기를 함께 대조하기 때문입니다. 같은 항목이라도 상호명만 맞고 금액이 틀리면 검증을 통과하지 않습니다.</p>
 <p>외부 검증의 목적은 작성한 문장이 아니라 원천 데이터를 기준으로 다시 판정하는 것입니다. 다만 문자열 기반 대조라 동의어·오타·날짜 오차에는 여전히 약합니다. 실무에서는 상호명 정규화와 금액·날짜 다중키까지 넣어 검증 키를 강화합니다.</p>
+<p><strong>그리고 위임.</strong> 두 경우 모두 검증자가 <code>NEEDS_REVISION</code>을 내는 순간 누락 항목을 교정 에이전트(:9620)에 A2A로 넘깁니다. 그래서 결과 파일 끝에 <code>## 교정 제안 (교정 에이전트, A2A 위임)</code>이 붙습니다. 교정자 터미널(B)을 끄고 다시 보내면? 검증 판정은 그대로 나오되 교정 제안 자리에 <code>교정 에이전트(:9620) 미연결</code> 안내만 남습니다 — 느슨한 결합이라 한 에이전트가 없어도 나머지는 계속 돕니다.</p>
 </div>
 </details>
 </section>

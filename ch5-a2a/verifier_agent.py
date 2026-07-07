@@ -47,6 +47,7 @@ from research_orchestrator import by_type, load_records
 
 PORT = 9610
 URL = f"http://localhost:{PORT}"
+REVISER_URL = "http://localhost:9620"   # 교정 제안 에이전트 — 문제가 있을 때만 A2A로 위임
 
 
 #pragma region verify-brief
@@ -62,35 +63,70 @@ def _amount_present(amount: float, text: str) -> bool:
     return False
 
 
-def verify_brief(brief_text: str) -> tuple[bool, list[str]]:
-    """브리프를 레코드와 다시 대사한다 — (통과여부, 근거 목록)."""
+def verify_brief(brief_text: str) -> tuple[bool, list[str], list[tuple[str, float]]]:
+    """브리프를 레코드와 다시 대사한다 — (통과여부, 근거 목록, 누락 항목[이름·금액])."""
     records = load_records()
     receipts = by_type(records, "영수증")
     card = next((r for r in by_type(records, "명세서") if "카드" in r.merchant), None)
     if not card:
-        return False, ["카드 명세서를 찾지 못해 검증 불가"]
+        return False, ["카드 명세서를 찾지 못해 검증 불가"], []
     real_gaps = [
         (item.name, item.amount or 0)
         for item in card.items
         if not any(abs(r.total - (item.amount or 0)) < 1.0 for r in receipts)
     ]
     missing = [
-        name for name, amount in real_gaps
+        (name, amount) for name, amount in real_gaps
         if name.split("(")[0] not in brief_text
         or not _amount_present(amount, brief_text)
     ]
     notes = [f"독립 재계산: 영수증 없는 거래 {len(real_gaps)}건 "
              f"({', '.join(f'{n} {a:,.0f}원' for n, a in real_gaps)})"]
     if missing:
-        notes.append(f"브리프가 누락했거나 금액을 틀린 항목: {', '.join(missing)} — 보완 필요")
-        return False, notes
+        notes.append("브리프가 누락했거나 금액을 틀린 항목: "
+                     f"{', '.join(n for n, _ in missing)} — 보완 필요")
+        return False, notes, missing
     notes.append("누락 항목 없음 — 검증 통과")
-    return True, notes
+    return True, notes, []
 #pragma endregion verify-brief
 
 
+async def request_revision(missing: list[tuple[str, float]]) -> str | None:
+    """에이전트→에이전트 위임 — 누락 항목을 교정 에이전트(:9620)에 A2A로 넘겨 교정 제안을 받는다.
+
+    검증자는 '무엇이 틀렸나'(detect)까지만 하고, '어떻게 고치나'(draft)는 다른 에이전트에 맡긴다.
+    교정 에이전트가 안 떠 있으면(None) 검증 결과만 돌려주고 조용히 넘어간다(느슨한 결합).
+    """
+    import uuid
+
+    import httpx
+    from a2a.client import A2ACardResolver, ClientConfig, ClientFactory
+    from a2a.types import Message, Part, Role, SendMessageConfiguration, SendMessageRequest
+
+    payload = "\n".join(f"{name}|{amount:.0f}" for name, amount in missing)
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as http:
+            card = await A2ACardResolver(httpx_client=http, base_url=REVISER_URL).get_agent_card()
+            print(f"  [위임] 문제 발견 → 교정 에이전트 호출: {card.name} (skill: {card.skills[0].id})",
+                  flush=True)
+            client = ClientFactory(config=ClientConfig(httpx_client=http, streaming=False)).create(card=card)
+            req = SendMessageRequest(
+                message=Message(role=Role.ROLE_USER, message_id=str(uuid.uuid4()),
+                                parts=[Part(text=payload)]),
+                configuration=SendMessageConfiguration(return_immediately=False))
+            out: list[str] = []
+            async for resp in client.send_message(request=req):
+                r = resp[0] if isinstance(resp, tuple) else resp
+                if getattr(r, "task", None):
+                    for art in r.task.artifacts:
+                        out += [p.text for p in art.parts if p.text]
+            return "\n".join(out).strip() or None
+    except Exception:
+        return None   # 교정 에이전트 미연결 — 검증 결과만 반환
+
+
 class VerifierExecutor(AgentExecutor):
-    """A2A 요청(브리프 텍스트)을 받아 검증 결과를 아티팩트로 돌려준다."""
+    """A2A 요청(브리프 텍스트)을 받아 검증하고, 문제가 있으면 교정 에이전트에 위임한다."""
 
 #pragma region execute
     async def execute(self, context: RequestContext, event_queue: EventQueue) -> None:
@@ -108,10 +144,16 @@ class VerifierExecutor(AgentExecutor):
         await updater.start_work(message=updater.new_agent_message(
             parts=[Part(text="브리프를 레코드와 대사하는 중...")]))
 
-        ok, notes = verify_brief(brief)
+        ok, notes, missing = verify_brief(brief)
         verdict = "PASS" if ok else "NEEDS_REVISION"
         body = (f"## 외부 검증 결과 — {verdict}\n검증 주체: 세무·정합성 검증 에이전트 (A2A)\n\n"
                 + "\n".join(f"- {n}" for n in notes))
+        if not ok:
+            # 에이전트→에이전트: 문제를 찾았으면 교정 제안은 다른 에이전트에 맡긴다.
+            revision = await request_revision(missing)
+            body += ("\n\n" + revision) if revision else (
+                "\n\n> 교정 에이전트(:9620) 미연결 — 교정 제안 생략. "
+                "다른 터미널에서 reviser_agent.py를 띄우면 제안이 함께 붙습니다.")
         await updater.add_artifact(parts=[Part(text=body)], name="verdict", last_chunk=True)
         await updater.complete()
 #pragma endregion execute

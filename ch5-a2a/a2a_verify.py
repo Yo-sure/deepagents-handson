@@ -189,7 +189,7 @@ def main() -> None:
     if args.mock:
         sys.path.insert(0, str(Path(__file__).parent))
         from verifier_agent import verify_brief
-        ok, notes = verify_brief(brief)
+        ok, notes, _ = verify_brief(brief)
         verdict = "PASS" if ok else "NEEDS_REVISION"
         block = (f"## 외부 검증 결과 — {verdict}\n검증 주체: 세무·정합성 검증 에이전트 (직접 호출)\n\n"
                  + "\n".join(f"- {n}" for n in notes))
