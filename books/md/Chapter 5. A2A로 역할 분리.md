@@ -570,6 +570,30 @@ flowchart TB
 <section class="slide">
 <div class="section-head">
 <div>
+<div class="eyebrow">실습 In Action ③ · 진짜 agent가 A2A로 · 6분</div>
+
+## 에이전트가 스스로 발견하고 부른다
+
+</div>
+<p class="section-note">앞의 <code>a2a_verify.py</code>는 카드를 읽고 브리프를 <em>항상</em> 보냅니다(고정 절차). 여기서는 <strong>LLM 에이전트</strong>가 도구 둘(<code>discover</code>·<code>send</code>)만 쥐고 <em>스스로</em> 정합니다 — 먼저 검증자를 발견해 <code>verify-brief</code> 능력이 있는지 확인하고, 있으면 그때 브리프를 A2A로 보냅니다. 순서를 코드가 아니라 모델이 밟는 게 "진짜 agent가 A2A를 쓴다"입니다.</p>
+</div>
+
+<<< ../../ch5-a2a/a2a_agent_client.py#a2a-agent{python}
+
+<div class="board" style="margin-top:16px">
+<div class="board-header"><span>실습 — 발견→호출을 에이전트에 맡긴다</span><span class="status-pill">In Action</span></div>
+<div class="stack">
+<div class="row"><div class="code">1</div><div class="copy"><strong>터미널 A — 검증자 서버</strong><p><code>uv run python3 ch5-a2a/verifier_agent.py</code><br><span style="color:var(--muted)">앞 실습과 같은 검증자를 <code>:9610</code>에 띄웁니다(그대로 둡니다).</span></p></div><div class="store">서버</div></div>
+<div class="row"><div class="code">2</div><div class="copy"><strong>터미널 B — LLM 에이전트가 스스로 부른다</strong><p><code>uv run python3 ch5-a2a/a2a_agent_client.py</code> <span style="color:var(--muted)">(키 없으면 <code>--offline</code>)</span><br><span style="color:var(--muted)">성공 기준: 에이전트가 <code>discover</code>로 카드를 읽어 <code>verify-brief</code> 능력을 확인한 뒤 <code>send_brief_for_verification</code>로 브리프를 보내 <code>PASS</code> 판정을 받아 보고합니다. <code>--offline</code>은 LLM 없이 같은 발견→호출 흐름을 코드로 밟아(결정만 결정론) 키 없이도 원리를 봅니다.</span></p></div><div class="store">에이전트</div></div>
+</div>
+</div>
+
+<p class="section-note" style="margin-top:12px">차이는 <em>누가 순서를 정하나</em>입니다. <code>a2a_verify.py</code>는 코드가, 여기선 모델이 정합니다. A2A는 그 위에서 <strong>발견(카드)·호출(SendMessage)·추적(Task)</strong>의 표준만 제공합니다 — 상대가 사람이 짠 서버든 LLM 에이전트든 같은 규약으로 붙습니다.</p>
+</section>
+
+<section class="slide">
+<div class="section-head">
+<div>
 <div class="eyebrow">참고 · 트러블슈팅</div>
 
 ## 막히면 여기부터
