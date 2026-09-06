@@ -16,7 +16,7 @@ function obsidianEmbeds(md: any) {
 
 export default withMermaid({
   title: 'AI Agent 개발',
-  description: '인박스 리서치 애널리스트를 만드는 8시간 핸즈온 — 2026 Edition',
+  description: '개념부터 개인 실습과 풀이까지 — AI Agent 개발 2026.09',
   lang: 'ko-KR',
   // GitHub Pages 프로젝트 페이지: https://yo-sure.github.io/deepagents-handson/
   base: '/deepagents-handson/',
@@ -40,7 +40,7 @@ export default withMermaid({
       lineColor: '#6b7a72',
       edgeLabelBackground: '#ffffff',
       // xychart(막대·꺾은선) 팔레트 — 기본 크림색(#FFF4DD)은 연배경에서 대비가 낮아
-      // 얇은 선이 폰에서 사라진다. .lec 청록 팔레트로 채도를 올려 폰 가독 확보.
+      // 얇은 선의 대비를 높이도록 .lec 청록 팔레트를 적용한다.
       xyChart: {
         plotColorPalette: '#0d9488, #d97706, #6b4fa3',
         backgroundColor: '#eef3f1',
@@ -59,8 +59,19 @@ export default withMermaid({
       { text: 'GitHub', link: 'https://github.com/Yo-sure/deepagents-handson' },
     ],
     sidebar: [
+      { text: '2026.09 교재', items: [
+        { text: '시작 안내', link: '/workshop/start' },
+        { text: 'Agent 입문', link: '/workshop/agent' },
+        { text: 'LangChain', link: '/workshop/langchain' },
+        { text: 'LangGraph', link: '/workshop/graph' },
+        { text: 'Harness · Loop', link: '/workshop/harness' },
+        { text: 'MCP', link: '/workshop/mcp' },
+        { text: 'A2A · ACP', link: '/workshop/a2a' },
+        { text: '통합 · 정리', link: '/workshop/wrap' },
+        { text: '이전 판 목차', link: '/archive/2026-06' },
+      ] },
       {
-        text: '교재 (2026 Edition)',
+        text: '이전 교재 (2026.06)',
         items: [
           { text: '소개', link: '/' },
           { text: 'Ch0 · 환경 셋업', link: '/chapters/chapter-0' },

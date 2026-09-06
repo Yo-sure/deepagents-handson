@@ -1,42 +1,48 @@
 ---
-layout: home
-hero:
-  name: AI Agent 개발
-  text: 인박스 리서치 애널리스트
-  tagline: 영수증·명세서·계약서를 읽어 검증된 브리프까지 — 8시간 핸즈온 · 2026 Edition
-  actions:
-    - theme: brand
-      text: Ch0부터 시작
-      link: /chapters/chapter-0
-    - theme: alt
-      text: 전체 목차
-      link: /toc
+layout: page
+title: AI Agent 개발
+sidebar: false
+aside: false
+pageClass: lec-page
 ---
+<div class="lec"><div class="deck"><section class="slide">
+<div class="eyebrow">2026.09 · 개인 실습</div>
 
-<div class="still">
-<div class="still-frame">
-<div class="still-eyebrow"><span class="bar"></span>한 편의 파이프라인<small>— 받은 메일이 검증된 브리프가 되기까지</small></div>
-<div class="still-rail">
-<div class="still-io in">📥 받은 메일<small>영수증·명세서·계약서·PDF</small></div>
-<div class="still-arrow">→</div>
-<div class="still-stop"><span class="n">1·2</span><strong>분류 · 파이프라인</strong><em>LLM → LangGraph</em></div>
-<div class="still-arrow">→</div>
-<div class="still-stop"><span class="n">3</span><strong>fan-out 조사</strong><em>DeepAgents 하네스</em></div>
-<div class="still-arrow">→</div>
-<div class="still-stop"><span class="n">4</span><strong>지식 연결</strong><em>Skills · MCP</em></div>
-<div class="still-arrow">→</div>
-<div class="still-stop"><span class="n">5</span><strong>외부 검증</strong><em>A2A</em></div>
-<div class="still-arrow">→</div>
-<div class="still-stop"><span class="n">6</span><strong>통합</strong><em>엔드투엔드</em></div>
-<div class="still-arrow">→</div>
-<div class="still-io out">✅ 검증된 브리프<small>verified_brief.md</small></div>
-</div>
-<div class="still-tags"><b>관통 주제</b><span>에이전트 패러다임</span><span>컨텍스트 엔지니어링</span><span>메모리 단기·장기</span><span>멀티에이전트 패턴</span><span>HITL</span><span>평가·비용</span></div>
-</div>
-</div>
+# 개념부터 배우고 직접 바꿉니다
 
-<div class="still-props">
-<div class="p"><strong>🧭 산출물 우선</strong><p>매 챕터가 돌아가는 산출물 하나로 끝나고, Ch6에서 하나의 파이프라인으로 이어집니다. 이론은 그 산출물에 필요한 만큼만.</p></div>
-<div class="p"><strong>📄 단일 소스 코드</strong><p>실제 <code>.py</code> 파일을 교재에 그대로 임베드합니다. 키가 없어도 <code>--mock</code>으로 끝까지 돌아갑니다.</p></div>
-<div class="p"><strong>🔄 지속 최신화</strong><p>모델·버전·스펙을 사실 레지스트리로 추적해, 빠르게 바뀌는 2026 생태계에 맞춰 갱신합니다.</p></div>
-</div>
+<p class="lead">Agent 개념을 처음 접하는 개발자도 작은 예제에서 시작합니다. LangChain·LangGraph·Harness·Loop Engineering·MCP·A2A(+ACP)를 배우고, 기본 또는 확장 과제를 개인이 선택합니다.</p>
+
+## 모듈
+
+- [시작 안내와 하루의 흐름](./workshop/start)
+- [Agent는 어떻게 실행되는가](./workshop/agent)
+- [LangChain으로 모델과 도구를 연결한다](./workshop/langchain)
+- [LangGraph로 상태와 분기를 정의한다](./workshop/graph)
+- [Harness와 Loop Engineering](./workshop/harness)
+- [MCP로 도구 서버를 연결한다](./workshop/mcp)
+- [A2A 위임과 ACP의 연결 대상](./workshop/a2a)
+- [전체 구조를 연결하고 적용점을 정리한다](./workshop/wrap)
+
+## 하루 시간표
+
+| 시간 | 내용 |
+|---|---|
+|09:00–09:20|시작 안내|
+|09:20–09:50|Agent 입문|
+|09:50–10:55|LangChain|
+|10:55–11:05|휴식|
+|11:05–12:20|LangGraph|
+|12:20–13:20|점심|
+|13:20–14:40|Harness·Loop|
+|14:40–14:50|휴식|
+|14:50–16:05|MCP|
+|16:05–16:15|휴식|
+|16:15–17:20|A2A(+ACP)|
+|17:20–17:30|휴식|
+|17:30–18:00|종합 정리|
+
+학습 440분·휴식 40분입니다. 점심 60분을 포함한 체류 시간은 9시간입니다. 각 모듈은 개념 설명→함께 실습→개인 과제→풀이로 진행합니다.
+
+[이전 판 교재 (2026.06)](./archive/2026-06)
+
+</section></div></div>

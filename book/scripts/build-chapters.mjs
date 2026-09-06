@@ -56,3 +56,14 @@ for (const { file, slug } of MIGRATED) {
   console.log(`[build-chapters] ${file} → chapters/${slug}.md`)
 }
 console.log(`[build-chapters] ${MIGRATED.length}개 챕터 빌드 포함`)
+
+const workshopPages = ['start', 'agent', 'langchain', 'graph', 'harness', 'mcp', 'a2a', 'wrap']
+const workshopDst = resolve(__dirname, '../workshop')
+await mkdir(workshopDst, { recursive: true })
+for (let i = 0; i < workshopPages.length; i++) {
+  const slug = workshopPages[i]
+  let raw = await readFile(resolve(__dirname, `../../books/workshop/${slug}.md`), 'utf8')
+  const links = [i > 0 ? `<a href="./${workshopPages[i - 1]}">이전 모듈</a>` : '', '<a href="../toc">전체 목차</a>', i < workshopPages.length - 1 ? `<a href="./${workshopPages[i + 1]}">다음 모듈</a>` : ''].filter(Boolean)
+  raw = raw.replace('<nav class="chapnav"><a href="../toc">전체 목차</a></nav>', `<nav class="chapnav">${links.join(' · ')}</nav>`)
+  await writeFile(resolve(workshopDst, `${slug}.md`), preprocess(raw), 'utf8')
+}

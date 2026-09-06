@@ -18,6 +18,7 @@ node_modules/
 book/public/
 book/.vitepress/cache/
 book/chapters/
+book/workshop/
 
 # OS
 .DS_Store

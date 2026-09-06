@@ -1,0 +1,65 @@
+---
+layout: page
+title: 전체 구조를 연결하고 적용점을 정리한다
+sidebar: false
+aside: false
+pageClass: lec-page
+---
+
+<div class="lec"><div class="deck">
+<section class="slide">
+<div class="eyebrow">2026.09 · 개인 실습 · 30분 · 관찰 10 / 개인 10 / 풀이 10</div>
+
+# 전체 구조를 연결하고 적용점을 정리한다
+
+<p class="lead">한 번의 실행을 여러 계층으로 나누어 설명합니다. 새 조건이 생겼을 때 어느 부분을 수정할지 판단합니다.</p>
+
+<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 모듈을 끝내지 못해도 이 모듈의 제공 코드에서 시작할 수 있습니다.</div></div>
+</section>
+
+<section class="slide">
+
+## 전체 부품을 관찰합니다 · 10분
+
+```bash
+uv run python -m course.cli all --mode fixed
+```
+
+이 명령은 모듈별 독립 예제를 순서대로 실행하는 점검입니다. 한 Agent의 결과를 다음 Agent에 넘기는 통합 파이프라인과는 다릅니다. 통합 예제는 다음 명령으로 별도로 실행합니다.
+
+```bash
+uv run python -m course.integration --topic 정산 --mode fixed
+```
+
+통합은 정책 조회→LangGraph 경로 확인→LangChain 초안→규칙 수정→A2A 검토의 결과 전달을 확인합니다. 고정 모드에서 모델 판단을 검증했다고 주장하지 않습니다. DeepAgents는 앞의 별도 예제에서 비교하며, 통합에 프레임워크를 중복으로 얹지 않습니다.
+
+</section>
+
+<section class="slide">
+
+## 개인 전이 문제 · 10분
+
+다음 중 하나를 골라 수정할 위치·예상 결과·확인 방법을 작성합니다.
+
+1. 정책이 없는데 모델이 담당 팀을 단정합니다.
+2. 수정 결과가 바뀌지 않는데 계속 호출합니다.
+3. 원격 검토가 진행 중인데 완료 메시지를 보여줍니다.
+
+모델·도구·State·루프·프로토콜 중 어떤 부분을 고칠지 구체적인 함수나 값으로 적습니다. 코드가 아직 완성되지 않았어도 배운 개념으로 문제를 설명할 수 있습니다.
+
+</section>
+
+<section class="slide">
+
+## 풀이와 다음 학습 · 10분
+
+첫 문제는 조회 결과와 답변의 일치 검사를, 두 번째는 개선 없음과 호출 예산을, 세 번째는 Task 상태와 artifact 검증을 확인합니다. 프롬프트 한 줄 변경만으로 모두 해결됐다고 단정하지 않습니다.
+
+기본 도달점은 구조 설명·작은 코드 수정·실행 결과 해석입니다. 확장에서는 영속 복구·동시성·권한·프로토콜 실패를 다룹니다. 이 하루만으로 운영 수준의 Agent 시스템을 완성했다고 보지는 않습니다.
+
+제출에는 개인 수정 코드, 실행 결과, 선택 문제 답변을 포함합니다. 관찰만 한 모듈과 직접 구현한 모듈을 구분합니다. 다른 사람보다 빨리 끝냈는지는 평가 기준이 아닙니다.
+
+</section>
+
+<nav class="chapnav"><a href="../toc">전체 목차</a></nav>
+</div></div>
