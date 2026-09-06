@@ -31,7 +31,7 @@ uv run python -m course.integration --topic 계정
 
 ## 개인 과제
 
-`exercises/student.py`에서 해당 함수만 수정하고 저장합니다. `langchain`, `graph`, `loop`, `mcp`, `a2a` 중 하나를 선택합니다.
+`exercises/student.py`에서 해당 함수만 수정하고 저장합니다. `langchain`, `graph`, `harness`, `mcp`, `a2a` 중 하나를 선택합니다.
 
 ```bash
 uv run python -m exercises.check langchain

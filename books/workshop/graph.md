@@ -6,7 +6,7 @@ aside: false
 pageClass: lec-page
 ---
 
-<div class="lec"><div class="deck">
+<div class="lec workshop-edition"><div class="deck">
 <section class="slide">
 <div class="eyebrow">2026.09 · 개인 실습 · 75분 · 개념 25 / 함께 20 / 개인 20 / 풀이 10</div>
 
@@ -61,13 +61,19 @@ LangChain Agent를 노드 안에서 호출할 수도 있습니다. 기본 예제
 
 <<< ../../workshop/course/graph_lab.py#approval{python}
 
+|시점|입력/동작|관찰값|
+|---|---|---|
+|첫 invoke|초안으로 실행|interrupt에서 대기, paused=true|
+|결정 준비|동일한 thread_id 유지|저장된 실행을 선택|
+|두 번째 invoke|Command(resume="reject")|decision=held|
+
 이 예제는 같은 프로세스의 메모리 저장소를 사용합니다. 프로세스를 종료하면 사라지므로 재시작 복구를 보장하지 않습니다. `interrupt` 후 재개하면 해당 노드가 처음부터 다시 실행되므로 그 앞에 실제 전송·저장을 두면 중복 효과가 날 수 있습니다.
 
 </section>
 
 <section class="slide">
 
-## 함께 실행 · 20분
+## 함께 실행 · 20분 (분기 15 / 재개 관찰 5)
 
 먼저 `course/graph_lab.py`를 열고 각 노드가 반환하는 값을 표시합니다. 다음 두 입력의 `visited`를 비교합니다.
 
@@ -97,7 +103,18 @@ uv run python -m exercises.check graph
 
 검사는 실제 StateGraph에 학생의 분기 함수를 연결하여 정상·회신 대상 없음·정책 없음 세 경로를 실행합니다.
 
-**확장:** 승인 함수의 입력을 approve/reject/빈 문자열/오타로 바꿔 안전한 보류를 검사합니다. 여유가 있으면 별도 영속 저장소를 연결해 재시작 복구를 실험합니다. 현재 설치에 없는 영속 패키지는 강사와 검증 후 추가하며 메모리 저장소를 영속이라고 설명하지 않습니다.
+**확장:** 승인 함수의 입력을 approve/reject/빈 문자열/오타로 바꿔 안전한 보류를 검사합니다. 수업 후 심화에서는 별도 영속 저장소를 연결해 재시작 복구를 실험합니다. 현재 설치에 없는 영속 패키지는 강사와 검증 후 추가하며 메모리 저장소를 영속이라고 설명하지 않습니다.
+
+확장 시작 파일은 `exercises/extensions.py`의 `approval_matrix()`입니다. 기본 함수의 인자는 바꾸지 않습니다.
+
+```bash
+uv run python -m exercises.extension_check graph
+uv run python -m exercises.extension_check graph --solution
+```
+
+네 결정을 차례대로 실제 승인 예제에 전달합니다. approve만 approved, reject·빈 문자열·approv는 held가 기대 결과입니다.
+
+시작 코드는 FAIL이 정상입니다. 첫 명령으로 자신의 구현을 검사하고, 풀이 시간에 `exercises/extension_solutions.py`의 같은 함수를 열어 비교합니다. 정상·실패 사례는 `exercises/extension_check.py`에서 확인합니다.
 
 <details><summary>힌트</summary>
 

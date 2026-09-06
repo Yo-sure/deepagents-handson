@@ -6,7 +6,7 @@ aside: false
 pageClass: lec-page
 ---
 
-<div class="lec"><div class="deck">
+<div class="lec workshop-edition"><div class="deck">
 <section class="slide">
 <div class="eyebrow">2026.09 · 개인 실습 · 80분 · 개념 25 / 함께 20 / 개인 20 / 풀이 15</div>
 
@@ -37,11 +37,17 @@ Skill은 절차적 지시입니다. 접근 권한이나 최대 호출 수를 강
 
 <section class="slide">
 
-## DeepAgents 구성 · 6분
+## DeepAgents와 Skill 구성 · 6분
 
 <<< ../../workshop/course/harness_lab.py#deepagent{python}
 
 DeepAgents는 LangChain·LangGraph 기반의 Harness 구성을 제공합니다. 예제는 가상 경로를 사용한 파일 backend와 `skills/policy-answer/SKILL.md`를 연결합니다. `skills`는 절차 문서를 찾을 경로입니다.
+
+다음 절차 문서를 직접 엽니다. 맨 위 `name`·`description`은 어떤 상황에 사용할지 설명하는 메타데이터이고, 본문은 실행 중 참고할 절차입니다.
+
+<<< ../../workshop/skills/policy-answer/SKILL.md{markdown}
+
+개인 확인: “정책을 찾지 못한 문의”에 적용할 지시 한 줄을 찾아 설명합니다. 이는 Skill의 문서 구조를 읽는 활동입니다. fixed 실행에서 모델이 문서를 선택·읽었다는 증거와는 구분합니다.
 
 수업 고정 버전은 DeepAgents 0.7.13입니다. 계획 도구가 기본으로 있어야 성공한다고 판정하지 않습니다. fixed 모델은 Skill을 읽을지 판단하지 않으므로 Skill 선택의 학습 증거는 live trace에서 별도로 확인해야 합니다.
 
@@ -101,6 +107,17 @@ uv run python -m exercises.check harness
 ```
 
 **확장:** `bounded_refine`의 복사본에서 같은 초안이 두 번 연속 나오면 개선 없음으로 종료합니다. 성공한 초안은 다시 수정하지 않아야 합니다. 두 실패 초안이 달라도 의미가 같은 경우는 단순 문자열 비교로 탐지하지 못한다는 한계를 적습니다.
+
+확장 시작 파일은 `exercises/extensions.py`의 `refine_without_stall(draft, topic, revise, limit=2)`입니다. 기본 함수의 인자는 바꾸지 않습니다.
+
+```bash
+uv run python -m exercises.extension_check harness
+uv run python -m exercises.extension_check harness --solution
+```
+
+수정 함수가 같은 실패 초안을 반환하면 두 번째 검사에서 stalled, 최초부터 통과하면 수정 없이 passed입니다. 변경은 있으나 계속 실패하면 예산에서 held로 종료합니다.
+
+시작 코드는 FAIL이 정상입니다. 첫 명령으로 자신의 구현을 검사하고, 풀이 시간에 `exercises/extension_solutions.py`의 같은 함수를 열어 비교합니다. 정상·실패 사례는 `exercises/extension_check.py`에서 확인합니다.
 
 <details><summary>힌트</summary>
 

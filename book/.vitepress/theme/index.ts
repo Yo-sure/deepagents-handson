@@ -6,6 +6,7 @@ import Quiz from './Quiz.vue'
 import ConceptGraph from './ConceptGraph.vue'
 import './style.css'
 import './concept.css'
+import './workshop.css'
 
 export default {
   extends: DefaultTheme,

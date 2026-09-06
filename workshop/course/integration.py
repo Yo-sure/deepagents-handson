@@ -5,7 +5,7 @@ import json
 import tempfile
 import uuid
 from pathlib import Path
-from .common import ROOT, get_model
+from .common import ROOT, POLICIES, get_model
 from .mcp_lab import query
 from .a2a_lab import delegate
 from .graph_lab import build_graph
@@ -20,6 +20,12 @@ def run(topic="정산", contact="requester@example.test", mode="fixed"):
             remote = asyncio.run(query(url + "/mcp", topic))
     policy_data = json.loads(remote["result"]["structured_content"]["result"])
     policy = policy_data["policy"]
+
+    # 현재 검토 서버는 배포에 포함된 정책 fixture로 검사합니다.
+    # 원격 조회 정책과 검토 기준이 다르면 같은 기준인 것처럼 진행하지 않습니다.
+    if policy != POLICIES.get(topic):
+        return {"mode": mode, "policy": policy_data, "decision": "held",
+                "reason": "policy_snapshot_mismatch"}
 
     def remote_lookup(state):
         return {"policy_id": policy["id"] if policy else "", "visited": ["lookup"]}

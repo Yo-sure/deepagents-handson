@@ -6,7 +6,7 @@ aside: false
 pageClass: lec-page
 ---
 
-<div class="lec"><div class="deck">
+<div class="lec workshop-edition"><div class="deck">
 <section class="slide">
 <div class="eyebrow">2026.09 · 개인 실습 · 65분 · 개념 25 / 함께 15 / 개인 15 / 풀이 10</div>
 
@@ -101,7 +101,7 @@ uv run python -m course.cli langchain --topic 모름 --mode fixed
 
 ## 개인 과제 · 15분
 
-**기본:** `exercises/student.py`의 `answer_from_policy`를 수정합니다. 조회 성공이면 팀과 근거 ID를 포함하고, 실패이면 완료했다고 하지 말고 추가 확인이 필요하다고 응답합니다.
+**기본:** `exercises/student.py`의 `answer_from_policy`를 수정합니다. 조회 성공이면 팀과 근거 ID를 포함하고, 실패이면 `확인`을 포함하고 `완료`를 포함하지 않는 문장으로 응답합니다. 예: “등록된 규정이 없어 추가 확인이 필요합니다.” 이는 자동 검사용 문구 계약이며 자연어의 의미 전체를 채점하지 않습니다.
 
 <<< ../../workshop/exercises/student.py#langchain{python}
 
@@ -112,6 +112,17 @@ uv run python -m exercises.check langchain
 이 과제는 모델 호출을 다시 만드는 과제가 아닙니다. 실제 tool 반환 구조를 해석해 성공·실패를 구분하는 연습입니다. 검사는 정산·없는업무·계정 세 입력을 사용합니다.
 
 **확장:** 도구 결과와 최종 모델 답변의 근거 ID가 다를 때 경고하는 함수를 작성합니다. 정상 답변과 조작한 ID 두 사례를 테스트합니다. 단순 포함 검사로 사실성을 완전히 판정할 수 없다는 한계도 적습니다.
+
+확장 시작 파일은 `exercises/extensions.py`의 `evidence_matches(answer, policy)`입니다. 기본 함수의 인자는 바꾸지 않습니다.
+
+```bash
+uv run python -m exercises.extension_check langchain
+uv run python -m exercises.extension_check langchain --solution
+```
+
+입력은 답변 문자열과 정책 dict입니다. 정상 ID만 있으면 True, 틀린 ID 또는 정상·오류 ID가 섞이면 False여야 합니다. 이는 ID 일치 검사이며 문장의 의미를 보장하지 않습니다.
+
+시작 코드는 FAIL이 정상입니다. 첫 명령으로 자신의 구현을 검사하고, 풀이 시간에 `exercises/extension_solutions.py`의 같은 함수를 열어 비교합니다. 정상·실패 사례는 `exercises/extension_check.py`에서 확인합니다.
 
 <details><summary>힌트</summary>
 

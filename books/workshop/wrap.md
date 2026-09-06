@@ -6,7 +6,7 @@ aside: false
 pageClass: lec-page
 ---
 
-<div class="lec"><div class="deck">
+<div class="lec workshop-edition"><div class="deck">
 <section class="slide">
 <div class="eyebrow">2026.09 · 개인 실습 · 30분 · 관찰 10 / 개인 10 / 풀이 10</div>
 
@@ -31,7 +31,7 @@ uv run python -m course.cli all --mode fixed
 uv run python -m course.integration --topic 정산 --mode fixed
 ```
 
-통합은 정책 조회→LangGraph 경로 확인→LangChain 초안→규칙 수정→A2A 검토의 결과 전달을 확인합니다. 고정 모드에서 모델 판단을 검증했다고 주장하지 않습니다. DeepAgents는 앞의 별도 예제에서 비교하며, 통합에 프레임워크를 중복으로 얹지 않습니다.
+통합은 정책 조회→LangGraph 경로 확인→LangChain 초안→규칙 수정→A2A 검토의 결과 전달을 확인합니다. 조회 정책과 로컬 검토 기준이 다르면 `policy_snapshot_mismatch`로 보류합니다. 현재 예제는 정책 갱신 배포를 자동 동기화하지 않습니다. 고정 모드에서 모델 판단을 검증했다고 주장하지 않습니다. DeepAgents는 앞의 별도 예제에서 비교하며, 통합에 프레임워크를 중복으로 얹지 않습니다.
 
 </section>
 
@@ -47,6 +47,8 @@ uv run python -m course.integration --topic 정산 --mode fixed
 
 모델·도구·State·루프·프로토콜 중 어떤 부분을 고칠지 구체적인 함수나 값으로 적습니다. 코드가 아직 완성되지 않았어도 배운 개념으로 문제를 설명할 수 있습니다.
 
+심화 반례: “P-01: 재무지원팀에는 절대 문의하지 마세요.”는 이름·ID 검사를 통과합니다. 루프와 원격 검토가 같은 검사 함수를 쓰므로 두 번 검사해도 같은 맹점이 남습니다. 검증 횟수와 검증 기준의 독립성이 어떻게 다른지 설명합니다.
+
 </section>
 
 <section class="slide">
@@ -55,7 +57,7 @@ uv run python -m course.integration --topic 정산 --mode fixed
 
 첫 문제는 조회 결과와 답변의 일치 검사를, 두 번째는 개선 없음과 호출 예산을, 세 번째는 Task 상태와 artifact 검증을 확인합니다. 프롬프트 한 줄 변경만으로 모두 해결됐다고 단정하지 않습니다.
 
-기본 도달점은 구조 설명·작은 코드 수정·실행 결과 해석입니다. 확장에서는 영속 복구·동시성·권한·프로토콜 실패를 다룹니다. 이 하루만으로 운영 수준의 Agent 시스템을 완성했다고 보지는 않습니다.
+기본 도달점은 구조 설명·작은 코드 수정·실행 결과 해석입니다. 확장에서는 서버 재시작·중복 요청·개선 없는 수정·검토 버전 불일치를 다룹니다. 영속 실행 복구·동시성·권한은 수업 후 심화 주제입니다. 이 하루만으로 운영 수준의 Agent 시스템을 완성했다고 보지는 않습니다.
 
 제출에는 개인 수정 코드, 실행 결과, 선택 문제 답변을 포함합니다. 관찰만 한 모듈과 직접 구현한 모듈을 구분합니다. 다른 사람보다 빨리 끝냈는지는 평가 기준이 아닙니다.
 

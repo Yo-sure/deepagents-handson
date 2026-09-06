@@ -5,7 +5,7 @@ sidebar: false
 aside: false
 pageClass: lec-page
 ---
-<div class="lec"><div class="deck"><section class="slide">
+<div class="lec workshop-edition"><div class="deck"><section class="slide">
 <div class="eyebrow">2026.09 · 개인 실습</div>
 
 # 개념부터 배우고 직접 바꿉니다

@@ -100,3 +100,23 @@ def test_integration_propagates_remote_policy(topic, contact, decision):
     if decision == "accepted":
         assert result["policy"]["policy"]["id"] in result["loop"]["draft"]
         assert result["review"]["artifact"]["passed"] is True
+@pytest.mark.parametrize("lab", ["langchain", "graph", "harness", "mcp", "a2a"])
+def test_extension_reference_and_starter(lab):
+    from exercises import extension_solutions, extensions
+    from exercises.extension_check import evaluate as extension_evaluate
+    assert all(extension_evaluate(extension_solutions, lab))
+    try:
+        assert not all(extension_evaluate(extensions, lab))
+    except KeyError:
+        pass
+
+
+def test_integration_holds_mismatched_policy(monkeypatch):
+    from course import integration
+    async def changed_policy(url, topic):
+        data = {"found": True, "topic": topic, "policy": {"id": "P-03", "team": "변경팀", "rule": "새 규정"}}
+        return {"result": {"structured_content": {"result": json.dumps(data)}}}
+    monkeypatch.setattr(integration, "query", changed_policy)
+    result = integration.run()
+    assert result["decision"] == "held"
+    assert result["reason"] == "policy_snapshot_mismatch"

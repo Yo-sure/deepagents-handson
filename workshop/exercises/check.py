@@ -42,7 +42,7 @@ def evaluate(module, lab):
         for topic, expected in [("정산", "재무지원팀"), ("계정", "IT지원팀"), ("없음", None)]:
             check(f"MCP 호출: {topic}", lambda t=topic,e=expected: asyncio.run(call(t)) == {"found": e is not None, "team": e})
     elif lab == "a2a":
-        for state, artifact, expected in [("working", None, "pending"), ("completed", {"passed": True}, "accepted"), ("failed", None, "held"), ("completed", None, "held"), ("completed", {"passed": False}, "held")]:
+        for state, artifact, expected in [("submitted", None, "pending"), ("working", None, "pending"), ("completed", {"passed": True}, "accepted"), ("failed", None, "held"), ("completed", None, "held"), ("completed", {"passed": False}, "held"), ("completed", {"passed": "false"}, "held"), ("completed", {"passed": "true"}, "held")]:
             check(f"{state}/{artifact} → {expected}", lambda s=state,a=artifact,e=expected: module.review_decision(s,a)==e)
     return checks
 

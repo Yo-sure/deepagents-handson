@@ -6,7 +6,7 @@ aside: false
 pageClass: lec-page
 ---
 
-<div class="lec"><div class="deck">
+<div class="lec workshop-edition"><div class="deck">
 <section class="slide">
 <div class="eyebrow">2026.09 · 개인 실습 · 65분 · 개념 25 / 함께 15 / 개인 15 / 풀이 10</div>
 
@@ -106,6 +106,17 @@ uv run python -m exercises.check a2a
 ```
 
 **확장:** 기본 함수에 요청 ID와 버전 검사를 추가합니다. 작업 완료인데 결과가 없거나 다른 버전이면 보류하는 테스트를 작성합니다. timeout을 성공으로 바꾸는 예외 처리를 넣지 않습니다.
+
+확장 시작 파일은 `exercises/extensions.py`의 `review_version(state, artifact, request_id, version)`입니다. 기본 함수의 인자는 바꾸지 않습니다. `request_id`와 `version`은 A2A 요청자가 기대하는 값이며 artifact 안의 값과 비교합니다.
+
+```bash
+uv run python -m exercises.extension_check a2a
+uv run python -m exercises.extension_check a2a --solution
+```
+
+기대 요청 req-1·버전 2와 일치하는 완료 artifact는 accepted, req-2 또는 버전 3을 기대하면 held, working은 pending입니다. 새 함수의 인자로 기대값을 받으므로 기본 과제 함수를 변경하지 않습니다.
+
+시작 코드는 FAIL이 정상입니다. 첫 명령으로 자신의 구현을 검사하고, 풀이 시간에 `exercises/extension_solutions.py`의 같은 함수를 열어 비교합니다. 정상·실패 사례는 `exercises/extension_check.py`에서 확인합니다.
 
 <details><summary>힌트</summary>
 

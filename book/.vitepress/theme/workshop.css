@@ -1,0 +1,20 @@
+/* 2026.09 데스크톱 교재. 이전 판 테마는 그대로 보존합니다. */
+.lec.workshop-edition { font-size: 18px; line-height: 1.8; }
+.lec.workshop-edition .deck { max-width: 1180px; margin: 0 auto; }
+.lec.workshop-edition .slide { padding: 48px 40px; }
+.lec.workshop-edition h1 { font-size: 54px; line-height: 1.25; word-break: keep-all; margin-bottom: 24px; }
+.lec.workshop-edition h2 { font-size: 34px; line-height: 1.4; word-break: keep-all; margin: 0 0 24px; }
+.lec.workshop-edition p { font-size: 18px; line-height: 1.85; margin: 18px 0; }
+.lec.workshop-edition .lead { font-size: 22px; max-width: 980px; }
+.lec.workshop-edition ul, .lec.workshop-edition ol { padding-left: 28px; margin: 20px 0; }
+.lec.workshop-edition ul { list-style: disc; }
+.lec.workshop-edition ol { list-style: decimal; }
+.lec.workshop-edition li { margin: 10px 0; }
+.lec.workshop-edition table { width: 100%; font-size: 17px; margin: 24px 0; }
+.lec.workshop-edition td, .lec.workshop-edition th { padding: 12px 16px; }
+.lec.workshop-edition .cue-body { font-size: 16px; line-height: 1.7; }
+.lec.workshop-edition .mermaid { max-width: 960px; margin: 28px auto; }
+.lec.workshop-edition .chapnav { display: flex; justify-content: space-between; padding: 30px 40px; font-size: 18px; }
+.lec.workshop-edition details { margin: 24px 0; padding: 16px 22px; background: #e7eee8; }
+.lec.workshop-edition summary { cursor: pointer; font-weight: 700; }
+.lec.workshop-edition a:not(.header-anchor) { text-decoration: underline; text-underline-offset: 4px; }
