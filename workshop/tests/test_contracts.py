@@ -120,3 +120,10 @@ def test_integration_holds_mismatched_policy(monkeypatch):
     result = integration.run()
     assert result["decision"] == "held"
     assert result["reason"] == "policy_snapshot_mismatch"
+@pytest.mark.parametrize("topic,expected", [("정산", "P-01"), ("계정", "P-02"), ("모름", "확인")])
+def test_new_langchain_mcp_adapter(topic, expected):
+    from course.mcp_agent_lab import run
+    result = run(topic)
+    assert result["tools"] == ["lookup_policy"]
+    assert [message["role"] for message in result["trace"]] == ["human", "ai", "tool", "ai"]
+    assert expected in result["trace"][-1]["content"]

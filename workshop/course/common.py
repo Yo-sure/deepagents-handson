@@ -37,7 +37,11 @@ class FixedModel(BaseChatModel):
 
     def _generate(self, messages: list, stop=None, run_manager=None, **kwargs) -> ChatResult:
         if isinstance(messages[-1], ToolMessage):
-            data = json.loads(messages[-1].content)
+            content = messages[-1].content
+            # MCPAdapter 도구 결과는 text block 목록으로 전달될 수 있습니다.
+            if isinstance(content, list):
+                content = "".join(block if isinstance(block, str) else block.get("text", "") for block in content)
+            data = json.loads(content)
             policy = data.get("policy")
             content = (f"{policy['rule']} [근거: {policy['id']}]" if policy else "등록된 규정이 없어 추가 확인이 필요합니다.")
             reply = AIMessage(content=content)

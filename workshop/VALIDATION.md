@@ -4,7 +4,7 @@
 
 | 항목 | 결과 |
 |---|---|
-|자동 검사|27개 통과 (`uv run --locked pytest -q`)|
+|자동 검사|30개 통과 (`uv run --locked pytest -q`)|
 |LangChain 고정 모델|실제 모델 요청→도구 실행→답변 메시지 순서 확인|
 |LangGraph|정상·정보 부족 분기, 같은 프로세스 승인 재개 확인|
 |DeepAgents|fixed 및 live 실행 확인. live에서 Skill read_file→정책 조회→답변 관찰|
@@ -15,3 +15,5 @@
 |실제 LLM|LangChain·DeepAgents·통합 live 실행 통과. 통합 A2A 모델 검토 포함. 입력별 품질 평가는 별도 필요|
 
 검증 시 잠긴 주요 버전은 LangChain 1.4.0, LangGraph 1.2.11, DeepAgents 0.7.13, MCP 2.1.1, A2A SDK 1.1.2입니다. 전체 의존성은 `uv.lock`을 기준으로 합니다. 이 기록은 학습용 예제의 확인 범위이며 운영 성능·보안·자연어 정확성을 보증하지 않습니다.
+
+추가 확인: 최신 PyPI 배포와 핵심 6개 패키지 일치. LangChain MCP extra 및 FastMCP 4.0.3 추가 후 30개 회귀 검사 통과. MCPAdapter 실제 원격 도구 연결의 fixed 3개 입력과 live 정산 문의 통과. `langchain.mcp` beta 경고는 API 상태를 알려주므로 유지합니다.

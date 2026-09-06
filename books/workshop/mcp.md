@@ -41,7 +41,7 @@ flowchart LR
 
 <<< ../../workshop/course/mcp_lab.py#server{python}
 
-`server.tool()`은 함수를 도구로 등록합니다. 도구 목록의 입력 schema는 어떤 인자를 받을지 설명합니다. 도구 목록에 이름이 보인다는 것과 실제 호출 성공은 다릅니다.
+`server.tool()`은 함수를 도구로 등록합니다. 도구 목록의 입력 schema(입력 형식)는 어떤 인자를 받을지 설명합니다. 도구 목록에 이름이 보인다는 것과 실제 호출 성공은 다릅니다.
 
 <<< ../../workshop/course/mcp_lab.py#client{python}
 
@@ -77,13 +77,23 @@ uv run python -m course.cli mcp --topic 계정
 
 명령은 로컬 서버 프로세스를 시작하고 client로 실제 HTTP 호출한 뒤 자신이 시작한 서버를 종료합니다. 출력에서 protocol, tools, result.content를 읽습니다. lookup_policy의 반환 구조는 LangChain 모듈과 같습니다.
 
-개별 서버를 관찰하려면 터미널 하나에서 다음을 실행합니다. 종료는 Ctrl+C입니다.
+이제 LangChain에서 같은 원격 조회 도구를 사용합니다. 앞의 10분은 목록과 결과를 읽고, 뒤의 10분은 아래 연결을 함께 실행합니다.
 
 ```bash
-uv run python -m course.mcp_lab --port 9710 --db runs/tickets.sqlite
+uv run python -m course.mcp_agent_lab --mode fixed
 ```
 
-다른 실행 중인 서버와 포트가 충돌하면 해당 프로그램을 임의 종료하지 말고 다른 포트를 사용합니다. 기본 CLI는 비어 있는 포트를 골라 실행합니다.
+<<< ../../workshop/course/mcp_agent_lab.py#adapter{python}
+
+LangChain 1.4의 `langchain.mcp.MCPAdapter`가 MCP 도구를 LangChain 도구로 바꿉니다. 서버에 등록된 도구 중 조회 도구만 Agent에 전달했습니다.
+
+모델은 도구 사용을 요청하고, adapter가 원격 호출을 수행합니다. `runs/mcp-agent-fixed.json`에서 요청→tool 결과→최종 답변을 확인합니다.
+
+이 API는 현재 beta 경고를 표시합니다. 수업은 검증한 버전을 고정하며, 기본 MCP 직접 호출 예제도 함께 제공합니다.
+
+[2026-09-03 공식 변경 안내](https://www.langchain.com/blog/mcp-in-langchain-stateless-protocol-elicitation-and-more)
+
+선택 관찰: 서버를 직접 열려면 `uv run python -m course.mcp_lab --port 9710 --db runs/tickets.sqlite`를 실행합니다. 종료는 Ctrl+C입니다. 포트가 사용 중이면 다른 프로그램을 종료하지 말고 기본 CLI의 자동 포트 선택을 사용합니다.
 
 </section>
 

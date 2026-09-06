@@ -21,6 +21,7 @@ uv run python -m course.cli approval --decision reject
 uv run python -m course.cli harness
 uv run python -m course.cli deepagent
 uv run python -m course.cli mcp
+uv run python -m course.mcp_agent_lab --mode fixed
 uv run python -m course.cli a2a
 uv run python -m course.integration --topic 계정
 ```
@@ -61,3 +62,5 @@ uv run pytest -q
 ```
 
 이 검사는 기준 풀이, 초기 오답 검출, MCP 서버 재시작, 실제 A2A 왕복을 포함합니다. 실제 LLM 호출 품질은 이 검사와 별도로 확인해야 합니다.
+
+LangChain 1.4 MCPAdapter 예제는 `langchain[mcp]` extra와 FastMCP 4.0.3을 사용합니다. 현재 adapter는 beta API이며 경고를 숨기지 않습니다. 프로토콜 자체는 MCP 직접 호출 예제로도 확인할 수 있습니다.
