@@ -16,8 +16,8 @@ pageClass: lec-page
 
 - [시작 안내와 하루의 흐름](./workshop/start)
 - [Agent는 어떻게 실행되는가](./workshop/agent)
-- [LangChain으로 모델과 도구를 연결한다](./workshop/langchain)
-- [LangGraph로 상태와 분기를 정의한다](./workshop/graph)
+- [LangChain으로 모델과 도구 연결하기](./workshop/langchain)
+- [LangGraph로 상태와 분기 정의하기](./workshop/graph)
 - [Harness와 Loop Engineering](./workshop/harness)
 - [MCP로 도구 서버를 연결한다](./workshop/mcp)
 - [A2A 위임과 ACP의 연결 대상](./workshop/a2a)

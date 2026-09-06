@@ -31,7 +31,9 @@ flowchart LR
  D --> E[답변 또는 보류]
 ```
 
-LangChain으로 모델·도구를 연결하고 LangGraph로 분기를 표현합니다. Harness와 Loop Engineering은 실행에 필요한 지식·도구·피드백·종료 조건을 다룹니다. MCP는 도구 연결, A2A는 독립 Agent에 작업을 위임할 때 사용합니다. 각 이름의 의미는 해당 모듈에서 예제로 설명합니다.
+LangChain으로 모델·도구를 연결하고 LangGraph로 분기를 표현합니다. Harness와 Loop Engineering은 실행에 필요한 지식·도구·피드백·종료 조건을 다룹니다.
+
+MCP는 도구 연결, A2A는 독립 Agent에 작업을 위임할 때 사용합니다. 각 이름의 의미는 해당 모듈에서 예제로 설명합니다.
 
 </section>
 
@@ -67,7 +69,9 @@ uv run python -m course.cli langchain --mode fixed
 
 MCP·A2A 기본 예제는 별도 로컬 프로세스를 실제로 호출합니다. A2A의 fixed 검토기는 결정론적 규칙 검사이며 LLM 판단으로 부르지 않습니다. `harness` 명령도 수정 함수가 고정되어 있고 `deepagent` 명령이 실제 DeepAgents 구성을 실행합니다.
 
-live는 `workshop/.env`에 유효한 `OPENROUTER_API_KEY`를 설정한 경우 실행합니다. `.env.example`을 참고하고 키를 결과 파일·공유 화면에 포함하지 않습니다. `WORKSHOP_MODEL`로 모델을 바꿀 수 있습니다. 제공 키의 실제 사용 가능 여부는 수업 전 확인합니다.
+live는 `workshop/.env`에 유효한 `OPENROUTER_API_KEY`를 설정한 경우 실행합니다. `.env.example`을 참고하고 키를 결과 파일·공유 화면에 포함하지 않습니다.
+
+`WORKSHOP_MODEL`로 모델을 바꿀 수 있습니다. 제공 키의 실제 사용 가능 여부는 수업 전 확인합니다.
 
 </section>
 

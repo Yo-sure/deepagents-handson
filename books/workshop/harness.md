@@ -49,7 +49,7 @@ DeepAgents는 LangChain·LangGraph 기반의 Harness 구성을 제공합니다. 
 
 개인 확인: “정책을 찾지 못한 문의”에 적용할 지시 한 줄을 찾아 설명합니다. 이는 Skill의 문서 구조를 읽는 활동입니다. fixed 실행에서 모델이 문서를 선택·읽었다는 증거와는 구분합니다.
 
-수업 고정 버전은 DeepAgents 0.7.13입니다. 계획 도구가 기본으로 있어야 성공한다고 판정하지 않습니다. fixed 모드에서는 Skill 선택을 확인할 수 없습니다. live 모드의 실행 기록에서 모델이 어떤 Skill 문서를 읽었는지 확인합니다.
+수업 고정 버전은 DeepAgents 0.7.13입니다. v0.7에서는 `TodoListMiddleware`가 선택 사항이므로 `write_todos`가 기본으로 있다고 가정하지 않습니다. 계획 도구가 있어야만 성공한 실행이라고 판정하지 않습니다. fixed 모드에서는 Skill 선택을 확인할 수 없습니다. live 모드의 실행 기록에서 모델이 어떤 Skill 문서를 읽었는지 확인합니다.
 
 </section>
 
@@ -89,6 +89,8 @@ uv run python -m course.cli deepagent --mode fixed
 ```
 
 첫 실행은 근거가 부족한 최초 초안을 보류합니다. 두 번째는 제공 수정 함수가 정책을 반영해 통과합니다. `history`에서 실패 이유와 다음 초안이 바뀌었는지 확인합니다.
+
+2026-09-06 live 실행에서는 `read_file(file_path="/policy-answer/SKILL.md")` → `lookup_policy(topic="정산")` → P-01·재무지원팀 답변 순서를 확인했습니다. 이는 해당 입력에서 관찰한 한 번의 기록이며, 모든 질문에서 같은 Skill을 읽는다는 보장은 아닙니다.
 
 세 번째는 실제 DeepAgents 실행이지만 모델은 고정 응답입니다. live 사용 가능 시 `--mode live`로 실행하고 `read_file` 등의 호출과 Skill 선택을 확인합니다. 도구 호출이 없는데 Skill을 읽었다고 주장하지 않습니다.
 
@@ -137,7 +139,7 @@ uv run python -m exercises.check harness --solution
 
 항상 revise를 반환하면 성공 후에도 반복합니다. 예산만 먼저 검사하면 마지막 허용 수정에서 성공해도 보류할 수 있습니다. 종료 조건의 순서와 검토 횟수의 정의를 설명합니다.
 
-계획 도구·subagent·더 긴 prompt를 추가하기 전에 현재 실패가 무엇인지 확인합니다. 구성이 복잡하다는 사실을 높은 품질의 근거로 삼지 않습니다.
+계획 도구·subagent·더 긴 prompt를 추가하기 전에 현재 실패가 무엇인지 확인합니다. 구성이 복잡하다고 품질까지 높다고 판단하지 않습니다.
 
 참고: [DeepAgents Quickstart](https://docs.langchain.com/oss/python/deepagents/quickstart), [v0.7 변경](https://www.langchain.com/blog/deep-agents-v0-7).
 

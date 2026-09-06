@@ -1,6 +1,6 @@
 ---
 layout: page
-title: LangGraph로 상태와 분기를 정의한다
+title: LangGraph로 상태와 분기 정의하기
 sidebar: false
 aside: false
 pageClass: lec-page
@@ -10,7 +10,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="eyebrow">2026.09 · 개인 실습 · 75분 · 개념 25 / 함께 20 / 개인 20 / 풀이 10</div>
 
-# LangGraph로 상태와 분기를 정의한다
+# LangGraph로 상태와 분기 정의하기
 
 <p class="lead">정보가 부족하면 질문으로 보내고 충분하면 초안을 작성합니다. 상태가 어떤 값인지 보고 조건 분기를 수정합니다.</p>
 
@@ -25,7 +25,9 @@ State는 실행 중 노드들이 읽고 갱신하는 값입니다. 이 예제에
 
 <<< ../../workshop/course/graph_lab.py#state{python}
 
-`TypedDict`는 dict에 어떤 필드가 들어가는지 코드에 표시합니다. 그 자체가 모든 실행 입력을 검증해 주는 장치는 아닙니다. `lookup`은 기존 State를 받아 정책 ID와 방문 기록을 반환합니다. 반환하지 않은 다른 필드는 남습니다. 방문 기록은 기존 기록에 새 항목을 추가한 리스트를 반환하여 갱신합니다.
+`TypedDict`는 dict에 어떤 필드가 들어가는지 코드에 표시합니다. 그 자체가 모든 실행 입력을 검증해 주는 장치는 아닙니다.
+
+`lookup`은 기존 State를 받아 정책 ID와 방문 기록을 반환합니다. 반환하지 않은 다른 필드는 남습니다. 방문 기록은 기존 기록에 새 항목을 추가한 리스트를 반환하여 갱신합니다.
 
 `route`는 다음 노드 이름을 반환합니다. 정책 ID와 회신 대상이 모두 있을 때만 draft로 갑니다. 여기서 다음 단계는 모델이 아니라 조건문이 결정합니다.
 
@@ -132,7 +134,7 @@ uv run python -m exercises.extension_check graph --solution
 uv run python -m exercises.check graph --solution
 ```
 
-정책 ID만 검사하는 초기 구현은 회신 대상이 없어도 초안을 작성합니다. 조건을 추가한 뒤 정상 입력이 계속 draft로 가는지도 확인합니다. 오류만 고치다가 정상 경로를 막으면 회귀입니다.
+정책 ID만 검사하는 초기 구현은 회신 대상이 없어도 초안을 작성합니다. 조건을 추가한 뒤 정상 입력이 계속 draft로 가는지도 확인합니다. 오류를 고친 뒤 정상 경로까지 막히면 회귀입니다.
 
 다음 Harness 모듈에서는 분기에서 한 걸음 더 나아가 검토 피드백으로 입력을 수정하는 반복을 다룹니다.
 

@@ -23,7 +23,9 @@ pageClass: lec-page
 
 함수로 충분한 검토를 무조건 별도 Agent로 나눌 필요는 없습니다. 독립 배포·권한·정보 경계를 가진 시스템에 일을 맡기는 경우에는 발견·작업 상태·산출물을 전달할 규약이 필요합니다.
 
-MCP는 도구 사용, A2A는 독립 Agent 또는 agentic system의 작업 위임에 초점을 둡니다. 이 예제의 검토 서버는 기본 모드에서 정책 근거를 검사하는 규칙 시스템이며 실제 LLM 판단이라고 부르지 않습니다. live 모드에서는 모델의 표현 검토를 추가하지만 기본 합격 판정은 규칙 검사입니다.
+MCP는 도구 사용, A2A는 독립 Agent 또는 agentic system의 작업 위임에 초점을 둡니다. 이 예제의 검토 서버는 기본 모드에서 정책 근거를 검사하는 규칙 시스템이며 실제 LLM 판단이라고 부르지 않습니다.
+
+live 모드에서는 모델의 표현 검토를 추가하지만 기본 합격 판정은 규칙 검사입니다.
 
 </section>
 
@@ -107,7 +109,9 @@ uv run python -m exercises.check a2a
 
 **확장:** 확장 함수에서 요청 ID와 버전을 검사합니다. 작업 완료인데 결과가 없거나 다른 버전이면 보류하는 테스트를 작성합니다. timeout을 성공으로 바꾸는 예외 처리를 넣지 않습니다.
 
-확장 시작 파일은 `exercises/extensions.py`의 `review_version(state, artifact, request_id, version)`입니다. 기본 함수의 인자는 바꾸지 않습니다. `request_id`와 `version`은 A2A 요청자가 기대하는 값이며 artifact 안의 값과 비교합니다.
+확장 시작 파일은 `exercises/extensions.py`의 `review_version(state, artifact, request_id, version)`입니다. 기본 함수의 인자는 바꾸지 않습니다.
+
+`request_id`와 `version`은 A2A 요청자가 기대하는 값이며 artifact 안의 값과 비교합니다.
 
 ```bash
 uv run python -m exercises.extension_check a2a

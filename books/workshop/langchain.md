@@ -1,6 +1,6 @@
 ---
 layout: page
-title: LangChain으로 모델과 도구를 연결한다
+title: LangChain으로 모델과 도구 연결하기
 sidebar: false
 aside: false
 pageClass: lec-page
@@ -10,7 +10,7 @@ pageClass: lec-page
 <section class="slide">
 <div class="eyebrow">2026.09 · 개인 실습 · 65분 · 개념 25 / 함께 15 / 개인 15 / 풀이 10</div>
 
-# LangChain으로 모델과 도구를 연결한다
+# LangChain으로 모델과 도구 연결하기
 
 <p class="lead">모델이 요청한 도구를 프로그램이 실행하고 결과를 모델에 전달하는 과정을 관찰합니다. 기본 과제는 조회 성공과 조회 실패의 응답을 구분하는 것입니다.</p>
 
@@ -49,9 +49,9 @@ flowchart LR
  C -->|없음| A[최종 응답]
 ```
 
-모델이 도구 이름과 인자를 반환하면 LangChain 실행 코드가 함수를 실행합니다. 이 반환값은 tool 메시지로 대화에 추가됩니다. 모델은 그 결과를 받고 다음 응답을 만듭니다.
+모델이 도구 이름과 인자를 반환하면 LangChain 실행 코드가 함수를 실행합니다. 실행 코드는 이 반환값을 tool 메시지로 대화에 추가합니다. 모델은 그 결과를 받고 다음 응답을 만듭니다.
 
-도구를 등록했어도 모델이 항상 호출하는 것은 아닙니다. 프롬프트의 요청과 코드로 강제한 조건은 다릅니다. 이 예제에는 실행 폭주를 막는 `recursion_limit`이 있으며, 업무 성공을 보장하는 검사는 아닙니다.
+도구를 등록했어도 모델이 항상 호출하는 것은 아닙니다. 프롬프트의 요청과 코드로 강제한 조건은 다릅니다. 이 예제에는 과도한 실행을 막는 `recursion_limit`이 있으며, 업무 성공을 보장하는 검사는 아닙니다.
 
 **예측:** 모델이 `{name: lookup_policy, args: {topic: 정산}}`을 반환한 순간, 담당 팀 조회는 아직 시작 전입니다. 다음에는 함수 실행이 일어나야 합니다.
 
@@ -101,7 +101,9 @@ uv run python -m course.cli langchain --topic 모름 --mode fixed
 
 ## 개인 과제 · 15분
 
-**기본:** `exercises/student.py`의 `answer_from_policy`를 수정합니다. 조회 성공이면 팀과 근거 ID를 포함하고, 실패이면 `확인`을 포함하고 `완료`를 포함하지 않는 문장으로 응답합니다. 예: “등록된 규정이 없어 추가 확인이 필요합니다.” 이는 자동 검사용 문구 계약이며 자연어의 의미 전체를 채점하지 않습니다.
+**기본:** `exercises/student.py`의 `answer_from_policy`를 수정합니다. 조회 성공이면 팀과 근거 ID를 포함하고, 실패이면 `확인`을 포함하고 `완료`를 포함하지 않는 문장으로 응답합니다.
+
+예: “등록된 규정이 없어 추가 확인이 필요합니다.” 이는 자동 검사용 문구 계약이며 자연어의 의미 전체를 채점하지 않습니다.
 
 <<< ../../workshop/exercises/student.py#langchain{python}
 

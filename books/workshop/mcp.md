@@ -91,7 +91,9 @@ uv run python -m course.mcp_lab --port 9710 --db runs/tickets.sqlite
 
 ## 개인 과제 · 20분
 
-**기본:** `team_for_topic`이 입력과 관계없이 첫 번째 팀만 반환합니다. 주제로 정책을 찾아 `found`와 `team`을 반환하도록 고칩니다. 없는 주제는 Python에서 `{"found": False, "team": None}`을 반환합니다. JSON 출력에서는 `false`, `null`로 표시됩니다.
+**기본:** `team_for_topic`이 입력과 관계없이 첫 번째 팀만 반환합니다. 주제로 정책을 찾아 `found`와 `team`을 반환하도록 고칩니다.
+
+없는 주제는 Python에서 `{"found": False, "team": None}`을 반환합니다. JSON 출력에서는 `false`, `null`로 표시됩니다.
 
 <<< ../../workshop/exercises/student.py#mcp{python}
 
@@ -110,7 +112,9 @@ uv run python -m exercises.extension_check mcp
 uv run python -m exercises.extension_check mcp --solution
 ```
 
-반환 dict의 first.data.created는 True, again.data.created는 False이고 ticket_id는 같아야 합니다. conflict.error는 True입니다. 참고 풀이처럼 임시 폴더의 같은 DB를 두 서버 실행에 넘깁니다. 업무 키와 내용이 같을 때만 기존 결과를 재사용합니다.
+반환 dict의 first.data.created는 True, again.data.created는 False이고 ticket_id는 같아야 합니다. conflict.error는 True입니다.
+
+참고 풀이처럼 임시 폴더의 같은 DB를 두 서버 실행에 넘깁니다. 업무 키와 내용이 같을 때만 기존 결과를 재사용합니다.
 
 시작 코드는 FAIL이 정상입니다. 첫 명령으로 자신의 구현을 검사하고, 풀이 시간에 `exercises/extension_solutions.py`의 같은 함수를 열어 비교합니다. 정상·실패 사례는 `exercises/extension_check.py`에서 확인합니다.
 

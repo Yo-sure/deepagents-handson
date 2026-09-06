@@ -5,6 +5,8 @@
 .lec.workshop-edition h1 { font-size: 54px; line-height: 1.25; word-break: keep-all; margin-bottom: 24px; }
 .lec.workshop-edition h2 { font-size: 34px; line-height: 1.4; word-break: keep-all; margin: 0 0 24px; }
 .lec.workshop-edition p { font-size: 18px; line-height: 1.85; margin: 18px 0; }
+.lec.workshop-edition p, .lec.workshop-edition li, .lec.workshop-edition td { word-break: keep-all; overflow-wrap: anywhere; }
+.lec.workshop-edition h1, .lec.workshop-edition h2 { text-wrap: balance; }
 .lec.workshop-edition .lead { font-size: 22px; max-width: 980px; }
 .lec.workshop-edition ul, .lec.workshop-edition ol { padding-left: 28px; margin: 20px 0; }
 .lec.workshop-edition ul { list-style: disc; }

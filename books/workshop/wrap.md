@@ -31,7 +31,9 @@ uv run python -m course.cli all --mode fixed
 uv run python -m course.integration --topic 정산 --mode fixed
 ```
 
-통합은 정책 조회→LangGraph 경로 확인→LangChain 초안→규칙 수정→A2A 검토의 결과 전달을 확인합니다. 조회 정책과 로컬 검토 기준이 다르면 `policy_snapshot_mismatch`로 보류합니다. 현재 예제는 정책 갱신 배포를 자동 동기화하지 않습니다. 고정 모드에서 모델 판단을 검증했다고 주장하지 않습니다. DeepAgents는 앞의 별도 예제에서 비교하며, 통합에 프레임워크를 중복으로 얹지 않습니다.
+통합은 정책 조회→LangGraph 경로 확인→LangChain 초안→규칙 수정→A2A 검토의 결과 전달을 확인합니다. 조회 정책과 로컬 검토 기준이 다르면 `policy_snapshot_mismatch`로 보류합니다.
+
+현재 예제는 정책 갱신 배포를 자동 동기화하지 않습니다. 고정 모드에서 모델 판단을 검증했다고 주장하지 않습니다. DeepAgents는 앞의 별도 예제에서 비교하며, 통합에 프레임워크를 중복으로 얹지 않습니다.
 
 </section>
 
