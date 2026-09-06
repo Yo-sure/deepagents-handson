@@ -34,7 +34,7 @@ def main():
         elif lab == "harness":
             result = bounded_refine("담당 팀을 확인합니다.", args.topic,
                                     lambda draft, feedback: fixed_revision(draft, feedback, args.topic), args.revisions)
-            result["mode"] = "결정론 수정 함수. LLM 수정은 확장 과제입니다."
+            result["mode"] = "미리 정한 규칙으로 수정합니다. 모델 수정은 course.integration --mode live에서 확인합니다."
         elif lab == "deepagent":
             result = run_deep_agent(args.topic, args.mode)
         elif lab == "mcp":
