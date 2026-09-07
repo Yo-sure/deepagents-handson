@@ -81,3 +81,9 @@
 .lec.workshop-edition h2 { font-weight: 650; letter-spacing: -.025em; }
 .lec.workshop-edition h3 { font-weight: 600; }
 .lec.workshop-edition .mermaid { background: #ffffffed; border-color: #dfe5e1; }
+
+/* 학습자가 직접 표시하는 준비 체크리스트 */
+.setup-checklist { display: grid; gap: 14px; margin: 24px 0; }
+.setup-checklist label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
+.setup-checklist input[type="checkbox"] { appearance: auto; flex: 0 0 20px; width: 20px; height: 20px; margin-top: 6px; accent-color: #0f766e; cursor: pointer; }
+.setup-checklist input:focus-visible { outline: 2px solid #0f766e; outline-offset: 3px; }

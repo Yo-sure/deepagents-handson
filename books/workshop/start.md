@@ -238,10 +238,12 @@ uv run python -m course.cli langchain
 
 ### 준비 완료 체크
 
-- [ ] `workshop` 폴더가 있고, 편집기에서 `build_lab/student.py`를 열 수 있습니다.
-- [ ] 편집기 터미널의 현재 위치가 `workshop`이며 Python과 라이브러리 확인이 성공합니다.
-- [ ] `.env`를 저장했고 실제 모델 호출이 성공합니다.
-- [ ] `runs/langchain.json`에서 요청·도구 호출·조회 결과·답변을 구분할 수 있습니다.
+<div class="setup-checklist" role="group" aria-label="준비 완료 체크">
+<label><input type="checkbox"><span><code>workshop</code> 폴더가 있고, 편집기에서 <code>build_lab/student.py</code>를 열 수 있습니다.</span></label>
+<label><input type="checkbox"><span>편집기 터미널의 현재 위치가 <code>workshop</code>이며 Python과 라이브러리 확인이 성공합니다.</span></label>
+<label><input type="checkbox"><span><code>.env</code>를 저장했고 실제 모델 호출이 성공합니다.</span></label>
+<label><input type="checkbox"><span><code>runs/langchain.json</code>에서 요청·도구 호출·조회 결과·답변을 구분할 수 있습니다.</span></label>
+</div>
 
 수업 당일에는 이 상태를 확인하고 오늘의 흐름을 안내합니다. 환경이 준비되지 않았다면 어느 단계에서 막혔는지와 오류 메시지를 전달합니다. 키 값은 공유하지 않습니다.
 
