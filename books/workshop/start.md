@@ -12,14 +12,24 @@ pageClass: lec-page
 
 # 시작 안내와 하루의 흐름
 
-주 실습은 [내 업무 Agent 직접 완성하기](./build)입니다. 자료의 `build_lab/student.py`에서 시작하며, 주피터를 선택하면 `notebooks/build-agent.ipynb`를 사용합니다. 설치와 키 확인은 아래 환경 준비를 먼저 마칩니다.
+주 실습은 [내 업무 Agent 직접 완성하기](./build)입니다. 자료의 `build_lab/student.py`에서 시작하며, 주피터를 선택하면 `notebooks/build-agent.ipynb`를 사용합니다. 수업은 강사 소개와 설문 리뷰 10분으로 시작합니다. 이어서 아래 환경 준비를 함께 진행하고 첫 모델 호출을 확인합니다.
 
 <p class="lead">개념을 배운 뒤 도구·Agent·업무 분기를 직접 완성합니다. 제공 그래프·루프에 연결하고 MCP·A2A로 실행을 이어갑니다. 하네스 활용은 과제·검증·피드백을 설계하는 활동으로 익힙니다.</p>
 
-<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 아래 <a href="#setup">환경 준비</a>의 순서대로 진행합니다. 이미 준비했다면 마지막 준비 완료 체크부터 확인합니다.</div></div>
+<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 강사 안내에 따라 아래 <a href="#setup">환경 준비</a>를 함께 진행합니다. 이미 준비했다면 마지막 준비 완료 체크부터 확인합니다.</div></div>
 </section>
 
-<nav class="lesson-nav" aria-label="학습 단계"><a href="#overview">01 오늘의 흐름</a><a href="#setup">02 환경 준비</a><a href="#connection">03 연결 확인</a><a href="#practice">04 개인 과제</a></nav>
+<nav class="lesson-nav" aria-label="학습 단계"><a href="#opening">01 소개·설문 리뷰</a><a href="#overview">02 오늘의 흐름</a><a href="#setup">03 환경 준비</a><a href="#connection">04 연결 확인</a><a href="#practice">05 개인 과제</a></nav>
+
+<section class="slide" id="opening">
+
+## 강사 소개와 설문 리뷰 · 10분
+
+강사의 실무 경험과 오늘 다룰 주제를 소개하고, 사전 설문에 나온 경험 수준·관심 업무·궁금한 점을 함께 살펴봅니다. 자신의 응답이 오늘 어느 개념과 실습으로 이어지는지 확인합니다.
+
+설문 리뷰를 마치면 환경설정을 함께 진행합니다. 설치 여부와 관계없이 같은 실습 폴더를 열고 첫 모델 호출까지 확인합니다. 이후 개념 설명과 개인 구현으로 이어갑니다.
+
+</section>
 
 <section class="slide" id="overview">
 
@@ -68,7 +78,7 @@ LangChain·LangGraph에서는 한 프로그램 안에서 조회·분기·검토�
 
 ## 환경 준비: 자료를 받은 뒤 첫 호출까지 {#setup}
 
-실습 시작에는 **자료 받기 → Ubuntu 진입 → 편집기로 열기 → 의존성 설치 → 키 설정 → 실제 호출 확인**이 필요합니다. 이미 준비한 항목은 확인 후 넘어갑니다. 처음 설치하는 시간은 수업 당일의 시작 안내 시간에 포함하지 않습니다.
+실습 시작에는 **자료 받기 → Ubuntu 진입 → 편집기로 열기 → 의존성 설치 → 키 설정 → 실제 호출 확인**이 필요합니다. 이미 준비한 항목은 확인 후 넘어갑니다. 환경설정은 강사와 함께 진행합니다. 이미 설치한 사람도 편집기 위치·의존성·키 설정·첫 호출을 차례로 확인합니다.
 
 <details><summary>Python 코드 읽기가 어색하다면: 사전 준비 5분</summary>
 
@@ -125,7 +135,7 @@ wsl -d Ubuntu-24.04
 
 Ubuntu에 들어온 뒤에는 아래 절의 `bash` 명령을 그 터미널에서 실행합니다. PowerShell 창과 Ubuntu 창에 같은 명령을 번갈아 입력하지 않습니다. 이 교재의 실행 검증 환경은 WSL2의 Ubuntu 24.04입니다.
 
-<details><summary>Ubuntu가 아직 없다면: 수업 전에 설치</summary>
+<details><summary>Ubuntu가 아직 없다면: 설치 방법</summary>
 
 관리자 PowerShell에서 다음 명령을 실행합니다. 재시작 안내가 나오면 Windows를 재시작하고 Ubuntu의 사용자 이름과 비밀번호를 만듭니다.
 
@@ -133,7 +143,7 @@ Ubuntu에 들어온 뒤에는 아래 절의 `bash` 명령을 그 터미널에서
 wsl --install -d Ubuntu-24.04
 ```
 
-회사 PC에서 설치가 제한되면 담당자가 승인한 실습 환경을 준비합니다. 설치와 재부팅을 수업 시작 20분 안에 끝낼 수 있다고 가정하지 않습니다. 자세한 절차는 [Microsoft WSL 설치 안내](https://learn.microsoft.com/en-us/windows/wsl/install)를 참고합니다.
+회사 PC에서 설치가 제한되면 담당자가 승인한 실습 환경을 준비합니다. 설치 권한이나 재부팅 문제로 진행이 막히면 강사에게 알려 사용할 수 있는 실습 환경을 함께 확인합니다. 자세한 절차는 [Microsoft WSL 설치 안내](https://learn.microsoft.com/en-us/windows/wsl/install)를 참고합니다.
 
 </details>
 

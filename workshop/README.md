@@ -4,7 +4,7 @@
 
 ## 준비와 첫 실행
 
-WSL Ubuntu 24.04와 Python 3.12를 기준으로 검증합니다. Python의 함수·dict·조건문·import를 읽는 수준을 전제로 합니다. Linux·Git 자체를 배우는 과정은 아니며, 자료는 ZIP으로 받으면 됩니다. 미설치 환경의 초기 준비는 수업 전에 마칩니다.
+WSL Ubuntu 24.04와 Python 3.12를 기준으로 검증합니다. Python의 함수·dict·조건문·import를 읽는 수준을 전제로 합니다. Linux·Git 자체를 배우는 과정은 아니며, 자료는 ZIP으로 받으면 됩니다. 수업은 강사 소개·설문 리뷰 10분 후 환경설정을 함께 진행합니다. 이미 설치했다면 실행 위치와 첫 모델 호출까지 확인합니다.
 
 ```bash
 uv sync --locked --python 3.12

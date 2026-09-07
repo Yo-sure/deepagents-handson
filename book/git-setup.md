@@ -25,7 +25,7 @@ cd deepagents-handson/workshop
 
 ## 환경 준비와 첫 호출
 
-Python·uv가 아직 없다면 [사전 환경 준비](./workshop/start#setup)부터 진행합니다. 준비된 환경에서는 다음 명령으로 실습 의존성을 설치합니다.
+Python·uv가 아직 없다면 [환경 준비](./workshop/start#setup)부터 진행합니다. 준비된 환경에서는 다음 명령으로 실습 의존성을 설치합니다.
 
 ```bash
 uv sync --locked --python 3.12
