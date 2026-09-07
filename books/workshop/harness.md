@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Harness와 Loop Engineering
+title: Harness·Loop·Graph Engineering
 sidebar: false
 aside: false
 pageClass: lec-page
@@ -10,14 +10,20 @@ pageClass: lec-page
 <section class="slide">
 <div class="eyebrow">2026.09 · 개인 실습 · 80분 · 개념 25 / 함께 20 / 개인 20 / 풀이 15</div>
 
-# Harness와 Loop Engineering
+# Harness·Loop·Graph Engineering
 
-<p class="lead">모델 주변의 구성과 반복의 제어를 구분합니다. 검토에 실패한 이유를 다음 수정에 전달하고 상한에서 종료합니다.</p>
+<p class="lead">최근 Loop·Graph Engineering 담론을 원문으로 읽고, 코딩 에이전트의 반복 작업과 역할 연결을 설계합니다. Context·Harness와의 관계를 설명하고 제공 업무 루프·DeepAgents 예제의 범위를 구분합니다.</p>
 
-<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 모듈을 끝내지 못해도 이 모듈의 제공 코드에서 시작할 수 있습니다.</div></div>
+오전에 만든 문의 Agent는 조건에 따라 조회·초안·검토를 실행합니다. 이제 두 질문을 나누어 봅니다. **이 Agent가 실패한 초안을 어떻게 다룰 것인가**, 그리고 **개발자는 이 프로그램에서 발견한 결함을 코딩 에이전트로 어떻게 고칠 것인가**입니다. 전자는 제공 업무 루프로 관찰하고, 후자는 최근 Loop·Graph Engineering 담론과 설계 활동으로 다룹니다.
+
+DeepAgents 예제는 같은 정책 업무를 다른 Harness 구성으로 관찰하는 비교 자료입니다. 앞서 작성한 학생 프로젝트를 대체하는 새 프로젝트는 아닙니다. 개인 활동의 F1은 오전 분기의 결함을 가정한 기록이므로, 별개의 업무를 처음부터 배우는 것이 아니라 자신이 만든 프로그램의 검수로 읽습니다.
+
+<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
 </section>
 
-<section class="slide">
+<nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
+
+<section class="slide" id="concept">
 
 ## Harness는 무엇을 관리하는가 · 7분
 
@@ -33,11 +39,13 @@ pageClass: lec-page
 
 Skill은 절차적 지시입니다. 접근 권한이나 최대 호출 수를 강제하는 보안 경계는 아닙니다. 지시를 코드 제어와 혼동하지 않습니다.
 
+예제의 `system_prompt`에는 “파일을 수정하지 마십시오”가 있지만, 그 문장 자체가 파일 쓰기 기능을 제거하지는 않습니다. `FilesystemBackend`는 파일 도구의 저장 위치를 정하는 구성입니다. 현재 예제는 읽기 전용 도구만 별도로 노출하도록 제한한 구현이 아닙니다. 실제 업무 문서를 연결할 때는 제공할 도구와 실행 계정의 접근 범위를 함께 정해야 합니다. [Backend 공식 설명](https://docs.langchain.com/oss/python/deepagents/backends)
+
 </section>
 
 <section class="slide">
 
-## DeepAgents와 Skill 구성 · 6분
+## DeepAgents와 Skill 구성 · 9분
 
 <<< ../../workshop/course/harness_lab.py#deepagent{python}
 
@@ -47,20 +55,34 @@ DeepAgents는 LangChain·LangGraph 기반의 Harness 구성을 제공합니다. 
 
 <<< ../../workshop/skills/policy-answer/SKILL.md{markdown}
 
-개인 확인: “정책을 찾지 못한 문의”에 적용할 지시 한 줄을 찾아 설명합니다. 이는 Skill의 문서 구조를 읽는 활동입니다. fixed 실행에서 모델이 문서를 선택·읽었다는 증거와는 구분합니다.
+개인 확인: “정책을 찾지 못한 문의”에 적용할 지시 한 줄을 찾아 설명합니다. 문서를 사람이 읽는 활동과 실행 중 모델이 문서를 읽었는지는 구분합니다. 모델의 문서 사용은 뒤의 실행 기록에서 확인합니다.
+
+### 긴 작업에서는 무엇을 남기는가
+
+대화가 길어지면 이전 메시지를 전부 다음 호출에 넣기 어렵습니다. 작업 목표·확인한 근거·현재 초안·남은 작업을 구분해 보관하면 필요한 내용을 다시 읽을 수 있습니다. trace는 과거 실행의 기록이고, 다음 모델 입력에 넣을 컨텍스트는 그중 현재 판단에 필요한 내용입니다.
+
+Skill도 매번 본문 전체를 프롬프트에 붙이는 방식만 있는 것은 아닙니다. 이름·설명으로 후보를 찾고, 필요할 때 본문을 읽는 방식을 점진적 공개라고 합니다. 실행 기록에서 문서 읽기 호출이 있었는지 확인하면 실제 사용 여부를 판단하는 데 도움이 됩니다.
+
+오늘의 예제는 짧은 작업에서 파일과 Skill을 사용하는 과정을 보여 줍니다. 세션을 넘어 작업을 복구하는 전체 시스템을 구현하지는 않습니다. 작업을 중단해야 한다면 다음 실행에 전달할 항목 세 개를 골라 적습니다. 정책 파일 자체와 실행 시점에 조회한 정책 값이 다를 수 있다는 점도 고려합니다.
 
 수업 고정 버전은 DeepAgents 0.7.13입니다. v0.7에서는 `TodoListMiddleware`가 선택 사항이므로 `write_todos`가 기본으로 있다고 가정하지 않습니다.
 
-계획 도구가 있어야만 성공한 실행이라고 판정하지 않습니다. fixed 모드에서는 Skill 선택을 확인할 수 없습니다. live 모드의 실행 기록에서 모델이 어떤 Skill 문서를 읽었는지 확인합니다.
+계획 도구가 있어야만 성공한 실행이라고 판정하지 않습니다. 실행 기록에서 모델이 어떤 Skill 문서를 읽었는지 확인합니다. 모델 호출이 실패하면 접속을 복구한 뒤 Skill을 읽은 기록까지 확인합니다.
 
 </section>
 
 <section class="slide">
 
-## 수정 루프를 설계합니다 · 12분
+## 요즘 말하는 Loop·Graph Engineering · 9분
+
+[실제 담론과 사례](./engineering#distinction)를 읽습니다. Peter Steinberger와 Addy Osmani의 Loop 설명은 사람이 매번 다음 지시를 쓰던 일을 시스템에 맡기는 방향입니다. 시작 계기·작업 선택·검증·진행 상태·종료를 함께 설계합니다.
+
+Graph Engineering 담론에서는 여러 역할의 의존성, 병렬 실행, 산출물 계약과 검증 경계를 다룹니다. 조건 분기 하나나 LangGraph API를 이 용어 전체와 동일시하지 않습니다. [코드 검수 사례](./engineering#case)에서 기능 검토와 교재 검토가 서로를 기다려야 하는지 판단합니다.
+
+현재 제공된 초안 수정 코드는 피드백과 종료 조건을 볼 수 있는 작은 예제입니다. 작업을 자동 발견하거나 세션을 넘어 여러 에이전트를 운영하지는 않습니다. 아래 그림은 그 **업무 수정 반복**만 보여 줍니다.
 
 ```mermaid
-flowchart LR
+flowchart TB
  A[초안] --> V[검토]
  V --> Q{통과?}
  Q -->|예| E[종료]
@@ -70,84 +92,76 @@ flowchart LR
  R --> V
 ```
 
-<<< ../../workshop/course/harness_lab.py#loop{python}
-
-최초 초안 검토는 수정 횟수에 포함하지 않습니다. 상한 2이면 최초 검토와 두 번의 수정 후 검토까지 최대 3번 검사합니다. 검토에 통과하면 남은 예산이 있어도 즉시 종료합니다.
-
-동일한 입력을 다시 보내는 재시도와 실패 이유를 반영한 수정은 다릅니다. fixed 수정 함수는 전달받은 피드백으로 추론하지 않고 정책 기반 정답으로 교체합니다. 여기서는 피드백 전달 경로와 종료 조건을 확인하며, 피드백을 해석한 모델 수정은 통합 live 경로에서 구분해 봅니다. 다음 호출에 실제로 `feedback`이 전달되는지 기록으로 확인합니다. 이 예제의 verifier는 팀·정책 ID 포함을 검사하는 교육용 규칙이며 답변의 모든 사실성을 보증하지 않습니다.
-
-검토 기준을 먼저 정해야 수정 방향이 생깁니다. “더 좋게” 대신 이 수업처럼 근거 ID와 담당 팀을 확인할 수도 있고, 실제 업무에서는 정책 내용과 답변의 모순을 검토할 수도 있습니다.
-
-후자는 지금의 문자열 검사로 해결되지 않습니다. Anthropic도 생성 결과를 평가하려면 구체적인 기준부터 필요하다고 설명합니다. [Harness 설계 사례](https://www.anthropic.com/engineering/harness-design-long-running-apps)
-
-실행 중 수정 루프와 수업 밖 개선 루프도 구분합니다. 전자는 한 요청을 처리하는 과정이고, 후자는 여러 테스트 결과를 보고 코드·프롬프트·도구 구성을 개선하는 개발 활동입니다.
+확인: 사람이 실패할 때마다 다음 프롬프트를 입력하는 작업과, 실패 기록에서 다음 작업을 선택하는 시스템은 무엇이 다른가요? 두 검토를 병렬로 실행해도 최종 판단 전에 확인해야 할 조건은 무엇인가요?
 
 </section>
 
-<section class="slide">
+<section class="slide" id="observe">
 
 ## 함께 실습 · 20분
+
+함께 20분은 제공 수정 루프 10분과 DeepAgents·Skill 사용 기록 10분으로 나눕니다. 아래 명령의 출력에서 실제 피드백과 read_file 호출 여부를 읽습니다. 개인 시간에는 코딩 하네스 활용 활동으로 넘어갑니다.
+
+<details open><summary>관찰할 업무 루프와 DeepAgents 예제</summary>
 
 ```bash
 uv run python -m course.cli harness --revisions 0
 uv run python -m course.cli harness --revisions 2
-uv run python -m course.cli deepagent --mode fixed
+uv run python -m course.cli deepagent
 ```
 
-첫 실행은 근거가 부족한 최초 초안을 보류합니다. 두 번째는 제공 수정 함수가 정책을 반영해 통과합니다. `history`에서 실패 이유와 다음 초안이 바뀌었는지 확인합니다.
+첫 실행은 근거가 부족한 최초 초안을 보류하며 수정 모델을 호출하지 않습니다. 두 번째는 실제 모델에 수정을 요청합니다. 통과 여부는 모델이 반환한 초안과 검토 결과에 따라 달라집니다. `history`에서 실패 이유와 다음 초안이 바뀌었는지 확인합니다.
 
-2026-09-06 live 실행에서는 `read_file(file_path="/policy-answer/SKILL.md")` → `lookup_policy(topic="정산")` → P-01·재무지원팀 답변 순서를 확인했습니다. 이는 해당 입력에서 관찰한 한 번의 기록이며, 모든 질문에서 같은 Skill을 읽는다는 보장은 아닙니다.
+2026-09-06 실제 모델 실행에서는 `read_file(file_path="/policy-answer/SKILL.md")` → `lookup_policy(topic="정산")` → P-01·재무지원팀 답변 순서를 확인했습니다. 이는 해당 입력에서 관찰한 한 번의 기록이며, 모든 질문에서 같은 Skill을 읽는다는 보장은 아닙니다.
 
-세 번째는 실제 DeepAgents 실행이지만 모델은 고정 응답입니다. live 사용 가능 시 `--mode live`로 실행하고 `read_file` 등의 호출과 Skill 선택을 확인합니다. 도구 호출이 없는데 Skill을 읽었다고 주장하지 않습니다.
+앞의 `harness`와 세 번째 `deepagent`는 서로 독립된 실행입니다. 전자는 직접 작성한 검토·수정 반복문의 종료 조건을 관찰하고, 후자는 프레임워크가 Skill과 파일 도구를 모델에 제공하는 방식을 관찰합니다. DeepAgent가 앞에서 만든 `bounded_refine`을 자동으로 실행하는 구조는 아닙니다. 두 실행에서 코드가 제어하는 부분과 모델이 선택하는 부분을 각각 표시합니다.
 
-</section>
+세 번째 명령은 실제 모델과 DeepAgents를 실행합니다. 자신의 기록에서 `read_file` 등의 호출과 Skill 선택을 확인합니다. 도구 호출이 없는데 Skill을 읽었다고 주장하지 않습니다.
 
-<section class="slide">
-
-## 개인 과제 · 20분
-
-**기본:** `loop_action`을 수정하여 성공이면 finish, 실패이고 예산이 남으면 revise, 실패하고 예산이 소진되면 hold를 반환합니다.
-
-<<< ../../workshop/exercises/student.py#loop{python}
-
-```bash
-uv run python -m exercises.check harness
-```
-
-**확장:** `bounded_refine`의 복사본에서 같은 초안이 두 번 연속 나오면 개선 없음으로 종료합니다. 성공한 초안은 다시 수정하지 않아야 합니다. 두 실패 초안이 달라도 의미가 같은 경우는 단순 문자열 비교로 탐지하지 못한다는 한계를 적습니다.
-
-확장 시작 파일은 `exercises/extensions.py`의 `refine_without_stall(draft, topic, revise, limit=2)`입니다. 기본 함수의 인자는 바꾸지 않습니다.
-
-```bash
-uv run python -m exercises.extension_check harness
-uv run python -m exercises.extension_check harness --solution
-```
-
-수정 함수가 같은 실패 초안을 반환하면 두 번째 검사에서 stalled, 최초부터 통과하면 수정 없이 passed입니다. 변경은 있으나 계속 실패하면 예산에서 held로 종료합니다.
-
-시작 코드는 FAIL이 정상입니다. 첫 명령으로 자신의 구현을 검사하고, 풀이 시간에 `exercises/extension_solutions.py`의 같은 함수를 열어 비교합니다. 정상·실패 사례는 `exercises/extension_check.py`에서 확인합니다.
-
-<details><summary>힌트</summary>
-
-성공 검사를 먼저 합니다. 수정 예산이 끝난 시점에 통과한 경우에도 성공으로 종료해야 합니다. 상한 0이면 최초 검토만 수행합니다.
 
 </details>
 
 </section>
 
-<section class="slide">
+<section class="slide" id="practice">
+
+## 개인 활동 · 20분
+
+[Loop·Graph Engineering 설계 활동](./engineering#task)을 진행합니다. build_lab/HARNESS_WORKSHEET.md에 시작·작업 선택·종료 조건과 역할별 의존성·산출물 계약·상태 기록을 작성합니다. F1/D1 검수 사례로 중복 작업과 잘못된 PASS를 처리합니다.
+
+코딩 도구를 사용할 수 있으면 자신의 설계에 대한 검토를 요청합니다. 계정이 없다면 동일한 활동지를 작성하고 사례 풀이와 비교합니다. 실제 자동화 등록이나 코드 변경은 공통 과제가 아닙니다. 계정 유무에 따라 평가할 개념을 다르게 두지 않습니다.
+
+전체 루프를 직접 작성하고 싶은 사람은 [선택 심화](./build#loop)로 진행합니다. 이 구현을 모든 수강생의 공통 완료 조건으로 요구하지 않습니다.
+
+</section>
+
+<section class="slide" id="solution">
 
 ## 풀이 · 15분
+
+개인 활동은 [설계 풀이와 하이프에 대한 반론](./engineering#review)으로 비교합니다. 15분은 역할·후보 버전 비교 5분, 중복·정체·검토 누락 판단 5분, 병렬 실행의 시간·비용과 적용 여부 5분으로 사용합니다. 아래 표와 명령은 업무 수정 루프를 읽기 위한 추가 참고입니다.
 
 ```bash
 uv run python -m exercises.check harness --solution
 ```
+
+| 검사 순서 | 마지막 수정에서 성공 | 문제 |
+|---|---|---|
+|예산 소진 → 성공 확인|held|성공을 확인하기 전에 보류합니다.|
+|성공 확인 → 예산 소진|finish|성공한 초안은 추가 수정 없이 끝납니다.|
+|실패 시 revise만 반환|계속 수정|상한이 동작하지 않습니다.|
+
+수정 횟수와 검토 횟수도 다릅니다. 수정 상한 2에서 최초 검토를 포함해 몇 번 검사하는지 history의 attempt와 대조합니다. 모델에 “두 번만 수정”이라고 쓰는 것과 이 반복문이 횟수를 제한하는 것의 차이를 설명합니다.
 
 항상 revise를 반환하면 성공 후에도 반복합니다. 예산만 먼저 검사하면 마지막 허용 수정에서 성공해도 보류할 수 있습니다. 종료 조건의 순서와 검토 횟수의 정의를 설명합니다.
 
 계획 도구·subagent·더 긴 prompt를 추가하기 전에 현재 실패가 무엇인지 확인합니다. 구성이 복잡하다고 품질까지 높다고 판단하지 않습니다.
 
 참고: [DeepAgents Quickstart](https://docs.langchain.com/oss/python/deepagents/quickstart), [v0.7 변경](https://www.langchain.com/blog/deep-agents-v0-7).
+
+오늘은 코딩 하네스 활용의 방향과 판단 기준을 익힙니다. 별도 자동 반복기·중단 훅·장기 실행 인프라 구축은 수업 후 심화 범위입니다.
+
+다음에는 다시 문의 Agent의 실행으로 돌아옵니다. 정책 조회를 다른 애플리케이션도 사용한다는 요구를 가정하고, 지금의 조회 함수를 MCP 서버로 공개합니다. 코딩 에이전트의 작업 배정 그래프와 문의 Agent의 도구 연결은 서로 다른 설계 대상입니다.
 
 </section>
 

@@ -1,0 +1,189 @@
+{
+  "files": {
+    "workshop/.env.example": {
+      "bytes": 64,
+      "sha256": "a8ccc6d2c3694f1042d01b60f4083dcf359c5a42b12dfb4b39e00de9e7d0982a"
+    },
+    "workshop/.gitignore": {
+      "bytes": 56,
+      "sha256": "8aefcaa02fd836c7d26695094642778d08f14d9d4688ea4a3443fc86e4bbe4de"
+    },
+    "workshop/README.md": {
+      "bytes": 6749,
+      "sha256": "791558fca0056c5916daaa09b546f1595a75fe0a018b9a881269e54212f8fe34"
+    },
+    "workshop/RELEASE.md": {
+      "bytes": 2824,
+      "sha256": "01f7d497a11531687c922441b56cbabac0164811d69c9013aeaf09260bf96842"
+    },
+    "workshop/VALIDATION.md": {
+      "bytes": 1648,
+      "sha256": "414df0e5edfc27c2551044573ec3f58ed6a202af1639d0664fe6ffc3b20685f8"
+    },
+    "workshop/build_lab/HARNESS_WORKSHEET.md": {
+      "bytes": 944,
+      "sha256": "fcd34d7fc91f9f8b562403491d5aae988f802f3f6f99e923d794f98448b4ca2c"
+    },
+    "workshop/build_lab/__init__.py": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "workshop/build_lab/guided.py": {
+      "bytes": 2313,
+      "sha256": "1e79f3a6437611f668dcb3a843485b7acce30a5af942759ada92899e9786168e"
+    },
+    "workshop/build_lab/materials.py": {
+      "bytes": 823,
+      "sha256": "79ae59c2217067178cd87f26c77320d6f7902d7c2432844d4a408d99a654617d"
+    },
+    "workshop/build_lab/reference.py": {
+      "bytes": 3936,
+      "sha256": "6d5e03d697800831d620699a5b86254eb67a7e11dd807dabfc69cc2527912c5a"
+    },
+    "workshop/build_lab/runner.py": {
+      "bytes": 4172,
+      "sha256": "5b5ec75ad3b84746595ed0a3068b1912f45c41dd6ec580cec191832d4d4a5e3d"
+    },
+    "workshop/build_lab/serve.py": {
+      "bytes": 666,
+      "sha256": "3a49b91bd57ff6867a0da97364253ee76257fd7687be36a8f60e203f22bea9f9"
+    },
+    "workshop/build_lab/student.py": {
+      "bytes": 2441,
+      "sha256": "5067b1f49424487dd45f4a6b35d513cfe2d98c140651110701eca18b0a5b62cf"
+    },
+    "workshop/course/__init__.py": {
+      "bytes": 37,
+      "sha256": "66a84962f0127ae374fa887e65e0fc5c6d4adf99f1054885945aa78487d1113e"
+    },
+    "workshop/course/a2a_lab.py": {
+      "bytes": 6057,
+      "sha256": "bab231656a333c84bbe25c898574fc6797dd06dac9e3a2fb068ca7d5ee56df10"
+    },
+    "workshop/course/cli.py": {
+      "bytes": 2945,
+      "sha256": "981bac08e8cb03be81f16dc8a66adcb8252a54a2267d69b278f96b9e123085d2"
+    },
+    "workshop/course/common.py": {
+      "bytes": 1591,
+      "sha256": "d6dd6b8a14a7b1b17abd7affa183c29c1fba7386bb682a9053ead8ce987d6b8d"
+    },
+    "workshop/course/graph_lab.py": {
+      "bytes": 2477,
+      "sha256": "6f8018fc3f005dc002f38f2bd54db8f01e49bfb184abb689e32994e3c84dc128"
+    },
+    "workshop/course/harness_lab.py": {
+      "bytes": 2895,
+      "sha256": "2a73e88e14b02860b71356d257e556fe71dc13cd0f14554f13dd2127439e9a13"
+    },
+    "workshop/course/integration.py": {
+      "bytes": 3524,
+      "sha256": "6bd4a9299169c122102a842a74b702dfc6061bc6d0c8212420c1075687e09768"
+    },
+    "workshop/course/langchain_lab.py": {
+      "bytes": 1325,
+      "sha256": "71f5357ef4f193c3f395f76eb2292d3dc0e65ccd829bf5373bcf850c9c3e8503"
+    },
+    "workshop/course/mcp_agent_lab.py": {
+      "bytes": 2092,
+      "sha256": "f42fcfcec41ab34cbdf08e7c0085953906761b551bac61779aa1f41f7899bf77"
+    },
+    "workshop/course/mcp_lab.py": {
+      "bytes": 2570,
+      "sha256": "7c7f99e16cdcfe8a938d182d758cb5a75bb9bc4eddb2a4bb099f558ac7e6dc81"
+    },
+    "workshop/course/processes.py": {
+      "bytes": 1143,
+      "sha256": "a16b2390cd634e228d32164f95e7652cbe8d5c8edcf0bc790f134c941bc1af84"
+    },
+    "workshop/exercises/__init__.py": {
+      "bytes": 84,
+      "sha256": "885a95242676538848eb4c897f1e15640f80e12b1b39f99b8abfb2f9bcc0878f"
+    },
+    "workshop/exercises/check.py": {
+      "bytes": 3752,
+      "sha256": "e1fb3b4efaac31da78120128e1948f12a9dcfeb2dd75cf668df5bebfe379f500"
+    },
+    "workshop/exercises/engineering_check.py": {
+      "bytes": 3882,
+      "sha256": "5319135be8f92f53ea48100600417ea0edebfc50fc650b735cee121bd7f874f1"
+    },
+    "workshop/exercises/extension_check.py": {
+      "bytes": 4186,
+      "sha256": "398e177b603c51a7903b6d63631bed91bbfb1aa6fde7f32083e4c9e45e212001"
+    },
+    "workshop/exercises/extension_solutions.py": {
+      "bytes": 2853,
+      "sha256": "4574828b7631625f5530d0db7e1ffcdebb3c50fcd93353df6fc5a2d4048097da"
+    },
+    "workshop/exercises/extensions.py": {
+      "bytes": 486,
+      "sha256": "92217c84165ab6aab58289ee6432e3ac1e10c92f3bb5f70c80cabe15d68b4ce4"
+    },
+    "workshop/exercises/project.py": {
+      "bytes": 939,
+      "sha256": "ab50e6a4aa151890f023cc38d100bd55cb12395e693d2e62c1f9c42f2b1efe71"
+    },
+    "workshop/exercises/read_trace.py": {
+      "bytes": 1007,
+      "sha256": "ee907c46e77917d34b1bf2195358f8c74c620b8e207e62b9a309624d76cab058"
+    },
+    "workshop/exercises/solutions.py": {
+      "bytes": 990,
+      "sha256": "762467436ec5e563af83238d5e5f5d5f78f6cea9135aca99574bc630a39f9513"
+    },
+    "workshop/exercises/student.py": {
+      "bytes": 1387,
+      "sha256": "57f06e09ddc67f5fc790e5e3809cb8bca2bd10a7390556117df8b326c315c2b5"
+    },
+    "workshop/notebooks/build-agent-solution.ipynb": {
+      "bytes": 15835,
+      "sha256": "17b3f8afc69d53ff139af8ef38972de85ff8354cc4e08e8836e5c9eda655d3ef"
+    },
+    "workshop/notebooks/build-agent.ipynb": {
+      "bytes": 13977,
+      "sha256": "d93d82325d4ef14c41a7dd12557ccc048ea88bd0d1259a0c8880dd634ff772bc"
+    },
+    "workshop/pyproject.toml": {
+      "bytes": 581,
+      "sha256": "0e04a58cbcfa4bcccb4f9d0b041c99893805c189de0d6b01b599372668d2a903"
+    },
+    "workshop/skills/policy-answer/SKILL.md": {
+      "bytes": 477,
+      "sha256": "834b8d772fbf3b160a249ef398dbcd366306423731d557b3afc6d4000f926629"
+    },
+    "workshop/tests/__init__.py": {
+      "bytes": 51,
+      "sha256": "4ca3ec6d158cb1e13f26bb9edeb91c9051f8d3c4051c1f5ae35fdb46b11f3651"
+    },
+    "workshop/tests/a2a_server.py": {
+      "bytes": 497,
+      "sha256": "10c1e2578956f5a6df61eed17d789a2932b9f49e23901f21d6f43738bf397c04"
+    },
+    "workshop/tests/conftest.py": {
+      "bytes": 158,
+      "sha256": "c22242fbb1feb85bb5716c8933a43fb029e4af6b871b4ca4c9e63faa8b257d51"
+    },
+    "workshop/tests/model_stub.py": {
+      "bytes": 1708,
+      "sha256": "1413dc0e773165f1801d9cf7aa756c394eb3c9aadfe9e80fa6a3b01942cf439f"
+    },
+    "workshop/tests/test_build_lab.py": {
+      "bytes": 4952,
+      "sha256": "a650fef5a41ca8c46d732beb154cdb12b2ab94af9e467900b1313bb73155db88"
+    },
+    "workshop/tests/test_contracts.py": {
+      "bytes": 8641,
+      "sha256": "b962d4bd1d21ffb9b2eee0977337b4dea7494b279fa440f16a6333746789a8af"
+    },
+    "workshop/tests/test_engineering.py": {
+      "bytes": 2110,
+      "sha256": "677b458bba1b213f856d2ae7984065e127d461e9b9e0a952d9d1f6a61a7ffb26"
+    },
+    "workshop/uv.lock": {
+      "bytes": 590621,
+      "sha256": "aacb0efca7bfce70dc251671b271cced98d7f6167e1b93015b624c355c10ee09"
+    }
+  },
+  "version": "2026.09-rc1"
+}

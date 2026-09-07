@@ -14,10 +14,14 @@ pageClass: lec-page
 
 <p class="lead">정보가 부족하면 질문으로 보내고 충분하면 초안을 작성합니다. 상태가 어떤 값인지 보고 조건 분기를 수정합니다.</p>
 
-<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 모듈을 끝내지 못해도 이 모듈의 제공 코드에서 시작할 수 있습니다.</div></div>
+앞에서는 모델이 규정을 조회해 답하게 했습니다. 이번에는 “회신 대상이 없거나 정책을 못 찾으면 초안을 만들지 않는다”는 업무 조건이 추가됩니다. 모델에게 주의를 요청하는 대신, 초안 작성 노드에 들어가기 전에 조건을 검사합니다. 앞서 만든 도구와 Agent는 그대로 사용합니다.
+
+<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 시작 안내의 복귀 절차로 필요한 함수만 보완합니다.</div></div>
 </section>
 
-<section class="slide">
+<nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
+
+<section class="slide" id="concept">
 
 ## State·node·edge · 12분
 
@@ -71,11 +75,40 @@ LangChain Agent를 노드 안에서 호출할 수도 있습니다. 기본 예제
 
 이 예제는 같은 프로세스의 메모리 저장소를 사용합니다. 프로세스를 종료하면 사라지므로 재시작 복구를 보장하지 않습니다. `interrupt` 후 재개하면 해당 노드가 처음부터 다시 실행되므로 그 앞에 실제 전송·저장을 두면 중복 효과가 날 수 있습니다.
 
+### 한 요청의 State를 따라갑니다
+
+State는 노드마다 처음부터 다시 만드는 요청서가 아닙니다. 이 예제에서는 노드가 반환한 필드가 기존 상태에 반영되고, 반환하지 않은 필드는 남습니다.
+
+|순서|새로 받거나 반환하는 값|다음 단계가 보는 상태|
+|---|---|---|
+|입력|`topic="정산"`, `contact="user@example.test"`|주제와 회신 대상|
+|lookup 반환|`policy_id="P-01"`, `visited=["lookup"]`|기존 주제·회신 대상에 정책 ID가 추가됨|
+|route 판단|`"draft"`|경로 이름을 반환하며 상태를 갱신하지 않음|
+|draft 반환|`answer`, `decision="draft"`, `visited=["lookup", "draft"]`|답변과 방문 이력이 추가됨|
+|END|추가 노드 없음|완성된 State를 호출자에게 반환|
+
+같은 표에서 contact만 빈 문자열로 바꾸면 어느 행부터 결과가 달라지는지 먼저 표시합니다. `lookup`이 contact를 반환하지 않아도 값이 남는다는 점과, `route`가 반환하는 경로 이름은 State 업데이트가 아니라는 점을 구분합니다. 이 코드의 `visited`는 노드가 새 목록을 만들어 반환합니다. 모든 목록이 자동으로 누적되는 것은 아닙니다.
+
 </section>
 
-<section class="slide">
+<section class="slide" id="observe">
 
 ## 함께 실행 · 20분 (분기 15 / 재개 관찰 5)
+
+[직접 완성하기의 해당 단계](./build#graph)를 엽니다. 함께 시간에는 입력·출력과 사용할 API를 읽고 첫 부분을 구현합니다. 이어지는 개인 시간에는 남은 구현과 반례를 완성합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
+
+주 실습은 위 개념 예제에 정책 데이터와 검토 단계를 추가합니다. 필드 이름과 마지막 노드가 달라지므로 `build_lab/materials.py`의 Inquiry와 `guided.py`를 기준으로 구현합니다.
+
+|개념 예제 `course/graph_lab.py`|주 실습 `build_lab`|
+|---|---|
+|정책 유무: `policy_id`|정책 유무: `state['data']['found']`|
+|답변: `answer`|답변 초안: `draft`|
+|정상 경로: lookup→draft→END|정상 경로: lookup→draft→review→END|
+|정보 부족: lookup→ask→END|정보 부족: lookup→ask→END, 모델 호출 없음|
+
+공통 과제는 상태·노드·간선의 역할을 설명하고 `route_inquiry`를 직접 작성하는 것입니다. 전체 그래프 조립을 다시 작성하는 것은 선택 심화입니다.
+
+<details><summary>비교하며 읽는 완성 예제와 시연</summary>
 
 먼저 `course/graph_lab.py`를 열고 각 노드가 반환하는 값을 표시합니다. 다음 두 입력의 `visited`를 비교합니다.
 
@@ -89,11 +122,20 @@ uv run python -m course.cli approval --decision reject
 
 예측한 노드 순서와 결과가 다르면 조건 함수의 입력값부터 읽습니다. `visited`는 모델의 숨은 추론이 아니라 우리가 남긴 실행 기록입니다.
 
+
+</details>
+
 </section>
 
-<section class="slide">
+<section class="slide" id="practice">
 
 ## 개인 과제 · 20분
+
+주 실습은 [내 업무 Agent 직접 완성하기](./build#graph)입니다. **함께 실습과 개인 과제를 합친 40분** 안에서 재료 읽기→구현→실패 확인을 이어갑니다. 앞의 완성 예제는 필요한 부분만 시연합니다.
+
+아래 작은 문제는 막힐 때 사용하는 준비 문제입니다. 별도 시간을 추가하지 않습니다. 준비 문제의 통과와 프로젝트 완성을 구분합니다.
+
+<details><summary>개념을 확인하는 준비 문제와 추가 반례</summary>
 
 **기본:** `route_inquiry`에서 회신 대상이 없는 요청도 ask로 보내도록 수정합니다.
 
@@ -105,12 +147,38 @@ uv run python -m exercises.check graph
 
 검사는 실제 StateGraph에 학생의 분기 함수를 연결하여 정상·회신 대상 없음·정책 없음 세 경로를 실행합니다.
 
+### 조건 하나가 바뀌면 경로는 어떻게 달라지는가
+
+개인 과제 20분은 **경로 예상 4분 → 수정·검사 9분 → 추가 입력·설명 7분**으로 사용합니다. 정책과 회신 대상의 조합을 채우고, 초기 코드가 틀릴 행을 표시합니다.
+
+| policy_id | contact | 예상 경로 | 조건의 이유 |
+|---|---|---|---|
+|P-01|user|작성|작성|
+|P-01|빈 문자열|작성|작성|
+|빈 문자열|user|작성|작성|
+|빈 문자열|빈 문자열|작성|작성|
+
+수정 후 네 번째 행을 직접 확인합니다. 과제 검사의 세 입력에 없는 조합입니다.
+
+```bash
+uv run python -c "from exercises.student import route_inquiry; print(route_inquiry({'policy_id': '', 'contact': ''}))"
+```
+
+다음에는 `contact`를 공백 한 칸으로 바꿔 봅니다. 값이 존재한다는 것과 유효한 회신 주소라는 것은 다릅니다. 현재 과제는 빈 문자열만 구분합니다. 주소 형식 검증을 추가하려면 분기 전에 어떤 입력 정리가 필요한지 한 문장으로 제안합니다. 이번 기본 과제에 주소 검증 전체를 구현하지는 않습니다.
+
 **확장:** 승인 함수의 입력을 approve/reject/빈 문자열/오타로 바꿔 안전한 보류를 검사합니다. 수업 후 심화에서는 별도 영속 저장소를 연결해 재시작 복구를 실험합니다. 현재 설치에 없는 영속 패키지는 강사와 검증 후 추가하며 메모리 저장소를 영속이라고 설명하지 않습니다.
+
+이 확장 검사는 각 입력에 대한 반환값을 확인합니다. 미리 작성한 결과 표만 반환하는 것은 그래프 재개 구현이 아닙니다. 실제 `approval_demo` 호출 또는 자신의 그래프 재개 코드를 남기고, 입력마다 실행한 결과와 비교합니다.
 
 확장 시작 파일은 `exercises/extensions.py`의 `approval_matrix()`입니다. 기본 함수의 인자는 바꾸지 않습니다.
 
 ```bash
 uv run python -m exercises.extension_check graph
+```
+
+학생 검사 결과를 먼저 확인합니다. 다음 명령은 풀이 시간에 기준 구현을 확인할 때만 실행합니다.
+
+```bash
 uv run python -m exercises.extension_check graph --solution
 ```
 
@@ -124,21 +192,82 @@ uv run python -m exercises.extension_check graph --solution
 
 </details>
 
+
+</details>
+
 </section>
 
-<section class="slide">
+<section class="slide" id="solution">
 
 ## 풀이 · 10분
+
+주 실습 풀이는 `build_lab/reference.py`의 `route_inquiry`를 자신의 구현과 비교합니다. 한 줄 조건을 맞히는 데서 끝내지 않고, 그 조건이 어떤 실행을 허용하거나 막는지 설명합니다.
+
+|주 실습의 State|기대 경로|이유|
+|---|---|---|
+|정책 있음·회신 대상 있음|lookup→draft→review|초안과 검토에 필요한 입력이 갖춰짐|
+|정책 있음·회신 대상 빈 문자열|lookup→ask|초안 모델을 호출하기 전에 추가 확인|
+|정책 있음·회신 대상 공백만 있음|lookup→ask|공백은 회신 대상으로 인정하지 않음|
+|정책 없음·회신 대상 있음|lookup→ask|담당 팀을 추측해 초안을 만들지 않음|
+
+주 실습은 `state['data']['found']`와 공백을 제거한 contact를 봅니다. 아래 준비 문제의 `policy_id`를 그대로 옮기면 데이터 구조가 맞지 않습니다. 또한 이 조건은 주소가 비어 있는지를 검사할 뿐, 이메일 형식이나 실제 수신 가능성을 보장하지 않습니다.
+
+각 행에서 `visited`와 `decision`을 확인합니다. `draft`를 방문했다는 기록만으로 검토까지 통과했다고 말할 수는 없습니다. 이 단계의 `runner graph`는 검토를 한 번만 하며 `passed` 또는 `held`를 반환합니다. 뒤의 `workflow` 단계는 수정 반복까지 연결하므로 같은 초안이 반복되면 `stalled`도 나올 수 있습니다. 이 값은 주 실습이 정한 업무 판정이며 LangGraph의 예약 상태명이 아닙니다.
+
+### 노드 반환값은 전체 상태가 아닙니다
+
+현재 `Inquiry`에는 리스트를 자동 누적하는 reducer가 없습니다. 노드가 `visited=["draft"]`만 반환하면 이전 방문 기록을 대체합니다. 제공 코드가 `state['visited'] + ["draft"]`를 반환하는 이유입니다. 필드를 반환하지 않은 경우와 빈 값으로 반환한 경우도 다릅니다. 전자는 기존 값을 유지하고, 후자는 그 필드를 빈 값으로 갱신합니다.
+
+**예측 문제:** lookup 이후 contact를 반환하지 않으면 회신 대상은 남습니다. 반대로 `contact=""`를 반환한다면 분기는 ask로 바뀝니다. “노드가 어떤 값을 읽는가”뿐 아니라 “누가 그 값을 바꾸는가”를 따라가야 경로를 설명할 수 있습니다.
+
+여러 노드를 병렬로 늘릴 때는 같은 필드를 동시에 갱신하는지 확인해야 합니다. 현재의 순차 코드에서 직접 목록을 이어 붙이는 방식을 그대로 병렬 누적 규칙으로 삼지는 않습니다. 어떤 결과를 합치고 어떤 값은 한 담당자만 바꿀지 먼저 정합니다. 전체 병렬 그래프 구현은 선택 심화입니다.
+
+<details><summary>준비 문제를 사용했다면: 조건식 풀이</summary>
 
 ```bash
 uv run python -m exercises.check graph --solution
 ```
 
+| 오답 조건 | 문제가 드러나는 경우 | 관찰할 값 |
+|---|---|---|
+|정책 ID만 확인|회신 대상이 없음|visited에 draft가 남음|
+|두 조건을 or로 연결|한쪽 정보만 있음|ask 대신 draft로 이동|
+|모두 ask 반환|정상 입력|정상 초안까지 차단|
+
+`and`는 두 조건이 함께 참이어야 하고, `or`는 하나만 참이어도 통과합니다. 자신의 예측표에서 두 조건의 차이가 드러나는 행을 짚습니다. 이후 승인 예제에서 reject를 approve로 바꾸면 달라지는 출력과 그대로인 thread_id의 역할을 설명합니다.
+
 정책 ID만 검사하는 초기 구현은 회신 대상이 없어도 초안을 작성합니다. 조건을 추가한 뒤 정상 입력이 계속 draft로 가는지도 확인합니다. 오류를 고친 뒤 정상 경로까지 막히면 회귀입니다.
 
-다음 Harness 모듈에서는 분기에서 한 걸음 더 나아가 검토 피드백으로 입력을 수정하는 반복을 다룹니다.
+</details>
+
+</section>
+<section class="slide" id="operations">
+
+## 운영으로 옮길 때 확인할 것
+
+앞의 10분 풀이에서는 네 입력의 경로와 상태 갱신을 비교합니다. 아래는 멈춤·재개 개념의 확장 읽기 자료입니다. 영속 저장소나 승인 시스템 전체를 이 시간에 구현하는 일정은 아닙니다.
+
+### 저장했다고 모든 작업을 이어갈 수 있는가
+
+|저장할 대상|쓰임|현재 실습의 범위|
+|---|---|---|
+|그래프 checkpoint|어떤 State와 진행 위치에서 재개할지|승인 시연만 `InMemorySaver` 사용|
+|여러 요청에 공통인 데이터|사용자 선호·공유 정책 등|별도 장기 기억 Store 구현 없음|
+|업무 처리 기록|실제 발송·접수 여부와 중복 확인|그래프 checkpoint만으로 해결되지 않음|
+
+주 실습의 `guided.build_workflow`는 checkpointer 없이 compile합니다. `thread_id`만 입력에 추가한다고 저장 기능이 생기지 않습니다. 승인 시연은 같은 프로세스에서만 이어지며, 운영용 영속 저장소와 접근 제어를 제공하지 않습니다. [Persistence 공식 설명](https://docs.langchain.com/oss/python/langgraph/persistence)
+
+운영에서는 다른 문의가 같은 저장 스레드를 잘못 이어받지 않도록 실행 식별자를 정해야 합니다. 식별자는 권한 확인의 대체물이 아닙니다. 누가 그 실행을 조회·재개할 수 있는지도 애플리케이션에서 확인합니다.
+
+승인 직전에 외부 발송을 하고 `interrupt`로 기다리는 노드를 상상해 봅니다. 재개할 때 해당 노드는 처음부터 다시 실행되므로 발송이 반복될 수 있습니다. 승인 전에는 검토할 내용을 준비하고, 승인 뒤 실행할 쓰기는 별도 단계와 중복 방지 계약으로 다룹니다. 쓰기를 뒤로 옮겨도 실행 도중 장애가 나면 재시도가 생길 수 있습니다. [Interrupt 재개와 부작용](https://docs.langchain.com/oss/python/langgraph/interrupts)
+
+**판단 문제:** v1 초안을 보고 승인했는데 재개 시점의 초안은 v2입니다. 승인 문자열만으로 v2를 발송해도 될까요? 검토 대상 버전과 실제 실행 대상을 대조해야 합니다. 같은 원리는 뒤의 A2A 결과 수락에서도 사용합니다.
+
+마지막으로, 그래프가 END에 도착한 것은 실행 경로가 끝났다는 뜻입니다. ask나 held도 종료될 수 있습니다. 실행 종료, 업무 통과, 실제 외부 처리 완료를 따로 읽습니다.
 
 참고: [LangGraph Persistence](https://docs.langchain.com/oss/python/langgraph/persistence).
+
+다음 Harness 모듈의 공통 활동은 [Loop·Graph Engineering의 실제 담론과 활용](./engineering)입니다. 반복 작업의 시작·선택·종료 조건과 역할별 의존성·산출물 계약을 정의합니다. 전체 그래프나 수정 루프를 직접 작성하려면 [선택 심화](./build#loop)를 진행합니다.
 
 </section>
 

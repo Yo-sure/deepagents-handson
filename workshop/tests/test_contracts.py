@@ -5,23 +5,48 @@ import pytest
 from course.common import lookup_policy
 from course.langchain_lab import run
 from course.graph_lab import build_graph, approval_demo
-from course.harness_lab import bounded_refine, fixed_revision
+from course.harness_lab import bounded_refine
 from course.mcp_lab import create_ticket, query, PROTOCOL
 from course.a2a_lab import accept_result, delegate
 from course.processes import server
 from exercises import solutions, student
 from exercises.check import evaluate
+from tests.model_stub import ToolCallingStub
 
 
-def test_real_langchain_fixed_tool_cycle():
-    trace = run()["trace"]
+def test_cli_runs_real_path_without_mode_selection(monkeypatch, tmp_path):
+    import sys
+    from course import cli, langchain_lab
+    calls = []
+    def capture(topic):
+        calls.append(topic)
+        return {"trace": []}
+    monkeypatch.setattr(langchain_lab, "run", capture)
+    monkeypatch.setattr(cli, "ROOT", tmp_path)
+    monkeypatch.setattr(sys, "argv", ["course.cli", "langchain"])
+    cli.main()
+    assert calls == ["정산"]
+    assert (tmp_path / "runs" / "langchain.json").is_file()
+
+
+def test_cli_rejects_removed_mode_option(monkeypatch):
+    import sys
+    from course import cli
+    monkeypatch.setattr(sys, "argv", ["course.cli", "langchain", "--mode", "fixed"])
+    with pytest.raises(SystemExit) as error:
+        cli.main()
+    assert error.value.code == 2
+
+
+def test_langchain_tool_cycle_with_injected_model():
+    trace = run(model=ToolCallingStub())["trace"]
     assert [m["role"] for m in trace] == ["human", "ai", "tool", "ai"]
     assert trace[1]["tool_calls"][0]["args"] == {"topic": "정산"}
     assert "P-01" in trace[-1]["content"]
 
 
 def test_unknown_policy_does_not_invent_team():
-    trace = run("모름")["trace"]
+    trace = run("모름", model=ToolCallingStub())["trace"]
     assert json.loads(trace[2]["content"])["found"] is False
     assert "재무지원팀" not in trace[-1]["content"]
 
@@ -46,7 +71,7 @@ def test_loop_feedback_and_bound():
     result = bounded_refine("초안", "정산", fail_again, 2)
     assert result["status"] == "held" and len(seen) == 2 and all(seen)
     assert len(result["history"]) == 3
-    assert bounded_refine("초안", "정산", fixed_revision, 2)["status"] == "passed"
+    assert bounded_refine("초안", "정산", lambda *_: "재무지원팀 P-01", 2)["status"] == "passed"
 
 
 def test_ticket_conflict_and_repeat(tmp_path):
@@ -87,15 +112,17 @@ def test_mcp_http_independent_clients_and_restart(tmp_path):
 
 
 def test_a2a_actual_http_result():
-    with server("course.a2a_lab") as url:
+    with server("tests.a2a_server") as url:
         good = asyncio.run(delegate(url,{"request_id":"q-1","version":1,"topic":"정산","draft":"재무지원팀 P-01"}))
         bad = asyncio.run(delegate(url,{"request_id":"q-2","version":1,"topic":"정산","draft":"완료"}))
     assert good["state"] == "completed" and good["decision"] == "accepted"
     assert bad["state"] == "completed" and bad["decision"] == "held"
 @pytest.mark.parametrize("topic,contact,decision", [("정산", "x", "accepted"), ("계정", "x", "accepted"), ("기타", "x", "ask"), ("정산", "", "ask")])
-def test_integration_propagates_remote_policy(topic, contact, decision):
-    from course.integration import run
-    result = run(topic, contact)
+def test_integration_propagates_remote_policy(topic, contact, decision, monkeypatch):
+    from course import integration
+    real_server = server
+    monkeypatch.setattr(integration, "server", lambda module, *args: real_server("tests.a2a_server" if module == "course.a2a_lab" else module, *args))
+    result = integration.run(topic, contact, model=ToolCallingStub())
     assert result["decision"] == decision
     if decision == "accepted":
         assert result["policy"]["policy"]["id"] in result["loop"]["draft"]
@@ -117,13 +144,51 @@ def test_integration_holds_mismatched_policy(monkeypatch):
         data = {"found": True, "topic": topic, "policy": {"id": "P-03", "team": "변경팀", "rule": "새 규정"}}
         return {"result": {"structured_content": {"result": json.dumps(data)}}}
     monkeypatch.setattr(integration, "query", changed_policy)
-    result = integration.run()
+    result = integration.run(model=ToolCallingStub())
     assert result["decision"] == "held"
     assert result["reason"] == "policy_snapshot_mismatch"
 @pytest.mark.parametrize("topic,expected", [("정산", "P-01"), ("계정", "P-02"), ("모름", "확인")])
 def test_new_langchain_mcp_adapter(topic, expected):
     from course.mcp_agent_lab import run
-    result = run(topic)
+    result = run(topic, model=ToolCallingStub())
     assert result["tools"] == ["lookup_policy"]
     assert [message["role"] for message in result["trace"]] == ["human", "ai", "tool", "ai"]
     assert expected in result["trace"][-1]["content"]
+
+
+def test_revision_passes_draft_and_feedback_to_model():
+    from types import SimpleNamespace
+    from course.harness_lab import revise_draft
+    class Recorder:
+        def invoke(self, prompt):
+            self.prompt = prompt
+            return SimpleNamespace(content='수정된 초안')
+    model = Recorder()
+    assert revise_draft('원래 초안', ['담당 팀 누락'], model=model) == '수정된 초안'
+    assert all(value in model.prompt for value in ['원래 초안', '담당 팀 누락', 'P-01'])
+
+
+def test_model_connection_failure_is_not_replaced_with_success():
+    from course.langchain_lab import run
+    class UnavailableModel(ToolCallingStub):
+        def _generate(self, *args, **kwargs):
+            raise ConnectionError('unavailable')
+    with pytest.raises(ConnectionError):
+        run(model=UnavailableModel())
+
+
+def test_natural_question_is_forwarded_without_topic_replacement():
+    from course.langchain_lab import run
+    question = '정산 문의와 계정 문의가 함께 있습니다.'
+    result = run(question=question, model=ToolCallingStub())
+    assert result['trace'][0]['content'] == question
+
+
+@pytest.mark.parametrize('artifact', [
+    {'request_id':'x', 'version':True, 'passed':True},
+    {'request_id':'x', 'version':'1', 'passed':True},
+    {'request_id':'x', 'version':1, 'passed':'true'},
+    None,
+])
+def test_a2a_rejects_ambiguous_artifact_types(artifact):
+    assert accept_result('completed', artifact, 'x', 1) == 'held'

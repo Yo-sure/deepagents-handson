@@ -9,9 +9,9 @@ def verify(text: str, topic: str) -> list[str]:
         return ["등록된 정책이 없습니다. 추가 확인이 필요합니다."]
     errors = []
     if policy["id"] not in text:
-        errors.append(f"근거 ID {policy['id']}가 없습니다.")
+        errors.append(f"근거 ID가 없습니다: {policy['id']}")
     if policy["team"] not in text:
-        errors.append(f"담당 팀 {policy['team']}가 없습니다.")
+        errors.append(f"담당 팀이 없습니다: {policy['team']}")
     return errors
 
 
@@ -32,20 +32,23 @@ def bounded_refine(draft: str, topic: str, revise: Callable, max_revisions: int 
 #pragma endregion loop
 
 
-def fixed_revision(draft, feedback, topic="정산"):
-    policy = POLICIES.get(topic)
-    if policy is None:
-        return "등록된 정책이 없어 추가 확인이 필요합니다."
-    return f"{policy['rule']} [근거: {policy['id']}]"
+def revise_draft(draft: str, feedback: list[str], topic="정산", *, model=None) -> str:
+    import json
+    model = model if model is not None else get_model()
+    response = model.invoke(
+        "규정을 근거로 초안을 수정하십시오. 담당 팀과 근거 ID를 포함하십시오. "
+        "규정이 없으면 추측하지 말고 추가 확인을 요청하십시오.\n" +
+        json.dumps({"policy": POLICIES.get(topic), "draft": draft, "feedback": feedback}, ensure_ascii=False))
+    return response.content
 
 
 #pragma region deepagent
-def run_deep_agent(topic="정산", mode="fixed"):
+def run_deep_agent(topic="정산", *, model=None):
     import json
     from deepagents import create_deep_agent
     from deepagents.backends import FilesystemBackend
     agent = create_deep_agent(
-        model=get_model(mode), tools=[lookup_policy],
+        model=model if model is not None else get_model(), tools=[lookup_policy],
         backend=FilesystemBackend(root_dir=str(ROOT / "skills"), virtual_mode=True),
         skills=["/"],
         system_prompt="업무 규정 조회 Agent입니다. 해당 skill의 지침에 따라 근거 ID와 담당 팀을 답하십시오. "
@@ -53,6 +56,5 @@ def run_deep_agent(topic="정산", mode="fixed"):
     )
     result = agent.invoke({"messages": [{"role": "user", "content": json.dumps({"topic": topic}, ensure_ascii=False)}]},
                           config={"recursion_limit": 20})
-    return {"mode": mode, "trace": trace_messages(result["messages"]),
-            "skill_mode": "fixed 모델은 Skill 선택을 판단하지 않습니다." if mode == "fixed" else "live 선택 기록을 확인하십시오."}
+    return {"trace": trace_messages(result["messages"])}
 #pragma endregion deepagent

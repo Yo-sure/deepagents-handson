@@ -1,22 +1,83 @@
 /* 2026.09 데스크톱 교재. 이전 판 테마는 그대로 보존합니다. */
-.lec.workshop-edition { font-size: 18px; line-height: 1.8; }
-.lec.workshop-edition .deck { max-width: 1180px; margin: 0 auto; }
-.lec.workshop-edition .slide { padding: 48px 40px; }
-.lec.workshop-edition h1 { font-size: 54px; line-height: 1.25; word-break: keep-all; margin-bottom: 24px; }
-.lec.workshop-edition h2 { font-size: 34px; line-height: 1.4; word-break: keep-all; margin: 0 0 24px; }
-.lec.workshop-edition p { font-size: 18px; line-height: 1.85; margin: 18px 0; }
+.lec.workshop-edition { --paper: #fff; --paper-2: #f5f7f6; --line: #dce3e0; --ink: #25312e; background: #f3f5f4; font-size: 18px; line-height: 1.8; padding-top: 0; }
+.lec.workshop-edition .deck { width: min(1120px, 100%); max-width: 1120px; margin: 0 auto; background: #faf7ef url('./paper-grain.svg') repeat; box-shadow: 0 0 0 1px #e7e2d8, 0 8px 28px #39322508; }
+.lec.workshop-edition .slide { padding: 40px 48px; border-top: 1px solid var(--line); }
+.lec.workshop-edition h1, .lec.workshop-edition h2, .lec.workshop-edition h3 { font-family: inherit; letter-spacing: -.025em; }
+.lec.workshop-edition h1 { font-size: 38px; line-height: 1.35; word-break: keep-all; margin-bottom: 24px; }
+.lec.workshop-edition h2 { font-size: 28px; line-height: 1.4; word-break: keep-all; margin: 0 0 24px; scroll-margin-top: 144px; }
+.lec.workshop-edition h3 { font-size: 21px; line-height: 1.5; margin: 28px 0 12px; scroll-margin-top: 144px; }
+.lec.workshop-edition p:not(.mermaid p) { font-size: 18px; line-height: 1.8; margin: 18px 0; }
+.lec.workshop-edition .slide > p, .lec.workshop-edition .slide > ul, .lec.workshop-edition .slide > ol { max-width: 800px; }
 .lec.workshop-edition p, .lec.workshop-edition li, .lec.workshop-edition td { word-break: keep-all; overflow-wrap: anywhere; }
 .lec.workshop-edition h1, .lec.workshop-edition h2 { text-wrap: balance; }
-.lec.workshop-edition .lead { font-size: 22px; max-width: 980px; }
+.lec.workshop-edition p.lead { font-size: 21px; max-width: 800px; color: #45534d; }
 .lec.workshop-edition ul, .lec.workshop-edition ol { padding-left: 28px; margin: 20px 0; }
 .lec.workshop-edition ul { list-style: disc; }
 .lec.workshop-edition ol { list-style: decimal; }
 .lec.workshop-edition li { margin: 10px 0; }
-.lec.workshop-edition table { width: 100%; font-size: 17px; margin: 24px 0; }
+.lec.workshop-edition table { display: table; width: 100%; font-size: 17px; margin: 24px 0; border-collapse: collapse; }
+.lec.workshop-edition th { background: #f2f6f4; }
+.lec.workshop-edition tr:nth-child(2n) { background: #fafbfa; }
 .lec.workshop-edition td, .lec.workshop-edition th { padding: 12px 16px; }
+.lec.workshop-edition .cue { background: #f2f6f4; border-left-width: 3px; border-radius: 0; box-shadow: none; }
 .lec.workshop-edition .cue-body { font-size: 16px; line-height: 1.7; }
 .lec.workshop-edition .mermaid { max-width: 960px; margin: 28px auto; }
 .lec.workshop-edition .chapnav { display: flex; justify-content: space-between; padding: 30px 40px; font-size: 18px; }
-.lec.workshop-edition details { margin: 24px 0; padding: 16px 22px; background: #e7eee8; }
+.lec.workshop-edition details { margin: 24px 0; padding: 16px 22px; background: #f5f7f6; box-shadow: none; border: 1px solid var(--line); border-radius: 4px; }
+.lec.workshop-edition details summary { background: transparent; padding: 0; }
 .lec.workshop-edition summary { cursor: pointer; font-weight: 700; }
 .lec.workshop-edition a:not(.header-anchor) { text-decoration: underline; text-underline-offset: 4px; }
+
+/* Mermaid measures its own labels. Prose typography must not change that geometry. */
+.lec.workshop-edition .mermaid p,
+.lec.workshop-edition .mermaid .nodeLabel p,
+.lec.workshop-edition .mermaid .label p {
+  font-size: inherit; font-family: inherit; font-weight: inherit;
+  line-height: inherit !important; white-space: inherit !important;
+  word-break: normal !important; overflow-wrap: normal !important;
+  margin: 0 !important; padding: 0; max-width: none;
+}
+.lec.workshop-edition .mermaid .nodeLabel,
+.lec.workshop-edition .mermaid .edgeLabel,
+.lec.workshop-edition .mermaid .label,
+.lec.workshop-edition .mermaid foreignObject div,
+.lec.workshop-edition .mermaid foreignObject span { font-weight: 400; }
+.lec.workshop-edition .mermaid { background: #fffdf8; border: 1px solid #e1ddd2; padding: 28px 20px; border-radius: 4px; overflow: auto; }
+.lec.workshop-edition .mermaid svg { display: block; margin: 0 auto; max-width: none; }
+.lec.workshop-edition div[class*='language-'] code,
+.lec.workshop-edition div[class*='language-'] .line-numbers-wrapper { font-size: 16px; line-height: 1.7; }
+.lec.workshop-edition .eyebrow { font-size: 13px; font-weight: 600; color: #52665c; letter-spacing: .02em; }
+.lec.workshop-edition .eyebrow::before { display: none; }
+.lec.workshop-edition .lesson-nav { position: sticky; top: var(--vp-nav-height, 64px); z-index: 20; display: flex; align-items: center; gap: 24px; padding: 14px 48px; background: #faf7ef url('./paper-grain.svg') repeat; border-block: 1px solid var(--line); font-size: 15px; }
+.lec.workshop-edition .lesson-nav a { color: #435b50; text-decoration: none; padding: 4px 0; }
+.lec.workshop-edition .lesson-nav a:hover { color: #0f766e; text-decoration: underline; }
+.lec.workshop-edition a:focus-visible, .lec.workshop-edition summary:focus-visible { outline: 2px solid #0f766e; outline-offset: 4px; }
+.lec.workshop-edition .task-brief { border-left: 3px solid #286c58; background: #f5f8f6; padding: 16px 24px; margin: 24px 0; }
+.lec.workshop-edition .task-brief p { margin: 8px 0; }
+
+.lec.workshop-edition section[id] { scroll-margin-top: 144px; }
+
+/* White paper: neutral fibers, with screen-readable Korean typography. */
+.lec.workshop-edition {
+  --line: #e2e5e4;
+  --ink: #29312e;
+  background: #eceeed;
+  font-family: Pretendard, 'Segoe UI', 'Malgun Gothic', sans-serif;
+  color: var(--ink);
+}
+.lec.workshop-edition .deck,
+.lec.workshop-edition .lesson-nav {
+  background-color: #fff;
+  background-image: linear-gradient(#ffffff99, #ffffff99), url('./paper-fibers.png');
+  background-blend-mode: normal, luminosity;
+  background-size: auto, 720px 720px;
+  background-repeat: repeat;
+}
+.lec.workshop-edition .deck {
+  box-shadow: 0 0 0 1px #dfe3e1, 0 8px 28px #25372d08;
+}
+.lec.workshop-edition p:not(.mermaid p) { line-height: 1.85; letter-spacing: -.015em; }
+.lec.workshop-edition h1 { font-weight: 700; letter-spacing: -.03em; }
+.lec.workshop-edition h2 { font-weight: 650; letter-spacing: -.025em; }
+.lec.workshop-edition h3 { font-weight: 600; }
+.lec.workshop-edition .mermaid { background: #ffffffed; border-color: #dfe5e1; }

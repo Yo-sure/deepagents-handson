@@ -5,7 +5,6 @@ import tempfile
 from pathlib import Path
 from course.harness_lab import verify
 from course.graph_lab import approval_demo
-from course.a2a_lab import accept_result
 from course.mcp_lab import PROTOCOL
 from course.processes import server
 
@@ -54,4 +53,14 @@ def ticket_restart():
 
 
 def review_version(state, artifact, request_id, version):
-    return accept_result(state, artifact, request_id, version)
+    if state in {"submitted", "working"}:
+        return "pending"
+    if state != "completed" or not isinstance(artifact, dict):
+        return "held"
+    if not isinstance(request_id, str) or not request_id.strip():
+        return "held"
+    if type(version) is not int or version < 1 or type(artifact.get("version")) is not int:
+        return "held"
+    if artifact.get("request_id") != request_id or artifact.get("version") != version:
+        return "held"
+    return "accepted" if artifact.get("passed") is True else "held"

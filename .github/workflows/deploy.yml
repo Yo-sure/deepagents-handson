@@ -27,11 +27,19 @@ jobs:
         with:
           node-version: 24
 
+      - name: Setup Python for workshop packaging
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Verify workshop packager
+        run: python scripts/test_package_workshop.py
+
       - name: Install deps
         working-directory: book
         run: npm ci
 
-      # npm run build = prebuild(preassets: copy-assets + build-chapters) → vitepress build
+      # prebuild: package-workshop + copy-assets + build-chapters → vitepress build
       - name: Build
         working-directory: book
         run: npm run build

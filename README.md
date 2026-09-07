@@ -10,12 +10,13 @@ LangChain, LangGraph, Harness와 Loop Engineering, MCP, A2A 및 ACP의 역할을
 
 ```bash
 cd workshop
-uv sync --locked
-uv run python -m course.cli langchain --mode fixed
+uv sync --locked --python 3.12
+uv run python -m course.cli langchain
 ```
 
-fixed는 API 키 없이 실행합니다. 모델 응답은 결정론적이며, MCP/A2A는 실제 로컬 HTTP를 사용합니다.
-live는 유효한 API 키와 수업 전 실행 확인이 필요합니다.
+실행 전에 `workshop/.env.example`을 참고해 `workshop/.env`에 실습용 키를 저장합니다. 모델 호출 예제는 실제 LLM을 사용하며, MCP/A2A는 실제 로컬 HTTP로 연결합니다. 설치부터 시작한다면 [환경 준비](books/workshop/start.md#setup)를 확인합니다.
+
+[코딩 Harness 활용](books/workshop/engineering.md)에서는 실제 Loop·Graph Engineering 담론을 읽고 Codex·Claude Code에 반복 작업을 맡기는 조건과 여러 역할의 의존성을 설계합니다. 도구·Agent·업무 분기·MCP 공개·A2A 수용의 다섯 부분은 직접 구현하며, 전체 그래프와 반복 구조의 재구현은 선택 심화입니다.
 
 ---
 

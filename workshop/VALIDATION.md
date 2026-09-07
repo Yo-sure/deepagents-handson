@@ -1,19 +1,13 @@
-# 실행 검증 기록
+# 배포 후보 실행 검증 범위
 
-검증일: 2026-09-06. WSL Ubuntu 24.04, Python 3.12, 별도 가상환경과 `uv.lock`을 사용했습니다.
+자료 버전: 2026.09-rc1. 공통 실행 환경: WSL Ubuntu 24.04, Python 3.12, uv.lock. 선택 주피터 환경도 같은 lock의 notebook 그룹을 사용합니다.
 
-| 항목 | 결과 |
-|---|---|
-|자동 검사|30개 통과 (`uv run --locked pytest -q`)|
-|LangChain 고정 모델|실제 모델 요청→도구 실행→답변 메시지 순서 확인|
-|LangGraph|정상·정보 부족 분기, 같은 프로세스 승인 재개 확인|
-|DeepAgents|fixed 및 live 실행 확인. live에서 Skill read_file→정책 조회→답변 관찰|
-|MCP|별도 HTTP 서버 호출·재시작·같은 업무 키 재사용 확인|
-|A2A|별도 HTTP 검토, 완료와 artifact 통과 여부 구분 확인|
-|통합|정산·계정 accepted, 없는 정책·빈 회신 대상 ask, 정책 기준 불일치 held|
-|기본/확장 과제|시작 코드 오류 검출 및 기준 풀이 통과|
-|실제 LLM|LangChain·DeepAgents·통합 live 실행 통과. 통합 A2A 모델 검토 포함. 입력별 품질 평가는 별도 필요|
+기준 풀이 회귀 검사는 `uv run --locked pytest -q`입니다. 학생 구현은 `uv run --locked pytest tests/test_build_lab.py --build-student -q`로 검사합니다. 처음 학생 파일은 미구현 부분이 있어 실패하는 것이 정상입니다.
 
-검증 시 잠긴 주요 버전은 LangChain 1.4.0, LangGraph 1.2.11, DeepAgents 0.7.13, MCP 2.1.1, A2A SDK 1.1.2입니다. 전체 의존성은 `uv.lock`을 기준으로 합니다. 이 기록은 학습용 예제의 확인 범위이며 운영 성능·보안·자연어 정확성을 보증하지 않습니다.
+실제 실행은 build_lab.runner를 사용합니다. 기준 풀이 실행은 build_lab.reference이며 학생 구현의 성공을 의미하지 않습니다. 모델 호출 없이 진행하는 가짜 응답 모드는 없습니다. 테스트용 모델 대역은 tests에만 있습니다.
 
-추가 확인: 최신 PyPI 배포와 핵심 6개 패키지 일치. LangChain MCP extra 및 FastMCP 4.0.3 추가 후 30개 회귀 검사 통과. MCPAdapter 실제 원격 도구 연결의 fixed 3개 입력과 live 정산 문의 통과. `langchain.mcp` beta 경고는 API 상태를 알려주므로 유지합니다.
+검증 범위에는 학생 도구 계약·업무 분기·제공 그래프·수정 예산·MCP 실제 HTTP·A2A 실제 검토·새 커널의 풀이 노트북 실행을 포함합니다. 구체적인 배포 후보 검수 결과는 교재 저장소의 RC 보고서로 관리합니다. 실제 수강생의 학습 시간, 운영 인증, 모든 자연어 답변의 정확성까지 보장하는 기록은 아닙니다.
+
+주요 고정 버전: LangChain 1.4.0, LangGraph 1.2.11, DeepAgents 0.7.13, MCP 2.1.1, A2A SDK 1.1.2. JupyterLab 4.6.3, ipykernel 7.3.0은 선택 notebook 그룹입니다. 전체 의존성 버전은 uv.lock을 봅니다.
+
+알려진 표시: LangChain MCPAdapter의 beta 경고는 현재 API 상태 안내입니다. 오류가 발생하면 실제 원인을 해결한 뒤 다시 실행합니다. 검증 완료와 작업 접수, completed와 accepted를 구분합니다.
