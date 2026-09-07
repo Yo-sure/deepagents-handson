@@ -1,6 +1,7 @@
 import DefaultTheme from 'vitepress/theme'
 import { h } from 'vue'
 import ScrollProgress from './ScrollProgress.vue'
+import CourseTree from './CourseTree.vue'
 import Slides from './Slides.vue'
 import Quiz from './Quiz.vue'
 import ConceptGraph from './ConceptGraph.vue'
@@ -11,7 +12,7 @@ import './workshop.css'
 export default {
   extends: DefaultTheme,
   Layout: () => h(DefaultTheme.Layout, null, {
-    'layout-top': () => h(ScrollProgress),
+    'layout-top': () => [h(ScrollProgress), h(CourseTree)],
   }),
   enhanceApp({ app }) {
     app.component('Slides', Slides)
