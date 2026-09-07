@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 const props = defineProps<{ kind: string }>()
 const selected = ref(0)
 watch(() => props.kind, () => { selected.value = 0 })
-type Scenario = { label: string; steps: string[][]; note: string }
+type Scenario = { label: string; steps: string[][]; note: string; decision?: { benefit: string; cost: string; fit: string } }
 type Lesson = { title: string; hint: string; scenarios: Scenario[] }
 const examples: Record<string, Lesson> = {
   "start": {
@@ -54,7 +54,12 @@ const examples: Record<string, Lesson> = {
             "이 예시에는 외부 조회가 없습니다."
           ]
         ],
-        "note": "필요한 자료가 이미 있다면 한 번의 응답으로 충분할 수 있습니다."
+        "note": "필요한 자료가 이미 있다면 한 번의 응답으로 충분할 수 있습니다.",
+        "decision": {
+          "benefit": "구성과 확인이 단순합니다. 이 예시처럼 한 번 호출하면 여러 번 호출하는 흐름보다 지연·비용을 줄이기 쉽습니다.",
+          "cost": "입력에 없는 규정을 스스로 조회하는 단계가 없습니다. 필요한 자료를 먼저 제공해야 합니다.",
+          "fit": "자료가 이미 있고 요약·분류처럼 한 번에 끝낼 수 있는 업무"
+        }
       },
       {
         "label": "고정 workflow",
@@ -72,7 +77,12 @@ const examples: Record<string, Lesson> = {
             "반환된 규정을 문장으로 설명합니다."
           ]
         ],
-        "note": "어느 단계로 갈지는 개발자가 정한 순서가 결정합니다."
+        "note": "어느 단계로 갈지는 개발자가 정한 순서가 결정합니다.",
+        "decision": {
+          "benefit": "필수 조회나 승인 단계를 코드로 정해 실행 경로를 확인하기 쉽습니다.",
+          "cost": "예외가 늘어나면 분기도 직접 관리해야 합니다. 정해 놓지 않은 상황에는 대응이 제한됩니다.",
+          "fit": "정산 처리처럼 순서와 필수 조건이 명확한 업무"
+        }
       },
       {
         "label": "ReAct 방식",
@@ -90,7 +100,12 @@ const examples: Record<string, Lesson> = {
             "결과를 보고 추가 조회·질문·답변 중 선택합니다."
           ]
         ],
-        "note": "마지막 답변만 비교하지 말고, 다음 행동을 누가 선택하는지 봅니다."
+        "note": "마지막 답변만 비교하지 말고, 다음 행동을 누가 선택하는지 봅니다.",
+        "decision": {
+          "benefit": "결과를 보고 도구나 다음 행동을 바꿀 수 있어 경로를 미리 정하기 어려운 문제에 유연합니다.",
+          "cost": "도구 선택을 잘못하거나 불필요하게 반복할 수 있습니다. 호출 비용·지연과 종료 조건을 관리해야 합니다.",
+          "fit": "조사처럼 필요한 정보와 단계 수가 실행 중에 달라지는 업무"
+        }
       }
     ]
   },
@@ -400,6 +415,11 @@ const scene = computed(() => lesson.value.scenarios[selected.value] || lesson.va
         <li v-for="(step, i) in scene.steps" :key="i"><span class="visual-number" aria-hidden="true">{{ i + 1 }}</span><div><strong>{{ step[0] }}</strong><p>{{ step[1] }}</p></div></li>
       </ol>
       <p class="visual-note">{{ scene.note }}</p>
+      <dl v-if="scene.decision" class="choice-guide">
+        <div><dt>장점</dt><dd>{{ scene.decision.benefit }}</dd></div>
+        <div><dt>감수할 점</dt><dd>{{ scene.decision.cost }}</dd></div>
+        <div><dt>이럴 때 선택</dt><dd>{{ scene.decision.fit }}</dd></div>
+      </dl>
     </div>
   </figure>
 </template>

@@ -123,3 +123,8 @@
 .visual-steps strong { font-size: 17px; color: #253e33; }
 .lec.workshop-edition .visual-steps p { margin: 4px 0 0; font-size: 15px; overflow-wrap: anywhere; }
 .lec.workshop-edition .visual-note { font-size: 15px; color: #3b5345; margin: 18px 0 0; }
+
+.lec.workshop-edition .choice-guide { margin: 20px 0 0; border-top: 1px solid #cbd8cf; }
+.choice-guide > div { padding: 12px 0; display: grid; grid-template-columns: 100px minmax(0,1fr); gap: 12px; border-bottom: 1px solid #dfe7e1; }
+.choice-guide dt { font-size: 14px; font-weight: 650; color: #315543; }
+.choice-guide dd { margin: 0; font-size: 15px; line-height: 1.8; overflow-wrap: anywhere; }

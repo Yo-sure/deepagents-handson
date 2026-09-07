@@ -76,6 +76,15 @@ create_agent가 실행 반복을 제공해도 회사 규정이나 업무 성공 
 
 `messages`는 대화 메시지 목록입니다. `role: user`는 사용자 입력을 뜻합니다. 모델 접속·키 로딩은 제공 함수 `get_model`이 담당합니다. 이 도입에서는 연결 설정을 새로 작성하지 않습니다.
 
+### 직접 연결할까요, LangChain을 사용할까요?
+
+|선택|장점|감수할 점|적합한 상황|
+|---|---|---|---|
+|모델 SDK와 Python으로 직접 연결|호출과 데이터 전달을 직접 볼 수 있음|도구 요청 처리·메시지 누적·반복 제어를 직접 작성|호출 흐름이 작고 구조를 세밀하게 다루려는 경우|
+|LangChain의 create_agent|모델·도구 연결과 기본 Agent 루프를 활용|기본 동작과 메시지 구조를 알아야 오류를 찾을 수 있음|여러 도구를 연결하고 Agent 구성을 확장하려는 경우|
+
+조회 함수만으로 답이 정해진다면 모델을 쓰지 않는 선택도 가능합니다. 이번 수업에서는 직접 작성한 도구를 Agent에 연결하는 원리를 익히기 위해 LangChain을 사용합니다. [프레임워크 선택 시 고려 사항](https://www.anthropic.com/engineering/building-effective-agents)
+
 </section>
 
 <section class="slide">
