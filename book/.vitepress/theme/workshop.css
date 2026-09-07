@@ -87,3 +87,13 @@
 .setup-checklist label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
 .setup-checklist input[type="checkbox"] { appearance: auto; flex: 0 0 20px; width: 20px; height: 20px; margin-top: 6px; accent-color: #0f766e; cursor: pointer; }
 .setup-checklist input:focus-visible { outline: 2px solid #0f766e; outline-offset: 3px; }
+
+/* 학습 내용의 짧은 첨언과 접힌 강사용 진행 안내를 구분합니다. */
+.lec.workshop-edition .teacher-aside { margin: 24px 0; padding: 18px 24px; border-left: 3px solid #8b9e94; background: #f3f6f4; }
+.lec.workshop-edition .teacher-aside > strong { font-size: 13px; color: #52665c; }
+.lec.workshop-edition .teacher-aside > p { margin: 8px 0 0; font-size: 17px; }
+.lec.workshop-edition details.instructor-note { background: #fafafa; border: 1px dashed #b9c3be; padding: 16px 20px; }
+.lec.workshop-edition details.instructor-note > summary { color: #52665c; font-size: 14px; font-weight: 600; }
+.lec.workshop-edition details.instructor-note p { font-size: 16px; }
+
+.lec.workshop-edition .command-purpose { margin: 20px 0 6px; color: #52665c; font-size: 13px; font-weight: 600; }

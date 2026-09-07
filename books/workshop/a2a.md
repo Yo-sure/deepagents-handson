@@ -29,11 +29,25 @@ A2A v1.0 발표는 다른 기술 스택과 조직 사이의 상호 운용을 강
 
 요청 접수·작업 완료·검토 통과를 나누고, 어떤 요청의 어떤 버전인지 확인합니다.
 
+
+<details class="instructor-note"><summary>강사용 진행 노트 · 시작 질문</summary>
+
+업무를 부탁하고 완료 답변을 받았는데 결과가 기대와 달랐던 경험을 짧게 받습니다.
+
+통신 규약이 결과의 정확성까지 보장하지 않습니다. 조직이나 실행 경계가 없으면 함수 호출로 충분할 수도 있습니다. 두 ACP의 구별은 본 개념에서 다룹니다.
+
+이야기는 2~3분 안에서 본론으로 연결합니다. 답을 맞히게 하기보다 뒤 실습에서 확인할 질문을 남깁니다.
+
+</details>
+
 </section>
 
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
 
 <section class="slide" id="concept">
+
+<aside class="teacher-aside"><strong>강사의 한마디</strong><p>상대 Agent가 작업을 끝냈어도 지금 요청에 쓸 수 있는 결과인지는 따로 봐야 합니다. 완료 상태와 결과 수용을 구분하겠습니다.</p></aside>
+
 
 ## 도구와 독립 Agent · 7분
 
@@ -116,9 +130,11 @@ sequenceDiagram
 
 ## 함께 실습 · 15분
 
-[직접 완성하기의 해당 단계](./build#protocols)를 엽니다. 함께 시간에는 입력·출력과 사용할 API를 읽고 첫 부분을 구현합니다. 이어지는 개인 시간에는 남은 구현과 반례를 완성합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
+[직접 완성하기의 해당 단계](./build#protocols)를 엽니다. 입력·출력과 사용할 API를 확인한 뒤 함수를 완성하고 반례로 검사합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
 
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
+
+<div class="command-purpose">완성 예제 실행</div>
 
 ```bash
 uv run python -m course.cli a2a
@@ -150,13 +166,15 @@ Card 이름, state=completed, artifact.request_id/version/passed, decision=accep
 
 <<< ../../workshop/exercises/student.py#a2a{python}
 
+<div class="command-purpose">준비 문제 검사</div>
+
 ```bash
 uv run python -m exercises.check a2a
 ```
 
 ### 완료된 작업도 보류할 수 있습니다
 
-개인 과제 15분은 **상태 예상 3분 → 수정·검사 7분 → 반례·설명 5분**으로 사용합니다. 초기 함수는 아래 모든 입력을 accepted로 처리합니다. 어떤 행에서 잘못되는지 표시한 뒤 수정합니다.
+초기 함수는 아래 모든 입력을 accepted로 처리합니다. 어떤 행에서 잘못되는지 표시한 뒤 수정합니다.
 
 | Task 상태 | artifact | 예상 결과 | 판정 근거 |
 |---|---|---|---|
@@ -257,7 +275,7 @@ uv run python -m exercises.extension_check a2a --solution
 
 현재 서버의 `InMemoryTaskStore`는 프로세스 메모리에 있습니다. MCP 티켓 예제의 SQLite와 달리 서버를 재시작해도 Task가 남는 저장소가 아닙니다. A2A라는 프로토콜을 선택했다고 영속 실행이 자동으로 생기지는 않습니다.
 
-### 개인 기록으로 설명합니다
+### 다음 행동을 판단합니다
 
 아래는 실제 장애 로그가 아닌 판단 연습입니다. 풀이 시간에는 한 행의 첫 확인 위치를 자신의 실행 기록과 연결합니다.
 
@@ -276,7 +294,15 @@ uv run python -m exercises.extension_check a2a --solution
 
 ## 풀이 · 10분
 
+<details class="instructor-note"><summary>강사용 진행 노트 · 수용 조건 풀이</summary>
+
+completed이면서 이전 버전인 결과 하나를 제시하고 왜 보류하는지 묻습니다. 상태·요청 ID·버전·passed를 차례로 확인합니다. 가상 상태 입력을 실제 네트워크에서 관측했다고 설명하지 않습니다.
+
+</details>
+
 주 실습 풀이는 `build_lab/reference.py`의 해당 함수를 자신의 구현과 비교합니다. [완성 기준](./build#finish)에 따라 코드·실행 경로·반례를 설명합니다. 아래 표와 명령은 준비 문제의 풀이입니다.
+
+<div class="command-purpose">준비 문제 풀이 확인</div>
 
 ```bash
 uv run python -m exercises.check a2a --solution

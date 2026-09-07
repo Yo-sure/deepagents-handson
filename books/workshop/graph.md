@@ -29,11 +29,25 @@ LangChain의 운영 런타임 글은 사람의 승인을 기다리는 Agent가 �
 
 진행 상태와 다음 단계를 분리해 봅니다. 먼저 State·노드·분기를 배우고 멈춤과 재개를 관찰합니다.
 
+
+<details class="instructor-note"><summary>강사용 진행 노트 · 시작 질문</summary>
+
+점심 뒤 첫 질문입니다. 승인 요청 메일을 또 보낼지, 앞의 조회를 반복할지 등 경험 한 건을 받습니다.
+
+재실행과 재개는 다릅니다. 이 수업의 메모리 승인 시연이 프로세스 장애 후 복구까지 구현했다고 설명하지 않습니다.
+
+이야기는 2~3분 안에서 본론으로 연결합니다. 답을 맞히게 하기보다 뒤 실습에서 확인할 질문을 남깁니다.
+
+</details>
+
 </section>
 
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
 
 <section class="slide" id="concept">
+
+<aside class="teacher-aside"><strong>강사의 한마디</strong><p>그래프의 화살표는 보기 좋은 그림보다 실행 조건에 가깝습니다. 연락처를 비웠을 때 어느 경로로 가는지 먼저 예상해 보겠습니다.</p></aside>
+
 
 ## State·node·edge · 12분
 
@@ -107,7 +121,7 @@ State는 노드마다 처음부터 다시 만드는 요청서가 아닙니다. �
 
 ## 함께 실행 · 20분 (분기 15 / 재개 관찰 5)
 
-[직접 완성하기의 해당 단계](./build#graph)를 엽니다. 함께 시간에는 입력·출력과 사용할 API를 읽고 첫 부분을 구현합니다. 이어지는 개인 시간에는 남은 구현과 반례를 완성합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
+[직접 완성하기의 해당 단계](./build#graph)를 엽니다. 입력·출력과 사용할 API를 확인한 뒤 함수를 완성하고 반례로 검사합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
 
 주 실습은 위 개념 예제에 정책 데이터와 검토 단계를 추가합니다. 필드 이름과 마지막 노드가 달라지므로 `build_lab/materials.py`의 Inquiry와 `guided.py`를 기준으로 구현합니다.
 
@@ -123,6 +137,8 @@ State는 노드마다 처음부터 다시 만드는 요청서가 아닙니다. �
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
 
 먼저 `course/graph_lab.py`를 열고 각 노드가 반환하는 값을 표시합니다. 다음 두 입력의 `visited`를 비교합니다.
+
+<div class="command-purpose">완성 예제 실행</div>
 
 ```bash
 uv run python -m course.cli graph --contact requester@example.test
@@ -153,6 +169,8 @@ uv run python -m course.cli approval --decision reject
 
 <<< ../../workshop/exercises/student.py#graph{python}
 
+<div class="command-purpose">준비 문제 검사</div>
+
 ```bash
 uv run python -m exercises.check graph
 ```
@@ -161,7 +179,7 @@ uv run python -m exercises.check graph
 
 ### 조건 하나가 바뀌면 경로는 어떻게 달라지는가
 
-개인 과제 20분은 **경로 예상 4분 → 수정·검사 9분 → 추가 입력·설명 7분**으로 사용합니다. 정책과 회신 대상의 조합을 채우고, 초기 코드가 틀릴 행을 표시합니다.
+정책과 회신 대상의 조합을 채우고, 초기 코드가 틀릴 행을 표시합니다.
 
 | policy_id | contact | 예상 경로 | 조건의 이유 |
 |---|---|---|---|
@@ -213,6 +231,12 @@ uv run python -m exercises.extension_check graph --solution
 
 ## 풀이 · 10분
 
+<details class="instructor-note"><summary>강사용 진행 노트 · 분기 풀이</summary>
+
+정상 연락처와 공백 연락처를 비교합니다. 조건식을 설명할 때 State 전체를 다시 강의하기보다 분기에 사용한 필드 두 개를 짚습니다. 영속 복구는 현재 메모리 저장 예제의 기능으로 설명하지 않습니다.
+
+</details>
+
 주 실습 풀이는 `build_lab/reference.py`의 `route_inquiry`를 자신의 구현과 비교합니다. 한 줄 조건을 맞히는 데서 끝내지 않고, 그 조건이 어떤 실행을 허용하거나 막는지 설명합니다.
 
 |주 실습의 State|기대 경로|이유|
@@ -235,6 +259,8 @@ uv run python -m exercises.extension_check graph --solution
 여러 노드를 병렬로 늘릴 때는 같은 필드를 동시에 갱신하는지 확인해야 합니다. 현재의 순차 코드에서 직접 목록을 이어 붙이는 방식을 그대로 병렬 누적 규칙으로 삼지는 않습니다. 어떤 결과를 합치고 어떤 값은 한 담당자만 바꿀지 먼저 정합니다. 전체 병렬 그래프 구현은 선택 심화입니다.
 
 <details><summary>준비 문제를 사용했다면: 조건식 풀이</summary>
+
+<div class="command-purpose">준비 문제 풀이 확인</div>
 
 ```bash
 uv run python -m exercises.check graph --solution

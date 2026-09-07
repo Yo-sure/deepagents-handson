@@ -17,6 +17,8 @@ pageClass: lec-page
 입문에서는 완성 예제의 실행 기록을 읽었습니다. 이제 그 기록을 만드는 조회 도구와 Agent 구성을 직접 작성합니다. 같은 정산 문의를 사용하되, 관찰하던 입장에서 실행을 구성하는 입장으로 넘어갑니다.
 
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
+
+<aside class="teacher-aside"><strong>강사의 한마디</strong><p>도구를 호출했다는 사실과 그 결과에 맞게 답했다는 사실은 다릅니다. 둘을 따로 확인해야 수정할 위치가 보입니다.</p></aside>
 </section>
 
 <section class="slide" id="icebreaker">
@@ -28,6 +30,17 @@ LangChain의 The Art of Loop Engineering은 create_agent가 모델과 도구를 
 **모델과 조회 도구를 연결했습니다. 이 답변을 믿으려면 무엇을 한 번 더 확인해야 할까요?**
 
 조회 함수를 직접 작성하고, 도구를 호출했다는 사실과 그 근거대로 답했다는 사실을 나눠 확인합니다.
+
+
+<details class="instructor-note"><summary>강사용 진행 노트 · 시작 질문</summary>
+
+모델을 더 좋은 것으로 바꾼다/조회 결과를 대조한다 등의 선택을 자유롭게 받습니다. 뒤 실습에서 확인하겠다고 연결합니다.
+
+create_agent가 실행 반복을 제공해도 회사 규정이나 업무 성공 조건까지 작성해 주는 것은 아닙니다.
+
+이야기는 2~3분 안에서 본론으로 연결합니다. 답을 맞히게 하기보다 뒤 실습에서 확인할 질문을 남깁니다.
+
+</details>
 
 </section>
 
@@ -111,12 +124,14 @@ flowchart TB
 
 ## 함께 실행합니다 · 15분 {#observe}
 
-[직접 완성하기의 해당 단계](./build#langchain)를 엽니다. 함께 시간에는 입력·출력과 사용할 API를 읽고 첫 부분을 구현합니다. 이어지는 개인 시간에는 남은 구현과 반례를 완성합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
+[직접 완성하기의 해당 단계](./build#langchain)를 엽니다. 입력·출력과 사용할 API를 확인한 뒤 함수를 완성하고 반례로 검사합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
 
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
 
 1. `course/common.py`의 `lookup_policy`와 `POLICIES`를 엽니다. 정산 결과를 먼저 예측합니다.
 2. 다음 명령으로 실행하고 `trace`에서 질문·도구 요청·도구 결과·최종 응답을 찾습니다. 실제 모델의 메시지 수가 비교 표와 같을 필요는 없습니다.
+
+<div class="command-purpose">완성 예제 실행</div>
 
 ```bash
 uv run python -m course.cli langchain --topic 정산
@@ -132,6 +147,8 @@ uv run python -m course.cli langchain --topic 모름
 ### 업무명을 정답처럼 주지 않으면 어떻게 달라지는가
 
 앞에서는 `topic=정산`이라는 정리된 입력을 주었습니다. 실제 사용자는 여러 문제를 한 문장에 섞어 묻습니다. 다음에는 원문 문의를 그대로 전달합니다. `--question`을 쓰면 JSON topic 대신 그 문장이 모델의 입력이 됩니다.
+
+<div class="command-purpose">완성 예제 실행</div>
 
 ```bash
 uv run python -m course.cli langchain --question "정산 문의도 해야 하고 계정도 잠겼습니다. 각각 어느 팀에 연락해야 하나요?"
@@ -195,6 +212,8 @@ uv run python -m course.cli langchain --question "정산 문의도 해야 하고
 
 <<< ../../workshop/exercises/student.py#langchain{python}
 
+<div class="command-purpose">준비 문제 검사</div>
+
 ```bash
 uv run python -m exercises.check langchain
 ```
@@ -203,7 +222,7 @@ uv run python -m exercises.check langchain
 
 ### 결과를 예상하고 오답을 좁힙니다
 
-개인 과제 15분은 **예상 3분 → 수정·검사 7분 → 반례·기록 5분**으로 나누어 진행합니다. 아래 표를 채운 뒤 초기 코드를 검사합니다. 예상한 실패와 실제 FAIL이 같은지 확인한 후 함수를 고칩니다.
+아래 표를 채운 뒤 초기 코드를 검사합니다. 예상한 실패와 실제 FAIL이 같은지 확인한 후 함수를 고칩니다.
 
 | 조회 결과 | 답변에 있어야 할 정보 | 답변에 없어야 할 단정 |
 |---|---|---|
@@ -300,6 +319,8 @@ uv run python -m exercises.extension_check langchain --solution
 
 `exercises/solutions.py`의 `answer_from_policy`가 기준 풀이입니다.
 
+<div class="command-purpose">준비 문제 풀이 확인</div>
+
 ```bash
 uv run python -m exercises.check langchain --solution
 ```
@@ -327,6 +348,13 @@ uv run python -m exercises.read_trace
 개인 결과에는 수정한 두 함수, 정상·없는 정책의 조회 결과, 도구 요청과 반환값이 연결된 기록을 남깁니다. 설명할 질문은 “도구를 호출했는가?”와 “그 결과대로 답했는가?”입니다. 다음 LangGraph에서는 정보가 부족할 때 다른 노드로 이동하도록 코드로 표현합니다.
 
 참고: [LangChain Agents](https://docs.langchain.com/oss/python/langchain/agents).
+
+
+<details class="instructor-note"><summary>강사용 진행 노트 · 풀이 비교</summary>
+
+학생 구현의 조회 조건을 먼저 보고 계정·없는업무 입력을 비교합니다. 이후 완성 예제의 P-99 사례로 도구 오류와 답변 오류를 구분합니다. 학생 runner에는 --question 옵션이 없다는 점을 시연할 때 짚습니다.
+
+</details>
 
 </section>
 

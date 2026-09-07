@@ -29,11 +29,25 @@ DeepAgents v0.7은 평가 결과를 근거로 TodoListMiddleware를 기본 구�
 
 기능 목록보다 다음 행동을 누가 고르는지 봅니다. 도구 요청과 실행 결과를 실제 기록에서 찾아봅니다.
 
+
+<details class="instructor-note"><summary>강사용 진행 노트 · 시작 질문</summary>
+
+계획표가 있어야 한다/없어도 된다를 손으로 표시하게 합니다. 이유는 한 사람에게만 묻습니다.
+
+특정 도구가 Agent의 필수 정의는 아닙니다. 계획이 항상 나쁘다는 결론으로 넘어가지 않습니다.
+
+이야기는 2~3분 안에서 본론으로 연결합니다. 답을 맞히게 하기보다 뒤 실습에서 확인할 질문을 남깁니다.
+
+</details>
+
 </section>
 
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 모델과 도구</a><a href="#observe">02 기록 읽기</a><a href="#judgment">03 판단 위임</a><a href="#checkpoint">04 확인 문제</a></nav>
 
 <section class="slide" id="concept">
+
+<aside class="teacher-aside"><strong>강사의 한마디</strong><p>답변이 자연스럽다고 도구를 제대로 사용한 것은 아닙니다. 마지막 문장보다 실제 조회 결과를 먼저 보겠습니다.</p></aside>
+
 
 ## 모델은 무엇을 받아 답하는가
 
@@ -123,13 +137,15 @@ sequenceDiagram
 
 시작 안내에서 실행한 정산 기록이 있다면 그 파일을 엽니다. 없다면 다음 명령으로 실제 모델을 호출합니다. 연결에 실패하면 시작 안내에서 원인을 해결한 뒤 진행합니다.
 
+<div class="command-purpose">완성 예제 실행</div>
+
 ```bash
 uv run python -m course.cli langchain --topic 정산
 ```
 
 편집기에서 `runs/langchain.json`을 엽니다. 가장 바깥의 `langchain` 안에 `trace`라는 목록이 있습니다. 각 항목의 `role`은 메시지 종류, `content`는 내용입니다. `tool_calls`가 있는 항목은 도구 호출 요청을 담고 있습니다.
 
-다음 표는 **찾아야 할 항목의 안내**입니다. 실행 결과를 복사한 로그가 아닙니다. 자신의 파일에서 해당 부분을 찾아 `runs/learning-notes.md`에 적습니다.
+다음 표는 **찾아야 할 항목의 안내**입니다. 실행 결과를 복사한 로그가 아닙니다. 자신의 파일에서 해당 부분을 찾아봅니다.
 
 | 찾아야 할 항목 | 파일에서 읽을 위치 | 자신의 관찰 |
 |---|---|---|
@@ -159,7 +175,9 @@ tool 메시지의 `content`는 JSON 객체가 아니라 JSON을 담은 문자열
 
 ## 등록되지 않은 업무로 바꿔 봅니다
 
-이번에는 입력을 `없는업무`로 바꿉니다. 실행 전에 어떤 단계는 그대로이고 어떤 결과는 달라져야 할지 적습니다. 기존 `langchain.json`은 덮어쓰므로 정산 기록을 남기려면 편집기에서 다른 이름으로 저장합니다.
+이번에는 입력을 `없는업무`로 바꿉니다. 실행 전에 어떤 단계는 그대로이고 어떤 결과는 달라질지 예상합니다. 기존 `langchain.json`은 덮어쓰므로 정산 기록을 남기려면 편집기에서 다른 이름으로 저장합니다.
+
+<div class="command-purpose">완성 예제 실행</div>
 
 ```bash
 uv run python -m course.cli langchain --topic 없는업무
@@ -186,7 +204,7 @@ uv run python -m course.cli langchain --topic 없는업무
 
 </details>
 
-두 기록을 비교한 뒤 “모델이 선택한 것”과 “프로그램이 실행한 것”을 각각 한 문장으로 적습니다. 이 두 문장과 trace의 근거를 연결하면 다음 장의 코드를 읽을 준비가 됩니다.
+두 결과에서 “모델이 선택한 것”과 “프로그램이 실행한 것”을 구분해 봅니다. 각각에 해당하는 trace를 찾았다면 다음 장의 코드를 읽을 준비가 됩니다.
 
 </section>
 
@@ -235,6 +253,12 @@ MCP와 A2A는 연결 규약입니다. MCP는 도구·데이터 접근, A2A는 �
 <section class="slide" id="checkpoint">
 
 ## 다음 장으로 넘어가기 전
+
+<details class="instructor-note"><summary>강사용 진행 노트 · 실행 결과 읽기</summary>
+
+정산과 없는업무의 trace를 나란히 봅니다. 모델의 도구 요청과 함수의 반환을 각각 짚게 하고, 별도 파일에 옮겨 적도록 요구하지 않습니다.
+
+</details>
 
 1. 모델이 `lookup_policy` 호출 요청을 반환하면 조회가 이미 완료됐나요?
 2. 실제 파일에서 도구 결과와 최종 답변의 근거가 같았나요? 어느 필드로 확인했나요?

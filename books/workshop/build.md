@@ -29,6 +29,9 @@ pageClass: lec-page
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#materials">01 재료</a><a href="#langchain">02 Agent</a><a href="#graph">03 Graph</a><a href="#loop">04 Loop</a><a href="#protocols">05 연결</a><a href="#finish">06 완성</a></nav>
 <section class="slide" id="materials">
 
+<aside class="teacher-aside"><strong>강사의 한마디</strong><p>검사는 정답 파일을 찾는 절차가 아니라 내가 작성한 함수의 동작을 확인하는 도구입니다. 예상과 다른 입력 하나를 찾으면 고칠 지점이 선명해집니다.</p></aside>
+
+
 ## 재료를 먼저 읽습니다
 
 정책 정본은 `course/common.py`의 `POLICIES`입니다. `build_lab/materials.py`는 이를 가져오며 State와 검토 기준을 정의합니다. 정책은 학습용 데이터이며 실제 회사 규정이 아닙니다. `inspect_draft`는 ID 일치와 팀 이름을 검사합니다. 사실성·문체·모든 업무 규칙을 평가하는 함수는 아닙니다.
@@ -101,6 +104,8 @@ uv run pytest tests/test_build_lab.py --build-student -q -k lookup
 
 지침에는 조회 시점, 담당 팀·근거 ID, 정책이 없을 때의 행동을 작성합니다. 정답 문장 자체를 지침에 넣지는 않습니다.
 
+<div class="command-purpose">내 구현 실행</div>
+
 ```bash
 uv run python -m build_lab.runner agent --topic 계정
 ```
@@ -138,6 +143,8 @@ START → lookup → [정책 있음 AND 회신 대상이 공백 아님]
 
 코드를 읽을 때 `StateGraph(Inquiry)`는 상태 형식, add_node는 단계 등록, add_edge는 연결, add_conditional_edges는 조건 분기, compile은 실행할 그래프 생성으로 해석합니다. 조건 함수의 재료는 `state['data']['found']`와 `state.get('contact', '').strip()`입니다. 전체 그래프를 새로 구성하는 것은 선택 심화입니다.
 
+<div class="command-purpose">내 구현 실행</div>
+
 ```bash
 uv run pytest tests/test_build_lab.py --build-student -q -k graph
 uv run python -m build_lab.runner graph --topic 정산 --contact "   "
@@ -155,6 +162,8 @@ graph 단계는 제공 검토 함수로 한 번만 검사합니다. 제공 수�
 ## 3. 제공 루프를 관찰하고 하네스 활용을 설명합니다
 
 공통 과정에서는 student.py의 refine_answer를 그대로 둡니다. 이 함수가 guided.py의 제공 루프를 호출합니다. 모델이 만든 초안을 검사하고 실제 수정 입력으로 무엇을 전달하는지 읽습니다.
+
+<div class="command-purpose">내 구현 실행</div>
 
 ```bash
 uv run python -m build_lab.runner workflow --topic 계정
@@ -181,6 +190,8 @@ history 항목은 `{'attempt': 0, 'draft': '초안', 'feedback': [...]}`입니�
 
 성공→정체→예산 순서가 마지막 수정에서 성공한 경우에 어떤 차이를 만드는지 설명합니다. 이후 range(limit + 1), inspect_draft, 이전 history 항목, revise 호출을 조합합니다.
 
+<div class="command-purpose">내 구현 실행</div>
+
 ```bash
 uv run pytest tests/test_build_lab.py --build-student -q -k loop
 uv run python -m build_lab.runner workflow --topic 계정
@@ -200,6 +211,8 @@ DeepAgents와 비교할 때에는 이 수동 루프가 자동으로 프레임워
 
 MCP 모듈 실습 시간에 진행합니다. `build_mcp_server(policy_tool)`에서 MCPServer를 생성하고 `server.tool()(policy_tool)`로 학생 조회 함수를 등록한 뒤 서버를 반환합니다.
 
+<div class="command-purpose">내 구현 실행</div>
+
 ```bash
 uv run pytest tests/test_build_lab.py --build-student -q -k mcp
 uv run python -m build_lab.runner mcp --topic 계정
@@ -212,6 +225,8 @@ uv run python -m build_lab.runner mcp --topic 계정
 ## 5. 원격 검토를 받아도 바로 승인하지 않습니다
 
 A2A 모듈 실습 시간에 `accept_review(state, artifact, request_id, version)`을 구현합니다. submitted·working은 pending입니다. completed 외의 종료 상태는 held입니다. completed이면 요청 ID, 양의 정수 버전, artifact 버전 일치, passed is True를 확인한 경우만 accepted입니다. 빈 요청 ID와 bool 버전은 거부합니다.
+
+<div class="command-purpose">내 구현 실행</div>
 
 ```bash
 uv run pytest tests/test_build_lab.py --build-student -q -k a2a
@@ -226,21 +241,27 @@ A2A 수신부와 검토 서버는 제공 코드입니다. 서버를 처음부터
 
 ## 완성의 증거를 남깁니다
 
+<details class="instructor-note"><summary>강사용 진행 노트 · 실습 도움</summary>
+
+입력과 반환 계약을 읽고 한 함수를 직접 완성하도록 돕습니다. 앞 단계가 막히면 학생 파일을 보관한 뒤 필요한 함수만 보완합니다. 모든 코드를 풀이로 교체하거나 별도 보고서를 작성하게 하지 않습니다.
+
+</details>
+
 ```bash
 uv run pytest tests/test_build_lab.py --build-student -q
 ```
 
-`--build-student`를 빼면 기준 풀이 검사입니다. 학생 구현을 검증할 때는 이 옵션을 유지합니다. 테스트의 모델 대역은 tests에만 있으며 runner의 실제 실행을 대체하지 않습니다. 제출물은 자신의 코드, 정상·추가 확인·보류 기록, 직접 만든 반례 하나, 실패를 고친 이유입니다. 실행마다 runs/build-단계-고유값.json으로 따로 저장합니다. 실제 문장을 읽고 근거와 대조합니다.
+`--build-student`를 빼면 기준 풀이 검사입니다. 학생 구현을 검증할 때는 이 옵션을 유지합니다. 테스트의 모델 대역은 tests에만 있으며 runner의 실제 실행을 대체하지 않습니다. 자신의 코드에서 정상·추가 확인·보류가 각각 어떤 조건으로 결정되는지 확인합니다. 실행마다 runs/build-단계-고유값.json으로 따로 저장합니다. 실제 문장을 읽고 근거와 대조합니다.
 
 풀이 시간에는 reference.py를 열어 노드 경계, 조건 순서, 도구 인자, 수용 계약을 비교합니다.
 
-보류 기록은 학생의 수용 함수에 **이전 버전의 결과**를 넣어 확인할 수 있습니다. 다음 입력은 실제 서버의 응답 로그가 아닌, 계약 확인을 위해 직접 구성한 반례입니다. 현재 요청 버전은 2인데 결과 버전은 1이므로 `held`가 기대 결과입니다. 출력과 그 이유를 개인 기록에 남깁니다.
+보류 기록은 학생의 수용 함수에 **이전 버전의 결과**를 넣어 확인할 수 있습니다. 다음 입력은 실제 서버의 응답 로그가 아닌, 계약 확인을 위해 직접 구성한 반례입니다. 현재 요청 버전은 2인데 결과 버전은 1이므로 `held`가 기대 결과입니다. 출력과 예상한 보류 이유를 비교합니다.
 
 ```bash
 uv run python -c "from build_lab.student import accept_review; print(accept_review('completed', {'request_id': 'case-1', 'version': 1, 'passed': True}, 'case-1', 2))"
 ```
 
-이 검사는 실제 모델·MCP·A2A를 연결한 정상 실행 기록과 함께 제출합니다. 의도한 실패를 얻으려고 모델이 틀릴 때까지 재호출하지 않습니다.
+이 결과를 실제 모델·MCP·A2A를 연결한 정상 실행 결과와 비교합니다. 의도한 실패를 얻으려고 모델이 틀릴 때까지 재호출하지 않습니다.
 
 다음은 기준 풀이의 통합 실행이며 학생 구현의 성공을 의미하지 않습니다.
 
@@ -267,7 +288,7 @@ uv run python -m build_lab.reference complete --topic 계정
 
 ## 앞 단계에서 막혔을 때
 
-현재 student.py를 다른 이름으로 복사해 보존합니다. 배포 ZIP의 README에 있는 복귀 표를 보고, reference.py에서 미완료인 앞 단계 함수만 같은 이름으로 옮깁니다. 파일 전체를 덮어쓰지 않습니다. 제공받은 함수와 직접 작성한 함수를 제출 기록에 구분합니다.
+현재 student.py를 다른 이름으로 복사해 보존합니다. 배포 ZIP의 README에 있는 복귀 표를 보고, reference.py에서 미완료인 앞 단계 함수만 같은 이름으로 옮깁니다. 파일 전체를 덮어쓰지 않습니다. 제공받은 함수와 직접 작성한 함수를 직접 작성한 함수와 구분합니다.
 
 |진행할 단계|먼저 필요한 함수|
 |---|---|

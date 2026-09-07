@@ -29,11 +29,25 @@ MCP의 새 로드맵은 많은 도구를 처음부터 노출할 때 생기는 �
 
 연결 수보다 도구 설명·입력·결과를 먼저 봅니다. 내가 만든 조회 도구 하나를 서버로 공개하고 호출합니다.
 
+
+<details class="instructor-note"><summary>강사용 진행 노트 · 시작 질문</summary>
+
+좋아 보이는 도구를 다 설치해 본 경험을 받습니다. 도구 목록이 길어지면 모델이 무엇을 읽어야 하는지 묻습니다.
+
+Progressive Discovery는 해당 글의 개발 방향입니다. 현재 SDK에 모두 구현됐다고 말하지 않습니다. 오늘 실습은 목록 조회와 호출입니다.
+
+이야기는 2~3분 안에서 본론으로 연결합니다. 답을 맞히게 하기보다 뒤 실습에서 확인할 질문을 남깁니다.
+
+</details>
+
 </section>
 
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
 
 <section class="slide" id="concept">
+
+<aside class="teacher-aside"><strong>강사의 한마디</strong><p>연결에 성공해도 조회 결과가 맞다는 보장은 없습니다. 서버에 도달했는지와 업무 결과가 맞는지를 나눠 보겠습니다.</p></aside>
+
 
 ## 함수 호출에서 서버 연결로 · 7분
 
@@ -102,9 +116,11 @@ uv run python -c "import json; from exercises.extension_solutions import ticket_
 
 ## 함께 실습 · 20분
 
-[직접 완성하기의 해당 단계](./build#protocols)를 엽니다. 함께 시간에는 입력·출력과 사용할 API를 읽고 첫 부분을 구현합니다. 이어지는 개인 시간에는 남은 구현과 반례를 완성합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
+[직접 완성하기의 해당 단계](./build#protocols)를 엽니다. 입력·출력과 사용할 API를 확인한 뒤 함수를 완성하고 반례로 검사합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
 
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
+
+<div class="command-purpose">완성 예제 실행</div>
 
 ```bash
 uv run python -m course.cli mcp --topic 정산
@@ -113,7 +129,7 @@ uv run python -m course.cli mcp --topic 계정
 
 명령은 로컬 서버 프로세스를 시작하고 client로 실제 HTTP 호출한 뒤 자신이 시작한 서버를 종료합니다. 출력에서 protocol, tools, result.content를 읽습니다. `result.content`는 블록 목록이며 첫 블록의 `text` 안에 정책 JSON 문자열이 들어 있습니다. 그 안의 `found`와 `policy`는 LangChain 모듈에서 읽은 업무 데이터와 같습니다.
 
-이제 LangChain에서 같은 원격 조회 도구를 사용합니다. 앞의 10분은 목록과 결과를 읽고, 뒤의 10분은 아래 연결을 함께 실행합니다.
+이제 LangChain에서 같은 원격 조회 도구를 사용합니다. 목록과 결과를 확인한 뒤 아래 연결을 실행합니다.
 
 ```bash
 uv run python -m course.mcp_agent_lab
@@ -152,6 +168,8 @@ LangChain 1.4의 `langchain.mcp.MCPAdapter`가 MCP 도구를 LangChain 도구로
 
 <<< ../../workshop/exercises/student.py#mcp{python}
 
+<div class="command-purpose">준비 문제 검사</div>
+
 ```bash
 uv run python -m exercises.check mcp
 ```
@@ -160,7 +178,7 @@ uv run python -m exercises.check mcp
 
 ### 연결 성공과 조회 성공을 따로 판정합니다
 
-개인 과제 20분은 **예상·초기 실패 4분 → 수정·검사 9분 → HTTP 결과 비교 7분**으로 사용합니다. 정산만 조회하면 초기 구현이 맞는 것처럼 보일 수 있습니다. 계정과 없는업무의 결과도 먼저 예상합니다.
+정산만 조회하면 초기 구현이 맞는 것처럼 보일 수 있습니다. 계정과 없는업무의 결과도 먼저 예상합니다.
 
 | 입력 | found 예상 | team 예상 | 서버 오류여야 하는가 |
 |---|---|---|---|
@@ -169,6 +187,8 @@ uv run python -m exercises.check mcp
 |없는업무|작성|작성|작성|
 
 수정한 학생 함수의 검사 후, 제공 HTTP 예제에서도 없는 정책을 조회합니다.
+
+<div class="command-purpose">완성 예제 실행</div>
 
 ```bash
 uv run python -m course.cli mcp --topic 없는업무
@@ -205,7 +225,7 @@ import json
 data = None if result.is_error else json.loads(result.content[0].text)
 ```
 
-이 확장 검사는 반환값의 계약을 확인합니다. 미리 작성한 dict만 반환해도 통과할 수 있으므로 통과 표시만으로 실제 재시작을 증명할 수 없습니다. 제출 시 두 `server(...)` 실행에 같은 DB 경로를 전달한 코드와 실제 실행 출력을 함께 남깁니다.
+이 확장 검사는 반환값의 계약을 확인합니다. 미리 작성한 dict만 반환해도 통과할 수 있으므로 통과 표시만으로 실제 재시작을 증명할 수 없습니다. 두 `server(...)` 실행에 같은 DB 경로를 전달했는지 코드와 실제 출력에서 확인합니다.
 
 반환 dict의 first.data.created는 True, again.data.created는 False이고 ticket_id는 같아야 합니다. conflict.error는 True입니다.
 
@@ -283,7 +303,15 @@ MCP 명세는 프로토콜 오류와 도구 실행 오류를 구분합니다. `f
 
 ## 풀이 · 10분
 
+<details class="instructor-note"><summary>강사용 진행 노트 · 오류 비교</summary>
+
+정산과 계정 조회를 비교한 뒤 접속 실패·도구 오류·조회 결과 없음을 구분합니다. 운영 사례 표는 한 사례만 골라 첫 확인 위치를 묻습니다. 모든 장애를 재현할 필요는 없습니다.
+
+</details>
+
 주 실습 풀이는 `build_lab/reference.py`의 해당 함수를 자신의 구현과 비교합니다. [완성 기준](./build#finish)에 따라 코드·실행 경로·반례를 설명합니다. 아래 표와 명령은 준비 문제의 풀이입니다.
+
+<div class="command-purpose">준비 문제 풀이 확인</div>
 
 ```bash
 uv run python -m exercises.check mcp --solution
@@ -295,7 +323,7 @@ uv run python -m exercises.check mcp --solution
 |조회가 정상 반환, found=false|업무 데이터 없음|사용자에게 추가 확인 요청|
 |계정 조회에 재무지원팀 반환|도구 로직 오류|topic으로 정책을 고르는 함수|
 
-원격 연결 코드를 바꾸지 않아도 조회 함수를 고쳐 업무 결과를 바로잡을 수 있습니다. 반대로 도구 로직이 맞아도 접속 오류는 별도로 해결해야 합니다. 자신의 실패가 어느 행에 해당했는지 기록합니다.
+원격 연결 코드를 바꾸지 않아도 조회 함수를 고쳐 업무 결과를 바로잡을 수 있습니다. 반대로 도구 로직이 맞아도 접속 오류는 별도로 해결해야 합니다. 자신의 실패가 어느 행에 해당하는지 찾아봅니다.
 
 정산 입력만 시험하면 항상 첫 팀을 반환하는 버그를 놓칩니다. 다른 유효 주제와 없는 주제를 포함해야 합니다. schema에 맞는 dict를 반환해도 업무 결과는 틀릴 수 있습니다.
 

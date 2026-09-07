@@ -31,11 +31,25 @@ LangChain은 2026년 글에서 기본 Agent 루프, 결과 검증, 이벤트에 
 
 Codex·Claude Code를 쓸 때 맡길 작업·검증·중단 조건과 역할의 의존성을 설계합니다.
 
+
+<details class="instructor-note"><summary>강사용 진행 노트 · 시작 질문</summary>
+
+손들기: 코딩 Agent에게 계속하라는 말을 반복해 본 사람. 경험이 없으면 검수 결과를 보고 다음 일을 지시하는 상황을 예로 듭니다.
+
+업무 초안을 고치는 반복과 프로그램을 개선하는 반복의 대상이 다릅니다. 원문의 구분을 유일한 표준이나 프롬프트의 폐기로 설명하지 않습니다.
+
+이야기는 2~3분 안에서 본론으로 연결합니다. 답을 맞히게 하기보다 뒤 실습에서 확인할 질문을 남깁니다.
+
+</details>
+
 </section>
 
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
 
 <section class="slide" id="concept">
+
+<aside class="teacher-aside"><strong>강사의 한마디</strong><p>여기서는 잠시 개발자의 자리로 옮겨갑니다. 문의 Agent의 답변을 만드는 일과, 코딩 에이전트에게 그 프로그램을 고치게 하는 일을 구분하겠습니다.</p></aside>
+
 
 ## Harness는 무엇을 관리하는가 · 7분
 
@@ -116,6 +130,8 @@ flowchart TB
 
 <details open><summary>관찰할 업무 루프와 DeepAgents 예제</summary>
 
+<div class="command-purpose">완성 예제 실행</div>
+
 ```bash
 uv run python -m course.cli harness --revisions 0
 uv run python -m course.cli harness --revisions 2
@@ -141,7 +157,7 @@ uv run python -m course.cli deepagent
 
 [Loop·Graph Engineering 설계 활동](./engineering#task)을 진행합니다. build_lab/HARNESS_WORKSHEET.md에 시작·작업 선택·종료 조건과 역할별 의존성·산출물 계약·상태 기록을 작성합니다. F1/D1 검수 사례로 중복 작업과 잘못된 PASS를 처리합니다.
 
-코딩 도구를 사용할 수 있으면 자신의 설계에 대한 검토를 요청합니다. 계정이 없다면 동일한 활동지를 작성하고 사례 풀이와 비교합니다. 실제 자동화 등록이나 코드 변경은 공통 과제가 아닙니다. 계정 유무에 따라 평가할 개념을 다르게 두지 않습니다.
+코딩 도구를 사용할 수 있으면 자신의 설계에 대한 검토를 요청합니다. 계정이 없다면 동일한 활동지를 작성하고 사례 풀이와 비교합니다. 실제 자동화 등록이나 코드 변경은 공통 과제가 아닙니다.
 
 전체 루프를 직접 작성하고 싶은 사람은 [선택 심화](./build#loop)로 진행합니다. 공통 과제를 마친 뒤 선택할 수 있습니다.
 
@@ -151,7 +167,15 @@ uv run python -m course.cli deepagent
 
 ## 풀이 · 15분
 
-개인 활동은 [설계 풀이와 하이프에 대한 반론](./engineering#review)으로 비교합니다. 15분은 역할·후보 버전 비교 5분, 중복·정체·검토 누락 판단 5분, 병렬 실행의 시간·비용과 적용 여부 5분으로 사용합니다. 아래 표와 명령은 업무 수정 루프를 읽기 위한 추가 참고입니다.
+<details class="instructor-note"><summary>강사용 진행 노트 · 설계 풀이</summary>
+
+활동지에서 시작·다음 작업 선택·중단 조건을 먼저 비교합니다. 이어서 같은 후보 버전을 검토했는지, 검토가 누락되면 어떻게 할지 묻습니다. 계정 없이 설계한 학습자도 같은 질문으로 참여합니다. 세부 시간 배분은 현장 반응에 맞춥니다.
+
+</details>
+
+개인 활동은 [설계 풀이와 하이프에 대한 반론](./engineering#review)으로 비교합니다. 아래 표와 명령은 업무 수정 루프를 읽기 위한 추가 참고입니다.
+
+<div class="command-purpose">준비 문제 풀이 확인</div>
 
 ```bash
 uv run python -m exercises.check harness --solution
