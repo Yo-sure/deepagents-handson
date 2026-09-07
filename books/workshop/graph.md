@@ -8,7 +8,7 @@ pageClass: lec-page
 
 <div class="lec workshop-edition"><div class="deck">
 <section class="slide">
-<div class="eyebrow">2026.09 · 개인 실습 · 75분 · 개념 25 / 함께 20 / 개인 20 / 풀이 10</div>
+<div class="eyebrow">2026.09 · 예상 12:50–14:00 · 70분</div>
 
 # LangGraph로 상태와 분기 정의하기
 
@@ -17,6 +17,14 @@ pageClass: lec-page
 앞에서는 모델이 규정을 조회해 답하게 했습니다. 이번에는 “회신 대상이 없거나 정책을 못 찾으면 초안을 만들지 않는다”는 업무 조건이 추가됩니다. 모델에게 주의를 요청하는 대신, 초안 작성 노드에 들어가기 전에 조건을 검사합니다. 앞서 만든 도구와 Agent는 그대로 사용합니다.
 
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">앞 단계 보완 안내</a>에서 필요한 함수만 확인합니다.</div></div>
+<details class="instructor-note"><summary>강사용 예상 시간 · 12:50–14:00 / 70분</summary>
+
+**예상 배분:** 시작 질문 3 / 개념 17 / 그래프 읽기·분기 구현 30 / 풀이 20분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+
+State·노드·조건 분기를 우선합니다. 전체 그래프 작성은 선택 심화입니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="icebreaker">

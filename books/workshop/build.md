@@ -17,6 +17,12 @@ pageClass: lec-page
 
 처음에는 조회 함수와 Agent 구성을 만들고, 다음 수업에서 분기와 서버 연결을 추가합니다. 현재 수업의 단계만 진행한 뒤 해당 장의 풀이로 돌아옵니다.
 
+<details class="instructor-note"><summary>강사용 예상 시간 · 본 수업에 포함</summary>
+
+이 페이지는 각 수업의 구현 시간에 나누어 사용합니다. 예상 구현·연결 시간은 LangChain 30분, LangGraph 30분, MCP 30분, A2A 20분이며 각 세션 배정에 포함됩니다. 전체를 한 번에 진행하는 별도 세션이 아닙니다.
+
+</details>
+
 </section>
 <section class="slide" id="first-code">
 

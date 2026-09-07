@@ -8,7 +8,7 @@ pageClass: lec-page
 
 <div class="lec workshop-edition"><div class="deck">
 <section class="slide">
-<div class="eyebrow">2026.09 · 개인 실습 · 30분 · 관찰 5 / 독립 변경 15 / 풀이 10</div>
+<div class="eyebrow">2026.09 · 예상 17:30–18:00 · 30분</div>
 
 # 전체 구조를 연결하고 적용점을 정리한다
 
@@ -21,6 +21,14 @@ pageClass: lec-page
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 전체 연결에 필요한 앞 단계가 미완료라면 <a href="./build#recovery">앞 단계 보완 안내</a>에서 필요한 함수만 확인합니다.</div></div>
 
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>마지막에는 기능을 많이 추가하기보다 작은 요구 변경을 끝까지 반영해 보겠습니다. 별칭 하나를 바꿨을 때 기존 조회와 검토가 유지되는지가 핵심입니다.</p></aside>
+<details class="instructor-note"><summary>강사용 예상 시간 · 17:30–18:00 / 30분</summary>
+
+**예상 배분:** 시작 질문·관찰 5 / 독립 변경 15 / 풀이·정리 10분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+
+18:00에 종료합니다. 남은 구현은 복습으로 안내하고 핵심 비교와 질문을 정리합니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="icebreaker">

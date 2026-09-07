@@ -8,9 +8,11 @@ pageClass: lec-page
 
 <div class="lec workshop-edition"><div class="deck">
 <section class="slide">
-<div class="eyebrow">2026.09 · 개인 실습 · 65분 · 개념 25 / 함께 15 / 개인 15 / 풀이 10</div>
+<div class="eyebrow">2026.09 · 예상 10:40–11:50 · 70분</div>
 
 # LangChain으로 모델과 도구 연결하기
+
+앞 장에서 ReAct의 판단·행동·관찰을 살펴봤습니다. 이제 조회 함수를 도구로 연결하고, `create_agent`가 도구 요청과 결과 전달을 반복하는 실행을 구성합니다.
 
 <p class="lead">모델이 요청한 도구를 프로그램이 실행하고 결과를 모델에 전달하는 과정을 관찰합니다. 조회 도구와 Agent 구성을 직접 작성하고, 실제 도구 호출과 없는 정책의 응답을 확인합니다.</p>
 
@@ -19,6 +21,14 @@ pageClass: lec-page
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 이 장에서 처음으로 코드를 직접 작성합니다.</div></div>
 
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>도구를 호출했다는 사실과 그 결과에 맞게 답했다는 사실은 다릅니다. 둘을 따로 확인해야 수정할 위치가 보입니다.</p></aside>
+<details class="instructor-note"><summary>강사용 예상 시간 · 10:40–11:50 / 70분</summary>
+
+**예상 배분:** 시작 질문 3 / 개념 17 / 구현 30 / 반례·풀이 20분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+
+조회 함수와 Agent 구성은 직접 작성합니다. 운영 심화는 복습으로 돌릴 수 있습니다. 점심은 11:50에 시작합니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="icebreaker">

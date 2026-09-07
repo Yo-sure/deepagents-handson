@@ -8,7 +8,7 @@ pageClass: lec-page
 
 <div class="lec workshop-edition"><div class="deck">
 <section class="slide">
-<div class="eyebrow">2026.09 · 환경 준비와 시작 안내</div>
+<div class="eyebrow">2026.09 · 예상 09:00–09:40 · 40분</div>
 
 # 시작 안내와 하루의 흐름
 
@@ -17,6 +17,14 @@ pageClass: lec-page
 <p class="lead">오늘은 사내 문의에 맞는 규정을 찾아 답변 초안을 만드는 프로그램을 만듭니다. 먼저 실행해 보고, 작동 원리를 배운 뒤 필요한 부분을 직접 구현합니다.</p>
 
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 강사 안내에 따라 아래 <a href="#setup">환경 준비</a>를 함께 진행합니다. 이미 준비했다면 마지막 준비 완료 체크부터 확인합니다.</div></div>
+<details class="instructor-note"><summary>강사용 예상 시간 · 09:00–09:40 / 40분</summary>
+
+**예상 배분:** 소개·설문 10 / 시작 질문·환경설정·첫 호출 30분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+
+설치가 일찍 끝나면 Agent 입문을 시작합니다. 개별 설치 문제는 막힌 단계와 오류를 확인하며 지원합니다.
+
+</details>
+
 </section>
 
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#opening">01 소개·설문 리뷰</a><a href="#overview">02 오늘의 흐름</a><a href="#setup">03 환경 준비</a><a href="#connection">04 연결 확인</a><a href="#practice">05 다음 장으로</a></nav>

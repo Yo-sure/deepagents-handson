@@ -8,7 +8,7 @@ pageClass: lec-page
 
 <div class="lec workshop-edition"><div class="deck">
 <section class="slide">
-<div class="eyebrow">2026.09 · 개인 실습 · 75분 · 개념 25 / 함께 20 / 개인 20 / 풀이 10</div>
+<div class="eyebrow">2026.09 · 예상 15:30–16:35 · 65분</div>
 
 # MCP로 도구 서버를 연결한다
 
@@ -17,6 +17,14 @@ pageClass: lec-page
 Harness에서 이 프로그램을 개선하는 방법을 살펴봤습니다. 이제 실행 대상인 문의 Agent로 돌아옵니다. 정책을 조회하는 프로그램이 여러 개가 되어 조회 기능을 별도 서버로 제공한다고 가정합니다. 학생이 만든 조회 함수의 입력과 업무 결과는 유지하고, 그것을 호출하는 경계가 바뀝니다. 한 프로그램 안에서만 사용할 때도 반드시 서버로 분리해야 한다는 뜻은 아닙니다.
 
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
+<details class="instructor-note"><summary>강사용 예상 시간 · 15:30–16:35 / 65분</summary>
+
+**예상 배분:** 시작 질문 3 / 개념 17 / 도구 서버 구현·연결 30 / 풀이 15분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+
+도구 공개와 실제 HTTP 연결을 우선합니다. 운영 사례의 세부 설명은 복습으로 돌릴 수 있습니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="icebreaker">

@@ -8,7 +8,7 @@ pageClass: lec-page
 
 <div class="lec workshop-edition"><div class="deck">
 <section class="slide">
-<div class="eyebrow">2026.09 · 개인 실습 · 65분 · 개념 25 / 함께 15 / 개인 15 / 풀이 10</div>
+<div class="eyebrow">2026.09 · 예상 16:45–17:30 · 45분</div>
 
 # A2A 위임과 ACP의 연결 대상
 
@@ -17,6 +17,14 @@ pageClass: lec-page
 정책 조회 연결은 앞 단계에서 확인했습니다. 이번에는 검토 기능을 별도로 운영하는 팀에 초안을 맡긴다고 가정합니다. 문의 Agent는 답변 초안을 만들고, 검토 시스템은 작업 상태와 결과를 돌려줍니다. 앞서 만든 로컬 검토를 지우는 것이 아니라, 통과한 초안을 외부 검토에 넘겼을 때 결과를 어떻게 받아들일지 배웁니다. 실제 조직의 분리 없이 함수 호출로 충분하다면 A2A를 추가할 필요는 없습니다.
 
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 전체 연결에 필요한 앞 단계가 미완료라면 <a href="./build#recovery">앞 단계 보완 안내</a>를 확인합니다.</div></div>
+<details class="instructor-note"><summary>강사용 예상 시간 · 16:45–17:30 / 45분</summary>
+
+**예상 배분:** 시작 질문 3 / 개념·ACP 비교 12 / 수용 함수 구현·연결 20 / 풀이 10분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+
+완료 상태와 결과 수용의 차이를 우선합니다. 서버 전체 구현은 요구하지 않습니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="icebreaker">

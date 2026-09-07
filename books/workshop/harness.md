@@ -8,7 +8,7 @@ pageClass: lec-page
 
 <div class="lec workshop-edition"><div class="deck">
 <section class="slide">
-<div class="eyebrow">2026.09 · 개인 실습 · 80분 · 개념 25 / 함께 20 / 개인 20 / 풀이 15</div>
+<div class="eyebrow">2026.09 · 예상 14:10–15:20 · 70분</div>
 
 # Harness·Loop·Graph Engineering
 
@@ -19,6 +19,14 @@ pageClass: lec-page
 DeepAgents 예제는 같은 정책 업무를 다른 Harness 구성으로 관찰하는 비교 자료입니다. 앞서 작성한 학생 프로젝트를 대체하는 새 프로젝트는 아닙니다. 개인 활동의 F1은 오전 분기의 결함을 가정한 기록이므로, 별개의 업무를 처음부터 배우는 것이 아니라 자신이 만든 프로그램의 검수로 읽습니다.
 
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
+<details class="instructor-note"><summary>강사용 예상 시간 · 14:10–15:20 / 70분</summary>
+
+**예상 배분:** 시작 질문 3 / Harness·DeepAgents 17 / Loop·Graph 담론·개인 활동 35 / 비교·풀이 15분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+
+engineering 페이지 활동이 이 70분에 포함됩니다. 예제 전체 시연은 조절하되 코딩 하네스 활용과 업무 Agent 루프의 차이는 짚습니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="icebreaker">
@@ -202,6 +210,12 @@ uv run python -m exercises.check harness --solution
 다음에는 다시 문의 Agent의 실행으로 돌아옵니다. 정책 조회를 다른 애플리케이션도 사용한다는 요구를 가정하고, 지금의 조회 함수를 MCP 서버로 공개합니다. 코딩 에이전트의 작업 배정 그래프와 문의 Agent의 도구 연결은 서로 다른 설계 대상입니다.
 
 </section>
+
+<details class="instructor-note"><summary>강사용 추가 사례 · 계획 도구가 빠져도 Agent인가?</summary>
+
+DeepAgents v0.7은 평가 결과를 바탕으로 TodoListMiddleware를 기본 구성에서 빼고 선택 사항으로 바꿨습니다. 계획 도구가 유용한 경우도 있습니다. 계획표라는 특정 기능과 Agent의 행동 선택 루프를 구별하는 질문으로 활용합니다. [공식 발표](https://www.langchain.com/blog/deep-agents-v0-7)
+
+</details>
 
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>
 </div></div>
