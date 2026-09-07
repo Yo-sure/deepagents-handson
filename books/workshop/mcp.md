@@ -63,17 +63,13 @@ Progressive Discovery는 해당 글의 개발 방향입니다. 현재 SDK에 모
 
 <p class="section-time">예상 5분 · 15:33–15:38</p>
 
+<CourseVisual kind="mcp" />
+
+
 지금까지 조회 함수는 같은 프로그램 안에 있었습니다. 여러 애플리케이션이 같은 도구를 사용할 때 서버가 도구의 목록·입력 형식·결과를 일관되게 제공하면 연결 코드를 줄일 수 있습니다.
 
 MCP host는 Agent를 사용하는 애플리케이션, client는 서버와 통신하는 구성, server는 도구·데이터를 제공하는 구성입니다. 모델 자체가 HTTP 요청을 직접 보내는 것은 아닙니다.
 
-```mermaid
-flowchart LR
- H[Agent 애플리케이션] --> C[MCP client]
- C --> S[MCP 도구 서버]
- S --> P[정책·업무 DB]
- P --> S --> C --> H
-```
 
 </section>
 
@@ -82,6 +78,14 @@ flowchart LR
 ## 도구 발견·호출·결과
 
 <p class="section-time">예상 5분 · 15:38–15:43</p>
+
+<figure class="trace-example">
+<a href="https://mintcdn.com/mcp/gk28X8wi_tbRYzej/images/inspector/web-monitor-sidebar.png" target="_blank" rel="noopener noreferrer"><img src="https://mintcdn.com/mcp/gk28X8wi_tbRYzej/images/inspector/web-monitor-sidebar.png" alt="MCP 공식 Inspector. 왼쪽 도구 목록에서 get_weather가 선택되고 중앙에 날씨 결과, 오른쪽에 통신 기록이 표시됩니다." loading="lazy" referrerpolicy="no-referrer"></a>
+<figcaption>공식 제품 화면 · <a href="https://modelcontextprotocol.io/docs/tools/inspector">MCP Inspector 문서</a> · 확인 2026-09-08 · 클릭하면 원본 확대</figcaption>
+</figure>
+
+**화면 읽기:** 왼쪽은 사용 가능한 도구, 가운데는 선택한 `get_weather`의 결과, 오른쪽은 통신 기록입니다. 도구를 찾는 단계와 실제 결과를 받는 단계를 나누어 볼 수 있습니다. 이 화면은 공식 예시이며 우리 정책 조회 결과가 아닙니다. 수업에서는 Inspector 설치 없이 아래 코드로 목록과 반환값을 확인합니다.
+
 
 <<< ../../workshop/course/mcp_lab.py#server{python}
 

@@ -122,6 +122,9 @@ sequenceDiagram
 
 <p class="section-time">예상 3분 · 16:57–17:00</p>
 
+<CourseVisual kind="a2a" />
+
+
 <<< ../../workshop/course/a2a_lab.py#result{python}
 
 완료 상태에서 요청 ID·실행안 버전·passed를 확인합니다. 이전 실행안의 검토 결과를 현재 실행안에 붙이지 않습니다. 검토 통과가 사람의 실행 승인을 대체하는 것도 아닙니다.

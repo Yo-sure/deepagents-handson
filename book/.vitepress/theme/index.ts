@@ -2,6 +2,7 @@ import DefaultTheme from 'vitepress/theme'
 import { h } from 'vue'
 import ScrollProgress from './ScrollProgress.vue'
 import CourseTree from './CourseTree.vue'
+import CourseVisual from './CourseVisual.vue'
 import Slides from './Slides.vue'
 import Quiz from './Quiz.vue'
 import ConceptGraph from './ConceptGraph.vue'
@@ -16,6 +17,7 @@ export default {
   }),
   enhanceApp({ app }) {
     app.component('Slides', Slides)
+    app.component('CourseVisual', CourseVisual)
     app.component('Quiz', Quiz)
     app.component('ConceptGraph', ConceptGraph)
 

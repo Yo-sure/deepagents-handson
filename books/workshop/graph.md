@@ -82,7 +82,7 @@ State는 실행 중 노드들이 읽고 갱신하는 값입니다. 이 예제에
 <p class="section-time">예상 6분 · 13:00–13:06</p>
 
 ```mermaid
-flowchart LR
+flowchart TB
  A[시작] --> B[lookup]
  B --> C{정책과 회신 대상 있음?}
  C -->|예| D[draft]
@@ -90,6 +90,10 @@ flowchart LR
  D --> F[종료]
  E --> F
 ```
+
+<CourseVisual kind="graph" />
+
+
 
 <<< ../../workshop/course/graph_lab.py#graph{python}
 

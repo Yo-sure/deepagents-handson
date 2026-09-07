@@ -84,15 +84,9 @@ create_agent가 실행 반복을 제공해도 회사 규정이나 업무 성공 
 
 <p class="section-time">예상 6분 · 10:49–10:55</p>
 
-```mermaid
-flowchart TB
- Q[사용자 질문] --> M[모델 호출]
- M --> C{도구 요청?}
- C -->|있음| T[Python 함수 실행]
- T --> R[결과를 메시지에 추가]
- R --> M
- C -->|없음| A[최종 응답]
-```
+<CourseVisual kind="langchain" />
+
+
 
 모델이 도구 이름과 인자를 반환하면 LangChain 실행 코드가 함수를 실행합니다. 실행 코드는 이 반환값을 tool 메시지로 대화에 추가합니다. 모델은 그 결과를 받고 다음 응답을 만듭니다.
 

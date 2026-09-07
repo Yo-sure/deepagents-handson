@@ -64,6 +64,9 @@ P-02와 IT지원팀을 포함하지만 문의하지 말라고 쓰인 문장을 �
 
 <p class="section-time">예상 2분 · 17:33–17:35</p>
 
+<CourseVisual kind="wrap" />
+
+
 이번에는 자신의 구현을 연결한 요청 하나를 추적합니다. `course.integration`은 제공된 완성 예제의 비교 자료이며 학생 파일을 실행하지 않습니다. 최종 확인에는 아래 학생 실행 명령을 사용합니다.
 
 <div class="command-purpose">내 구현 실행</div>

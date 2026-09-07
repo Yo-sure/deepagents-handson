@@ -107,3 +107,19 @@
 .lec.workshop-edition .trace-example { margin: 24px 0; }
 .lec.workshop-edition .trace-example img { display: block; width: 100%; height: auto; border: 1px solid #dfe5e1; border-radius: 6px; }
 .lec.workshop-edition .trace-example figcaption { margin-top: 10px; color: #647269; font-size: 13px; line-height: 1.7; }
+
+/* 교육용 실행 비교: 정적인 문장도 SSR로 읽을 수 있고 조건만 바꿉니다. */
+.lec.workshop-edition .course-visual { margin: 24px 0 32px; padding: 24px; background: #f6f8f6; border: 1px solid #d5dfd8; border-radius: 8px; }
+.course-visual figcaption > span { display: block; color: #627269; font-size: 12px; margin-bottom: 8px; }
+.course-visual figcaption > strong { display: block; font-size: 21px; color: #243e34; line-height: 1.5; }
+.lec.workshop-edition .course-visual .visual-hint { font-size: 15px; margin: 10px 0 16px; }
+.visual-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.visual-choices button { padding: 9px 14px; border: 1px solid #aabbb0; border-radius: 6px; background: #fff; color: #334a3e; font-size: 14px; cursor: pointer; }
+.visual-choices button[aria-pressed="true"] { background: #245e4c; color: #fff; border-color: #245e4c; }
+.visual-choices button:focus-visible { outline: 3px solid #a36620; outline-offset: 3px; }
+.lec.workshop-edition .visual-steps { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.lec.workshop-edition .visual-steps > li { margin: 0; display: flex; gap: 16px; align-items: flex-start; padding: 15px 18px; background: white; border-left: 3px solid #8cab9b; }
+.visual-number { font-size: 21px; color: #648773; font-variant-numeric: tabular-nums; }
+.visual-steps strong { font-size: 17px; color: #253e33; }
+.lec.workshop-edition .visual-steps p { margin: 4px 0 0; font-size: 15px; overflow-wrap: anywhere; }
+.lec.workshop-edition .visual-note { font-size: 15px; color: #3b5345; margin: 18px 0 0; }
