@@ -101,7 +101,7 @@ LangGraph는 이런 제어 흐름을 코드로 표현할 때 사용할 수 있�
 ### 세 가지를 연결해 설명합니다
 
 실패를 재현할 입력·관련 코드·검사 근거를 다음 실행에 전달하는 것은 Context 관점입니다. 실패를 확인해 다음 작업을 맡기는 반복은 Loop 관점입니다. 기능·교재 검토를 나누고 결과를 합치는 구조는 Graph 관점입니다. 이 구조 안에서도 각 역할은 도구와 실행 환경이 필요합니다.
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>세 Agent를 동시에 실행했더니 같은 파일을 서로 고쳤습니다. 병렬 실행을 줄일까요, 작업 경계를 바꿀까요?</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>Agent A는 함수 이름을 바꾸고, B는 그 함수를 쓰는 코드를 고칩니다. 동시에 작업했더니 B는 이전 이름을 그대로 사용했습니다.<br><br><strong>어느 작업을 먼저 끝내야 할까요?</strong> 둘을 동시에 진행하려면 미리 무엇을 약속해야 할까요?</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 

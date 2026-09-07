@@ -14,7 +14,7 @@ pageClass: lec-page
 
 주 실습의 최종 결과는 [내 업무 Agent 완성 기준](./build#finish)으로 확인합니다. `build_lab.runner complete`에서 학생 도구·Agent·분기·MCP 등록·수용 판단과 제공 그래프·수정 루프가 연결된 실행 기록을 설명합니다.
 
-<p class="lead">한 번의 실행을 여러 계층으로 나누어 설명합니다. 새 조건이 생겼을 때 어느 부분을 수정할지 판단합니다.</p>
+<p class="lead">문의 하나가 조회·답변 작성·검토를 거치는 과정을 따라갑니다. 사용자가 업무명을 다르게 말해도 같은 규정을 찾도록 코드를 고칩니다.</p>
 
 처음에는 “이 답변이 어디서 나왔는가”를 실행 기록으로 확인했습니다. 이제는 자신이 작성한 코드에서 그 근거가 어떻게 전달되는지 설명할 차례입니다. 마지막 별칭 변경은 새 기능을 많이 붙이는 활동이 아니라, 요청의 표현이 바뀌어도 같은 정책과 검토 계약을 유지할 수 있는지 확인하는 활동입니다.
 
@@ -163,10 +163,10 @@ uv run python -m build_lab.runner complete --topic 계정 --contact ""
 
 모델·도구·State·루프·프로토콜 중 어떤 부분을 고칠지 구체적인 함수나 값으로 적습니다. 코드가 아직 완성되지 않았어도 배운 개념으로 문제를 설명할 수 있습니다.
 
-심화 반례: “P-01: 재무지원팀에는 절대 문의하지 마세요.”는 이름·ID 검사를 통과합니다. 로컬 `inspect_draft`와 원격 `verify`는 별도 함수이지만 모두 이름·ID를 중심으로 검사하므로 두 번 검사해도 같은 맹점이 남습니다. 검증 횟수와 검증 기준의 독립성이 어떻게 다른지 설명합니다.
+심화 반례: “P-01: 재무지원팀에는 절대 문의하지 마세요.”는 이름·ID 검사를 통과합니다. 로컬 `inspect_draft`와 원격 `verify`는 별도 함수이지만 모두 이름·ID를 중심으로 검사하므로 두 번 검사해도 같은 맹점이 남습니다. 두 검사 모두 팀명과 ID만 찾는다면 잘못된 문장을 두 번 통과시킬 수 있습니다. 두 번째 검사에서 무엇을 다르게 확인해야 할까요?
 
 </details>
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>새 업무 별칭은 잘 처리하지만 원래 업무명이 실패하기 시작했습니다. 새 기능 완료라고 할 수 있을까요? 마감까지 5분이라면 무엇부터 확인하겠습니까?</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>“로그인”을 “계정”으로 알아듣도록 고쳤습니다. 그런데 원래 입력인 “계정”이 이제 실패합니다.<br><br><strong>코드를 다시 고친 뒤 어떤 두 입력을 꼭 실행해 봐야 할까요?</strong> 다른 업무인 “정산”도 확인할 필요가 있을까요?</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 
@@ -214,7 +214,7 @@ uv run python -m build_lab.runner complete --topic 계정 --contact ""
 
 공통 활동을 돌아보려면 [Loop·Graph Engineering의 실제 담론과 활용](./engineering)을 읽습니다. 전체 그래프·수정 루프를 직접 작성하고 싶은 경우에는 [선택 심화](./build#loop)에서 기존 계약과 검사 조건을 유지하며 구현합니다.
 
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>이 프로그램에서 모델을 빼도 되는 부분 하나와 모델이 꼭 필요한 부분 하나를 골라 보세요. 전체를 Agent로 만들 필요가 있나요?</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>담당 팀을 표에서 찾는 일과 “로그인이 자꾸 풀려요”라는 문의를 이해하는 일을 비교해 봅니다.<br><br><strong>어느 쪽은 Python 코드만으로 처리하기 쉬울까요?</strong> 모델을 쓰면 도움이 되는 쪽은 왜 그런가요?</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 

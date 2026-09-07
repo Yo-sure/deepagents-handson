@@ -106,7 +106,7 @@ uv run --locked --group notebook jupyter lab notebooks/build-agent.ipynb
 uv run pytest tests/test_build_lab.py --build-student -q -k lookup
 ```
 
-검사가 통과하면 이어서 `build_agent(model, policy_tool)`을 구현합니다. `create_agent(model=..., tools=[...], system_prompt=...)`로 구성한 Agent를 반환합니다. 생성 함수 안에서 실행까지 하지 않습니다. model과 policy_tool을 인자로 받는 이유도 설명합니다.
+검사가 통과하면 이어서 `build_agent(model, policy_tool)`을 구현합니다. `create_agent(model=..., tools=[...], system_prompt=...)`로 구성한 Agent를 반환합니다. 생성 함수 안에서 실행까지 하지 않습니다. 다른 모델이나 조회 도구를 연결하려면 어디를 바꾸면 될까요? 함수 안에 고정하지 않고 model과 policy_tool을 인자로 받는 이유를 생각해 봅니다.
 
 <<< ../../workshop/build_lab/student.py#agent{python}
 
@@ -120,7 +120,7 @@ uv run python -m build_lab.runner agent --topic 계정
 
 **완료 기준:** 실제 기록에 학생 도구의 요청·실행·결과가 남고, P-02와 IT지원팀을 근거로 답합니다. 없는업무도 실행합니다. 답변이 매번 같다고 가정하지 않습니다.
 
-도구가 맞는데 답변 ID가 다르면 어느 층의 실패인가요? 지침을 바꿨을 때와 코드를 바꿨을 때 각각 어떤 결과가 달라지는지 비교합니다. create_agent의 도구 호출 루프와 다음 단계의 업무 그래프를 구분합니다.
+도구는 P-02를 반환했는데 최종 답변은 P-01이라고 합니다. 조회 함수와 모델의 답변 중 어디에서 처음 달라졌나요? 지침을 바꿨을 때와 코드를 바꿨을 때 각각 어떤 결과가 달라지는지 비교합니다. create_agent의 도구 호출 루프와 다음 단계의 업무 그래프를 구분합니다.
 
 <details><summary>막힐 때 읽는 힌트</summary>
 
@@ -170,7 +170,7 @@ graph 단계는 제공 검토 함수로 한 번만 검사합니다. 제공 수�
 
 **완료 기준:** 결과 문자열뿐 아니라 실제 모델·수정 함수가 호출되지 않아야 하는 경로를 설명합니다. 검사는 compile된 그래프를 실행해 호출 횟수와 방문 경로를 확인합니다.
 
-**변경 요청:** 연락처를 조회 전에 검사하면 무엇이 달라질까요? 조회 횟수와 질문에 사용할 수 있는 정보의 차이를 설명합니다. 익숙한 사람은 해당 경로를 별도로 구현합니다.
+**변경 요청:** 답장 주소가 없는 문의는 규정 조회 전에 바로 주소부터 묻도록 바꾼다고 가정합니다. 조회를 한 번 줄일 수 있을까요? 대신 규정에 대한 어떤 안내를 아직 할 수 없을까요? 여유가 있으면 분기 위치를 옮겨 실행해 봅니다.
 
 [수업으로 돌아가기: LangGraph 풀이](./graph#solution)
 
@@ -262,7 +262,7 @@ uv run python -m build_lab.runner mcp --topic 계정
 
 처음에는 미구현 함수를 가리키는 NotImplementedError가 나옵니다. 설치 실패와 구분합니다. 첫 검사는 SDK 내부 경로입니다. 두 번째는 학생 서버를 별도 프로세스로 띄워 실제 HTTP로 목록과 결과를 가져옵니다. 서버 기동·종료는 제공 실행기가 맡습니다. 함수 반환값과 HTTP 응답의 content 포장을 비교합니다.
 
-도구 설명을 지우거나 인자 이름을 바꾸면 client 계약은 어떻게 달라질까요? 기본 구현 후 MCP 모듈의 재시작·업무 키 실험을 이어갑니다. Stateless의 의미를 업무 데이터 삭제로 해석하지 않습니다.
+도구의 인자 이름을 topic에서 category로 바꿨습니다. 클라이언트가 여전히 topic을 보내면 호출이 될까요? 서버가 받는 이름과 클라이언트가 보내는 이름을 비교합니다. 기본 구현 후 MCP 모듈의 재시작·업무 키 실험을 이어갑니다. Stateless의 의미를 업무 데이터 삭제로 해석하지 않습니다.
 
 [수업으로 돌아가기: MCP 풀이](./mcp#solution)
 
@@ -336,11 +336,11 @@ uv run python -m build_lab.reference complete --topic 계정
 - [환경·과제 설계](https://www.langchain.com/blog/building-agent-environments-and-tasks): 자신의 업무로 과제를 만들 때 입력·환경·판정 기준을 정하는 방법을 읽습니다.
 
 외부 실습을 실행할 때는 해당 자료의 의존성과 설치 안내를 확인합니다.
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>검사 조건을 모두 만족하는 가장 짧은 코드를 작성했습니다. 그런데 새로운 업무를 넣자 실패합니다. 검사가 부족한 걸까요, 구현이 요구를 좁게 해석한 걸까요?</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>정산과 계정 검사는 모두 통과했습니다. 하지만 코드에는 “정산이면 재무지원팀, 나머지는 IT지원팀”이라고 적혀 있습니다.<br><br><strong>“없는업무”를 넣으면 어떤 답이 나올까요?</strong> 이 문제를 잡으려면 검사에 어떤 입력을 추가해야 할까요?</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 
-둘 다 가능하므로 요구사항과 검사 사례를 함께 봅니다. 기존 입력을 암기한 구현인지 확인하고, 새로운 요구를 대표하는 반례를 추가합니다.
+없는 업무도 IT지원팀이라고 답하게 됩니다. 미등록 업무에서 found=false와 policy=null이 나오는지 검사합니다. 기존 정상 입력도 유지해야 합니다.
 
 한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
 

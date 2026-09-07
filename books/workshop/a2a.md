@@ -142,7 +142,7 @@ sequenceDiagram
 
 **판단해 보기:** 이 Card만 보고 “새 정책을 검색해 달라”는 요청도 처리할 수 있다고 결론 내릴 수 있나요? 현재 선언은 초안 검토이므로 그렇게 판단할 근거가 없습니다. 기능 발견, 작업 실행 상태, 산출물 판정은 각각 확인해야 합니다.
 
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>검토 Agent가 completed와 passed=true를 보냈습니다. 하지만 우리가 수정하기 전 초안의 결과입니다. 누구의 작업은 끝났고, 누구의 업무는 아직 끝나지 않았을까요?</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>첫 초안을 검토해 달라고 보낸 뒤, 금액을 고쳐 두 번째 초안을 만들었습니다. 그때 첫 초안에 대한 “검토 통과”가 도착했습니다.<br><br><strong>두 번째 초안도 통과했다고 처리해도 될까요?</strong> 응답에서 어떤 값을 확인해야 할까요?</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 
@@ -265,12 +265,12 @@ uv run python -m exercises.extension_check a2a --solution
 
 `submitted`·`working`은 대기, 실패 상태는 보류입니다. completed라도 산출물 누락·요청 불일치·버전 불일치·passed가 실제 True가 아닌 경우는 보류합니다. 위 표는 순서 역전을 생각하기 위한 사례이며, 이 표를 실제 네트워크에서 관찰한 중간 상태 기록이라고 보지는 않습니다.
 
-**설계 질문:** 버전 숫자가 같아도 초안 내용이 달라질 수 있는 시스템이라면 무엇을 추가해야 할까요? 초안 변경 시 버전을 올리는 계약, 검토 요청과 본문의 해시를 묶는 방법 중 하나를 선택해 어떤 불일치를 막는지 설명합니다. 버전 검사만으로 사용자 인증이나 실행 승인이 생기는 것은 아닙니다.
+**설계 질문:** 초안 금액을 고쳤는데 버전은 그대로 v1입니다. 예전 v1의 검토 결과가 도착하면 버전 비교로 걸러낼 수 있을까요? 초안을 고칠 때 버전도 바꾸는 방법부터 생각해 봅니다. 더 살펴보려면 본문이 같은지 확인하는 해시를 함께 보내는 방법과 비교합니다. 버전 검사만으로 사용자 인증이나 실행 승인이 생기는 것은 아닙니다.
 
 
 </details>
 
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>두 검토 Agent가 같은 초안에 정반대 의견을 냈습니다. 더 늦게 도착한 결과, 더 비싼 모델, 다수결 중 무엇을 믿겠습니까?</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>검토 Agent A는 “보내도 됩니다”, B는 “보내면 안 됩니다”라고 답했습니다.<br><br><strong>우선 두 Agent에게 무엇을 더 물어보겠습니까?</strong> 한쪽은 최신 규정을, 다른 쪽은 지난달 규정을 봤다면 어떻게 판단할까요?</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 

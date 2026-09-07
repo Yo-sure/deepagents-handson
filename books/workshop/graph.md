@@ -131,7 +131,7 @@ State는 노드마다 처음부터 다시 만드는 요청서가 아닙니다. �
 
 같은 표에서 contact만 빈 문자열로 바꾸면 어느 행부터 결과가 달라지는지 먼저 표시합니다. `lookup`이 contact를 반환하지 않아도 값이 남는다는 점과, `route`가 반환하는 경로 이름은 State 업데이트가 아니라는 점을 구분합니다. 이 코드의 `visited`는 노드가 새 목록을 만들어 반환합니다. 모든 목록이 자동으로 누적되는 것은 아닙니다.
 
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>어제 사람이 승인했는데 오늘 재개하기 전에 정책이 바뀌었습니다. 저장된 승인만 보고 실행해도 될까요?</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>어제 팀장이 20만 원 지출을 승인했습니다. 오늘 프로그램을 다시 켰더니 규정이 15만 원으로 바뀌었습니다.<br><br><strong>어제 승인만 보고 그대로 처리해도 될까요?</strong> 다시 확인해야 할 정보를 하나 골라 봅니다.</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 
@@ -255,7 +255,7 @@ uv run python -m exercises.extension_check graph --solution
 
 </details>
 
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>학생 두 명이 같은 입력에서 같은 답변을 얻었습니다. 한 그래프는 ask를 거쳤고 다른 그래프는 바로 draft로 갔습니다. 둘 다 정답일까요?</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>문의에 답장을 받을 주소가 없습니다. 그런데 프로그램은 주소를 묻지 않고 답변 초안부터 만들었습니다.<br><br><strong>초안이 잘 작성됐어도 실습 요구를 만족한 걸까요?</strong> 실행 기록의 visited에서 ask와 draft 중 어느 단계로 갔는지 확인합니다.</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 

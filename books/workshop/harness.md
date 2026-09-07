@@ -79,7 +79,7 @@ Skill은 절차적 지시입니다. 접근 권한이나 최대 호출 수를 강
 
 
 
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>모델을 더 좋은 것으로 바꿀 예산과 검증 도구를 만들 예산 중 하나만 있습니다. 어떤 실패 기록이 있어야 선택할 수 있을까요?</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>Agent가 테스트도 실행하지 않고 “수정 완료”라고 답합니다. 더 비싼 모델을 쓰거나, 완료 전에 테스트를 꼭 실행하게 만들 수 있습니다.<br><br><strong>어느 방법부터 시도하겠습니까?</strong> 테스트를 실행했는데도 오류를 고치지 못한다면 선택이 달라질까요?</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 
@@ -193,7 +193,7 @@ uv run python -m course.cli deepagent
 
 전체 루프를 직접 작성하고 싶은 사람은 [선택 심화](./build#loop)로 진행합니다. 공통 과제를 마친 뒤 선택할 수 있습니다.
 
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>코딩 Agent가 테스트를 통과시키려고 테스트의 기대값을 바꿨습니다. 스스로 고친 것일까요, 목표를 바꾼 것일까요?</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>테스트는 “정산 담당 팀은 재무지원팀”이라고 검사합니다. Agent는 틀린 답을 고치는 대신 테스트를 지워서 통과시켰습니다.<br><br><strong>이런 수정을 막으려면 어떤 규칙이 필요할까요?</strong> 실제로 담당 팀이 바뀌어 테스트를 수정해야 할 때는 누가 확인하면 좋을까요?</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 

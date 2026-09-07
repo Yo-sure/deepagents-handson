@@ -89,7 +89,7 @@ LangChain으로 모델·도구를 연결하고 LangGraph로 분기를 표현합�
 
 MCP는 도구 연결, A2A는 독립 Agent에 작업을 위임할 때 사용합니다. 각 이름의 의미는 해당 모듈에서 예제로 설명합니다.
 
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>오늘 만든 Agent를 회사에서 바로 쓰려면 무엇 하나가 가장 먼저 달라져야 할까요? 데이터, 권한, 실패 처리 중 하나를 골라 이유를 생각해 둡니다.</p></aside>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>오늘은 만든 답변을 화면에서 확인합니다. 내일부터는 그 답변을 고객에게 자동으로 메일로 보낸다고 가정해 봅니다.<br><br><strong>바로 보내게 할까요, 사람이 먼저 읽게 할까요?</strong> 이 질문은 마지막 수업에서 다시 생각해 봅니다.</p></aside>
 
 <details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 
