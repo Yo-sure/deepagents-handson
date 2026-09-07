@@ -33,10 +33,13 @@ class PackagingTests(unittest.TestCase):
             (root / "runs" / "private.py").write_text("private", encoding="utf-8")
             (root / "course" / ".private").mkdir()
             (root / "course" / ".private" / "private.py").write_text("private", encoding="utf-8")
-            (root / "course" / "main.py").write_text("print('ok')", encoding="utf-8")
+            (root / "course" / "main.py").write_bytes(b"print('ok')\r\n")
             payload = package.collect(root)
             self.assertEqual(len(payload), len(package.TOP_FILES) + len(package.EXTRA_FILES) + 1)
             self.assertFalse(any("private" in name for name in payload))
+            self.assertEqual(payload["workshop/course/main.py"], b"print('ok')\n")
+            (root / "course" / "main.py").write_bytes(b"print('ok')\n")
+            self.assertEqual(package.archive_bytes(payload), package.archive_bytes(package.collect(root)))
 
     def test_secret_pattern_rejected_without_value_in_error(self):
         fake = b"sk-or-v1-" + b"x" * 32

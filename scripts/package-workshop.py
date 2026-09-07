@@ -79,7 +79,7 @@ def collect(source: Path) -> dict[str, bytes]:
         if path.is_symlink() or not path.resolve(strict=True).is_relative_to(source):
             raise ValueError("Input must be a regular file inside workshop")
         name = "workshop/" + path.relative_to(source).as_posix()
-        data = path.read_bytes()
+        data = path.read_bytes().replace(b"\r\n", b"\n")
         validate_content(name, data)
         payload[name] = data
     return payload
@@ -147,26 +147,20 @@ def atomic_write(path: Path, data: bytes) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--check", action="store_true", help="Verify existing archive and its checksum")
+    parser.add_argument("--check", action="store_true", help="Verify archive contents against current sources")
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     target = root / "book/public/downloads" / f"agent-workshop-{VERSION}.zip"
-    checksum = target.with_suffix(".sha256")
-    if args.check:
-        data = target.read_bytes()
-    else:
-        payload = collect(root / "workshop")
-        data = archive_bytes(payload)
-        if data != archive_bytes(payload):
-            raise ValueError("Archive reproducibility check failed")
+    expected = archive_bytes(collect(root / "workshop"))
+    data = target.read_bytes() if args.check else expected
     count = verify_archive(data)
-    expected_checksum = f"{digest(data)}  {target.name}\n".encode("ascii")
     if args.check:
-        if checksum.read_bytes() != expected_checksum:
-            raise ValueError("Release checksum mismatch")
+        if data != expected:
+            raise ValueError("Release archive differs from current sources; regenerate it")
     else:
         atomic_write(target, data)
-        atomic_write(checksum, expected_checksum)
+        # Remove only the obsolete checksum sidecar for this release.
+        target.with_suffix(".sha256").unlink(missing_ok=True)
     print(f"Verified {VERSION}: {count} files + manifest; SHA256 {digest(data)}")
 
 

@@ -95,7 +95,7 @@ print(json.loads(result)["team"])
 
 ### 1. 이번 수업 자료를 받습니다
 
-**2026.09-rc1 실습 자료**를 [ZIP으로 받습니다](../downloads/agent-workshop-2026.09-rc1.zip). <a href="/deepagents-handson/downloads/agent-workshop-2026.09-rc1.sha256" download>SHA256 확인값</a>도 제공합니다. 압축을 풀면 workshop 폴더가 나옵니다. 교재 웹페이지를 여는 것만으로 실습 코드가 설치되지는 않습니다. 다른 버전의 파일을 섞지 않습니다.
+**2026.09-rc1 실습 자료**를 [ZIP으로 받습니다](../downloads/agent-workshop-2026.09-rc1.zip). 압축을 풀면 workshop 폴더가 나옵니다. 교재 웹페이지를 여는 것만으로 실습 코드가 설치되지는 않습니다. 다른 버전의 파일을 섞지 않습니다. Git을 사용하는 경우 [Git으로 받기](../git-setup)의 별도 안내를 따릅니다.
 
 ```text
 workshop/                   ← 압축을 푼 자료와 명령 실행 위치
