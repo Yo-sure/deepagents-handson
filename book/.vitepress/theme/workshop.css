@@ -97,3 +97,9 @@
 .lec.workshop-edition details.instructor-note p { font-size: 16px; }
 
 .lec.workshop-edition .command-purpose { margin: 20px 0 6px; color: #52665c; font-size: 13px; font-weight: 600; }
+
+/* 강의 중 진도를 가늠하는 보조 정보: 본문보다 작고 옅게 표시합니다. */
+.lec.workshop-edition .section-time { color: #738078; font-size: 13px; font-weight: 400; margin: -8px 0 20px; font-variant-numeric: tabular-nums; letter-spacing: .01em; }
+.lec.workshop-edition .discussion-prompt { border-left: 2px solid #b2bdb6; padding: 10px 18px; margin: 24px 0; background: #f7f8f6; }
+.lec.workshop-edition .discussion-prompt > strong { color: #5e6b62; font-size: 13px; }
+.lec.workshop-edition .discussion-prompt > p { margin: 8px 0; }

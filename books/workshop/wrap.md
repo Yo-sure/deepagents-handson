@@ -23,7 +23,7 @@ pageClass: lec-page
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>마지막에는 기능을 많이 추가하기보다 작은 요구 변경을 끝까지 반영해 보겠습니다. 별칭 하나를 바꿨을 때 기존 조회와 검토가 유지되는지가 핵심입니다.</p></aside>
 <details class="instructor-note"><summary>강사용 예상 시간 · 17:30–18:00 / 30분</summary>
 
-**예상 배분:** 시작 질문·관찰 5 / 독립 변경 15 / 풀이·정리 10분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+**예상 배분:** 각 소제목 아래의 소요 시간과 예상 시각을 참고합니다. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
 
 18:00에 종료합니다. 남은 구현은 복습으로 안내하고 핵심 비교와 질문을 정리합니다.
 
@@ -34,6 +34,8 @@ pageClass: lec-page
 <section class="slide" id="icebreaker">
 
 ## 시작 질문 · 테스트는 초록색인데 사용자는 왜 실패했다고 할까요?
+
+<p class="section-time">예상 3분 · 17:30–17:33</p>
 
 Anthropic의 평가 글은 코드 검사·모델 평가·사람의 판단을 구분하며, 정해진 형태의 검사만으로는 의미와 품질을 놓칠 수 있다고 설명합니다. [2026-01-09 · 원문](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
 
@@ -58,7 +60,9 @@ P-02와 IT지원팀을 포함하지만 문의하지 말라고 쓰인 문장을 �
 
 <section class="slide" id="observe">
 
-## 전체 부품을 관찰합니다 · 5분
+## 전체 부품을 관찰합니다
+
+<p class="section-time">예상 2분 · 17:33–17:35</p>
 
 이번에는 자신의 구현을 연결한 요청 하나를 추적합니다. `course.integration`은 제공된 완성 예제의 비교 자료이며 학생 파일을 실행하지 않습니다. 최종 확인에는 아래 학생 실행 명령을 사용합니다.
 
@@ -92,7 +96,9 @@ uv run python -m build_lab.runner complete --topic 정산
 
 <section class="slide" id="practice">
 
-## 독립 변경 · 15분: 업무 별칭을 추가합니다
+## 독립 변경: 업무 별칭을 추가합니다
+
+<p class="section-time">예상 15분 · 17:35–17:50</p>
 
 기존 다섯 구현을 마친 뒤 새 요구를 받았습니다. **로그인 문의는 계정 정책으로, 비용 문의는 정산 정책으로 조회**되어야 합니다. 정책 두 건을 복제하거나 모델 프롬프트에 정답 팀을 추가하지 않습니다. 기존 함수 인자와 반환 구조는 유지합니다.
 
@@ -160,11 +166,23 @@ uv run python -m build_lab.runner complete --topic 계정 --contact ""
 심화 반례: “P-01: 재무지원팀에는 절대 문의하지 마세요.”는 이름·ID 검사를 통과합니다. 로컬 `inspect_draft`와 원격 `verify`는 별도 함수이지만 모두 이름·ID를 중심으로 검사하므로 두 번 검사해도 같은 맹점이 남습니다. 검증 횟수와 검증 기준의 독립성이 어떻게 다른지 설명합니다.
 
 </details>
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>새 업무 별칭은 잘 처리하지만 원래 업무명이 실패하기 시작했습니다. 새 기능 완료라고 할 수 있을까요? 마감까지 5분이라면 무엇부터 확인하겠습니까?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+변경된 입력과 기존 대표 입력을 함께 확인합니다. 새 동작과 유지해야 할 동작을 구분하고, 영향이 큰 실패부터 확인합니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="solution">
 
-## 풀이와 다음 학습 · 10분
+## 풀이와 다음 학습
+
+<p class="section-time">예상 10분 · 17:50–18:00</p>
 
 <details class="instructor-note"><summary>강사용 진행 노트 · 마무리</summary>
 
@@ -195,6 +213,16 @@ uv run python -m build_lab.runner complete --topic 계정 --contact ""
 자신이 작성한 함수에서 문의 하나가 어떻게 처리되는지 따라가 봅니다. 예상과 달랐던 결과가 있다면 처음 어긋난 조건과 수정한 이유를 설명해 봅니다.
 
 공통 활동을 돌아보려면 [Loop·Graph Engineering의 실제 담론과 활용](./engineering)을 읽습니다. 전체 그래프·수정 루프를 직접 작성하고 싶은 경우에는 [선택 심화](./build#loop)에서 기존 계약과 검사 조건을 유지하며 구현합니다.
+
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>이 프로그램에서 모델을 빼도 되는 부분 하나와 모델이 꼭 필요한 부분 하나를 골라 보세요. 전체를 Agent로 만들 필요가 있나요?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+정확한 표 조회와 고정 조건 검사는 코드로 충분할 수 있습니다. 모호한 문의 해석이나 초안 작성에 모델을 쓸 이유를 설명합니다. Agent 사용 자체가 목표가 되지 않도록 정리합니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
 
 </section>
 

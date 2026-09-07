@@ -23,7 +23,7 @@ pageClass: lec-page
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>도구를 호출했다는 사실과 그 결과에 맞게 답했다는 사실은 다릅니다. 둘을 따로 확인해야 수정할 위치가 보입니다.</p></aside>
 <details class="instructor-note"><summary>강사용 예상 시간 · 10:40–11:50 / 70분</summary>
 
-**예상 배분:** 시작 질문 3 / 개념 17 / 구현 30 / 반례·풀이 20분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+**예상 배분:** 각 소제목 아래의 소요 시간과 예상 시각을 참고합니다. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
 
 조회 함수와 Agent 구성은 직접 작성합니다. 운영 심화는 복습으로 돌릴 수 있습니다. 점심은 11:50에 시작합니다.
 
@@ -34,6 +34,8 @@ pageClass: lec-page
 <section class="slide" id="icebreaker">
 
 ## 시작 질문 · 몇 줄로 Agent를 만들면 개발은 끝난 걸까요?
+
+<p class="section-time">예상 3분 · 10:40–10:43</p>
 
 LangChain의 The Art of Loop Engineering은 create_agent가 모델과 도구를 연결하는 기본 루프를 제공하고, 결과 검증은 별도 문제라고 설명합니다. [2026-06-16 · 원문](https://www.langchain.com/blog/the-art-of-loop-engineering) · [GeekNews 소개](https://news.hada.io/topic?id=31106)
 
@@ -58,7 +60,9 @@ create_agent가 실행 반복을 제공해도 회사 규정이나 업무 성공 
 
 <section class="slide">
 
-## 조회 함수에서 시작합니다 · 도입 8분 {#concept}
+## 조회 함수에서 시작합니다 {#concept}
+
+<p class="section-time">예상 6분 · 10:43–10:49</p>
 
 정산 문의를 어느 팀에 전달해야 하는지 확인합니다. 아래 함수의 `topic`은 입력값이며 반환 문자열은 조회 결과입니다. `POLICIES`는 학습용 사내 규정 두 건입니다. `정산`은 P-01/재무지원팀, `계정`은 P-02/IT지원팀입니다.
 
@@ -76,7 +80,9 @@ create_agent가 실행 반복을 제공해도 회사 규정이나 업무 성공 
 
 <section class="slide">
 
-## 질문에서 답변까지 · 7분
+## 질문에서 답변까지
+
+<p class="section-time">예상 6분 · 10:49–10:55</p>
 
 ```mermaid
 flowchart TB
@@ -98,7 +104,9 @@ flowchart TB
 
 <section class="slide">
 
-## 결과와 실행 기록을 구분합니다 · 10분
+## 결과와 실행 기록을 구분합니다
+
+<p class="section-time">예상 5분 · 10:55–11:00</p>
 
 다음 표는 메시지의 역할을 설명하는 예시입니다. 실제 실행 결과를 보장하는 로그는 아닙니다. 뒤에서 자신의 실행 기록과 비교합니다.
 
@@ -128,11 +136,23 @@ flowchart TB
 
 `course/common.py`의 함수와 `runs/langchain.json`을 나란히 엽니다. 정산이라는 값이 함수의 어느 인자로 전달됐는지 찾습니다. 이어서 “이 함수는 문자열을 처리합니다”라는 설명만 주었다면 모델이 용도를 구별하기 충분한지 설명합니다. 도구 설명은 선택을 돕고, 실제 허용된 동작과 입력 검사는 실행 코드가 담당합니다.
 
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>답변의 담당 팀과 정책 ID는 맞지만 조회 도구를 한 번도 부르지 않았습니다. 이 실행을 통과시켜도 될까요?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+최종 답변 정확도만 평가하면 통과할 수 있습니다. 최신 규정 조회가 요구사항이라면 실패입니다. 먼저 무엇을 성공으로 정했는지 확인합니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide">
 
-## 함께 실행합니다 · 15분 {#observe}
+## 함께 실행합니다 {#observe}
+
+<p class="section-time">예상 15분 · 11:00–11:15</p>
 
 [실습: 조회 함수와 Agent 구성](./build#first-code)를 엽니다. `build_lab/student.py`의 `lookup_policy`와 `build_agent`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
 
@@ -198,7 +218,9 @@ uv run python -m course.cli langchain --question "정산 문의도 해야 하고
 
 <section class="slide">
 
-## 개인 과제 · 15분 {#practice}
+## 개인 과제 {#practice}
+
+<p class="section-time">예상 15분 · 11:15–11:30</p>
 
 앞에서 시작한 [조회 함수와 Agent 구성 실습](./build#langchain)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
@@ -277,11 +299,23 @@ uv run python -m exercises.extension_check langchain --solution
 
 </details>
 
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>도구에 정책 전체를 반환하는 방식과 담당 팀·ID만 반환하는 방식 중 무엇을 택하겠습니까? 답변의 근거와 호출 비용은 어떻게 달라질까요?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+짧은 반환은 비용과 혼선을 줄일 수 있지만 예외 조건을 잃을 수 있습니다. 실제로 답해야 할 질문에 필요한 최소 근거를 고르고, 누락될 반례를 하나 만듭니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide">
 
-## 풀이와 다음 모듈 · 10분 {#solution}
+## 풀이와 다음 모듈 {#solution}
+
+<p class="section-time">예상 10분 · 11:30–11:40</p>
 
 주 실습 풀이는 `build_lab/reference.py`의 `lookup_policy`와 `build_agent`를 자신의 구현과 비교합니다. 코드가 비슷한지보다 아래 입력에서 무엇이 실행되고 어떤 근거가 남는지 설명합니다.
 
@@ -299,6 +333,8 @@ uv run python -m exercises.extension_check langchain --solution
 <section class="slide" id="operations">
 
 ## 운영으로 옮길 때 확인할 것
+
+<p class="section-time">예상 10분 · 11:40–11:50</p>
 
 풀이에서는 주 실습의 입력·근거 표와 자신의 실패 한 건을 비교합니다. 아래 운영 사례는 실습 후 읽으며 자신의 업무에 적용할 항목을 고릅니다.
 

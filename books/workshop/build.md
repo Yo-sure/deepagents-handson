@@ -19,7 +19,7 @@ pageClass: lec-page
 
 <details class="instructor-note"><summary>강사용 예상 시간 · 본 수업에 포함</summary>
 
-이 페이지는 각 수업의 구현 시간에 나누어 사용합니다. 예상 구현·연결 시간은 LangChain 30분, LangGraph 30분, MCP 30분, A2A 20분이며 각 세션 배정에 포함됩니다. 전체를 한 번에 진행하는 별도 세션이 아닙니다.
+이 페이지는 각 수업의 구현 시간에 나누어 사용합니다. 예상 구현·연결 시간은 첫 파일·재료 안내를 포함해 LangChain 30분, LangGraph 30분, MCP 30분, A2A 20분이며 각 세션 배정에 포함됩니다. 전체를 한 번에 진행하는 별도 세션이 아닙니다.
 
 </details>
 
@@ -27,6 +27,8 @@ pageClass: lec-page
 <section class="slide" id="first-code">
 
 ## 첫 구현: 파일을 열고 작성할 함수를 찾습니다
+
+<p class="section-time">예상 2분 · 해당 수업 시간에 포함</p>
 
 LangChain 장의 개념 설명을 마친 뒤 진행합니다. 먼저 편집기에서 압축을 푼 `workshop` 폴더의 `build_lab/student.py`를 엽니다. 오늘 직접 수정할 파일입니다.
 
@@ -43,6 +45,8 @@ LangChain 장의 개념 설명을 마친 뒤 진행합니다. 먼저 편집기�
 
 
 ## 재료를 먼저 읽습니다
+
+<p class="section-time">예상 3분 · 해당 수업 시간에 포함</p>
 
 정책 정본은 `course/common.py`의 `POLICIES`입니다. `build_lab/materials.py`의 `POLICIES`를 엽니다. 업무명을 키로 규정을 찾는 Python dict이며, 학습용 데이터 두 건이 들어 있습니다.
 
@@ -73,6 +77,8 @@ uv run --locked --group notebook jupyter lab notebooks/build-agent.ipynb
 <section class="slide" id="langchain">
 
 ## 1. 조회 도구와 Agent 구성
+
+<p class="section-time">예상 25분 · 해당 수업 시간에 포함</p>
 
 모델 없이 도구부터 만듭니다. `lookup_policy(topic)`는 공백을 제거한 주제로 정책을 찾고 JSON **문자열**을 반환합니다. 계정의 반환값을 파싱하면 다음 객체가 됩니다.
 
@@ -129,6 +135,8 @@ uv run python -m build_lab.runner agent --topic 계정
 
 ## 2. 그래프를 읽고 업무 분기를 구현합니다
 
+<p class="section-time">예상 30분 · 해당 수업 시간에 포함</p>
+
 LangGraph 장에서 State·노드·분기를 배운 뒤 진행합니다. 여기서는 `build_lab/materials.py`의 `Inquiry`가 이 프로그램의 상태 형식입니다. `topic`은 업무명, `contact`는 회신 대상, `data`는 조회 결과, `draft`는 답변 초안입니다. `history`는 검토 이력, `decision`은 처리 결과, `visited`는 지나간 노드입니다.
 
 Inquiry의 입력은 topic과 contact입니다. `guided.py`의 노드와 간선을 읽고 다음 경로를 그립니다. 공통 과제는 `student.py`의 `route_inquiry(state)`를 작성하는 것입니다. 정책이 있고 회신 대상이 공백이 아닐 때 draft, 그 외에는 ask를 반환합니다. `build_workflow`가 이 함수를 제공 그래프에 연결합니다.
@@ -171,6 +179,8 @@ graph 단계는 제공 검토 함수로 한 번만 검사합니다. 제공 수�
 
 ## 노트북에서 파일 실습으로 이어가기
 
+<p class="section-time">필요할 때 약 3분 · 다음 활동에서 조절</p>
+
 조회·Agent·분기 함수를 노트북에서 작성했다면 각 함수의 완성 코드를 `build_lab/student.py`의 같은 함수에 옮깁니다. 파일 실습을 진행한 경우에는 이 단계를 건너뜁니다.
 
 옮긴 직후 아래 명령으로 파일의 세 구현을 확인합니다. 실패가 나오면 노트북 셀이 아니라 `build_lab/student.py`를 확인합니다.
@@ -185,6 +195,8 @@ uv run pytest tests/test_build_lab.py --build-student -q -k "lookup or agent or 
 <section class="slide" id="loop">
 
 ## 3. 제공 루프를 관찰하고 하네스 활용을 설명합니다
+
+<p class="section-time">예상 10분 · 해당 수업 시간에 포함</p>
 
 공통 과정에서는 student.py의 refine_answer를 그대로 둡니다. 이 함수가 guided.py의 제공 루프를 호출합니다. 모델이 만든 초안을 검사하고 실제 수정 입력으로 무엇을 전달하는지 읽습니다.
 
@@ -237,6 +249,8 @@ DeepAgents와 비교할 때에는 이 수동 루프가 자동으로 프레임워
 
 ## 4. 내가 만든 도구를 MCP로 공개합니다
 
+<p class="section-time">예상 30분 · 해당 수업 시간에 포함</p>
+
 MCP 모듈 실습 시간에 진행합니다. `build_mcp_server(policy_tool)`에서 MCPServer를 생성하고 `server.tool()(policy_tool)`로 학생 조회 함수를 등록한 뒤 서버를 반환합니다.
 
 <div class="command-purpose">내 구현 실행</div>
@@ -257,6 +271,8 @@ uv run python -m build_lab.runner mcp --topic 계정
 
 ## 5. 원격 검토를 받아도 바로 승인하지 않습니다
 
+<p class="section-time">예상 20분 · 해당 수업 시간에 포함</p>
+
 A2A 모듈 실습 시간에 `accept_review(state, artifact, request_id, version)`을 구현합니다. submitted·working은 pending입니다. completed 외의 종료 상태는 held입니다. completed이면 요청 ID, 양의 정수 버전, artifact 버전 일치, passed is True를 확인한 경우만 accepted입니다. 빈 요청 ID와 bool 버전은 거부합니다.
 
 <div class="command-purpose">내 구현 실행</div>
@@ -276,6 +292,8 @@ A2A 수신부와 검토 서버는 제공 코드입니다. 서버를 처음부터
 <section class="slide" id="finish">
 
 ## 전체 실행 결과를 확인합니다
+
+<p class="section-time">예상 10분 · 해당 수업 시간에 포함</p>
 
 <details class="instructor-note"><summary>강사용 진행 노트 · 실습 도움</summary>
 
@@ -318,11 +336,23 @@ uv run python -m build_lab.reference complete --topic 계정
 - [환경·과제 설계](https://www.langchain.com/blog/building-agent-environments-and-tasks): 자신의 업무로 과제를 만들 때 입력·환경·판정 기준을 정하는 방법을 읽습니다.
 
 외부 실습을 실행할 때는 해당 자료의 의존성과 설치 안내를 확인합니다.
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>검사 조건을 모두 만족하는 가장 짧은 코드를 작성했습니다. 그런데 새로운 업무를 넣자 실패합니다. 검사가 부족한 걸까요, 구현이 요구를 좁게 해석한 걸까요?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+둘 다 가능하므로 요구사항과 검사 사례를 함께 봅니다. 기존 입력을 암기한 구현인지 확인하고, 새로운 요구를 대표하는 반례를 추가합니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="recovery">
 
 ## 앞 단계에서 막혔을 때
+
+<p class="section-time">필요할 때 약 3분 · 다음 활동에서 조절</p>
 
 앞 단계 구현이 끝나지 않아 다음 실습을 실행할 수 없을 때 사용합니다. 먼저 `build_lab/student.py`를 `student-backup.py`로 복사해 자신의 작업을 보관합니다. 아래 표에서 필요한 함수를 확인하고, `build_lab/reference.py`의 같은 이름 함수로 미완료 함수만 교체합니다. 파일 전체를 덮어쓰거나 현재 배우는 단계의 함수까지 교체하지 않습니다.
 

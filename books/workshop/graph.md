@@ -19,7 +19,7 @@ pageClass: lec-page
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">앞 단계 보완 안내</a>에서 필요한 함수만 확인합니다.</div></div>
 <details class="instructor-note"><summary>강사용 예상 시간 · 12:50–14:00 / 70분</summary>
 
-**예상 배분:** 시작 질문 3 / 개념 17 / 그래프 읽기·분기 구현 30 / 풀이 20분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+**예상 배분:** 각 소제목 아래의 소요 시간과 예상 시각을 참고합니다. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
 
 State·노드·조건 분기를 우선합니다. 전체 그래프 작성은 선택 심화입니다.
 
@@ -30,6 +30,8 @@ State·노드·조건 분기를 우선합니다. 전체 그래프 작성은 선�
 <section class="slide" id="icebreaker">
 
 ## 시작 질문 · 상사가 내일 승인한다면 Agent도 밤새 기다려야 할까요?
+
+<p class="section-time">예상 3분 · 12:50–12:53</p>
 
 LangChain의 운영 런타임 글은 사람의 승인을 기다리는 Agent가 실행을 멈추고 나중에 이어갈 수 있어야 한다고 설명합니다. [2026-04-20 · 원문](https://www.langchain.com/blog/runtime-behind-production-deep-agents)
 
@@ -57,7 +59,9 @@ LangChain의 운영 런타임 글은 사람의 승인을 기다리는 Agent가 �
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>그래프의 화살표는 보기 좋은 그림보다 실행 조건에 가깝습니다. 연락처를 비웠을 때 어느 경로로 가는지 먼저 예상해 보겠습니다.</p></aside>
 
 
-## State·node·edge · 12분
+## State·node·edge
+
+<p class="section-time">예상 7분 · 12:53–13:00</p>
 
 State는 실행 중 노드들이 읽고 갱신하는 값입니다. 이 예제에서는 업무 주제·회신 대상·정책 ID·답변·방문 기록을 담습니다. node는 State를 받아 변경할 값을 반환하는 함수이며, edge는 다음 노드를 연결합니다.
 
@@ -73,7 +77,9 @@ State는 실행 중 노드들이 읽고 갱신하는 값입니다. 이 예제에
 
 <section class="slide">
 
-## 그래프를 연결합니다 · 8분
+## 그래프를 연결합니다
+
+<p class="section-time">예상 6분 · 13:00–13:06</p>
 
 ```mermaid
 flowchart LR
@@ -95,7 +101,9 @@ LangChain Agent를 노드 안에서 호출할 수도 있습니다. 기본 예제
 
 <section class="slide">
 
-## 멈춤과 재개 · 5분
+## 멈춤과 재개
+
+<p class="section-time">예상 4분 · 13:06–13:10</p>
 
 사람의 결정을 기다릴 때는 진행 위치와 State가 필요합니다. checkpoint는 실행 상태를 저장하고 thread_id는 어떤 실행을 이어갈지 구분합니다.
 
@@ -123,11 +131,23 @@ State는 노드마다 처음부터 다시 만드는 요청서가 아닙니다. �
 
 같은 표에서 contact만 빈 문자열로 바꾸면 어느 행부터 결과가 달라지는지 먼저 표시합니다. `lookup`이 contact를 반환하지 않아도 값이 남는다는 점과, `route`가 반환하는 경로 이름은 State 업데이트가 아니라는 점을 구분합니다. 이 코드의 `visited`는 노드가 새 목록을 만들어 반환합니다. 모든 목록이 자동으로 누적되는 것은 아닙니다.
 
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>어제 사람이 승인했는데 오늘 재개하기 전에 정책이 바뀌었습니다. 저장된 승인만 보고 실행해도 될까요?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+승인이 어느 데이터와 버전에 대한 것인지 확인해야 합니다. 재개는 실행 상태를 이어 주지만 승인 근거의 유효성을 자동 보장하지는 않습니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="observe">
 
-## 함께 실행 · 20분 (분기 15 / 재개 관찰 5)
+## 함께 실행
+
+<p class="section-time">예상 15분 · 13:10–13:25</p>
 
 [실습: 업무 분기](./build#graph)를 엽니다. `build_lab/student.py`의 `route_inquiry`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
 
@@ -165,7 +185,9 @@ uv run python -m course.cli approval --decision reject
 
 <section class="slide" id="practice">
 
-## 개인 과제 · 20분
+## 개인 과제
+
+<p class="section-time">예상 15분 · 13:25–13:40</p>
 
 앞에서 시작한 [업무 분기 실습](./build#graph)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
@@ -233,11 +255,23 @@ uv run python -m exercises.extension_check graph --solution
 
 </details>
 
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>학생 두 명이 같은 입력에서 같은 답변을 얻었습니다. 한 그래프는 ask를 거쳤고 다른 그래프는 바로 draft로 갔습니다. 둘 다 정답일까요?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+최종 문장 외에 필요한 분기를 지켰는지 봅니다. 회신 대상 확인이 필수인 요구라면 경로도 평가 대상입니다. 반대로 필요 없는 경로까지 강제하고 있지는 않은지 검토합니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="solution">
 
-## 풀이 · 10분
+## 풀이
+
+<p class="section-time">예상 10분 · 13:40–13:50</p>
 
 <details class="instructor-note"><summary>강사용 진행 노트 · 분기 풀이</summary>
 
@@ -290,6 +324,8 @@ uv run python -m exercises.check graph --solution
 <section class="slide" id="operations">
 
 ## 운영으로 옮길 때 확인할 것
+
+<p class="section-time">예상 10분 · 13:50–14:00</p>
 
 풀이에서는 네 입력의 경로와 상태 갱신을 비교합니다. 아래 확장 읽기에서는 운영 환경의 저장·재개·승인 조건을 살펴봅니다.
 

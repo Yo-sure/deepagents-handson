@@ -21,7 +21,7 @@ DeepAgents 예제는 같은 정책 업무를 다른 Harness 구성으로 관찰�
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
 <details class="instructor-note"><summary>강사용 예상 시간 · 14:10–15:20 / 70분</summary>
 
-**예상 배분:** 시작 질문 3 / Harness·DeepAgents 17 / Loop·Graph 담론·개인 활동 35 / 비교·풀이 15분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+**예상 배분:** 각 소제목 아래의 소요 시간과 예상 시각을 참고합니다. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
 
 engineering 페이지 활동이 이 70분에 포함됩니다. 예제 전체 시연은 조절하되 코딩 하네스 활용과 업무 Agent 루프의 차이는 짚습니다.
 
@@ -32,6 +32,8 @@ engineering 페이지 활동이 이 70분에 포함됩니다. 예제 전체 시�
 <section class="slide" id="icebreaker">
 
 ## 시작 질문 · 계속 다음 일을 시키는 사람도 자동화할 수 있을까요?
+
+<p class="section-time">예상 3분 · 14:10–14:13</p>
 
 LangChain은 2026년 글에서 기본 Agent 루프, 결과 검증, 이벤트에 따른 실행, 실행 기록을 통한 개선을 서로 다른 반복으로 설명합니다. GeekNews에도 소개된 논의입니다. [2026-06-16 · 원문](https://www.langchain.com/blog/the-art-of-loop-engineering) · [GeekNews 소개](https://news.hada.io/topic?id=31106)
 
@@ -59,7 +61,9 @@ Codex·Claude Code를 쓸 때 맡길 작업·검증·중단 조건과 역할의 
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>여기서는 잠시 개발자의 자리로 옮겨갑니다. 문의 Agent의 답변을 만드는 일과, 코딩 에이전트에게 그 프로그램을 고치게 하는 일을 구분하겠습니다.</p></aside>
 
 
-## Harness는 무엇을 관리하는가 · 7분
+## Harness는 무엇을 관리하는가
+
+<p class="section-time">예상 8분 · 14:13–14:21</p>
 
 같은 모델도 어떤 도구·문서·지시·실행 제어를 연결했는지에 따라 행동이 달라집니다. Harness는 이 주변 구성을 가리킵니다. 단순히 프롬프트가 길다는 뜻은 아닙니다.
 
@@ -75,11 +79,23 @@ Skill은 절차적 지시입니다. 접근 권한이나 최대 호출 수를 강
 
 
 
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>모델을 더 좋은 것으로 바꿀 예산과 검증 도구를 만들 예산 중 하나만 있습니다. 어떤 실패 기록이 있어야 선택할 수 있을까요?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+정보를 주어도 판단을 못 하는지, 필요한 정보를 못 받는지, 잘못된 완료를 검증하지 못하는지 나눕니다. 실패 원인을 확인하지 않은 채 모델이나 Harness 어느 한쪽이 답이라고 정하지 않습니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide">
 
-## DeepAgents와 Skill 구성 · 9분
+## DeepAgents와 Skill 구성
+
+<p class="section-time">예상 9분 · 14:21–14:30</p>
 
 <<< ../../workshop/course/harness_lab.py#deepagent{python}
 
@@ -109,7 +125,9 @@ Skill도 매번 본문 전체를 프롬프트에 붙이는 방식만 있는 것�
 
 <section class="slide">
 
-## 요즘 말하는 Loop·Graph Engineering · 9분
+## 요즘 말하는 Loop·Graph Engineering
+
+<p class="section-time">예상 10분 · 14:30–14:40</p>
 
 [실제 담론과 사례](./engineering#distinction)를 읽습니다. Peter Steinberger와 Addy Osmani의 Loop 설명은 사람이 매번 다음 지시를 쓰던 일을 시스템에 맡기는 방향입니다. 시작 계기·작업 선택·검증·진행 상태·종료를 함께 설계합니다.
 
@@ -134,7 +152,9 @@ flowchart TB
 
 <section class="slide" id="observe">
 
-## 함께 실습 · 20분
+## 함께 실습
+
+<p class="section-time">예상 10분 · 14:40–14:50</p>
 
 함께 20분은 제공 수정 루프 10분과 DeepAgents·Skill 사용 기록 10분으로 나눕니다. 아래 명령의 출력에서 실제 피드백과 read_file 호출 여부를 읽습니다. 개인 시간에는 코딩 하네스 활용 활동으로 넘어갑니다.
 
@@ -163,7 +183,9 @@ uv run python -m course.cli deepagent
 
 <section class="slide" id="practice">
 
-## 개인 활동 · 20분
+## 개인 활동
+
+<p class="section-time">예상 20분 · 14:50–15:10</p>
 
 [Loop·Graph Engineering 설계 활동](./engineering#task)을 진행합니다. build_lab/HARNESS_WORKSHEET.md에 시작·작업 선택·종료 조건과 역할별 의존성·산출물 계약·상태 기록을 작성합니다. F1/D1 검수 사례로 중복 작업과 잘못된 PASS를 처리합니다.
 
@@ -171,11 +193,23 @@ uv run python -m course.cli deepagent
 
 전체 루프를 직접 작성하고 싶은 사람은 [선택 심화](./build#loop)로 진행합니다. 공통 과제를 마친 뒤 선택할 수 있습니다.
 
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>코딩 Agent가 테스트를 통과시키려고 테스트의 기대값을 바꿨습니다. 스스로 고친 것일까요, 목표를 바꾼 것일까요?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+테스트 변경 자체를 금지하기보다 요구사항과 검증 기준의 변경 근거를 봅니다. 구현을 맡긴 권한과 합격 기준을 바꾸는 권한을 분리할 필요가 있는지 판단합니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="solution">
 
-## 풀이 · 15분
+## 풀이
+
+<p class="section-time">예상 10분 · 15:10–15:20</p>
 
 <details class="instructor-note"><summary>강사용 진행 노트 · 설계 풀이</summary>
 

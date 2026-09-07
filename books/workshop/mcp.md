@@ -19,7 +19,7 @@ Harness에서 이 프로그램을 개선하는 방법을 살펴봤습니다. 이
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
 <details class="instructor-note"><summary>강사용 예상 시간 · 15:30–16:35 / 65분</summary>
 
-**예상 배분:** 시작 질문 3 / 개념 17 / 도구 서버 구현·연결 30 / 풀이 15분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+**예상 배분:** 각 소제목 아래의 소요 시간과 예상 시각을 참고합니다. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
 
 도구 공개와 실제 HTTP 연결을 우선합니다. 운영 사례의 세부 설명은 복습으로 돌릴 수 있습니다.
 
@@ -30,6 +30,8 @@ Harness에서 이 프로그램을 개선하는 방법을 살펴봤습니다. 이
 <section class="slide" id="icebreaker">
 
 ## 시작 질문 · 도구가 100개면 더 똑똑해질까요?
+
+<p class="section-time">예상 3분 · 15:30–15:33</p>
 
 MCP의 새 로드맵은 많은 도구를 처음부터 노출할 때 생기는 비용과 선택 문제를 짚고, 필요한 도구를 점차 발견하는 방향을 제시합니다. [2026-08-22 · 원문](https://blog.modelcontextprotocol.io/posts/mcp-roadmap/) · [GeekNews 소개](https://news.hada.io/topic?id=32777)
 
@@ -57,7 +59,9 @@ Progressive Discovery는 해당 글의 개발 방향입니다. 현재 SDK에 모
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>연결에 성공해도 조회 결과가 맞다는 보장은 없습니다. 서버에 도달했는지와 업무 결과가 맞는지를 나눠 보겠습니다.</p></aside>
 
 
-## 함수 호출에서 서버 연결로 · 7분
+## 함수 호출에서 서버 연결로
+
+<p class="section-time">예상 5분 · 15:33–15:38</p>
 
 지금까지 조회 함수는 같은 프로그램 안에 있었습니다. 여러 애플리케이션이 같은 도구를 사용할 때 서버가 도구의 목록·입력 형식·결과를 일관되게 제공하면 연결 코드를 줄일 수 있습니다.
 
@@ -75,7 +79,9 @@ flowchart LR
 
 <section class="slide">
 
-## 도구 발견·호출·결과 · 6분
+## 도구 발견·호출·결과
+
+<p class="section-time">예상 5분 · 15:38–15:43</p>
 
 <<< ../../workshop/course/mcp_lab.py#server{python}
 
@@ -85,11 +91,23 @@ flowchart LR
 
 실제 호출 후 `is_error`와 결과를 확인합니다. Python SDK 필드명과 JSON wire 필드명은 다를 수 있습니다. 이 교재는 mcp 2.1.1을 lockfile로 고정합니다.
 
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>도구가 100개인데 이름은 모두 비슷합니다. 더 많은 도구를 보여 주는 것과 현재 업무의 도구 5개만 보여 주는 것 중 어느 쪽을 선택하겠습니까?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+선택에 필요한 정보와 혼동 비용을 비교합니다. 업무별 노출은 도움이 될 수 있지만 필요한 도구를 숨길 위험도 있으므로 실제 요청 사례로 확인합니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide">
 
-## 첫 호출을 관찰하고 상태를 구분합니다 · 12분
+## 첫 호출을 관찰하고 상태를 구분합니다
+
+<p class="section-time">예상 7분 · 15:43–15:50</p>
 
 코드에서 낯선 문법은 다음처럼 읽습니다. 이 모듈에서 비동기 프로그램을 처음부터 작성할 필요는 없습니다.
 
@@ -122,7 +140,9 @@ uv run python -c "import json; from exercises.extension_solutions import ticket_
 
 <section class="slide" id="observe">
 
-## 함께 실습 · 20분
+## 함께 실습
+
+<p class="section-time">예상 15분 · 15:50–16:05</p>
 
 [실습: MCP 도구 공개](./build#protocols)를 엽니다. `build_lab/student.py`의 `build_mcp_server`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
 
@@ -162,7 +182,9 @@ LangChain 1.4의 `langchain.mcp.MCPAdapter`가 MCP 도구를 LangChain 도구로
 
 <section class="slide" id="practice">
 
-## 개인 과제 · 20분
+## 개인 과제
+
+<p class="section-time">예상 15분 · 16:05–16:20</p>
 
 앞에서 시작한 [MCP 도구 공개 실습](./build#protocols)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
@@ -267,11 +289,23 @@ data = None if result.is_error else json.loads(result.content[0].text)
 
 </details>
 
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>서버는 처리를 마쳤지만 클라이언트가 응답을 받기 전에 연결이 끊겼습니다. 같은 요청을 다시 보내도 될까요? 조회 대신 결제라면 답이 달라지나요?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+조회와 부작용이 있는 작업의 재시도를 구분합니다. 결제라면 처리 여부를 조회하거나 업무 식별자로 중복 실행을 막는 계약이 필요합니다. Stateless만으로 이 문제는 해결되지 않습니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="operations">
 
 ## 운영 관점: 어디에서 실패했는가
+
+<p class="section-time">예상 5분 · 16:20–16:25</p>
 
 주 실습을 마친 뒤 자신의 기록을 아래 표와 대조합니다. 풀이 시간에는 한 사례를 골라 첫 확인 위치와 재시도 여부를 설명합니다. 모든 장애를 직접 일으키는 활동은 아닙니다.
 
@@ -309,7 +343,9 @@ MCP 명세는 프로토콜 오류와 도구 실행 오류를 구분합니다. `f
 
 <section class="slide" id="solution">
 
-## 풀이 · 10분
+## 풀이
+
+<p class="section-time">예상 10분 · 16:25–16:35</p>
 
 <details class="instructor-note"><summary>강사용 진행 노트 · 오류 비교</summary>
 

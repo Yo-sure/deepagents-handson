@@ -19,7 +19,7 @@ pageClass: lec-page
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 전체 연결에 필요한 앞 단계가 미완료라면 <a href="./build#recovery">앞 단계 보완 안내</a>를 확인합니다.</div></div>
 <details class="instructor-note"><summary>강사용 예상 시간 · 16:45–17:30 / 45분</summary>
 
-**예상 배분:** 시작 질문 3 / 개념·ACP 비교 12 / 수용 함수 구현·연결 20 / 풀이 10분. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+**예상 배분:** 각 소제목 아래의 소요 시간과 예상 시각을 참고합니다. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
 
 완료 상태와 결과 수용의 차이를 우선합니다. 서버 전체 구현은 요구하지 않습니다.
 
@@ -30,6 +30,8 @@ pageClass: lec-page
 <section class="slide" id="icebreaker">
 
 ## 시작 질문 · 다른 팀의 Agent에게 일을 맡기는 것은 API 호출과 무엇이 다를까요?
+
+<p class="section-time">예상 3분 · 16:45–16:48</p>
 
 A2A v1.0 발표는 다른 기술 스택과 조직 사이의 상호 운용을 강조하며, 도구 연결에 쓰는 MCP와 Agent 간 작업 위임을 구분합니다. [2026-03-12 · 원문](https://a2a-protocol.org/dev/blog/2026/03/12/a2a-protocol-ships-v10-production-ready-standard-for-agent-to-agent-communication/)
 
@@ -57,7 +59,9 @@ A2A v1.0 발표는 다른 기술 스택과 조직 사이의 상호 운용을 강
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>상대 Agent가 작업을 끝냈어도 지금 요청에 쓸 수 있는 결과인지는 따로 봐야 합니다. 완료 상태와 결과 수용을 구분하겠습니다.</p></aside>
 
 
-## 도구와 독립 Agent · 7분
+## 도구와 독립 Agent
+
+<p class="section-time">예상 3분 · 16:48–16:51</p>
 
 함수로 충분한 검토를 무조건 별도 Agent로 나눌 필요는 없습니다. 독립 배포·권한·정보 경계를 가진 시스템에 일을 맡기는 경우에는 발견·작업 상태·산출물을 전달할 규약이 필요합니다.
 
@@ -69,7 +73,9 @@ MCP는 도구 사용에, A2A는 독립 Agent나 Agent 시스템에 작업을 맡
 
 <section class="slide">
 
-## Card·Task·Artifact · 10분
+## Card·Task·Artifact
+
+<p class="section-time">예상 4분 · 16:51–16:55</p>
 
 Agent Card에는 이름·접속 위치·기능이 있습니다. Task는 맡긴 작업의 상태, Artifact는 그 작업이 만든 산출물입니다. “요청을 받았다”는 것과 “검토가 끝났다”는 것은 다릅니다.
 
@@ -95,7 +101,9 @@ sequenceDiagram
 
 <section class="slide">
 
-## ACP를 구분합니다 · 5분
+## ACP를 구분합니다
+
+<p class="section-time">예상 2분 · 16:55–16:57</p>
 
 | 이름 | 연결 대상 | 이 수업에서의 위치 |
 |---|---|---|
@@ -110,7 +118,9 @@ sequenceDiagram
 
 <section class="slide">
 
-## 결과 계약 · 3분
+## 결과 계약
+
+<p class="section-time">예상 3분 · 16:57–17:00</p>
 
 <<< ../../workshop/course/a2a_lab.py#result{python}
 
@@ -132,11 +142,23 @@ sequenceDiagram
 
 **판단해 보기:** 이 Card만 보고 “새 정책을 검색해 달라”는 요청도 처리할 수 있다고 결론 내릴 수 있나요? 현재 선언은 초안 검토이므로 그렇게 판단할 근거가 없습니다. 기능 발견, 작업 실행 상태, 산출물 판정은 각각 확인해야 합니다.
 
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>검토 Agent가 completed와 passed=true를 보냈습니다. 하지만 우리가 수정하기 전 초안의 결과입니다. 누구의 작업은 끝났고, 누구의 업무는 아직 끝나지 않았을까요?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+상대의 검토 작업은 끝났지만 현재 초안의 검토는 끝나지 않았습니다. Task 종료와 우리 업무의 결과 수용을 구분하고 요청·버전을 대조합니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="observe">
 
-## 함께 실습 · 15분
+## 함께 실습
+
+<p class="section-time">예상 10분 · 17:00–17:10</p>
 
 [실습: 원격 검토 수용](./build#a2a)를 엽니다. `build_lab/student.py`의 `accept_review`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
 
@@ -160,7 +182,9 @@ Card 이름, state=completed, artifact.request_id/version/passed, decision=accep
 
 <section class="slide" id="practice">
 
-## 개인 과제 · 15분
+## 개인 과제
+
+<p class="section-time">예상 10분 · 17:10–17:20</p>
 
 앞에서 시작한 [원격 검토 수용 실습](./build#a2a)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
@@ -246,11 +270,23 @@ uv run python -m exercises.extension_check a2a --solution
 
 </details>
 
+<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>두 검토 Agent가 같은 초안에 정반대 의견을 냈습니다. 더 늦게 도착한 결과, 더 비싼 모델, 다수결 중 무엇을 믿겠습니까?</p></aside>
+
+<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+
+어느 것도 단독으로 정답을 보장하지 않습니다. 검토 기준과 근거를 비교하고, 충돌 시 재검토나 사람에게 넘기는 조건을 정합니다. Agent 수를 늘리는 것만으로 판정 정책이 생기지 않습니다.
+
+한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+
+</details>
+
 </section>
 
 <section class="slide" id="operations">
 
 ## 운영 관점: 작업 상태와 우리 업무의 판정을 구분합니다
+
+<p class="section-time">예상 3분 · 17:20–17:23</p>
 
 프로토콜의 상태와 화면에 보여 줄 업무 결과를 별도로 설계합니다. `pending`, `held`, `accepted`는 이 교재의 애플리케이션 판정이며 A2A 상태 이름을 그대로 옮긴 것이 아닙니다.
 
@@ -300,7 +336,9 @@ uv run python -m exercises.extension_check a2a --solution
 
 <section class="slide" id="solution">
 
-## 풀이 · 10분
+## 풀이
+
+<p class="section-time">예상 7분 · 17:23–17:30</p>
 
 <details class="instructor-note"><summary>강사용 진행 노트 · 수용 조건 풀이</summary>
 
