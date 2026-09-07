@@ -16,7 +16,7 @@ pageClass: lec-page
 
 정책 조회 연결은 앞 단계에서 확인했습니다. 이번에는 검토 기능을 별도로 운영하는 팀에 초안을 맡긴다고 가정합니다. 문의 Agent는 답변 초안을 만들고, 검토 시스템은 작업 상태와 결과를 돌려줍니다. 앞서 만든 로컬 검토를 지우는 것이 아니라, 통과한 초안을 외부 검토에 넘겼을 때 결과를 어떻게 받아들일지 배웁니다. 실제 조직의 분리 없이 함수 호출로 충분하다면 A2A를 추가할 필요는 없습니다.
 
-<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 전체 연결에 필요한 앞 단계가 미완료라면 시작 안내의 복귀 절차로 해당 함수만 보완합니다.</div></div>
+<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 전체 연결에 필요한 앞 단계가 미완료라면 <a href="./build#recovery">앞 단계 보완 안내</a>를 확인합니다.</div></div>
 </section>
 
 <section class="slide" id="icebreaker">
@@ -130,7 +130,7 @@ sequenceDiagram
 
 ## 함께 실습 · 15분
 
-[직접 완성하기의 해당 단계](./build#protocols)를 엽니다. 입력·출력과 사용할 API를 확인한 뒤 함수를 완성하고 반례로 검사합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
+[실습: 원격 검토 수용](./build#a2a)를 엽니다. `build_lab/student.py`의 `accept_review`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
 
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
 
@@ -154,7 +154,7 @@ Card 이름, state=completed, artifact.request_id/version/passed, decision=accep
 
 ## 개인 과제 · 15분
 
-주 실습은 [내 업무 Agent 직접 완성하기](./build#protocols)입니다. **함께 실습과 개인 과제를 합친 30분** 안에서 재료 읽기→구현→실패 확인을 이어갑니다. 앞의 완성 예제는 필요한 부분만 시연합니다.
+앞에서 시작한 [원격 검토 수용 실습](./build#a2a)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
 공통 구현은 `build_lab/student.py`의 `accept_review`입니다. submitted·working은 pending으로 처리합니다. completed인 경우에도 요청 ID가 비어 있지 않고 일치하며, 기대 버전과 산출물 버전이 모두 양의 정수로 일치하고, `passed is True`인 경우에만 accepted입니다. 불리언 버전, 산출물 누락, 다른 종료 상태는 held입니다. 요청·버전 검사는 주 프로젝트의 필수 계약입니다. 아래 준비 문제는 이 계약을 상태 판정부터 나누어 익힙니다.
 

@@ -15,18 +15,22 @@ pageClass: lec-page
 
 각 모듈에서 배운 개념을 같은 프로젝트에 차례로 적용합니다. 작은 함수 수정 문제는 막힐 때 사용하는 준비 문제입니다. 준비 문제의 PASS만으로 프로젝트를 완성했다고 판단하지 않습니다.
 
-파일 방식에서는 `workshop/build_lab/student.py`의 도구·Agent·업무 분기·MCP 공개·A2A 수용의 다섯 부분을 작성합니다. 그래프 조립과 수정 루프는 제공 구조를 읽고 사용합니다. 초보자는 힌트와 API 재료를 사용하고, 익숙한 사람은 힌트 없이 구현한 뒤 새로운 실패 사례를 추가합니다. 핵심 개념과 완료 조건은 같습니다.
+처음에는 조회 함수와 Agent 구성을 만들고, 다음 수업에서 분기와 서버 연결을 추가합니다. 현재 수업의 단계만 진행한 뒤 해당 장의 풀이로 돌아옵니다.
 
-|제공하는 것|직접 만드는 것|
-|---|---|
-|규정 데이터, 모델 연결, 실행 기록 저장|조회 도구와 Agent 구성|
-|State, 노드·간선으로 구성한 그래프|정책·회신 대상에 따른 업무 분기|
-|학습용 검토 함수·수정 루프·모델 수정 함수|실패 이유·종료 조건을 읽고 하네스 활용 활동지 작성|
-|HTTP 서버 실행·종료, A2A SDK 수신 코드|MCP 도구 등록과 원격 결과 수용 조건|
-
-풀이 파일은 `build_lab/reference.py`입니다. 자신의 첫 구현과 실패를 기록한 뒤 풀이 시간에 비교합니다. import와 함수 인자는 제공되어 있으며, `NotImplementedError` 자리를 구현으로 바꿉니다.
 </section>
-<nav class="lesson-nav" aria-label="학습 단계"><a href="#materials">01 재료</a><a href="#langchain">02 Agent</a><a href="#graph">03 Graph</a><a href="#loop">04 Loop</a><a href="#protocols">05 연결</a><a href="#finish">06 완성</a></nav>
+<section class="slide" id="first-code">
+
+## 첫 구현: 파일을 열고 작성할 함수를 찾습니다
+
+LangChain 장의 개념 설명을 마친 뒤 진행합니다. 먼저 편집기에서 압축을 푼 `workshop` 폴더의 `build_lab/student.py`를 엽니다. 오늘 직접 수정할 파일입니다.
+
+1. `def lookup_policy`를 찾습니다. 이 함수가 업무명에 맞는 규정을 조회하도록 작성합니다.
+2. 함수 안의 `raise NotImplementedError(...)`는 아직 구현하지 않았다는 표시입니다. 이 줄을 지우고 자신의 코드를 작성합니다. 함수 이름과 인자는 그대로 둡니다.
+3. 아래 재료를 읽고 함수를 완성한 뒤, 바로 아래 검사 명령을 실행합니다. 아직 다른 함수는 수정하지 않습니다.
+
+`build_lab/reference.py`는 풀이입니다. 먼저 자신의 코드를 실행해 본 뒤 막힌 부분이나 풀이를 비교할 때 엽니다. 주피터를 사용하려면 아래의 ‘주피터로 진행하는 경우’를 펼칩니다.
+
+</section>
 <section class="slide" id="materials">
 
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>검사는 정답 파일을 찾는 절차가 아니라 내가 작성한 함수의 동작을 확인하는 도구입니다. 예상과 다른 입력 하나를 찾으면 고칠 지점이 선명해집니다.</p></aside>
@@ -34,24 +38,16 @@ pageClass: lec-page
 
 ## 재료를 먼저 읽습니다
 
-정책 정본은 `course/common.py`의 `POLICIES`입니다. `build_lab/materials.py`는 이를 가져오며 State와 검토 기준을 정의합니다. 정책은 학습용 데이터이며 실제 회사 규정이 아닙니다. `inspect_draft`는 ID 일치와 팀 이름을 검사합니다. 사실성·문체·모든 업무 규칙을 평가하는 함수는 아닙니다.
+정책 정본은 `course/common.py`의 `POLICIES`입니다. `build_lab/materials.py`의 `POLICIES`를 엽니다. 업무명을 키로 규정을 찾는 Python dict이며, 학습용 데이터 두 건이 들어 있습니다.
 
-통합 실행의 `topic`은 이미 분류된 업무 키입니다. `계정`과 `계정이 잠겼어요`는 다른 입력입니다. 자연어 문의에서 업무 키를 추출하는 분류 단계는 이번 통합에 포함하지 않습니다. LangChain의 자연어 시연과 범위를 구분합니다.
-
-|State 필드|누가 준비하는가|읽는 시점|
+|업무명|정책 ID|담당 팀|
 |---|---|---|
-|topic, contact|호출자|실행 시작|
-|data|조회 노드|분기와 검토|
-|draft, history, decision, visited|실행한 노드|결과 해석|
+|정산|P-01|재무지원팀|
+|계정|P-02|IT지원팀|
 
-|입력|정책|예상 행동|
-|---|---|---|
-|정산 / 정상 회신 대상|P-01, 재무지원팀|조회하고 초안 작성|
-|계정 / 정상 회신 대상|P-02, IT지원팀|다른 근거로 초안 작성|
-|정산 / 공백 회신 대상|P-01|모델을 호출하지 않고 질문|
-|없는업무 / 정상 회신 대상|없음|규정을 만들어 내지 않고 질문|
+정책 원본은 수정하지 않습니다. 작성할 조회 함수가 이 표에서 필요한 값을 읽어 반환하게 만듭니다. 파일의 다른 정의는 뒤 단계에서 사용할 때 설명합니다.
 
-### 주피터로 진행하는 경우
+<details><summary>주피터로 진행하는 경우</summary>
 
 환경 준비를 마친 `workshop` 폴더에서 실행합니다. 파일 실습은 주피터를 설치하지 않아도 됩니다.
 
@@ -64,17 +60,13 @@ uv run --locked --group notebook jupyter lab notebooks/build-agent.ipynb
 
 노트북에서는 조회·Agent·분기를 셀에서 작성하고 제공 그래프·루프를 실행해 관찰합니다. 완료한 함수를 `build_lab/student.py`의 같은 이름으로 옮겨 MCP·A2A 파일 실습을 이어갑니다. 셀을 바꿔도 Python 파일은 자동으로 바뀌지 않습니다.
 
-옮긴 직후 아래 명령으로 파일의 세 구현을 확인합니다. 실패가 나오면 노트북 셀이 아니라 `build_lab/student.py`를 확인합니다.
+파일로 옮기는 시점과 확인 명령은 [Graph 실습의 노트북 전환 안내](#notebook-export)를 따릅니다.
 
-```bash
-uv run pytest tests/test_build_lab.py --build-student -q -k "lookup or agent or graph"
-```
-
-함수 셀을 수정하면 해당 셀과 아래 실행 셀을 다시 실행합니다. 마지막에는 커널을 재시작하고 처음부터 실행하여 오래된 함수가 남아 우연히 성공한 것은 아닌지 확인합니다. `build-agent-solution.ipynb`는 별도 풀이입니다.
+</details>
 </section>
 <section class="slide" id="langchain">
 
-## 1. 조회 도구와 Agent 구성 · 함께 15분 + 개인 15분
+## 1. 조회 도구와 Agent 구성
 
 모델 없이 도구부터 만듭니다. `lookup_policy(topic)`는 공백을 제거한 주제로 정책을 찾고 JSON **문자열**을 반환합니다. 계정의 반환값을 파싱하면 다음 객체가 됩니다.
 
@@ -94,11 +86,15 @@ uv run pytest tests/test_build_lab.py --build-student -q -k "lookup or agent or 
 
 <<< ../../workshop/build_lab/student.py#lookup{python}
 
+작성한 파일을 저장하고, `workshop` 폴더의 터미널에서 다음 명령을 실행합니다. `pytest`는 예상한 입력과 결과로 함수를 검사합니다. `--build-student`는 자신의 구현을 선택하고, `-k lookup`은 조회 함수 검사만 고릅니다. 아직 뒤 단계 함수가 미완성이어도 이 검사부터 진행할 수 있습니다.
+
+<div class="command-purpose">내 조회 함수 검사</div>
+
 ```bash
 uv run pytest tests/test_build_lab.py --build-student -q -k lookup
 ```
 
-이어서 `build_agent(model, policy_tool)`을 구현합니다. `create_agent(model=..., tools=[...], system_prompt=...)`로 구성한 Agent를 반환합니다. 생성 함수 안에서 실행까지 하지 않습니다. model과 policy_tool을 인자로 받는 이유도 설명합니다.
+검사가 통과하면 이어서 `build_agent(model, policy_tool)`을 구현합니다. `create_agent(model=..., tools=[...], system_prompt=...)`로 구성한 Agent를 반환합니다. 생성 함수 안에서 실행까지 하지 않습니다. model과 policy_tool을 인자로 받는 이유도 설명합니다.
 
 <<< ../../workshop/build_lab/student.py#agent{python}
 
@@ -112,17 +108,22 @@ uv run python -m build_lab.runner agent --topic 계정
 
 **완료 기준:** 실제 기록에 학생 도구의 요청·실행·결과가 남고, P-02와 IT지원팀을 근거로 답합니다. 없는업무도 실행합니다. 답변이 매번 같다고 가정하지 않습니다.
 
-도구가 맞는데 답변 ID가 다르면 어느 층의 실패인가요? 지침을 바꾼 실행과 코드를 바꾼 실행의 차이를 기록합니다. create_agent의 도구 호출 루프와 다음 단계의 업무 그래프를 구분합니다.
+도구가 맞는데 답변 ID가 다르면 어느 층의 실패인가요? 지침을 바꿨을 때와 코드를 바꿨을 때 각각 어떤 결과가 달라지는지 비교합니다. create_agent의 도구 호출 루프와 다음 단계의 업무 그래프를 구분합니다.
 
 <details><summary>막힐 때 읽는 힌트</summary>
 
 정책을 조회한 다음 found를 계산합니다. 없는 정책을 빈 문자열로 바꾸지 않습니다. tools에는 함수의 실행 결과가 아닌 함수 자체를 전달합니다. 도구를 직접 실행한 결과와 ToolMessage를 비교합니다.
 
 </details>
+
+[수업으로 돌아가기: LangChain 풀이](./langchain#solution)
+
 </section>
 <section class="slide" id="graph">
 
-## 2. 그래프를 읽고 업무 분기를 구현합니다 · 함께 20분 + 개인 20분
+## 2. 그래프를 읽고 업무 분기를 구현합니다
+
+LangGraph 장에서 State·노드·분기를 배운 뒤 진행합니다. 여기서는 `build_lab/materials.py`의 `Inquiry`가 이 프로그램의 상태 형식입니다. `topic`은 업무명, `contact`는 회신 대상, `data`는 조회 결과, `draft`는 답변 초안입니다. `history`는 검토 이력, `decision`은 처리 결과, `visited`는 지나간 노드입니다.
 
 Inquiry의 입력은 topic과 contact입니다. `guided.py`의 노드와 간선을 읽고 다음 경로를 그립니다. 공통 과제는 `student.py`의 `route_inquiry(state)`를 작성하는 것입니다. 정책이 있고 회신 대상이 공백이 아닐 때 draft, 그 외에는 ask를 반환합니다. `build_workflow`가 이 함수를 제공 그래프에 연결합니다.
 
@@ -156,6 +157,24 @@ graph 단계는 제공 검토 함수로 한 번만 검사합니다. 제공 수�
 **완료 기준:** 결과 문자열뿐 아니라 실제 모델·수정 함수가 호출되지 않아야 하는 경로를 설명합니다. 검사는 compile된 그래프를 실행해 호출 횟수와 방문 경로를 확인합니다.
 
 **변경 요청:** 연락처를 조회 전에 검사하면 무엇이 달라질까요? 조회 횟수와 질문에 사용할 수 있는 정보의 차이를 설명합니다. 익숙한 사람은 해당 경로를 별도로 구현합니다.
+
+[수업으로 돌아가기: LangGraph 풀이](./graph#solution)
+
+</section>
+<section class="slide" id="notebook-export">
+
+## 노트북에서 파일 실습으로 이어가기
+
+조회·Agent·분기 함수를 노트북에서 작성했다면 각 함수의 완성 코드를 `build_lab/student.py`의 같은 함수에 옮깁니다. 파일 실습을 진행한 경우에는 이 단계를 건너뜁니다.
+
+옮긴 직후 아래 명령으로 파일의 세 구현을 확인합니다. 실패가 나오면 노트북 셀이 아니라 `build_lab/student.py`를 확인합니다.
+
+```bash
+uv run pytest tests/test_build_lab.py --build-student -q -k "lookup or agent or graph"
+```
+
+함수 셀을 수정하면 해당 셀과 아래 실행 셀을 다시 실행합니다. 마지막에는 커널을 재시작하고 처음부터 실행하여 오래된 함수가 남아 우연히 성공한 것은 아닌지 확인합니다. `build-agent-solution.ipynb`는 별도 풀이입니다.
+
 </section>
 <section class="slide" id="loop">
 
@@ -204,6 +223,9 @@ uv run python -m build_lab.runner workflow --topic 계정
 DeepAgents와 비교할 때에는 이 수동 루프가 자동으로 프레임워크에 들어간다고 설명하지 않습니다. 상태·도구·수정 예산 중 프레임워크가 제공하는 것과 업무 코드가 책임지는 것을 나눕니다.
 
 </details>
+
+[수업으로 돌아가기: Harness 풀이](./harness#solution)
+
 </section>
 <section class="slide" id="protocols">
 
@@ -222,6 +244,11 @@ uv run python -m build_lab.runner mcp --topic 계정
 
 도구 설명을 지우거나 인자 이름을 바꾸면 client 계약은 어떻게 달라질까요? 기본 구현 후 MCP 모듈의 재시작·업무 키 실험을 이어갑니다. Stateless의 의미를 업무 데이터 삭제로 해석하지 않습니다.
 
+[수업으로 돌아가기: MCP 풀이](./mcp#solution)
+
+</section>
+<section class="slide" id="a2a">
+
 ## 5. 원격 검토를 받아도 바로 승인하지 않습니다
 
 A2A 모듈 실습 시간에 `accept_review(state, artifact, request_id, version)`을 구현합니다. submitted·working은 pending입니다. completed 외의 종료 상태는 held입니다. completed이면 요청 ID, 양의 정수 버전, artifact 버전 일치, passed is True를 확인한 경우만 accepted입니다. 빈 요청 ID와 bool 버전은 거부합니다.
@@ -236,10 +263,13 @@ uv run python -m build_lab.runner complete --topic 계정
 완성 실행은 **학생 MCP 조회 → 제공 Graph와 학생 분기 → 학생 LangChain Agent → 제공 수정 루프 → 제공 A2A 서버 → 학생 수용 판단**입니다. 선택 심화에서 그래프·루프를 교체했다면 그 구현이 연결됩니다. 모델과 서버는 실제로 실행합니다. 검토가 통과하지 않으면 그 이유를 읽고 보류합니다.
 
 A2A 수신부와 검토 서버는 제공 코드입니다. 서버를 처음부터 구현했다고 말하지 않습니다. A2A 모듈의 executor·Task·Artifact 설명과 대조합니다. ACP는 연결 대상과 규약의 차이를 설명하는 범위입니다.
+
+[수업으로 돌아가기: A2A 풀이](./a2a#solution)
+
 </section>
 <section class="slide" id="finish">
 
-## 완성의 증거를 남깁니다
+## 전체 실행 결과를 확인합니다
 
 <details class="instructor-note"><summary>강사용 진행 노트 · 실습 도움</summary>
 
@@ -288,7 +318,7 @@ uv run python -m build_lab.reference complete --topic 계정
 
 ## 앞 단계에서 막혔을 때
 
-현재 student.py를 다른 이름으로 복사해 보존합니다. 배포 ZIP의 README에 있는 복귀 표를 보고, reference.py에서 미완료인 앞 단계 함수만 같은 이름으로 옮깁니다. 파일 전체를 덮어쓰지 않습니다. 제공받은 함수와 직접 작성한 함수를 직접 작성한 함수와 구분합니다.
+앞 단계 구현이 끝나지 않아 다음 실습을 실행할 수 없을 때 사용합니다. 먼저 `build_lab/student.py`를 `student-backup.py`로 복사해 자신의 작업을 보관합니다. 아래 표에서 필요한 함수를 확인하고, `build_lab/reference.py`의 같은 이름 함수로 미완료 함수만 교체합니다. 파일 전체를 덮어쓰거나 현재 배우는 단계의 함수까지 교체하지 않습니다.
 
 |진행할 단계|먼저 필요한 함수|
 |---|---|
@@ -297,7 +327,7 @@ uv run python -m build_lab.reference complete --topic 계정
 |MCP|lookup_policy|
 |A2A 통합|lookup_policy, build_agent, route_inquiry, build_mcp_server|
 
-해당 단계의 검사 명령으로 재개합니다. 완성 예제를 관찰한 것만으로 학생 프로젝트 구현을 완료했다고 표시하지 않습니다.
+필요한 함수를 보완했다면 원래 진행하던 실습으로 돌아가 해당 단계의 검사 명령을 실행합니다. 직접 작성하다 막힌 부분은 보관한 파일과 풀이를 비교하며 다시 살펴봅니다.
 </section>
 
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>

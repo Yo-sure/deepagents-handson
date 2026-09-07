@@ -18,7 +18,7 @@ pageClass: lec-page
 
 처음에는 “이 답변이 어디서 나왔는가”를 실행 기록으로 확인했습니다. 이제는 자신이 작성한 코드에서 그 근거가 어떻게 전달되는지 설명할 차례입니다. 마지막 별칭 변경은 새 기능을 많이 붙이는 활동이 아니라, 요청의 표현이 바뀌어도 같은 정책과 검토 계약을 유지할 수 있는지 확인하는 활동입니다.
 
-<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 전체 연결에 필요한 앞 단계가 미완료라면 시작 안내의 복귀 절차로 해당 함수만 보완하고 제공받은 부분을 기록합니다.</div></div>
+<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 전체 연결에 필요한 앞 단계가 미완료라면 <a href="./build#recovery">앞 단계 보완 안내</a>에서 필요한 함수만 확인합니다.</div></div>
 
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>마지막에는 기능을 많이 추가하기보다 작은 요구 변경을 끝까지 반영해 보겠습니다. 별칭 하나를 바꿨을 때 기존 조회와 검토가 유지되는지가 핵심입니다.</p></aside>
 </section>

@@ -12,14 +12,14 @@ pageClass: lec-page
 
 # 시작 안내와 하루의 흐름
 
-주 실습은 [내 업무 Agent 직접 완성하기](./build)입니다. 자료의 `build_lab/student.py`에서 시작하며, 주피터를 선택하면 `notebooks/build-agent.ipynb`를 사용합니다. 수업은 강사 소개와 설문 리뷰 10분으로 시작합니다. 이어서 아래 환경 준비를 함께 진행하고 첫 모델 호출을 확인합니다.
+강사 소개와 설문 리뷰 10분으로 시작합니다. 이어서 실습 자료를 받고 실행 환경을 함께 준비합니다. 이 장에서는 완성된 예제를 한 번 실행하여 모델에 연결되는지 확인합니다. 코드를 직접 작성하는 실습은 LangChain 장에서 시작합니다.
 
-<p class="lead">개념을 배운 뒤 도구·Agent·업무 분기를 직접 완성합니다. 제공 그래프·루프에 연결하고 MCP·A2A로 실행을 이어갑니다. 하네스 활용은 과제·검증·피드백을 설계하는 활동으로 익힙니다.</p>
+<p class="lead">오늘은 사내 문의에 맞는 규정을 찾아 답변 초안을 만드는 프로그램을 만듭니다. 먼저 실행해 보고, 작동 원리를 배운 뒤 필요한 부분을 직접 구현합니다.</p>
 
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 강사 안내에 따라 아래 <a href="#setup">환경 준비</a>를 함께 진행합니다. 이미 준비했다면 마지막 준비 완료 체크부터 확인합니다.</div></div>
 </section>
 
-<nav class="lesson-nav" aria-label="학습 단계"><a href="#opening">01 소개·설문 리뷰</a><a href="#overview">02 오늘의 흐름</a><a href="#setup">03 환경 준비</a><a href="#connection">04 연결 확인</a><a href="#practice">05 개인 과제</a></nav>
+<nav class="lesson-nav" aria-label="학습 단계"><a href="#opening">01 소개·설문 리뷰</a><a href="#overview">02 오늘의 흐름</a><a href="#setup">03 환경 준비</a><a href="#connection">04 연결 확인</a><a href="#practice">05 다음 장으로</a></nav>
 
 <section class="slide" id="opening">
 
@@ -74,29 +74,6 @@ flowchart LR
 LangChain으로 모델·도구를 연결하고 LangGraph로 분기를 표현합니다. Harness에서는 이 Agent가 일하는 환경과, 개발자가 코딩 에이전트로 이 프로그램을 개선하는 방식을 함께 살펴봅니다. 두 관점의 전환은 해당 모듈에서 구분합니다.
 
 MCP는 도구 연결, A2A는 독립 Agent에 작업을 위임할 때 사용합니다. 각 이름의 의미는 해당 모듈에서 예제로 설명합니다.
-
-</section>
-
-<section class="slide">
-
-## 왜 이 순서로 배우는가
-
-오늘의 목표는 새 라이브러리 이름을 많이 아는 것이 아닙니다. 업무 문의 하나를 처리하면서 **어떤 결정을 모델에 맡기고 어떤 조건을 코드로 지킬지** 설명하는 것입니다.
-
-|앞 단계에서 남은 문제|다음에 배우는 개념|직접 확인할 결과|
-|---|---|---|
-|모델이 정책을 모름|LangChain의 도구 호출|조회 요청과 실제 반환값|
-|정보가 부족해도 답변을 만듦|LangGraph의 상태·분기|초안 작성 대신 질문|
-|검토에 실패한 초안을 어떻게 다룰지 필요|제공 수정 루프 관찰|실패 이유 반영, 상한에서 보류|
-|이 프로그램의 결함을 계속 찾아 고쳐야 함|Harness·Loop·Graph Engineering|코딩 에이전트에 맡길 작업·검증·중단 설계|
-|여러 프로그램이 같은 도구를 사용|MCP|다른 프로세스의 조회 결과|
-|별도 시스템에 검토를 맡김|A2A|작업 상태와 검토 산출물|
-
-실습을 마칠 때는 수정 코드와 실행 결과를 남기고, 그 결과가 요구 사항을 충족하는 이유를 설명합니다. 기능을 추가할 때마다 이 목적에 필요한지 먼저 판단합니다.
-
-하루 동안 만드는 대상은 **사내 문의의 답변 초안을 준비하는 프로그램**입니다. 정산에서 계정으로 업무가 바뀌어도 같은 규정을 조회하고 근거를 확인합니다. 실제 메일 발송은 범위에 포함하지 않습니다. 통합 실습의 입력은 분류된 업무명이며, 자연어 문장에서 업무명을 알아내는 과정은 LangChain의 별도 시연과 구분합니다.
-
-LangChain·LangGraph에서는 한 프로그램 안에서 조회·분기·검토를 연결합니다. Harness에서는 잠시 개발자의 자리로 옮겨 이 프로그램을 어떻게 개선할지 설계합니다. 이후 다시 업무 Agent로 돌아와 정책 제공 서버와 독립 검토 시스템을 연결합니다. 마지막에는 새 별칭 요구를 직접 반영하여 앞서 만든 연결이 유지되는지 확인합니다.
 
 </section>
 
@@ -241,7 +218,9 @@ WORKSHOP_MODEL=google/gemini-3.1-flash-lite
 uv run python -m course.cli langchain
 ```
 
-명령이 끝나면 VS Code에서 `runs/langchain.json`을 엽니다. 다음 네 항목을 찾으면 첫 실행을 마친 것입니다. 문장이 예시와 똑같을 필요는 없습니다.
+명령이 끝나면 VS Code에서 `runs/langchain.json`을 엽니다. 마지막 답변에서 정산 담당 팀과 근거 ID를 확인합니다. 문장이 예시와 똑같을 필요는 없습니다. 아래 메시지별 항목은 다음 Agent 장에서 자세히 읽습니다.
+
+<details><summary>실행 결과에서 찾을 항목 · 다음 장에서 함께 읽습니다</summary>
 
 |확인 위치|찾아야 하는 내용|뜻|
 |---|---|---|
@@ -249,6 +228,8 @@ uv run python -m course.cli langchain
 |`ai`의 `tool_calls`|`lookup_policy`와 조회 인자|모델이 선택한 조회 요청|
 |`tool` 메시지|`found`, `P-01`, `재무지원팀`|함수가 실제로 반환한 정책|
 |마지막 `ai` 메시지|조회 근거를 사용한 답변|도구 결과를 받은 모델의 응답|
+
+</details>
 
 `ai` 메시지의 본문이 비어 있어도 `tool_calls`가 있으면 도구 요청일 수 있습니다. 파일 생성이나 마지막 문장만으로 연결 성공을 판단하지 않습니다. 실제 호출이 실패했다면 아래 복구 안내에 따라 해결한 뒤 다시 실행합니다.
 
@@ -264,7 +245,7 @@ uv run python -m course.cli langchain
 <label><input type="checkbox"><span><code>workshop</code> 폴더가 있고, 편집기에서 <code>build_lab/student.py</code>를 열 수 있습니다.</span></label>
 <label><input type="checkbox"><span>편집기 터미널의 현재 위치가 <code>workshop</code>이며 Python과 라이브러리 확인이 성공합니다.</span></label>
 <label><input type="checkbox"><span><code>.env</code>를 저장했고 실제 모델 호출이 성공합니다.</span></label>
-<label><input type="checkbox"><span><code>runs/langchain.json</code>에서 요청·도구 호출·조회 결과·답변을 구분할 수 있습니다.</span></label>
+<label><input type="checkbox"><span><code>runs/langchain.json</code> 파일이 생겼고 정산 문의에 대한 답변을 확인했습니다.</span></label>
 </div>
 
 수업 당일에는 이 상태를 확인하고 오늘의 흐름을 안내합니다. 환경이 준비되지 않았다면 어느 단계에서 막혔는지와 오류 메시지를 전달합니다. 키 값은 공유하지 않습니다.
@@ -279,8 +260,6 @@ uv run python -m course.cli langchain
 교재의 모델 호출 명령은 실제 LLM에 연결합니다. 실제 모델이므로 답변 표현이나 도구 호출 횟수는 실행마다 달라질 수 있습니다.
 
 앞의 준비 단계에서 설정한 키를 사용합니다. `WORKSHOP_MODEL`로 모델을 바꿀 수 있으며, 제공 키의 사용 가능 여부는 수업 전에 확인합니다.
-
-모든 함수에 LLM이 필요한 것은 아닙니다. LangGraph의 조건 분기와 MCP 직접 호출은 코드로 실행합니다. `harness`는 검토 피드백을 실제 모델에 전달해 초안을 수정하고, `deepagent`는 DeepAgents에 Skill과 조회 도구를 연결합니다. A2A 검토는 규칙으로 합격 여부를 판정하고 모델이 표현 검토를 덧붙입니다.
 
 <details><summary>모델 호출이 실패할 때: 원인 확인과 복구</summary>
 
@@ -301,40 +280,11 @@ LLM 호출 성공까지가 실습 준비입니다. 오류 코드와 메시지를
 
 <section class="slide" id="practice">
 
+## 환경 준비가 끝났습니다
 
-## 개인 과제와 복귀
+다음 장에서는 방금 실행한 예제를 보며 Agent가 모델과 도구를 어떻게 사용하는지 알아봅니다. `runs/langchain.json`은 그때 다시 엽니다. 지금은 프로그램을 수정하거나 미완성 함수를 검사하지 않아도 됩니다.
 
-주 실습은 [내 업무 Agent 직접 완성하기](./build)입니다. `build_lab/student.py`에서 조회 도구·Agent 구성·업무 분기·MCP 등록·A2A 수용 조건을 작성합니다. 그래프 조립과 수정 루프는 제공 구조를 사용합니다. `NotImplementedError`는 작성할 함수가 남았다는 뜻이며 설치 실패와 구분합니다.
-
-```bash
-uv run pytest tests/test_build_lab.py --build-student -q -k lookup
-```
-
-`--build-student`는 자신의 구현을 검사하는 옵션입니다. 빼면 기준 풀이를 검사하므로 그대로 사용합니다.
-
-개인 실습에서는 코드를 완성하고 실행 결과를 예상과 비교합니다. 막혔을 때는 해당 단계의 힌트와 풀이를 참고합니다.
-
-
-<details class="instructor-note"><summary>강사용 진행 노트 · 개인 실습 안내</summary>
-
-별도 학습 일지나 매 모듈 제출을 요구하지 않습니다. 코드와 실행 결과를 함께 보며 어디에서 예상과 달라졌는지 묻습니다.
-
-확장 문제는 현장 진행에 맞춰 선택합니다. 풀이로 넘어갈 때는 막힌 조건 하나를 짚고, 필요한 앞 단계 함수만 보완하여 다음 실습을 이어갑니다.
-
-</details>
-
-### 앞 단계에서 막힌 경우
-
-주 실습은 앞 단계 함수에 의존합니다. 자료의 `workshop/README.md`에 있는 복귀 절차에 따라 먼저 `student.py`를 다른 이름으로 복사하여 자신의 작업을 보관합니다. 그런 다음 **미완성인 앞 단계 함수만** `reference.py`의 같은 함수 정의로 교체합니다. 현재 풀어야 할 함수와 제공 `build_workflow`·`refine_answer`는 그대로 둡니다. 파일 전체를 덮어쓰지 않으며 제공받은 함수는 직접 작성한 함수와 구분합니다.
-
-|다음 단계|준비할 앞 단계 함수|
-|---|---|
-|Graph|lookup_policy, build_agent|
-|Loop 관찰|lookup_policy, build_agent, route_inquiry|
-|MCP|lookup_policy|
-|A2A·전체 연결|lookup_policy, build_agent, route_inquiry, build_mcp_server|
-
-함수 복사에 필요한 import는 학생 파일에 제공되어 있습니다. 보완한 뒤 [직접 완성하기](./build)의 해당 단계 검사와 실행 명령으로 재개합니다. 시연부터 보려면 학생 파일과 독립적인 `course`의 완성 예제를 실행할 수 있지만, 이를 자신의 구현 성공으로 기록하지 않습니다.
+[다음: Agent는 어떻게 실행되는가](./agent)
 
 </section>
 

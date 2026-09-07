@@ -16,7 +16,7 @@ pageClass: lec-page
 
 입문에서는 완성 예제의 실행 기록을 읽었습니다. 이제 그 기록을 만드는 조회 도구와 Agent 구성을 직접 작성합니다. 같은 정산 문의를 사용하되, 관찰하던 입장에서 실행을 구성하는 입장으로 넘어갑니다.
 
-<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
+<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 이 장에서 처음으로 코드를 직접 작성합니다.</div></div>
 
 <aside class="teacher-aside"><strong>강사의 한마디</strong><p>도구를 호출했다는 사실과 그 결과에 맞게 답했다는 사실은 다릅니다. 둘을 따로 확인해야 수정할 위치가 보입니다.</p></aside>
 </section>
@@ -124,7 +124,7 @@ flowchart TB
 
 ## 함께 실행합니다 · 15분 {#observe}
 
-[직접 완성하기의 해당 단계](./build#langchain)를 엽니다. 입력·출력과 사용할 API를 확인한 뒤 함수를 완성하고 반례로 검사합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
+[실습: 조회 함수와 Agent 구성](./build#first-code)를 엽니다. `build_lab/student.py`의 `lookup_policy`와 `build_agent`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
 
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
 
@@ -190,7 +190,7 @@ uv run python -m course.cli langchain --question "정산 문의도 해야 하고
 
 ## 개인 과제 · 15분 {#practice}
 
-주 실습은 [내 업무 Agent 직접 완성하기](./build#langchain)입니다. **함께 실습과 개인 과제를 합친 30분** 안에서 재료 읽기→구현→실패 확인을 이어갑니다. 앞의 완성 예제는 필요한 부분만 시연합니다.
+앞에서 시작한 [조회 함수와 Agent 구성 실습](./build#langchain)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
 아래 준비 문제는 주 실습에서 막힌 개념을 작은 함수로 확인할 때 사용합니다.
 

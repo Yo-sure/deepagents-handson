@@ -116,7 +116,7 @@ uv run python -c "import json; from exercises.extension_solutions import ticket_
 
 ## 함께 실습 · 20분
 
-[직접 완성하기의 해당 단계](./build#protocols)를 엽니다. 입력·출력과 사용할 API를 확인한 뒤 함수를 완성하고 반례로 검사합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
+[실습: MCP 도구 공개](./build#protocols)를 엽니다. `build_lab/student.py`의 `build_mcp_server`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
 
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
 
@@ -156,7 +156,7 @@ LangChain 1.4의 `langchain.mcp.MCPAdapter`가 MCP 도구를 LangChain 도구로
 
 ## 개인 과제 · 20분
 
-주 실습은 [내 업무 Agent 직접 완성하기](./build#protocols)입니다. **함께 실습과 개인 과제를 합친 40분** 안에서 재료 읽기→구현→실패 확인을 이어갑니다. 앞의 완성 예제는 필요한 부분만 시연합니다.
+앞에서 시작한 [MCP 도구 공개 실습](./build#protocols)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
 아래 준비 문제는 주 실습에서 막힌 개념을 작은 함수로 확인할 때 사용합니다.
 

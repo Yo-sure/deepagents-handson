@@ -16,7 +16,7 @@ pageClass: lec-page
 
 앞에서는 모델이 규정을 조회해 답하게 했습니다. 이번에는 “회신 대상이 없거나 정책을 못 찾으면 초안을 만들지 않는다”는 업무 조건이 추가됩니다. 모델에게 주의를 요청하는 대신, 초안 작성 노드에 들어가기 전에 조건을 검사합니다. 앞서 만든 도구와 Agent는 그대로 사용합니다.
 
-<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 시작 안내의 복귀 절차로 필요한 함수만 보완합니다.</div></div>
+<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">앞 단계 보완 안내</a>에서 필요한 함수만 확인합니다.</div></div>
 </section>
 
 <section class="slide" id="icebreaker">
@@ -121,7 +121,7 @@ State는 노드마다 처음부터 다시 만드는 요청서가 아닙니다. �
 
 ## 함께 실행 · 20분 (분기 15 / 재개 관찰 5)
 
-[직접 완성하기의 해당 단계](./build#graph)를 엽니다. 입력·출력과 사용할 API를 확인한 뒤 함수를 완성하고 반례로 검사합니다. 아래 완성 예제는 구조 비교나 오류 확인이 필요할 때 참조합니다.
+[실습: 업무 분기](./build#graph)를 엽니다. `build_lab/student.py`의 `route_inquiry`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
 
 주 실습은 위 개념 예제에 정책 데이터와 검토 단계를 추가합니다. 필드 이름과 마지막 노드가 달라지므로 `build_lab/materials.py`의 Inquiry와 `guided.py`를 기준으로 구현합니다.
 
@@ -159,7 +159,7 @@ uv run python -m course.cli approval --decision reject
 
 ## 개인 과제 · 20분
 
-주 실습은 [내 업무 Agent 직접 완성하기](./build#graph)입니다. **함께 실습과 개인 과제를 합친 40분** 안에서 재료 읽기→구현→실패 확인을 이어갑니다. 앞의 완성 예제는 필요한 부분만 시연합니다.
+앞에서 시작한 [업무 분기 실습](./build#graph)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
 아래 준비 문제는 주 실습에서 막힌 개념을 작은 함수로 확인할 때 사용합니다.
 
@@ -305,7 +305,7 @@ uv run python -m exercises.check graph --solution
 
 참고: [LangGraph Persistence](https://docs.langchain.com/oss/python/langgraph/persistence).
 
-다음 Harness 모듈의 공통 활동은 [Loop·Graph Engineering의 실제 담론과 활용](./engineering)입니다. 반복 작업의 시작·선택·종료 조건과 역할별 의존성·산출물 계약을 정의합니다. 전체 그래프나 수정 루프를 직접 작성하려면 [선택 심화](./build#loop)를 진행합니다.
+다음 [Harness 장](./harness)에서는 이 프로그램을 코딩 에이전트로 개선하는 방법을 배웁니다. 먼저 Harness와 Skill을 이해한 뒤 반복 작업과 역할 분담을 설계합니다. 전체 그래프나 수정 루프를 직접 작성하려면 [선택 심화](./build#loop)를 진행합니다.
 
 </section>
 
