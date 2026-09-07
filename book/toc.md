@@ -26,8 +26,9 @@ pageClass: lec-page
 |09:20–09:50|[Agent 입문](./workshop/agent)|모델의 요청과 프로그램의 실행 구분|
 |09:50–10:55|[LangChain](./workshop/langchain)|도구 조회 결과에 근거한 답변|
 |10:55–11:05|휴식|—|
-|11:05–12:20|[LangGraph](./workshop/graph)|정보가 부족할 때 질문으로 분기|
-|12:20–13:20|점심|—|
+|11:05–11:50|[LangGraph: 개념·함께 실습](./workshop/graph)|상태와 분기를 읽고 첫 구현 확인|
+|11:50–12:50|점심|—|
+|12:50–13:20|[LangGraph: 개인 과제·풀이](./workshop/graph#practice)|분기를 직접 완성하고 반례 확인|
 |13:20–14:40|[Harness·Loop·Graph Engineering](./workshop/harness)|반복 작업·역할 의존성·검증·중단 판단|
 |14:40–14:50|휴식|—|
 |14:50–16:05|[MCP](./workshop/mcp)|별도 도구 서버의 조회 결과|
@@ -43,3 +44,4 @@ pageClass: lec-page
 [기술 변화와 추가 읽기](./updates) · [이전 판 교재 (2026.06)](./archive/2026-06)
 
 </section></div></div>
+
