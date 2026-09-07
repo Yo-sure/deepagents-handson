@@ -158,7 +158,7 @@ Card 이름, state=completed, artifact.request_id/version/passed, decision=accep
 
 공통 구현은 `build_lab/student.py`의 `accept_review`입니다. submitted·working은 pending으로 처리합니다. completed인 경우에도 요청 ID가 비어 있지 않고 일치하며, 기대 버전과 산출물 버전이 모두 양의 정수로 일치하고, `passed is True`인 경우에만 accepted입니다. 불리언 버전, 산출물 누락, 다른 종료 상태는 held입니다. 요청·버전 검사는 주 프로젝트의 필수 계약입니다. 아래 준비 문제는 이 계약을 상태 판정부터 나누어 익힙니다.
 
-아래 작은 문제는 막힐 때 사용하는 준비 문제입니다. 별도 시간을 추가하지 않습니다. 준비 문제의 통과와 프로젝트 완성을 구분합니다.
+아래 준비 문제는 주 실습에서 막힌 개념을 작은 함수로 확인할 때 사용합니다.
 
 <details><summary>개념을 확인하는 준비 문제와 추가 반례</summary>
 
