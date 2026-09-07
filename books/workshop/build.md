@@ -13,7 +13,7 @@ pageClass: lec-page
 
 문의가 들어오면 규정을 조회하고 답변을 작성합니다. 회신 대상이 없으면 먼저 질문하고, 초안이 기준을 놓치면 제한된 횟수 안에서 수정합니다. 마지막에는 별도 서버의 검토 결과를 읽어 수용 여부를 결정합니다. 실제 메일은 보내지 않습니다.
 
-각 모듈의 **함께 실습과 개인 과제 시간을 합쳐** 이어갑니다. 별도 시간을 덧붙이는 과제가 아닙니다. 기존 작은 함수 수정은 막힐 때 사용하는 준비 문제입니다. 준비 문제의 PASS만으로 프로젝트를 완성했다고 판단하지 않습니다.
+각 모듈의 **함께 실습과 개인 과제 시간을 합쳐** 이어갑니다. 별도 시간을 덧붙이는 과제가 아닙니다. 작은 함수 수정 문제는 막힐 때 사용하는 준비 문제입니다. 준비 문제의 PASS만으로 프로젝트를 완성했다고 판단하지 않습니다.
 
 파일 방식에서는 `workshop/build_lab/student.py`의 도구·Agent·업무 분기·MCP 공개·A2A 수용의 다섯 부분을 작성합니다. 그래프 조립과 수정 루프는 제공 구조를 읽고 사용합니다. 초보자는 힌트와 API 재료를 사용하고, 익숙한 사람은 힌트 없이 구현한 뒤 새로운 실패 사례를 추가합니다. 핵심 개념과 완료 조건은 같습니다.
 
@@ -248,19 +248,19 @@ uv run python -c "from build_lab.student import accept_review; print(accept_revi
 uv run python -m build_lab.reference complete --topic 계정
 ```
 
-### 확보하는 깊이와 남겨 둔 범위
+### 마친 뒤 설명할 수 있어야 하는 것
 
 통합 시간에는 [업무 별칭을 추가하는 독립 변경](./wrap#practice)까지 수행합니다. 새 요구를 보고 수정 위치를 고르고, 변경 전 실패와 기존 동작의 유지 여부를 확인합니다. 다섯 구현의 계약을 그대로 옮기는 것과 새로운 요구에 맞게 재조합하는 것을 따로 평가합니다.
 
 핵심은 도구·LangChain Agent·업무 분기를 직접 만들고 실행 흐름을 설명하는 능력입니다. 그래프·루프 구조의 전체 작성은 선택 심화이고, Loop·Graph Engineering은 실제 담론을 읽고 반복 작업과 여러 역할을 조직하는 설계 판단까지 다룹니다. MCP 도구 공개와 A2A 결과 수용도 직접 연결합니다. 장기 메모리, 장애 후 복구, 운영 인증, 분산 재시도까지 하루에 숙련하는 과정은 아닙니다. HITL·Skills·DeepAgents는 개념과 제공 예제를 비교하고 구현 심화는 별도 과제로 이어갑니다.
 
-### 교수 순서를 참고한 자료
+### 더 연습하려면
 
-LangChain Academy의 단순 그래프→체인→라우터→Agent→메모리 순서에서 작은 실행 단위를 먼저 구성하고 상태 제어를 확장하는 방식을 참고했습니다. 모든 단원을 하루에 넣지는 않았습니다. [공식 과정](https://academy.langchain.com/courses/intro-to-langgraph)
+- [LangChain Academy](https://academy.langchain.com/courses/intro-to-langgraph): 단순 그래프부터 체인·라우터·Agent·메모리까지 순서대로 연습할 수 있습니다.
+- [LangGraph 101](https://github.com/langchain-ai/langgraph-101): 기본 노트북과 심화 패턴을 골라 실습할 수 있습니다.
+- [환경·과제 설계](https://www.langchain.com/blog/building-agent-environments-and-tasks): 자신의 업무로 과제를 만들 때 입력·환경·판정 기준을 정하는 방법을 읽습니다.
 
-공식 LangGraph 101은 기본 노트북과 심화 패턴을 구분합니다. 이 교재도 핵심 셀 구현과 원격 프로세스 실습을 구분했습니다. API는 이 저장소의 고정 버전에서 검증합니다. [공식 워크숍](https://github.com/langchain-ai/langgraph-101)
-
-2026-08-25 LangChain 글의 입력·환경·판정 기준을 함께 명시하는 관점을 참고했습니다. 입력 표와 완료 기준은 본 교재의 사례에 맞춰 작성했습니다. [환경·과제 설계](https://www.langchain.com/blog/building-agent-environments-and-tasks)
+외부 실습을 실행할 때는 해당 자료의 의존성과 설치 안내를 확인합니다.
 </section>
 
 <section class="slide" id="recovery">
