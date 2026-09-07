@@ -19,6 +19,18 @@ pageClass: lec-page
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 전체 연결에 필요한 앞 단계가 미완료라면 시작 안내의 복귀 절차로 해당 함수만 보완합니다.</div></div>
 </section>
 
+<section class="slide" id="icebreaker">
+
+## 시작 질문 · 다른 팀의 Agent에게 일을 맡기는 것은 API 호출과 무엇이 다를까요?
+
+A2A v1.0 발표는 다른 기술 스택과 조직 사이의 상호 운용을 강조하며, 도구 연결에 쓰는 MCP와 Agent 간 작업 위임을 구분합니다. [2026-03-12 · 원문](https://a2a-protocol.org/dev/blog/2026/03/12/a2a-protocol-ships-v10-production-ready-standard-for-agent-to-agent-communication/)
+
+**다른 팀의 검토 시스템이 “완료”라고 답했습니다. 우리 초안을 바로 사용해도 될까요?**
+
+요청 접수·작업 완료·검토 통과를 나누고, 어떤 요청의 어떤 버전인지 확인합니다.
+
+</section>
+
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
 
 <section class="slide" id="concept">

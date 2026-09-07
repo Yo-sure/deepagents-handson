@@ -19,6 +19,18 @@ pageClass: lec-page
 <div class="cue"><div class="cue-body">먼저 <a href="./start">시작 안내</a>에서 환경 준비와 실제 모델 호출을 완료합니다. 이 장의 명령은 <code>workshop</code> 폴더에서 실행합니다. 이미 생성한 <code>runs/langchain.json</code>이 있다면 첫 관찰에 사용할 수 있습니다.</div></div>
 </section>
 
+<section class="slide" id="icebreaker">
+
+## 시작 질문 · 계획표가 없는 Agent도 Agent일까요?
+
+DeepAgents v0.7은 평가 결과를 근거로 TodoListMiddleware를 기본 구성에서 빼고 선택 사항으로 바꿨습니다. 공식 글은 계획 도구가 여전히 유용한 경우도 함께 설명합니다. [v0.7 발표 · 확인 2026-09-08 · 원문](https://www.langchain.com/blog/deep-agents-v0-7)
+
+**할 일 목록을 쓰지 않는다면 Agent가 아닐까요? 무엇을 보고 Agent라고 판단하나요?**
+
+기능 목록보다 다음 행동을 누가 고르는지 봅니다. 도구 요청과 실행 결과를 실제 기록에서 찾아봅니다.
+
+</section>
+
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 모델과 도구</a><a href="#observe">02 기록 읽기</a><a href="#judgment">03 판단 위임</a><a href="#checkpoint">04 확인 문제</a></nav>
 
 <section class="slide" id="concept">

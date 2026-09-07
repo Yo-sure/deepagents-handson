@@ -19,6 +19,18 @@ pageClass: lec-page
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
 </section>
 
+<section class="slide" id="icebreaker">
+
+## 시작 질문 · 몇 줄로 Agent를 만들면 개발은 끝난 걸까요?
+
+LangChain의 The Art of Loop Engineering은 create_agent가 모델과 도구를 연결하는 기본 루프를 제공하고, 결과 검증은 별도 문제라고 설명합니다. [2026-06-16 · 원문](https://www.langchain.com/blog/the-art-of-loop-engineering) · [GeekNews 소개](https://news.hada.io/topic?id=31106)
+
+**모델과 조회 도구를 연결했습니다. 이 답변을 믿으려면 무엇을 한 번 더 확인해야 할까요?**
+
+조회 함수를 직접 작성하고, 도구를 호출했다는 사실과 그 근거대로 답했다는 사실을 나눠 확인합니다.
+
+</section>
+
 <nav class="lesson-nav" aria-label="LangChain 학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
 
 <section class="slide">

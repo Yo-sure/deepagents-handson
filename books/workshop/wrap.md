@@ -21,6 +21,18 @@ pageClass: lec-page
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 전체 연결에 필요한 앞 단계가 미완료라면 시작 안내의 복귀 절차로 해당 함수만 보완하고 제공받은 부분을 기록합니다.</div></div>
 </section>
 
+<section class="slide" id="icebreaker">
+
+## 시작 질문 · 테스트는 초록색인데 사용자는 왜 실패했다고 할까요?
+
+Anthropic의 평가 글은 코드 검사·모델 평가·사람의 판단을 구분하며, 정해진 형태의 검사만으로는 의미와 품질을 놓칠 수 있다고 설명합니다. [2026-01-09 · 원문](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
+
+**답변에 정확한 팀명과 정책 ID가 있습니다. 이것만으로 올바른 답변이라고 할 수 있을까요?**
+
+새 별칭 요구를 직접 반영하고 기존 동작을 다시 확인합니다. 검사 통과와 실제 답변의 의미를 함께 봅니다.
+
+</section>
+
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#observe">01 통합 실행</a><a href="#practice">02 독립 변경</a><a href="#solution">03 풀이</a></nav>
 
 <section class="slide" id="observe">

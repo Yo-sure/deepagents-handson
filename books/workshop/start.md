@@ -31,6 +31,18 @@ pageClass: lec-page
 
 </section>
 
+<section class="slide" id="icebreaker">
+
+## 시작 질문 · 같은 코드인데 왜 내 PC에서만 안 될까요?
+
+Anthropic은 Agent 평가에서도 이전 실행의 파일·캐시 같은 환경 차이가 결과를 왜곡할 수 있다고 설명합니다. [2026-01-09 · 원문](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents)
+
+**같은 코드를 받았는데 한 사람만 실패했습니다. 코드를 고치기 전에 무엇부터 비교할까요?**
+
+코드뿐 아니라 실행 위치·라이브러리·키·접속 조건을 맞추고 첫 호출까지 함께 확인합니다.
+
+</section>
+
 <section class="slide" id="overview">
 
 ## 오늘 만드는 것

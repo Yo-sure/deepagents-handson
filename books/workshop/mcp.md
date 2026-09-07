@@ -19,6 +19,18 @@ Harness에서 이 프로그램을 개선하는 방법을 살펴봤습니다. 이
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
 </section>
 
+<section class="slide" id="icebreaker">
+
+## 시작 질문 · 도구가 100개면 더 똑똑해질까요?
+
+MCP의 새 로드맵은 많은 도구를 처음부터 노출할 때 생기는 비용과 선택 문제를 짚고, 필요한 도구를 점차 발견하는 방향을 제시합니다. [2026-08-22 · 원문](https://blog.modelcontextprotocol.io/posts/mcp-roadmap/) · [GeekNews 소개](https://news.hada.io/topic?id=32777)
+
+**사내 도구 100개를 한꺼번에 연결하는 것과 필요한 도구 몇 개만 보여주는 것 중 무엇을 고르겠나요?**
+
+연결 수보다 도구 설명·입력·결과를 먼저 봅니다. 내가 만든 조회 도구 하나를 서버로 공개하고 호출합니다.
+
+</section>
+
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
 
 <section class="slide" id="concept">

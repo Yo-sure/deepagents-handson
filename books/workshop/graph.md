@@ -19,6 +19,18 @@ pageClass: lec-page
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 시작 안내의 복귀 절차로 필요한 함수만 보완합니다.</div></div>
 </section>
 
+<section class="slide" id="icebreaker">
+
+## 시작 질문 · 상사가 내일 승인한다면 Agent도 밤새 기다려야 할까요?
+
+LangChain의 운영 런타임 글은 사람의 승인을 기다리는 Agent가 실행을 멈추고 나중에 이어갈 수 있어야 한다고 설명합니다. [2026-04-20 · 원문](https://www.langchain.com/blog/runtime-behind-production-deep-agents)
+
+**승인 대기 중 프로그램이 꺼졌습니다. 처음부터 다시 실행하면 어떤 문제가 생길까요?**
+
+진행 상태와 다음 단계를 분리해 봅니다. 먼저 State·노드·분기를 배우고 멈춤과 재개를 관찰합니다.
+
+</section>
+
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
 
 <section class="slide" id="concept">

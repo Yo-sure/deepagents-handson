@@ -21,6 +21,18 @@ DeepAgents 예제는 같은 정책 업무를 다른 Harness 구성으로 관찰�
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
 </section>
 
+<section class="slide" id="icebreaker">
+
+## 시작 질문 · 계속 다음 일을 시키는 사람도 자동화할 수 있을까요?
+
+LangChain은 2026년 글에서 기본 Agent 루프, 결과 검증, 이벤트에 따른 실행, 실행 기록을 통한 개선을 서로 다른 반복으로 설명합니다. GeekNews에도 소개된 논의입니다. [2026-06-16 · 원문](https://www.langchain.com/blog/the-art-of-loop-engineering) · [GeekNews 소개](https://news.hada.io/topic?id=31106)
+
+**코딩 Agent에게 매번 “계속해, 검사해, 다음 문제를 찾아”라고 말한다면 무엇을 시스템에 맡길 수 있을까요?**
+
+Codex·Claude Code를 쓸 때 맡길 작업·검증·중단 조건과 역할의 의존성을 설계합니다.
+
+</section>
+
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
 
 <section class="slide" id="concept">
