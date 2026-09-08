@@ -51,7 +51,7 @@ A2A는 8월 AAIF 합류 발표에서 서로 다른 프레임워크와 조직의 
 
 </section>
 
-<nav class="lesson-nav" aria-label="개념과 실습"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a></nav>
+<nav class="lesson-nav" aria-label="수업 흐름"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a><a href="#wrap">04 Wrap</a></nav>
 
 <section class="slide" id="concept">
 
@@ -385,5 +385,27 @@ uv run python -m exercises.check a2a --solution
 
 </section>
 
+
+<section class="slide" id="wrap">
+
+## Wrap · 요청·진행·결과 수용을 구별합니다
+
+<p class="section-time">예상 3분 · 기존 마무리 시간에 포함</p>
+
+|다시 짚을 개념|오늘 확인한 내용|
+|---|---|
+|Agent Card|다른 Agent의 역할과 연결 정보를 알아냅니다.|
+|Task·Artifact|작업의 진행 상태와 반환한 산출물을 구별합니다.|
+|수용 판단|completed뿐 아니라 요청 ID·버전·passed를 확인합니다. ACP라는 약어는 어떤 규약인지 먼저 구별합니다.|
+
+**짧게 설명해 보기:** completed인데 요청 ID가 다른 결과를 받았습니다. 업무에 사용해도 될까요?
+
+<details><summary>설명 비교</summary>
+
+사용하지 않고 보류합니다. 작업 완료는 내 요청에 맞는 결과라는 보장이 아닙니다.
+
+</details>
+
+</section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>
 </div></div>

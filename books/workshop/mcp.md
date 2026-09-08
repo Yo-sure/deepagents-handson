@@ -51,7 +51,7 @@ MCP의 새 로드맵은 필요한 도구를 점차 발견하는 방향을 다룹
 
 </section>
 
-<nav class="lesson-nav" aria-label="개념과 실습"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a></nav>
+<nav class="lesson-nav" aria-label="수업 흐름"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a><a href="#wrap">04 Wrap</a></nav>
 
 <section class="slide" id="concept">
 
@@ -463,5 +463,27 @@ uv run python -m exercises.check mcp --solution
 
 </section>
 
+
+<section class="slide" id="wrap">
+
+## Wrap · 도구 연결의 세 단계를 복습합니다
+
+<p class="section-time">예상 3분 · 기존 마무리 시간에 포함</p>
+
+|다시 짚을 개념|오늘 확인한 내용|
+|---|---|
+|발견|서버가 제공하는 도구 이름·설명·입력 형식을 알아냅니다.|
+|호출|정해진 형식으로 인자를 보내고 도구 결과를 받습니다.|
+|무상태 요청|연결 세션과 업무 저장소를 구별합니다. 요청이 독립적이어도 업무 데이터는 저장소에 남습니다.|
+
+**짧게 설명해 보기:** 서버를 재시작했는데 같은 티켓이 다시 보입니다. 무상태 원칙을 어긴 걸까요?
+
+<details><summary>설명 비교</summary>
+
+아닙니다. 프로토콜 세션에 의존하지 않는 것과 업무 데이터를 저장하는 것은 별개입니다.
+
+</details>
+
+</section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>
 </div></div>

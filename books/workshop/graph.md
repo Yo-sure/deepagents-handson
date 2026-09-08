@@ -51,7 +51,7 @@ LangChain은 장시간 실행되는 Agent의 운영 기반으로 중단·재개�
 
 </section>
 
-<nav class="lesson-nav" aria-label="개념과 실습"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a></nav>
+<nav class="lesson-nav" aria-label="수업 흐름"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a><a href="#wrap">04 Wrap</a></nav>
 
 <section class="slide" id="concept">
 
@@ -340,11 +340,9 @@ uv run python -m exercises.check graph --solution
 </details>
 
 </section>
-<section class="slide" id="operations">
+<section class="slide"><details><summary>복습 자료 · 운영으로 옮길 때 확인할 것</summary>
 
-## 운영으로 옮길 때 확인할 것
 
-<p class="section-time">예상 10분 · 13:50–14:00</p>
 
 풀이에서는 네 입력의 경로와 상태 갱신을 비교합니다. 아래 확장 읽기에서는 운영 환경의 저장·재개·승인 조건을 살펴봅니다.
 
@@ -370,7 +368,30 @@ uv run python -m exercises.check graph --solution
 
 다음 [Harness 장](./harness)에서는 이 프로그램을 코딩 에이전트로 개선하는 방법을 배웁니다. 먼저 Harness와 Skill을 이해한 뒤 반복 작업과 역할 분담을 설계합니다. 전체 그래프나 수정 루프를 직접 작성하려면 [선택 심화](./build#loop)를 진행합니다.
 
-</section>
 
+</details></section>
+
+
+<section class="slide" id="wrap">
+
+## Wrap · 상태와 실행 경로를 다시 읽습니다
+
+<p class="section-time">예상 3분 · 기존 마무리 시간에 포함</p>
+
+|다시 짚을 개념|오늘 확인한 내용|
+|---|---|
+|State|노드 사이에 전달할 업무 데이터입니다.|
+|Node·edge|노드는 일을 수행하고, 간선과 분기 함수는 다음 노드를 정합니다.|
+|멈춤과 재개|interrupt와 checkpointer의 역할을 구별합니다. END에 도착했다고 업무가 통과한 것은 아닙니다.|
+
+**짧게 설명해 보기:** 정책은 있지만 회신 대상이 빈칸이면 어느 경로로 가야 할까요? 초안 생성은 실행될까요?
+
+<details><summary>설명 비교</summary>
+
+ask 경로로 가며 초안 생성은 실행하지 않습니다. 입력 조건과 visited를 함께 확인합니다.
+
+</details>
+
+</section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>
 </div></div>

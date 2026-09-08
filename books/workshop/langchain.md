@@ -52,7 +52,7 @@ pageClass: lec-page
 
 </section>
 
-<nav class="lesson-nav" aria-label="개념과 실습"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a></nav>
+<nav class="lesson-nav" aria-label="수업 흐름"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a><a href="#wrap">04 Wrap</a></nav>
 
 <section class="slide" id="concept">
 
@@ -516,11 +516,9 @@ uv run python -m exercises.extension_check langchain --solution
 마지막 행은 앞의 `course.cli --question` 경로에서 관찰한 반례를 읽는 활동입니다. 학생 runner에는 `--question` 옵션이 없으므로 자신의 Agent에서 같은 입력을 실행했다고 기록하지 않습니다. 한 번 올바르게 답했다고 입력 공격을 막았다고 판단하지 않습니다. 앞서 관찰한 P-99 사례처럼 올바르게 조회한 뒤에도 틀린 답을 만들 수 있습니다. 프롬프트를 고치는 것과 반환 결과를 검증하는 것은 별도 개선입니다.
 
 </section>
-<section class="slide" id="operations">
+<section class="slide"><details><summary>복습 자료 · 운영으로 옮길 때 확인할 것</summary>
 
-## 운영으로 옮길 때 확인할 것
 
-<p class="section-time">예상 2분 · 11:48–11:50 · 상세 사례는 복습</p>
 
 풀이에서는 주 실습의 입력·근거 표와 자신의 실패 한 건을 비교합니다. 아래 운영 사례는 실습 후 읽으며 자신의 업무에 적용할 항목을 고릅니다.
 
@@ -594,7 +592,30 @@ uv run python -m exercises.read_trace
 
 </details>
 
-</section>
 
+</details></section>
+
+
+<section class="slide" id="wrap">
+
+## Wrap · 모델·도구·메시지를 다시 연결해 봅니다
+
+<p class="section-time">예상 3분 · 기존 마무리 시간에 포함</p>
+
+|다시 짚을 개념|오늘 확인한 내용|
+|---|---|
+|모델 호출|invoke는 요청을 보내고 AIMessage를 받습니다. ainvoke는 비동기 호출입니다.|
+|도구 연결|조회 기능을 tool로 감싸 이름·설명·입력 형식을 모델에 알립니다.|
+|Agent 실행|HumanMessage → 도구 요청 AIMessage → ToolMessage → 최종 AIMessage가 쌓입니다.|
+
+**짧게 설명해 보기:** 도구 결과는 맞는데 최종 답변이 이상하다면 messages에서 어느 두 항목을 비교할까요?
+
+<details><summary>설명 비교</summary>
+
+ToolMessage의 조회 결과와 마지막 AIMessage의 답변을 비교합니다.
+
+</details>
+
+</section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>
 </div></div>

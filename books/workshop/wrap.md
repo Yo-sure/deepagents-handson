@@ -55,9 +55,9 @@ LangChain은 최근 Agent 평가 과제를 만드는 글에서 실행 환경과 
 
 </section>
 
-<nav class="lesson-nav" aria-label="학습 단계"><a href="#observe">01 통합 실행</a><a href="#practice">02 독립 변경</a><a href="#solution">03 풀이</a></nav>
 
-<section class="slide" id="observe">
+<nav class="lesson-nav" aria-label="수업 흐름"><a href="#concept">01 개념</a><a href="#practice">02 실습</a><a href="#solution">03 풀이</a><a href="#wrap">04 Wrap</a></nav>
+<section class="slide" id="concept">
 
 <!-- lesson-exercise:finish -->
 
@@ -241,5 +241,27 @@ uv run python -m labs.a2a
 
 </section>
 
+
+<section class="slide" id="wrap">
+
+## Wrap · 오늘 만든 Agent를 한 번 더 설명합니다
+
+<p class="section-time">예상 3분 · 기존 마무리 시간에 포함</p>
+
+|다시 짚을 개념|오늘 확인한 내용|
+|---|---|
+|연결|CSV 조회 기능을 도구로 등록하고 모델에 연결했습니다.|
+|제어|상태와 분기로 정보가 부족한 경로를 나눴습니다.|
+|확장|Harness의 개선 방식, MCP 도구 연결, A2A 결과 수용을 구별했습니다.|
+
+**짧게 설명해 보기:** 새 업무를 추가한다면 어디를 바꾸고 무엇을 다시 실행해 확인할까요?
+
+<details><summary>설명 비교</summary>
+
+데이터·도구 설명·필요한 분기 조건을 살핀 뒤 정상 입력과 없는 업무를 실행합니다. 원격 검토를 사용한다면 요청과 산출물의 일치도 확인합니다.
+
+</details>
+
+</section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>
 </div></div>

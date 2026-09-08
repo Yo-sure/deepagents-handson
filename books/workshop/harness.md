@@ -53,7 +53,7 @@ Codex나 Claude Code 사용 경험이 있으면 “계속해”를 반복했던 
 
 </section>
 
-<nav class="lesson-nav" aria-label="개념과 실습"><a href="#concept">01 개념</a><a href="#practice">02 실습</a><a href="#solution">03 풀이</a></nav>
+<nav class="lesson-nav" aria-label="수업 흐름"><a href="#concept">01 개념</a><a href="#practice">02 실습</a><a href="#solution">03 풀이</a><a href="#wrap">04 Wrap</a></nav>
 
 <section class="slide" id="concept">
 
@@ -299,5 +299,27 @@ DeepAgents v0.7은 평가 결과를 바탕으로 TodoListMiddleware를 기본 �
 
 </details>
 
+
+<section class="slide" id="wrap">
+
+## Wrap · Harness와 반복 개선의 역할을 정리합니다
+
+<p class="section-time">예상 3분 · 기존 마무리 시간에 포함</p>
+
+|다시 짚을 개념|오늘 확인한 내용|
+|---|---|
+|Harness|모델 주변의 도구·상태·권한·컨텍스트·실행 제어를 구성합니다.|
+|Skill|작업 절차와 참고 자료를 재사용할 수 있게 제공합니다.|
+|Loop Engineering|코딩 에이전트의 다음 작업 선택·구현·검증·기록을 이어가는 방식을 설계합니다.|
+
+**짧게 설명해 보기:** 코딩 에이전트가 같은 실패를 반복한다면 계속하라는 말 외에 무엇을 바꿀까요?
+
+<details><summary>설명 비교</summary>
+
+실패 원인과 완료 기준을 구체화하고 다음 작업 범위를 줄입니다. 검증 결과를 다음 실행에 전달하며 반복 상한도 정합니다.
+
+</details>
+
+</section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>
 </div></div>

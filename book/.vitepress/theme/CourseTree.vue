@@ -24,10 +24,12 @@ const activePart = ref('concept')
 let frame = 0
 function updatePart() {
   frame = 0
-  const practice = path.value.endsWith('/harness') ? 'practice' : 'observe'
-  const sections = ['concept', practice, 'solution'].map(id => ({ id, node: document.getElementById(id) })).filter(item => item.node)
+  const practice = ['/workshop/harness', '/workshop/wrap'].includes(path.value) ? 'practice' : 'observe'
+  const sections = ['concept', practice, 'solution', 'wrap'].map(id => ({ id, node: document.getElementById(id) })).filter(item => item.node)
   let current = sections[0]?.id || ''
   for (const item of sections) if (item.node!.getBoundingClientRect().top <= 150) current = item.id
+  const last = sections[sections.length - 1]
+  if (last && window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4 && last.node!.getBoundingClientRect().top < window.innerHeight) current = last.id
   activePart.value = current
 }
 function schedulePart() { if (!frame) frame = requestAnimationFrame(updatePart) }
@@ -60,10 +62,11 @@ function toggle() {
         <ul :id="'course-group-' + index" v-show="expanded[index]">
           <li v-for="[label, link] in group.items" :key="link">
             <a :href="withBase(link)" :aria-current="path === link ? 'page' : undefined">{{ label }}</a>
-            <div v-if="path === link && ['/workshop/langchain', '/workshop/graph', '/workshop/harness', '/workshop/mcp', '/workshop/a2a'].includes(link)" class="module-parts">
+            <div v-if="path === link && ['/workshop/langchain', '/workshop/graph', '/workshop/harness', '/workshop/mcp', '/workshop/a2a', '/workshop/wrap'].includes(link)" class="module-parts">
               <a :aria-current="activePart === 'concept' ? 'location' : undefined" :href="withBase(link + '#concept')">개념</a>
-              <a :aria-current="['practice', 'observe'].includes(activePart) ? 'location' : undefined" :href="withBase(link + (link.endsWith('/harness') ? '#practice' : '#observe'))">실습</a>
+              <a :aria-current="['practice', 'observe'].includes(activePart) ? 'location' : undefined" :href="withBase(link + (['/workshop/harness', '/workshop/wrap'].includes(link) ? '#practice' : '#observe'))">실습</a>
               <a :aria-current="activePart === 'solution' ? 'location' : undefined" :href="withBase(link + '#solution')">풀이</a>
+              <a :aria-current="activePart === 'wrap' ? 'location' : undefined" :href="withBase(link + '#wrap')">Wrap</a>
             </div>
           </li>
         </ul>
