@@ -5,7 +5,7 @@ from langgraph.graph import StateGraph, START, END
 from .materials import Inquiry, inspect_draft
 
 
-def build_workflow(lookup, generate, refine, limit=2, router=None):
+def build_workflow(lookup, generate, refine, limit=2, router=None, ask_node=None):
     def read(state):
         return {"data": json.loads(lookup(state["topic"])), "visited": ["lookup"]}
 
@@ -19,6 +19,8 @@ def build_workflow(lookup, generate, refine, limit=2, router=None):
         )
 
     def ask(state):
+        if ask_node is not None:
+            return ask_node(state)
         return {
             "decision": "ask",
             "draft": "업무 주제와 회신 대상을 확인해 주세요.",

@@ -16,6 +16,7 @@ class Inquiry(TypedDict, total=False):
     decision: str
     history: list[dict]
     visited: list[str]
+    missing: list[str]
 
 
 def inspect_draft(text, data):

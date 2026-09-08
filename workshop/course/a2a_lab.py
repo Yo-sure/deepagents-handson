@@ -25,7 +25,7 @@ from starlette.applications import Starlette
 from .harness_lab import verify
 
 
-# pragma region result
+# region result
 def accept_result(
     state: str, artifact: dict | None, request_id: str, version: int
 ) -> str:
@@ -46,7 +46,7 @@ def accept_result(
     return "accepted" if artifact.get("passed") is True else "held"
 
 
-# pragma endregion result
+# endregion result
 
 
 class ReviewExecutor(AgentExecutor):
@@ -138,7 +138,7 @@ def create_app(port: int, *, model=None):
     )
 
 
-# pragma region delegate
+# region delegate
 async def delegate(url: str, payload: dict):
     from a2a.client import A2ACardResolver, ClientConfig, ClientFactory
     from a2a.types import Message, Role, SendMessageConfiguration, SendMessageRequest
@@ -188,7 +188,7 @@ async def delegate(url: str, payload: dict):
         }
 
 
-# pragma endregion delegate
+# endregion delegate
 
 
 if __name__ == "__main__":

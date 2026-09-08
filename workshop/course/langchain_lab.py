@@ -5,7 +5,7 @@ from langchain.agents import create_agent
 from .common import get_model, lookup_policy, trace_messages
 
 
-# pragma region agent
+# region agent
 def run(
     topic: str = "정산",
     policy_tool=lookup_policy,
@@ -38,4 +38,4 @@ def run(
     return {"trace": trace_messages(result["messages"])}
 
 
-# pragma endregion agent
+# endregion agent

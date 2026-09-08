@@ -14,13 +14,13 @@ ROOT = Path(__file__).resolve().parents[1]
 POLICIES = load_policies()
 
 
-# pragma region lookup
+# region lookup
 def lookup_policy(topic: str) -> str:
     """Look up the current internal policy for a business topic."""
     return search_policy(topic)
 
 
-# pragma endregion lookup
+# endregion lookup
 
 
 def get_model():

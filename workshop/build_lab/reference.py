@@ -32,6 +32,24 @@ def route_inquiry(state):
     )
 
 
+def ask_for_details(state):
+    missing = []
+    labels = []
+    if not state["data"]["found"]:
+        missing.append("topic")
+        labels.append("업무 주제")
+    if not state.get("contact", "").strip():
+        missing.append("contact")
+        labels.append("회신 대상")
+    return {
+        "missing": missing,
+        "decision": "ask",
+        "draft": " · ".join(labels) + "을 확인해 주세요.",
+        "history": [],
+        "visited": state["visited"] + ["ask"],
+    }
+
+
 def build_workflow(lookup, generate, refine, limit=2):
     def read(state):
         return {"data": json.loads(lookup(state["topic"])), "visited": ["lookup"]}
@@ -40,12 +58,7 @@ def build_workflow(lookup, generate, refine, limit=2):
         return route_inquiry(state)
 
     def ask(state):
-        return {
-            "decision": "ask",
-            "draft": "업무 주제와 회신 대상을 확인해 주세요.",
-            "history": [],
-            "visited": state["visited"] + ["ask"],
-        }
+        return ask_for_details(state)
 
     def draft(state):
         return {

@@ -87,6 +87,12 @@ assert result["visited"] == ["lookup", "draft", "review"]
 assert review["artifact"]["passed"] is True
 assert decision == "accepted"
 assert payload["topic"] == "계정"
+# MCP 서버가 종료된 뒤에도 앞 장의 로컬 Agent를 다시 사용할 수 있습니다.
+assert "P-01" in generate_answer("정산")
+# 계정 예제를 실행한 커널에서 정산으로 바꾸면 새 정책으로 수정해야 합니다.
+changed = refine("확인 완료", json.loads(lookup_policy("정산")), 2)
+assert changed["status"] == "passed"
+assert "P-01" in changed["draft"] and "P-02" not in changed["draft"]
 """)
     )
     execute(cells)

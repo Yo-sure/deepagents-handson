@@ -9,7 +9,7 @@ from .common import lookup_policy
 PROTOCOL = "2026-07-28"
 
 
-# pragma region ticket
+# region ticket
 def create_ticket(db: Path, business_key: str, content: str) -> dict:
     if not business_key.strip() or not content.strip():
         raise ValueError("업무 키와 내용을 입력하십시오.")
@@ -32,10 +32,10 @@ def create_ticket(db: Path, business_key: str, content: str) -> dict:
         return {"ticket_id": cursor.lastrowid, "created": True}
 
 
-# pragma endregion ticket
+# endregion ticket
 
 
-# pragma region server
+# region server
 def make_server(db: Path):
     server = MCPServer("업무 정책 도구")
     server.tool()(lookup_policy)
@@ -48,10 +48,10 @@ def make_server(db: Path):
     return server
 
 
-# pragma endregion server
+# endregion server
 
 
-# pragma region client
+# region client
 async def query(url: str, topic: str):
     async with Client(url, mode=PROTOCOL) as client:
         catalog = await client.list_tools()
@@ -65,7 +65,7 @@ async def query(url: str, topic: str):
         }
 
 
-# pragma endregion client
+# endregion client
 
 
 if __name__ == "__main__":

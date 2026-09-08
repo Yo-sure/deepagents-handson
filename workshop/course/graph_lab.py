@@ -7,7 +7,7 @@ from langgraph.types import interrupt, Command
 from .common import POLICIES
 
 
-# pragma region state
+# region state
 class InquiryState(TypedDict, total=False):
     topic: str
     contact: str
@@ -17,27 +17,27 @@ class InquiryState(TypedDict, total=False):
     visited: list[str]
 
 
-# pragma endregion state
+# endregion state
 
 
-# pragma region lookup
+# region lookup
 def lookup(state: InquiryState) -> dict:
     policy = POLICIES.get(state["topic"])
     return {"policy_id": policy["id"] if policy else "", "visited": ["lookup"]}
 
 
-# pragma endregion lookup
+# endregion lookup
 
 
-# pragma region route
+# region route
 def route(state: InquiryState) -> str:
     return "draft" if state.get("contact") and state.get("policy_id") else "ask"
 
 
-# pragma endregion route
+# endregion route
 
 
-# pragma region draft
+# region draft
 def draft(state):
     return {
         "answer": POLICIES[state["topic"]]["rule"],
@@ -46,10 +46,10 @@ def draft(state):
     }
 
 
-# pragma endregion draft
+# endregion draft
 
 
-# pragma region ask
+# region ask
 def ask(state):
     return {
         "answer": "업무 주제와 회신 대상을 확인해 주세요.",
@@ -58,10 +58,10 @@ def ask(state):
     }
 
 
-# pragma endregion ask
+# endregion ask
 
 
-# pragma region graph
+# region graph
 def build_graph(router=route, lookup_node=lookup, draft_node=draft):
     graph = StateGraph(InquiryState)
     graph.add_node("lookup", lookup_node)
@@ -74,11 +74,11 @@ def build_graph(router=route, lookup_node=lookup, draft_node=draft):
     return graph.compile()
 
 
-# pragma endregion graph
+# endregion graph
 
 
-# pragma region approval
-# pragma region review
+# region approval
+# region review
 def review(state):
     decision = interrupt(
         {"proposal": state["answer"], "choices": ["approve", "reject"]}
@@ -86,7 +86,7 @@ def review(state):
     return {"decision": "approved" if decision == "approve" else "held"}
 
 
-# pragma endregion review
+# endregion review
 
 
 def approval_demo(decision="approve"):
@@ -105,4 +105,4 @@ def approval_demo(decision="approve"):
     }
 
 
-# pragma endregion approval
+# endregion approval

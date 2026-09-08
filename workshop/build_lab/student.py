@@ -6,7 +6,7 @@ from mcp.server.mcpserver import MCPServer  # noqa: F401 - 구현 연습에 제�
 from course.policy_store import search_policy  # noqa: F401 - 구현 연습에 제공하는 API
 
 
-# pragma region lookup
+# region lookup
 def lookup_policy(topic: str) -> str:
     """Look up the current internal policy by topic, such as 정산 or 계정."""
     # 제공 search_policy(topic)을 호출하고 결과를 그대로 반환합니다.
@@ -15,19 +15,19 @@ def lookup_policy(topic: str) -> str:
     )
 
 
-# pragma endregion lookup
+# endregion lookup
 
 
-# pragma region agent
+# region agent
 def build_agent(model, policy_tool):
     # tool(policy_tool)로 도구를 만들고 model·tools·system_prompt를 지정합니다.
     raise NotImplementedError("1B: create_agent로 도구를 가진 Agent를 구성하십시오.")
 
 
-# pragma endregion agent
+# endregion agent
 
 
-# pragma region graph
+# region graph
 def route_inquiry(state):
     """정책과 회신 대상을 읽고 draft 또는 ask로 분기합니다."""
     # 정책이 있어도 회신 대상이 없으면 생성하면 안 됩니다.
@@ -36,17 +36,24 @@ def route_inquiry(state):
     )
 
 
+def ask_for_details(state):
+    """부족한 정보만 질문하고 변경할 State 필드를 반환합니다."""
+    raise NotImplementedError("2: missing과 질문, 방문 기록을 반환하십시오.")
+
+
 def build_workflow(lookup, generate, refine, limit=2):
     """제공 그래프에 학생 분기를 연결합니다. guided.py의 노드·간선을 읽습니다."""
     from .guided import build_workflow as assemble
 
-    return assemble(lookup, generate, refine, limit, router=route_inquiry)
+    return assemble(
+        lookup, generate, refine, limit, router=route_inquiry, ask_node=ask_for_details
+    )
 
 
-# pragma endregion graph
+# endregion graph
 
 
-# pragma region loop
+# region loop
 def refine_answer(draft, data, revise, limit=2):
     """제공 루프를 사용합니다. 전체 알고리즘 작성은 선택 심화입니다."""
     from .guided import refine_answer as refine
@@ -54,24 +61,24 @@ def refine_answer(draft, data, revise, limit=2):
     return refine(draft, data, revise, limit)
 
 
-# pragma endregion loop
+# endregion loop
 
 
-# pragma region mcp
+# region mcp
 def build_mcp_server(policy_tool):
     raise NotImplementedError(
         "4: MCPServer를 만들고 policy_tool을 도구로 등록하십시오."
     )
 
 
-# pragma endregion mcp
+# endregion mcp
 
 
-# pragma region a2a
+# region a2a
 def accept_review(state, artifact, request_id, version):
     raise NotImplementedError(
         "5: 작업 상태·요청 ID·버전·passed를 확인해 수용 여부를 반환하십시오."
     )
 
 
-# pragma endregion a2a
+# endregion a2a

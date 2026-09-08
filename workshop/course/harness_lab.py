@@ -16,7 +16,7 @@ def verify(text: str, topic: str) -> list[str]:
     return errors
 
 
-# pragma region loop
+# region loop
 def bounded_refine(
     draft: str, topic: str, revise: Callable, max_revisions: int = 2
 ) -> dict:
@@ -34,7 +34,7 @@ def bounded_refine(
     raise AssertionError("도달하지 않는 경로")
 
 
-# pragma endregion loop
+# endregion loop
 
 
 def revise_draft(draft: str, feedback: list[str], topic="정산", *, model=None) -> str:
@@ -52,7 +52,7 @@ def revise_draft(draft: str, feedback: list[str], topic="정산", *, model=None)
     return response.content
 
 
-# pragma region deepagent
+# region deepagent
 def run_deep_agent(topic="정산", *, model=None):
     import json
     from deepagents import create_deep_agent
@@ -80,4 +80,4 @@ def run_deep_agent(topic="정산", *, model=None):
     return {"trace": trace_messages(result["messages"])}
 
 
-# pragma endregion deepagent
+# endregion deepagent

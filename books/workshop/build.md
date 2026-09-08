@@ -25,7 +25,7 @@ pageClass: lec-page
 |---|---|---|
 |[환경 준비](./start#learning-goals)·[입문](./agent#learning-goals)|orientation.ipynb|환경 확인, 도구 요청·결과·최종 답변 구분|
 |[LangChain](./langchain#learning-goals)|build-agent.ipynb 1A·1B|정상 두 업무와 미등록 업무, 도구 연결|
-|[LangGraph](./graph#learning-goals)|2·2A / concepts.ipynb|네 입력의 방문 경로·호출 여부, 중단·재개|
+|[LangGraph](./graph#learning-goals)|2·2A / concepts.ipynb|분기·추가 질문 노드, 방문 경로·초안 생성 호출, 중단·재개|
 |[Harness](./harness#learning-goals)|3 / 교재 설계 활동|수정 상한 비교, 다음 작업·검증·중단 기준|
 |[MCP](./mcp#learning-goals)|4A·4B|원격 조회와 Agent 도구 호출|
 |[A2A](./a2a#learning-goals)|5A·5B·5C|Card·Task·Artifact와 수용 반례|
@@ -71,31 +71,36 @@ docstring에는 도구가 언제 필요한지 설명합니다. 지침에는 조�
 
 **`build-agent.ipynb`의 ‘2. 업무 Graph’로 이동합니다.** 앞 장의 조회·Agent 셀을 실행한 같은 커널에서 이어갑니다.
 
+함께 하는 시간에는 1번 분기를 작성합니다. 2~4번의 질문 노드 구현과 검사는 이어지는 개인 시간에 진행합니다.
+
 1. `route_inquiry` 셀을 완성합니다. 정책이 있고 회신 대상이 공백이 아니면 `"draft"`, 그 외에는 `"ask"`를 반환합니다.
-2. 정의 셀을 실행한 뒤 다음 연결 셀을 실행합니다. 제공 `build_workflow`가 자신의 함수를 그래프에 연결합니다.
-3. **‘2A. 실행 입력과 성공 기준’** 아래 셀의 `topic`과 `contact`를 바꿔 Shift+Enter로 실행합니다.
+2. `ask_for_details` 노드를 작성합니다. 정책을 찾지 못했으면 업무 주제, 회신 대상이 비었으면 회신 대상을 묻습니다. 둘 다 없으면 둘 다 묻고, 이미 있는 정보는 다시 묻지 않습니다.
+3. 정의 셀과 연결 셀을 실행합니다. 제공 `build_workflow`가 자신의 분기와 질문 노드를 그래프에 연결합니다.
+4. **‘2A. 내 구현을 검사하고 실제 Agent로 확인합니다’** 아래 셀의 `topic`과 `contact`를 바꿔 Shift+Enter로 실행합니다.
 
 ```python
 topic = "계정"
 contact = "   "
-model_calls.clear()
+draft_calls.clear()
 result = graph.invoke({"topic": topic, "contact": contact})
 print("방문:", result["visited"])
 print("판정:", result["decision"])
-print("모델 호출:", len(model_calls))
+print("초안 생성 호출:", len(draft_calls))
 print("답변:", result["draft"])
 ```
 
 |topic / contact|기대 방문 경로|완료 확인|
 |---|---|---|
 |계정 / 정상 주소|lookup → draft → review|초안 생성과 검토 실행|
-|계정 / 빈 문자열|lookup → ask|판정 ask, 모델 호출 0|
+|계정 / 빈 문자열|lookup → ask|판정 ask, 초안 생성 호출 0|
 |계정 / 공백 세 칸|lookup → ask|공백도 정보 부족으로 판단|
-|없는업무 / 정상 주소|lookup → ask|규정이 없으면 모델 호출 0|
+|없는업무 / 정상 주소|lookup → ask|규정이 없으면 초안 생성 호출 0|
 
-네 입력이 기대 경로로 가면 분기 구현 완료입니다. 정상 경로에서 검토가 held이면 `result['history']`의 실패 이유를 읽습니다. API 오류로 셀이 실패했다면 연결 문제를 해결하고 다시 실행합니다.
+먼저 제공 `check_graph(build_workflow, lookup_policy)` 검사로 모델 없이 경로와 `missing`을 확인합니다. 이어 네 실제 입력의 경로와 추가 질문을 비교합니다. `draft_calls`는 초안 생성 함수의 호출 기록이며, Agent 내부의 모델 API 호출 횟수는 아닙니다. 정상 경로에서 검토가 held이면 `result['history']`의 실패 이유를 읽습니다. API 오류로 셀이 실패했다면 연결 문제를 해결하고 다시 실행합니다.
 
-노트북의 State는 `Inquiry`입니다. `data`는 조회 결과, `draft`는 초안, `visited`는 방문 이력입니다. 조회·초안·검토 노드는 제공되며, 이번에 구현하는 함수는 `route_inquiry`입니다. 전체 그래프 조립은 선택 심화입니다.
+노트북의 State는 `Inquiry`입니다. `data`는 조회 결과, `draft`는 답변 또는 추가 질문, `visited`는 방문 이력입니다. 조회·초안·검토 노드는 제공하며, `route_inquiry`와 `ask_for_details`는 직접 작성합니다.
+
+질문 노드는 바꿀 필드만 반환합니다: `decision="ask"`, 부족한 정보 목록 `missing`, 그 목록으로 만든 질문 `draft`, 빈 `history`, 기존 방문 기록 뒤에 `"ask"`를 붙인 `visited`입니다. `missing`에는 정책이 없으면 `"topic"`, 회신 대상이 비었으면 `"contact"`를 순서대로 넣습니다. `topic`·`contact`·`data`는 그대로 남겨야 합니다. **미등록 업무와 공백 연락처가 동시에 들어오면 무엇을 물을지 먼저 예상한 뒤**, 자신이 고른 반례도 하나 추가해 실행합니다. 전체 그래프 조립은 선택 심화입니다.
 
 </section>
 
@@ -105,7 +110,7 @@ print("답변:", result["draft"])
 
 노트북의 ‘3. 제공 수정 Loop 관찰’ 셀들을 실행합니다. `refine_answer`는 제공 루프를 연결합니다. 다음 셀의 초기 초안 ‘확인 완료’를 실제 모델이 수정하는 과정을 봅니다.
 
-`history`에서 실패 이유와 다음 초안을 비교합니다. 통과하면 passed, 같은 실패가 반복되면 stalled, 수정 횟수를 다 쓰면 held입니다. 전체 루프 직접 구현은 선택 심화이며, 공통 활동은 Harness 장의 설계 메모입니다.
+`history`에서 실패 이유와 다음 초안을 비교합니다. 통과하면 passed, 수정한 초안이 직전 초안과 동일하면 stalled, 수정 횟수를 다 쓰면 held입니다. 전체 루프 직접 구현은 선택 심화이며, 공통 활동은 Harness 장의 설계 메모입니다.
 
 </section>
 <section class="slide" id="protocols">
@@ -115,7 +120,7 @@ print("답변:", result["draft"])
 노트북 ‘4. MCP’에서 `build_mcp_server`를 작성합니다. 받은 조회 함수를 등록하고 서버를 반환합니다. **4A는 모델 없이**, **4B는 실제 모델을 연결해** 실행합니다.
 
 1. 4A에서 도구 목록·입력 형식과 정산·계정·없는업무의 결과를 확인합니다. 제공 셀이 HTTP 서버를 시작하고 종료합니다.
-2. 4B의 빈 `tools` 목록을 `await adapter.list_tools()`로 바꿉니다. 이 목록이 `create_agent(..., tools=tools)`에 전달됩니다.
+2. 4B에서 빈 `tools` 목록을 실제 원격 도구 목록으로 바꿉니다. 4A에서 사용한 API를 찾아 Agent의 `tools` 인자까지 연결합니다.
 3. 셀을 실행하여 모델의 조회 요청, 도구 결과, 최종 답변을 차례로 읽습니다.
 
 **완료 기준:** 4A에서 P-01·재무지원팀, P-02·IT지원팀, found=false가 각각 나옵니다. 4B에서는 실제 도구 요청과 결과를 거쳐 계정 담당 팀과 P-02를 답합니다. 별도 서버 터미널이나 Python 파일 복사는 필요하지 않습니다.
@@ -131,7 +136,7 @@ print("답변:", result["draft"])
 2. **5B — 위임:** `draft`를 바꿔 검토를 요청합니다. 보낸 Message와 받은 Task·Artifact를 읽습니다. 이 셀은 실제 모델을 호출합니다.
 3. **5C — 수용:** `accept_review`를 구현합니다. submitted·working은 pending, completed 외 상태는 held입니다. 완료된 결과의 요청 ID·양의 정수 버전·passed가 모두 맞아야 accepted입니다. 불리언 버전과 빈 ID도 거절합니다.
 
-**완료 기준:** Card에서 기능을 찾고, 실제 Task ID와 산출물을 확인하며, 반례 셀은 pending·accepted·held·held를 출력합니다. 정상 초안의 실제 결과는 accepted, 팀·정책 ID를 지운 초안은 completed여도 held입니다. 이후 ‘6. 통합’에서 전체 흐름을 연결합니다.
+**완료 기준:** Card에서 기능을 찾고, 실제 Task ID와 산출물을 확인하며, 5C 검사는 13개 상태·결과 반례를 비교하여 실패한 이유를 표시합니다. 정상 초안의 실제 결과는 accepted, 팀·정책 ID를 지운 초안은 completed여도 held입니다. 이후 ‘6. 통합’의 6A → 6B → 6C 셀에서 조회·Graph·원격 검토를 차례로 연결합니다.
 
 </section>
 <section class="slide" id="finish">
@@ -156,7 +161,7 @@ print("답변:", result["draft"])
 
 ### 마친 뒤 설명할 수 있어야 하는 것
 
-통합 시간에는 [업무 별칭을 추가하는 독립 변경](./wrap#practice)까지 수행합니다. 새 요구를 보고 수정 위치를 고르고, 변경 전 실패와 기존 동작의 유지 여부를 확인합니다. 다섯 구현의 계약을 그대로 옮기는 것과 새로운 요구에 맞게 재조합하는 것을 따로 평가합니다.
+통합 시간에는 [업무 별칭을 추가하는 독립 변경](./wrap#practice)까지 수행합니다. 새 요구를 보고 수정 위치를 고르고, 변경 전 실패와 기존 동작의 유지 여부를 확인합니다. 각 구현의 계약을 그대로 옮기는 것과 새로운 요구에 맞게 재조합하는 것을 따로 평가합니다.
 
 핵심은 도구·LangChain Agent·업무 분기를 직접 만들고 실행 흐름을 설명하는 능력입니다. 그래프·루프 구조의 전체 작성은 선택 심화이고, Loop·Graph Engineering은 실제 담론을 읽고 반복 작업과 여러 역할을 조직하는 설계 판단까지 다룹니다. MCP 도구 공개와 A2A 결과 수용도 직접 연결합니다. 장기 메모리, 장애 후 복구, 운영 인증, 분산 재시도까지 하루에 숙련하는 과정은 아닙니다. HITL·Skills·DeepAgents는 개념과 제공 예제를 비교하고 구현 심화는 별도 과제로 이어갑니다.
 
@@ -190,9 +195,9 @@ print("답변:", result["draft"])
 |진행할 단계|먼저 필요한 함수|
 |---|---|
 |Graph|lookup_policy, build_agent|
-|수정 루프 관찰|위 두 함수와 route_inquiry|
+|수정 루프 관찰|위 두 함수와 route_inquiry, ask_for_details|
 |MCP|lookup_policy|
-|A2A 통합|lookup_policy, build_agent, route_inquiry, build_mcp_server|
+|A2A 통합|lookup_policy, build_agent, route_inquiry, ask_for_details, build_mcp_server|
 
 필요한 함수를 보완했다면 원래 진행하던 실습으로 돌아가 정의 셀과 해당 단계의 연결·실행 셀을 순서대로 실행합니다. 직접 작성하다 막힌 부분은 보관한 파일과 풀이를 비교하며 다시 살펴봅니다.
 </section>

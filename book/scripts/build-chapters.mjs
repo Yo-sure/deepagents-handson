@@ -35,6 +35,70 @@ function codeImportLabel(spec) {
   return region ? `${repoPath} #${region}` : repoPath
 }
 
+// Match VitePress's snippet region syntax exactly. In particular, Python's
+// "# pragma region" is NOT supported and otherwise silently imports the whole file.
+const regionPatterns = [
+  /^\/\/ ?#?((?:end)?region) ([\w*-]+)$/,
+  /^\/\* ?#((?:end)?region) ([\w*-]+) ?\*\/$/,
+  /^#pragma ((?:end)?region) ([\w*-]+)$/,
+  /^<!-- #?((?:end)?region) ([\w*-]+) -->$/,
+  /^#((?:End )Region) ([\w*-]+)$/,
+  /^::#((?:end)region) ([\w*-]+)$/,
+  /^# ?((?:end)?region) ([\w*-]+)$/,
+]
+
+function validateRegions(source, file) {
+  const stack = []
+  const regions = new Set()
+  for (const [index, line] of source.split(/\r?\n/).entries()) {
+    for (const [syntax, pattern] of regionPatterns.entries()) {
+      const match = line.trim().match(pattern)
+      if (!match) continue
+      const [, tag, name] = match
+      if (/^[rR]egion$/.test(tag)) {
+        if (regions.has(name) || stack.some(region => region.name === name)) {
+          throw new Error(`${file}:${index + 1}: duplicate snippet region ${name}`)
+        }
+        stack.push({ name, syntax, line: index + 1 })
+      } else {
+        const opening = stack.pop()
+        if (!opening || opening.name !== name || opening.syntax !== syntax) {
+          throw new Error(`${file}:${index + 1}: unbalanced snippet endregion ${name}`)
+        }
+        regions.add(name)
+      }
+      break
+    }
+  }
+  if (stack.length) {
+    const opening = stack.at(-1)
+    throw new Error(`${file}:${opening.line}: unclosed snippet region ${opening.name}`)
+  }
+  return regions
+}
+
+async function validateWorkshopImports(source, generatedFile) {
+  const checked = new Map()
+  for (const match of source.matchAll(/^<<<\s+([^\r\n]+)$/gm)) {
+    const spec = match[1].trim()
+    const regionRef = spec.match(/^(.+?)#([\w*-]+)(?=\s|\{|\[|$)/)
+    if (!regionRef) {
+      if (spec.includes('#')) throw new Error(`${generatedFile}: invalid snippet reference ${spec}`)
+      continue
+    }
+    const [, file, region] = regionRef
+    // Snippets resolve from the generated Markdown location, just as VitePress does.
+    const path = file.trim().replace(/^@/, resolve(__dirname, '..'))
+    const resolved = resolve(dirname(generatedFile), path)
+    if (!checked.has(resolved)) {
+      checked.set(resolved, validateRegions(await readFile(resolved, 'utf8'), resolved))
+    }
+    if (!checked.get(resolved).has(region)) {
+      throw new Error(`${generatedFile}: missing VitePress snippet region ${region} in ${resolved}`)
+    }
+  }
+}
+
 function preprocess(src) {
   let s = src
   // PDF 시대 시계 마커 제거: <p align="right"><sub ...>⏱ ...</sub></p>
@@ -93,7 +157,9 @@ for (let i = 0; i < workshopPages.length; i++) {
   raw = raw.replace(/```mermaid\r?\n/g, '```mermaid\n%%{init: {"theme": "base", "htmlLabels": false, "flowchart": { "useMaxWidth": false, "padding": 16, "rankSpacing": 36, "curve": "linear"}, "sequence": {"useMaxWidth": false, "wrap": true}, "themeVariables": {"fontSize": "17px", "fontFamily": "Segoe UI, Malgun Gothic, sans-serif", "primaryColor": "#f2f6f4", "primaryBorderColor": "#718b80", "primaryTextColor": "#25312e"}}}%%\n')
   const links = [i > 0 ? `<a href="./${workshopPages[i - 1]}">이전 모듈</a>` : '', '<a href="../toc">전체 목차</a>', i < workshopPages.length - 1 ? `<a href="./${workshopPages[i + 1]}">${workshopPages[i + 1] === 'engineering' ? '설계 확장' : '다음 모듈'}</a>` : ''].filter(Boolean)
   raw = raw.replace('<nav class="chapnav"><a href="../toc">전체 목차</a></nav>', `<nav class="chapnav">${links.join(' · ')}</nav>`)
-  await writeFile(resolve(workshopDst, `${slug}.md`), preprocess(raw), 'utf8')
+  const generatedFile = resolve(workshopDst, `${slug}.md`)
+  await validateWorkshopImports(raw, generatedFile)
+  await writeFile(generatedFile, preprocess(raw), 'utf8')
 }
 
 await mkdir(resolve(__dirname, '../public'), { recursive: true })

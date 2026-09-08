@@ -13,7 +13,7 @@ from .mcp_lab import PROTOCOL
 from .processes import server
 
 
-# pragma region adapter
+# region adapter
 async def connect_agent(url, topic="정산", *, model=None):
     client = Client(url, mode=PROTOCOL)
     async with MCPAdapter(client) as adapter:
@@ -44,7 +44,7 @@ async def connect_agent(url, topic="정산", *, model=None):
         }
 
 
-# pragma endregion adapter
+# endregion adapter
 
 
 def run(topic="정산", *, model=None):
