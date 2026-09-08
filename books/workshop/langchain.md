@@ -202,9 +202,99 @@ print(lookup_team.description)
 print(lookup_team.invoke({"topic": "정산"}))
 ```
 
-`@tool`은 함수를 LangChain 도구로 만듭니다. 함수 이름은 도구 이름, docstring은 용도 설명, `topic: str`은 입력 형식이 됩니다. 변환한 도구를 직접 실행할 때는 `.invoke()`에 입력 dict를 전달합니다.
+### `@tool`을 붙이면 무엇이 달라질까요?
 
-`create_agent`는 일반 Python 함수도 도구 목록으로 받을 수 있습니다. **이번 파일 실습은 이 방법을 사용**하므로 학생 함수에 `@tool`을 추가할 필요는 없습니다. 두 방식 모두 이름·설명·입력 형식을 모델에 알리는 것이 핵심입니다. [공식 도구 문서](https://docs.langchain.com/oss/python/langchain/tools)
+Python의 데코레이터는 함수를 다른 함수에 전달하고, 그 반환값을 원래 이름에 붙이는 문법입니다. `@tool`은 조회를 실행하는 것이 아니라 **함수를 도구 객체로 변환**합니다. 이 예제에서는 `StructuredTool`이 만들어집니다.
+
+```python
+# @tool을 쓰지 않고 같은 변환을 풀어 쓴 모습입니다.
+def lookup_team(topic: str) -> str:
+    """업무명으로 담당 팀을 찾습니다."""
+    return {"정산": "재무지원팀", "계정": "IT지원팀"}.get(topic, "등록된 업무가 없습니다")
+
+lookup_team = tool(lookup_team)
+print(type(lookup_team).__name__)  # StructuredTool
+print(lookup_team.args)           # 모델에게 알릴 입력 필드
+print(lookup_team.invoke({"topic": "정산"}))
+```
+
+변환 전에는 `lookup_team("정산")`으로 함수를 호출합니다. 변환 후에는 도구 인터페이스인 `.invoke({"topic": "정산"})`을 사용합니다. 도구 객체에는 실행할 함수뿐 아니라 이름·설명·입력 schema(입력 형식)가 담깁니다. 모델은 이 설명과 형식을 받아 어떤 도구에 어떤 값을 요청할지 고릅니다. Python 함수 본문을 모델이 직접 실행하는 것은 아닙니다.
+
+### 이름·설명·입력 조건을 직접 정합니다
+
+기본값은 함수 이름 → 도구 이름, docstring → 도구 설명, 타입 힌트 → 입력 schema입니다. 함수 이름을 바꾸지 않고 공개 이름을 정하거나, 허용할 입력을 더 분명히 제한할 수도 있습니다.
+
+아래 코드는 별도로 실행할 수 있는 완전한 예제입니다. `workshop/tool_basics.py`에 저장하고 `uv run python tool_basics.py`로 실행합니다. 모델 호출이나 API 키는 필요하지 않습니다.
+
+```python
+from typing import Literal
+from pydantic import BaseModel, Field, ValidationError
+from langchain.tools import tool
+
+class TeamInput(BaseModel):
+    topic: Literal["정산", "계정"] = Field(description="담당 팀을 찾을 업무명")
+
+@tool(
+    "lookup_team",
+    description="정산 또는 계정 업무의 담당 팀을 찾습니다. 다른 업무는 지원하지 않습니다.",
+    args_schema=TeamInput,
+)
+def find_team(topic: str) -> str:
+    return {"정산": "재무지원팀", "계정": "IT지원팀"}[topic]
+
+print(find_team.name)         # lookup_team
+print(find_team.description)
+print(find_team.args)
+print(find_team.invoke({"topic": "정산"}))  # 재무지원팀
+
+try:
+    find_team.invoke({"topic": "휴가"})
+except ValidationError:
+    print("입력 오류: 정산 또는 계정만 조회할 수 있습니다.")
+```
+
+`Literal`은 허용하는 값 두 개를 나타냅니다. `Field(description=...)`은 그 필드의 뜻을 설명합니다. `args_schema`가 함수 실행 전에 입력을 검사하므로 `휴가`는 함수 본문에 들어가기 전에 거절됩니다. schema의 `topic`과 함수 인자 `topic`은 이름을 맞춥니다.
+
+이 예제는 **지원 목록 밖의 입력을 거절하는 도구**입니다. 뒤의 주 실습은 임의의 업무명을 받아 `found=false`를 반환하는 조회 도구입니다. 입력 정책이 다르므로 주 실습에 이 `Literal` 제한을 그대로 옮기지 않습니다.
+
+|설정|하는 일|사용할 때 확인할 것|
+|---|---|---|
+|`@tool("lookup_team")`|모델에 공개할 이름 지정|다른 도구와 구별되게 정하고 공백 없이 `snake_case` 사용|
+|`description="..."`|도구 전체 설명 지정|명시한 설명이 docstring보다 우선. 용도와 지원 범위를 짧게 작성|
+|`args_schema=TeamInput`|입력 필드·설명·제약 지정|함수 인자와 이름·기본값을 맞춤|
+|`infer_schema=True`|함수 시그니처에서 입력 형식 추론. 기본값|명시 schema가 필요 없을 때도 타입 힌트 작성|
+|`parse_docstring=True`|Google 스타일 docstring의 `Args:`를 필드 설명으로 해석|기본은 `False`. 형식이 잘못되면 기본 설정에서 도구 생성 오류|
+|`error_on_invalid_docstring=False`|docstring 파싱 오류로 생성을 중단하지 않도록 설정|파싱을 켰을 때 관련됨. 잘못된 설명을 고치는 것이 우선|
+
+<details><summary>추가 옵션 · 결과 전달과 종료</summary>
+
+`response_format="content_and_artifact"`는 함수가 `(모델에 전달할 내용, 프로그램이 보관할 부가 데이터)` 두 값을 반환하게 합니다. 예를 들어 모델에는 조회 요약을 전달하고 원본 행은 artifact로 남길 수 있습니다. 기본값은 `"content"`입니다. artifact는 도구 호출 ID가 있는 `ToolMessage` 경로에서 확인하며, 일반 dict로 `.invoke()`한 반환값만 보고 artifact까지 확인했다고 생각하지 않습니다.
+
+`return_direct=True`는 이 도구 실행 뒤 추가 모델 응답 단계를 거치지 않고 Agent 실행을 끝내도록 하는 설정입니다. 실제 종료 처리는 도구를 사용하는 Agent 실행기에 달려 있습니다. 단순히 “도구를 빠르게 실행하는 옵션”은 아니며, 결과를 모델이 설명해야 하는 이번 실습에는 기본값 `False`를 사용합니다.
+
+</details>
+
+### 잘못된 입력과 실행 실패를 구별합니다
+
+앞 예제의 `휴가`는 입력 조건 위반입니다. 반면 지원하는 `정산`을 조회하다 DB 연결이 끊기는 것은 실행 실패입니다. schema 검사를 통과해도 외부 서비스가 정상이라는 보장은 없습니다. 직접 `.invoke()`하면 예외를 호출한 코드에서 처리해야 하며, Agent 안에서의 오류 처리는 실행기의 설정을 확인합니다.
+
+설명에 “읽기 전용”이라고 쓰는 것만으로 쓰기가 차단되지는 않습니다. 인증 키·사용자 권한은 모델이 채울 인자로 받지 않고 프로그램에서 관리하며, 조회 함수 안에서 필요한 권한을 검사합니다. 타입 힌트는 입력 형식의 재료이고, 반환 타입 `-> str`만으로 업무 결과가 정확한지 검사해 주지는 않습니다.
+
+**직접 바꿔 보기:** `TeamInput`에 `"휴가"`만 추가하고 다시 실행하면 어떻게 될까요? 입력 검사는 통과하지만 함수의 dict에 `휴가`가 없어 `KeyError`가 납니다. schema와 구현을 함께 바꿔야 한다는 점을 확인한 뒤 담당 팀을 추가해 완성합니다.
+
+### 일반 함수를 넘기는 방식은 언제부터 있었나요?
+
+`create_agent`의 **LangChain 1.0.0 배포본(2025-10-17)**에도 `tools` 인자로 `Callable`을 받는 정의가 있습니다. 최근에 `@tool`이 없어졌다는 뜻은 아닙니다. 일반 함수를 넘기면 내부에서 도구로 변환하며, 이름·설명·타입 힌트는 여전히 필요합니다. 과거의 다른 Agent 생성 API까지 같은 동작이었다고 일반화하지 않습니다. [1.0.0 배포 파일](https://pypi.org/project/langchain/1.0.0/#files)
+
+기본 정보를 함수에서 가져오면 충분할 때는 일반 함수를 넘겨도 됩니다. **공개 이름·설명·입력 제약을 명시하거나, 생성한 도구를 따로 확인하려면 `@tool`이 편리합니다.** 이번 주 실습은 일반 함수 방식이므로 `student.py`에 데코레이터를 추가할 필요는 없습니다. 위 예제에서는 변환을 직접 보고 설정하는 법을 익혔습니다.
+
+참고: [공식 도구 사용법](https://docs.langchain.com/oss/python/langchain/tools), [tool 옵션 API](https://reference.langchain.com/python/langchain-core/tools/convert/tool)
+
+<details class="instructor-note"><summary>강사 진행 노트 · 도구 기본과 확장</summary>
+
+기본 설명은 기존 6분을 기준으로 데코레이터 변환과 이름·설명·입력 형식을 짚습니다. 명시 schema 예제 실행과 반례 수정까지 함께 진행하면 추가 8~10분을 예상합니다. 전체 세션 종료는 11:50이며, 이 경우 뒤의 개인 과제에서 같은 입력 검사를 다시 다루는 시간을 통합하고 운영 상세는 복습으로 이어갑니다. 모든 옵션을 외우게 하기보다 “모델에 무엇을 알리고 프로그램이 무엇을 검사하는가”를 코드에서 찾습니다.
+
+</details>
 
 </section>
 <section class="slide">
