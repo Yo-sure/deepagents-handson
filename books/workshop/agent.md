@@ -41,6 +41,8 @@ pageClass: lec-page
 
 **AI에게도 검색 결과를 보고 다음 행동을 고르게 할 수 있을까요?** 이 장에서는 그 과정을 배웁니다.
 
+최근 LangChain의 Loop Engineering 글도 모델이 도구를 사용하고 결과를 받는 반복을 기본 실행 구조로 설명합니다. [2026-06-16 · 개발사 기술 해설](https://www.langchain.com/blog/the-art-of-loop-engineering)
+
 ReAct는 행동의 결과를 보고 다음 행동을 정하는 대표적인 연구 접근입니다. 호텔 사례에서 본 흐름을 다음 절에서는 사내 규정 조회에 적용해 봅니다. [ReAct 원논문 · ICLR 2023](https://react-lm.github.io/)
 
 <details class="instructor-note"><summary>강사용 진행 노트 · 시작 질문</summary>
