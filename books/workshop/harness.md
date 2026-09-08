@@ -96,7 +96,7 @@ Skill에 “테스트를 실행한 뒤 완료한다”는 절차를 적을 수 �
 
 ## DeepAgents와 Skill 구성
 
-<p class="section-time">예상 9분 · 14:21–14:30 · CLI 화면 2분 / SDK·Skill 5분 / 연구 사례 2분</p>
+<p class="section-time">예상 9분 · 14:21–14:30 · CLI 1분 / 내부 구조와 작업 구분 4분 / SDK·Skill 4분</p>
 
 ### 먼저 화면으로 보는 Deep Agents CLI {#deepagents-cli}
 
@@ -121,7 +121,77 @@ CLI는 사람이 작업을 입력하고 결과를 확인하는 완성된 응용 
 
 DeepAgents가 별개의 추론 원리를 도입해서 코딩 Agent가 되는 것은 아닙니다. 모델과 도구가 결과를 주고받는 루프에 긴 작업에 필요한 기능을 더합니다. 다음 Skill 예제에서는 그중 **작업 방법을 문서로 알려 주는 기능**을 살펴봅니다. [DeepAgents 공식 개요](https://docs.langchain.com/oss/python/deepagents/overview)
 
-### 최근 연구로 시작하기 · 지난번 실수를 또 설명하고 있나요? {#wikiskill}
+### create_deep_agent 안을 열어 봅니다 {#inside-deepagents}
+
+아래는 수업에 설치된 **DeepAgents 0.7.13과 LangChain 1.4.0의 소스 일부**입니다. 긴 함수에서 연결 지점만 발췌했으므로 그대로 실행하는 예제가 아닙니다. Python API 이름은 `create_agent`입니다.
+
+**1. DeepAgents가 기능별 미들웨어를 모읍니다.** `deepagents/graph.py`에서 Skill 경로를 받으면 `SkillsMiddleware`를 추가하고, 파일 기능은 `FilesystemMiddleware`로 연결합니다.
+
+```python
+# deepagents/graph.py — create_deep_agent 내부 발췌
+deepagent_middleware: list[AgentMiddleware[Any, Any, Any]] = []
+if skills is not None:
+    deepagent_middleware.append(SkillsMiddleware(backend=backend, sources=skills))
+deepagent_middleware.append(
+    FilesystemMiddleware(
+        backend=backend,
+        custom_tool_descriptions=_profile.tool_description_overrides,
+        _permissions=permissions,
+    )
+)
+```
+
+미들웨어는 모델·도구 호출 과정에 기능을 끼워 넣는 확장 단위입니다. 도구를 추가하거나, 모델에 전달할 문맥을 준비하거나, 호출 전후에 상태를 처리할 수 있습니다. 뒤에서는 하위 Agent, 요약 등의 미들웨어도 조립하고 사용자가 전달한 `middleware`를 합칩니다. 적용 목록은 인자와 설정에 따라 달라집니다.
+
+**2. 그 목록을 LangChain의 create_agent에 넘깁니다.** 같은 함수의 마지막 부분입니다.
+
+```python
+# deepagents/graph.py — 일부 인자와 뒤의 with_config 생략
+return create_agent(
+    model,
+    system_prompt=final_system_prompt,
+    tools=_tools,
+    middleware=deepagent_middleware,
+    # ...
+)
+```
+
+**3. LangChain은 그래프를 조립하고 컴파일합니다.** `langchain/agents/factory.py`의 `create_agent`는 모델·도구·미들웨어의 실행 흐름을 구성한 뒤 다음과 같이 반환합니다.
+
+```python
+# langchain/agents/factory.py — 나머지 인자 생략
+return graph.compile(
+    checkpointer=checkpointer,
+    store=store,
+    # ...
+)
+```
+
+```mermaid
+flowchart TD
+    A["create_deep_agent: 기능과 설정 조립"] --> B["Skills · Filesystem · 요약 등의 미들웨어"]
+    B --> C["LangChain create_agent: 모델·도구·미들웨어 연결"]
+    C --> D["LangGraph: 그래프 컴파일과 실행"]
+```
+
+앞 장의 Agent와 기반이 이어집니다. **DeepAgents는 LangChain의 Agent 구성과 LangGraph의 실행 기반 위에, 작업에 필요한 미들웨어·도구·설정을 묶은 Harness 구현체입니다.** Harness가 반드시 미들웨어 목록으로만 구현되어야 하는 것은 아니지만, 이 구현에서는 그 연결을 소스로 확인할 수 있습니다. [DeepAgents 0.7.13 소스](https://github.com/langchain-ai/deepagents/blob/deepagents%3D%3D0.7.13/libs/deepagents/deepagents/graph.py) · [LangChain 미들웨어 설명](https://docs.langchain.com/oss/python/langchain/middleware/overview)
+
+### “하네스를 만든다”는 말에서 구분할 두 작업 {#harness-work}
+
+실무에서는 실행 기반을 개발하는 일과, 기존 제품을 프로젝트에 맞게 설정하는 일을 모두 “하네스를 만든다”라고 부르기도 합니다. 용어의 범위는 문맥마다 다릅니다. 협업할 때는 **어떤 동작을 구현하는지, 어떤 기존 기능을 설정하는지**를 함께 말하면 작업 범위가 분명해집니다.
+
+| 작업 | 구체적으로 하는 일 | 결과물 |
+|---|---|---|
+| Harness 기능 구현·확장 | Skill을 발견하고 읽는 미들웨어, 도구 실행 승인 처리, hook을 호출하는 기능 개발 | 라이브러리·미들웨어·실행 코드 |
+| 기존 Harness 설정·운영 | 읽을 Skill 경로 지정, SKILL.md 작성, 지원되는 hook에 테스트 명령 연결 | 프로젝트 설정·절차 문서·hook 스크립트 |
+
+예를 들어 **SkillsMiddleware를 개발하는 일**과 **그 미들웨어가 읽을 SKILL.md를 작성하는 일**은 다릅니다. hook은 특정 이벤트에 연결하는 동작입니다. 제품이 제공하는 이벤트에 스크립트를 등록하는 것은 설정에 가깝고, 새로운 이벤트와 호출 방식을 구현하면 실행 기반의 확장에 가깝습니다. 제품의 hook과 LangChain 미들웨어의 호출 지점은 이름이나 지원 범위가 같다고 가정하지 않습니다.
+
+이번 예제에서는 **기존 DeepAgents에 backend와 Skill 경로를 설정하고 업무 절차를 작성**합니다. 새 Harness나 hook 실행기를 구현하지는 않습니다. 다음 코드의 `skills=["/"]`가 위의 `SkillsMiddleware(..., sources=skills)`로 이어진다는 점을 찾아봅니다.
+
+<details><summary>여유가 있으면 +2분 · WikiSkill: 지난번 실수를 또 설명하고 있나요?</summary>
+
+### 경험을 다음 Skill에 반영하기 {#wikiskill}
 
 코딩 Agent가 프로젝트 실행 명령을 자꾸 틀립니다. 매번 올바른 명령을 알려 줍니다. **다음 작업에서도 활용하려면 이 경험을 어떻게 남기면 좋을까요?**
 
@@ -135,11 +205,13 @@ WikiSkill은 실행 기록, 그 기록에서 정리한 지식, 실행 때 참고
 
 **한 번 성공한 방법을 바로 규칙으로 만들어도 될까요?** 연구에서는 수정한 스킬을 검증하고, 개선되지 않으면 되돌립니다. 기록이 쌓이는 것만으로 좋은 스킬이 만들어지는 것은 아닙니다.
 
-<details class="instructor-note"><summary>강사용 진행 노트 · WikiSkill / 위 9분 중 약 2분</summary>
+<details class="instructor-note"><summary>강사용 진행 노트 · WikiSkill / 선택 2분</summary>
 
 “어제는 됐지만 다른 입력에서는 실패한다면?”을 묻고, 성공 사례와 실패 사례 모두로 확인해야 한다는 데 연결합니다. 이어서 아래 SKILL.md에서 실제 실행 절차 한 줄을 찾습니다.
 
 원논문의 방법과 블로그 저자가 제안한 실무 프롬프트를 구분합니다. 프리프린트의 실험 결과이며 우리 프로젝트에서도 같은 효과가 난다는 보장은 아닙니다. 이 교재는 Skill을 읽어 사용하는 예제이고, WikiSkill의 자동 개선 시스템을 구현한 실습은 아닙니다. 스킬 문서를 갱신하는 것과 모델 가중치를 학습하는 것도 구분합니다.
+
+</details>
 
 </details>
 
@@ -340,6 +412,7 @@ DeepAgents v0.7은 평가 결과를 바탕으로 TodoListMiddleware를 기본 �
 |다시 짚을 개념|오늘 확인한 내용|
 |---|---|
 |Harness|모델 주변의 도구·상태·권한·컨텍스트·실행 제어를 구성합니다.|
+|구현과 설정|미들웨어·실행 기능 개발과 기존 Harness의 Skill·hook 설정은 작업 범위가 다릅니다.|
 |Skill|작업 절차와 참고 자료를 재사용할 수 있게 제공합니다.|
 |Loop Engineering|코딩 에이전트의 다음 작업 선택·구현·검증·기록을 이어가는 방식을 설계합니다.|
 
