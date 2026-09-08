@@ -12,11 +12,11 @@ pageClass: lec-page
 
 # Harness·Loop·Graph Engineering
 
-<p class="lead">최근 Loop·Graph Engineering 담론을 원문으로 읽고, 코딩 에이전트의 반복 작업과 역할 연결을 설계합니다. Context·Harness와의 관계를 설명하고 제공 업무 루프·DeepAgents 예제의 범위를 구분합니다.</p>
+<p class="lead">앞에서 만든 Agent의 실행 루프가 코딩 도구에서는 어떻게 쓰이는지 살펴봅니다. 파일 편집·실행 기록·Skill을 연결하는 Harness를 이해하고, DeepAgents 예제와 답변 수정 실습으로 확인합니다.</p>
 
-오전에 만든 문의 Agent는 조건에 따라 조회·초안·검토를 실행합니다. 이제 두 질문을 나누어 봅니다. **이 Agent가 실패한 초안을 어떻게 다룰 것인가**, 그리고 **개발자는 이 프로그램에서 발견한 결함을 코딩 에이전트로 어떻게 고칠 것인가**입니다. 전자는 제공 업무 루프로 관찰하고, 후자는 최근 Loop·Graph Engineering 담론과 설계 활동으로 다룹니다.
+`create_agent`에서는 모델이 도구를 요청하고, 프로그램이 실행 결과를 돌려주었습니다. 코딩 Agent도 파일을 읽고 수정하고 테스트한 결과를 받아 다음 행동을 고르는 흐름으로 이해할 수 있습니다. 긴 작업을 맡기려면 여기에 프로젝트 지침, 작업 기록, 실행 권한 같은 구성이 더 필요합니다.
 
-DeepAgents 예제는 같은 정책 업무를 다른 Harness 구성으로 관찰하는 비교 자료입니다. 앞서 작성한 학생 프로젝트를 대체하는 새 프로젝트는 아닙니다. 개인 활동의 F1은 오전 분기의 결함을 가정한 기록이므로, 별개의 업무를 처음부터 배우는 것이 아니라 자신이 만든 프로그램의 검수로 읽습니다.
+이 장에서는 **코딩 Agent의 화면 → Harness의 구성 → DeepAgents 코드와 Skill** 순서로 살펴봅니다. 실습에서는 오전에 만든 문의 Agent의 답변을 검사하고 수정하는 과정을 실행합니다. 마지막에는 코딩 Agent에게 프로그램 수정을 맡길 때 필요한 지시와 완료 기준을 직접 작성합니다.
 
 <div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
 <details class="instructor-note"><summary>강사용 예상 시간 · 14:10–15:20 / 70분</summary>
@@ -57,29 +57,28 @@ Codex나 Claude Code 사용 경험이 있으면 “계속해”를 반복했던 
 
 <section class="slide" id="concept">
 
-<aside class="teacher-aside"><strong>강사의 한마디</strong><p>여기서는 잠시 개발자의 자리로 옮겨갑니다. 문의 Agent의 답변을 만드는 일과, 코딩 에이전트에게 그 프로그램을 고치게 하는 일을 구분하겠습니다.</p></aside>
+<aside class="teacher-aside"><strong>강사의 한마디</strong><p>앞에서 만든 Agent는 규정을 조회했습니다. 이번에는 파일을 읽고, 코드를 수정하고, 테스트를 실행하는 Agent로 같은 실행 흐름을 확장해 보겠습니다.</p></aside>
 
 
 ## Harness는 무엇을 관리하는가
 
 <p class="section-time">예상 8분 · 14:13–14:21</p>
 
+`create_agent`에 연결했던 도구는 정책 조회 함수였습니다. 파일 읽기·편집·명령 실행 도구를 연결하면, 모델은 “어떤 파일을 읽을지”, “수정 뒤 무엇을 실행할지”를 고를 수 있습니다. **모델 요청 → 도구 실행 → 결과를 받은 모델의 다음 판단**이라는 흐름은 앞 장과 연결됩니다. 특정 코딩 제품이 내부에서 LangChain을 사용한다는 의미는 아닙니다.
+
 <CourseVisual kind="harness" />
 
+그런데 파일 편집 도구만 있으면 긴 개발 작업을 맡길 수 있을까요? 프로젝트의 테스트 명령을 알려 주고, 이전 작업을 기억하게 하고, 실행해도 되는 명령의 범위도 정해야 합니다. **Harness는 모델이 작업을 수행하도록 도구·지침·상태·실행 제어를 묶어 제공하는 구성입니다.**
 
-같은 모델도 어떤 도구·문서·지시·실행 제어를 연결했는지에 따라 행동이 달라집니다. Harness는 이 주변 구성을 가리킵니다. 단순히 프롬프트가 길다는 뜻은 아닙니다.
-
-| 구성 | 이 예제에서의 역할 |
+| 코딩 작업에서 필요한 것 | Harness가 제공할 구성 |
 |---|---|
-|모델|초안 또는 수정 제안|
-|도구|정책 조회|
-|컨텍스트·Skill|답변 절차와 관련 자료|
-|상태·기록|수정 횟수·실패 이유·초안 이력|
-|제어|성공 확인·수정 상한·보류|
+| 코드를 읽고 수정한 뒤 테스트하기 | 파일 도구와 명령 실행 도구 |
+| 프로젝트에 맞는 방법으로 작업하기 | 프로젝트 지침과 Skill 문서 |
+| 긴 대화에서도 남은 작업을 이어가기 | 작업 기록과 컨텍스트 관리 |
+| 중요한 명령은 사람이 확인하기 | 도구 실행 전 승인 절차 |
+| 실패했을 때 재시도하거나 멈추기 | 검사 결과, 재시도 상한과 중단 조건 |
 
-Skill은 절차적 지시입니다. 접근 권한이나 최대 호출 수를 강제하는 보안 경계는 아닙니다. 지시를 코드 제어와 혼동하지 않습니다.
-
-
+Skill에 “테스트를 실행한 뒤 완료한다”는 절차를 적을 수 있습니다. 완료 전에 테스트 결과를 반드시 확인하게 하려면 실행 프로그램에도 검사 절차를 넣습니다. 문서는 모델에게 방법을 알려 주고, 코드는 실행 조건을 적용합니다.
 
 <aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>Agent가 테스트도 실행하지 않고 “수정 완료”라고 답합니다. 더 비싼 모델을 쓰거나, 완료 전에 테스트를 꼭 실행하게 만들 수 있습니다.<br><br><strong>어느 방법부터 시도하겠습니까?</strong> 테스트를 실행했는데도 오류를 고치지 못한다면 선택이 달라질까요?</p></aside>
 
@@ -97,7 +96,30 @@ Skill은 절차적 지시입니다. 접근 권한이나 최대 호출 수를 강
 
 ## DeepAgents와 Skill 구성
 
-<p class="section-time">예상 9분 · 14:21–14:30</p>
+<p class="section-time">예상 9분 · 14:21–14:30 · CLI 화면 2분 / SDK·Skill 5분 / 연구 사례 2분</p>
+
+### 먼저 화면으로 보는 Deep Agents CLI {#deepagents-cli}
+
+Claude Code나 Codex처럼 터미널에서 개발 작업을 맡기는 프로그램이 LangChain 프로젝트에도 있습니다. 아래는 공식 문서 저장소에 공개된 **Deep Agents CLI** 화면입니다. 현재 공식 문서는 <strong>Deep Agents Code(<code>dcode</code>)</strong>라는 이름으로 안내합니다.
+
+<figure class="trace-example">
+<a href="https://raw.githubusercontent.com/langchain-ai/docs/main/src/oss/images/deepagents/deepagents-cli.png" target="_blank" rel="noopener noreferrer"><img src="https://raw.githubusercontent.com/langchain-ai/docs/main/src/oss/images/deepagents/deepagents-cli.png" alt="Deep Agents CLI 터미널 화면. LangSmith tracing, MCP 도구 한 개 로드, 대화 입력창과 토큰 사용량이 표시되어 있습니다." loading="lazy" referrerpolicy="no-referrer" style="max-height: 520px; width: 100%; object-fit: contain; background: #101010;" /></a>
+<figcaption>공식 문서의 기존 CLI 화면(v0.0.30). 수업에서 실행한 결과가 아닙니다. <a href="https://github.com/langchain-ai/docs/blob/main/src/oss/images/deepagents/deepagents-cli.png">이미지 출처</a> · <a href="https://docs.langchain.com/oss/deepagents/code/overview">현재 제품 설명과 실행 영상</a></figcaption>
+</figure>
+
+**화면에서 세 곳을 찾아봅니다.** 아래 입력창은 사용자가 작업을 맡기는 곳입니다. `Loaded 1 MCP tool`은 외부 도구가 연결되었음을, `LangSmith tracing`은 실행 기록 추적이 설정되었음을 보여 줍니다. 이 캡처의 대화는 인사만 주고받으므로 파일 수정이나 테스트까지 수행한 사례는 아닙니다.
+
+### CLI를 쓰는 것과 SDK로 만드는 것
+
+CLI는 사람이 작업을 입력하고 결과를 확인하는 완성된 응용 프로그램입니다. **DeepAgents SDK는 이런 Agent를 코드로 구성할 때 사용하는 라이브러리**입니다. 공식 Deep Agents Code도 이 SDK 위에 만들어졌습니다. 우리는 CLI를 새로 설치하는 대신, 아래에서 SDK로 업무용 Agent를 구성하는 코드를 읽습니다.
+
+| 앞에서 배운 것 | 이번에 연결할 것 |
+|---|---|
+| `create_agent`: 모델과 조회 도구 연결 | `create_deep_agent`: 파일·Skill 등 Harness 기능을 함께 구성 |
+| LangGraph: 상태와 실행 흐름 관리 | DeepAgents의 실행을 받치는 기반 |
+| Python 코드로 Agent 실행 | CLI는 이런 Agent를 터미널에서 사용하도록 만든 앱 |
+
+DeepAgents가 별개의 추론 원리를 도입해서 코딩 Agent가 되는 것은 아닙니다. 모델과 도구가 결과를 주고받는 루프에 긴 작업에 필요한 기능을 더합니다. 다음 Skill 예제에서는 그중 **작업 방법을 문서로 알려 주는 기능**을 살펴봅니다. [DeepAgents 공식 개요](https://docs.langchain.com/oss/python/deepagents/overview)
 
 ### 최근 연구로 시작하기 · 지난번 실수를 또 설명하고 있나요? {#wikiskill}
 
