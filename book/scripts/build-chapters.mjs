@@ -63,18 +63,27 @@ await mkdir(workshopDst, { recursive: true })
 for (let i = 0; i < workshopPages.length; i++) {
   const slug = workshopPages[i]
   let raw = await readFile(resolve(__dirname, `../../books/workshop/${slug}.md`), 'utf8')
-  // Show the cumulative exercise in its teaching module as well as the full workbook.
-  const buildSections = { langchain: 'langchain', graph: 'graph' }
-  if (buildSections[slug]) {
-    const guide = await readFile(resolve(__dirname, '../../books/workshop/build.md'), 'utf8')
-    const marker = `<section class="slide" id="${buildSections[slug]}">`
-    const section = guide.split(marker)[1].split('</section>')[0]
-    const excerpt = section.replace(/^## /gm, '### ')
-    raw = raw.replace('<details><summary>비교하며 읽는 완성 예제와 시연</summary>', `${excerpt}\n<details><summary>비교하며 읽는 완성 예제와 시연</summary>`)
-  }
+  const workbook = await readFile(resolve(__dirname, '../../books/workshop/build.md'), 'utf8')
+  const engineering = await readFile(resolve(__dirname, '../../books/workshop/engineering.md'), 'utf8')
+  raw = raw.replace(/<!-- lesson-exercise:([\w-]+) -->/g, (_, id) => {
+    const match = workbook.match(new RegExp(`<section class="slide" id="${id}">([\\s\\S]*?)</section>`))
+    if (!match) throw new Error(`Missing exercise ${id}`)
+    return match[1].replace(/^## /gm, '### ').replace(/<p class="section-time">.*?<\/p>/g, '')
+      .replace(/\[수업으로 돌아가기[^\n]+/g, '')
+      .replace(/\]\(#/g, '](./build#')
+  })
+  raw = raw.replace(/<!-- lesson-engineering:([\w-]+) -->/g, (_, id) => {
+    const match = engineering.match(new RegExp(`<section class="slide" id="${id}">([\\s\\S]*?)</section>`))
+    if (!match) throw new Error(`Missing engineering ${id}`)
+    return `<div id="engineering-${id}">` + match[1].replace(/^## /gm, '### ')
+      .replace(/<p class="section-time">.*?<\/p>/g, '').replace(/\]\(#/g, '](#engineering-') + '</div>'
+  })
   // Keep diagram measurements independent from the surrounding Korean prose styles.
   raw = raw.replace(/```mermaid\r?\n/g, '```mermaid\n%%{init: {"theme": "base", "htmlLabels": false, "flowchart": { "useMaxWidth": false, "padding": 16, "rankSpacing": 36, "curve": "linear"}, "sequence": {"useMaxWidth": false, "wrap": true}, "themeVariables": {"fontSize": "17px", "fontFamily": "Segoe UI, Malgun Gothic, sans-serif", "primaryColor": "#f2f6f4", "primaryBorderColor": "#718b80", "primaryTextColor": "#25312e"}}}%%\n')
   const links = [i > 0 ? `<a href="./${workshopPages[i - 1]}">이전 모듈</a>` : '', '<a href="../toc">전체 목차</a>', i < workshopPages.length - 1 ? `<a href="./${workshopPages[i + 1]}">${workshopPages[i + 1] === 'engineering' ? '설계 확장' : '다음 모듈'}</a>` : ''].filter(Boolean)
   raw = raw.replace('<nav class="chapnav"><a href="../toc">전체 목차</a></nav>', `<nav class="chapnav">${links.join(' · ')}</nav>`)
   await writeFile(resolve(workshopDst, `${slug}.md`), preprocess(raw), 'utf8')
 }
+
+await mkdir(resolve(__dirname, '../public'), { recursive: true })
+await writeFile(resolve(__dirname, '../public/python-worker.js'), await readFile(resolve(__dirname, '../.vitepress/theme/python-worker.js'), 'utf8'))

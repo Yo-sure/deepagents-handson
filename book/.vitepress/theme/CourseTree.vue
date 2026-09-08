@@ -12,7 +12,7 @@ const groups = [
     ['04 Harness · Loop', '/workshop/harness'], ['05 MCP', '/workshop/mcp'],
     ['06 A2A · ACP', '/workshop/a2a'], ['07 통합 · 정리', '/workshop/wrap'],
   ] },
-  { title: '직접 완성하는 실습', items: [['내 업무 Agent 만들기', '/workshop/build']] },
+  { title: '복습', items: [['실습 전체 모아보기', '/workshop/build']] },
   { title: '참고 자료', items: [['Loop · Graph Engineering', '/workshop/engineering'], ['Git으로 자료 받기', '/git-setup'], ['버전 · 참고 자료', '/updates']] },
 ]
 const expanded = ref([true, true, false])
@@ -44,6 +44,11 @@ function toggle() {
         <ul :id="'course-group-' + index" v-show="expanded[index]">
           <li v-for="[label, link] in group.items" :key="link">
             <a :href="withBase(link)" :aria-current="path === link ? 'page' : undefined">{{ label }}</a>
+            <div v-if="path === link && ['/workshop/langchain', '/workshop/graph', '/workshop/harness', '/workshop/mcp', '/workshop/a2a'].includes(link)" class="module-parts">
+              <a :href="withBase(link + '#concept')">개념</a>
+              <a :href="withBase(link + (link.endsWith('/harness') ? '#practice' : '#observe'))">실습</a>
+              <a :href="withBase(link + '#solution')">풀이</a>
+            </div>
           </li>
         </ul>
       </section>
@@ -71,3 +76,5 @@ function toggle() {
 .Layout:has(.course-tree) .VPContent { margin-left: 264px; width: calc(100% - 264px); min-width: 0; }
 .Layout:has(.course-tree[data-open="false"]) .VPContent { margin-left: 48px; width: calc(100% - 48px); }
 </style>
+
+<style>.module-parts {padding-left:16px; border-left:1px solid #cbd8d1; margin-left:12px}.module-parts a {font-size:13px; padding:5px 12px}</style>

@@ -16,7 +16,7 @@ pageClass: lec-page
 
 강사 소개와 설문 리뷰 10분으로 시작한 뒤 [환경 준비](./workshop/start#setup)를 함께 진행합니다. 자료 받기부터 편집기·의존성·키 설정·첫 호출까지 확인하고 본 실습으로 이어갑니다.
 
-[주 실습: 내 업무 Agent 직접 완성하기](./workshop/build) — 각 모듈의 함께 실습·개인 과제 시간에 이어서 구현합니다. 작은 함수 수정은 준비 문제이며, 핵심 구현은 파일 또는 주피터 노트북으로 진행합니다.
+각 장은 **개념 → 실습 → 풀이** 순서로 읽습니다. 실습 안내는 해당 장 안에 있으며, VS Code에서 같은 `build_lab/student.py`를 이어서 완성합니다. 교재의 Python 실행 칸은 작은 동작을 확인하는 용도입니다. [실습 전체 모아보기](./workshop/build)는 복습할 때 사용합니다.
 
 ## 하루 학습 흐름
 
@@ -28,7 +28,7 @@ pageClass: lec-page
 |09:10–09:40|[시작 안내·공동 환경설정](./workshop/start#icebreaker)|자료·편집기·의존성·키 설정, 첫 호출 확인|
 |09:40–10:30|[Agent 입문](./workshop/agent#icebreaker)|ReAct의 판단·행동·관찰, 다른 연구 접근과 Harness 구분|
 |10:30–10:40|휴식|—|
-|10:40–11:50|[LangChain](./workshop/langchain#icebreaker)|도구 조회 결과에 근거한 답변|
+|10:40–11:50|[LangChain](./workshop/langchain#icebreaker)|모델 설정·도구 등록·Agent 생성과 실행|
 |11:50–12:50|점심|—|
 |12:50–14:00|[LangGraph](./workshop/graph#icebreaker)|정보가 부족할 때 질문으로 분기|
 |14:00–14:10|휴식|—|

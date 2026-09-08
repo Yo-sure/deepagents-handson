@@ -52,111 +52,116 @@ pageClass: lec-page
 
 </section>
 
-<nav class="lesson-nav" aria-label="LangChain 학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
+<nav class="lesson-nav" aria-label="개념과 실습"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a></nav>
 
-<section class="slide">
+<section class="slide" id="concept">
 
-## 조회 함수에서 시작합니다 {#concept}
+## 개념 1 · LangChain으로 모델을 호출합니다
 
 <p class="section-time">예상 6분 · 10:43–10:49</p>
 
-정산 문의를 어느 팀에 전달해야 하는지 확인합니다. 아래 함수의 `topic`은 입력값이며 반환 문자열은 조회 결과입니다. `POLICIES`는 학습용 사내 규정 두 건입니다. `정산`은 P-01/재무지원팀, `계정`은 P-02/IT지원팀입니다.
+LangChain은 모델 호출, 메시지, 도구 연결에 쓰는 인터페이스를 제공합니다. 이 장에서는 **모델 설정 → 도구 등록 → Agent 생성 → 질문 전달 → 응답 읽기** 순서로 기본 사용법을 익힙니다.
 
-<<< ../../workshop/course/common.py#lookup{python}
+### 모델 객체와 메시지
 
-`dict.get`은 키에 해당하는 값을 찾습니다. 없는 키이면 `None`이 반환됩니다. `found`는 정책을 찾았는지 나타내고 `policy`에는 팀·규정·ID가 담깁니다. 반환값을 JSON 문자열로 만들어 모델과 실행 기록에서 읽을 수 있게 했습니다.
+```python
+from course.common import get_model
 
-<<< ../../workshop/course/langchain_lab.py#agent{python}
+model = get_model()
+response = model.invoke("안녕하세요. 한 문장으로 답해주세요.")
+print(response.content)
+```
 
-`model`은 응답할 모델, `tools`는 사용 가능한 함수 목록, `system_prompt`는 응답 지시입니다. `create_agent`로 구성을 만들고 `invoke`로 질문을 전달합니다. 구성을 만들기만 해서는 도구가 실행되지 않습니다.
+`model`은 모델 접속 설정을 담은 객체입니다. `invoke()`가 실제 요청을 보내고, 응답 객체의 `content`에서 답변을 읽습니다. 이 호출에는 도구가 없으므로 모델의 응답만 받습니다.
 
-`messages`는 대화 메시지 목록입니다. `role: user`는 사용자 입력을 뜻합니다. 모델 접속·키 로딩은 제공 함수 `get_model`이 담당합니다. 이 도입에서는 연결 설정을 새로 작성하지 않습니다.
+`get_model()`은 환경설정에서 준비한 값을 읽는 제공 함수입니다. 내부에서는 `langchain_openai.ChatOpenAI`에 모델 이름(`model`), OpenRouter 주소(`base_url`), 환경변수의 키(`api_key`)를 전달합니다. 따라서 OpenAI 모델만 사용하는 코드가 아닙니다. 키는 `.env`에서 읽으며 코드에 직접 적지 않습니다.
 
-### 직접 연결할까요, LangChain을 사용할까요?
+|사용법|역할|
+|---|---|
+|`get_model()`|실습에 설정한 모델 연결 객체 준비|
+|`model.invoke(...)`|모델에 입력을 보내 실제 응답 받기|
+|`response.content`|응답 본문 읽기|
 
-|선택|장점|감수할 점|적합한 상황|
-|---|---|---|---|
-|모델 SDK와 Python으로 직접 연결|호출과 데이터 전달을 직접 볼 수 있음|도구 요청 처리·메시지 누적·반복 제어를 직접 작성|호출 흐름이 작고 구조를 세밀하게 다루려는 경우|
-|LangChain의 create_agent|모델·도구 연결과 기본 Agent 루프를 활용|기본 동작과 메시지 구조를 알아야 오류를 찾을 수 있음|여러 도구를 연결하고 Agent 구성을 확장하려는 경우|
-
-조회 함수만으로 답이 정해진다면 모델을 쓰지 않는 선택도 가능합니다. 이번 수업에서는 직접 작성한 도구를 Agent에 연결하는 원리를 익히기 위해 LangChain을 사용합니다. [프레임워크 선택 시 고려 사항](https://www.anthropic.com/engineering/building-effective-agents)
+위 코드는 API를 읽는 예제입니다. 아래 VS Code 실습에서는 같은 모델 객체를 제공 실행기가 Agent에 전달합니다.
 
 </section>
-
 <section class="slide">
 
-## 질문에서 답변까지
+## 개념 2 · Python 함수를 도구로 등록합니다
 
 <p class="section-time">예상 6분 · 10:49–10:55</p>
 
-<CourseVisual kind="langchain" />
+먼저 함수는 입력을 받아 결과를 돌려주는 일반 Python 코드입니다. 아래 실행 칸에서 `topic`을 `정산`, `계정`, `없는업무`로 바꿔 실행해 봅니다.
 
+<PythonPlayground kind="lookup" />
 
+여기서는 모델을 호출하지 않습니다. 다음 VS Code 실습에서는 이 조회 원리를 사용해 JSON 문자열을 반환하는 함수를 작성합니다.
 
-모델이 도구 이름과 인자를 반환하면 LangChain 실행 코드가 함수를 실행합니다. 실행 코드는 이 반환값을 tool 메시지로 대화에 추가합니다. 모델은 그 결과를 받고 다음 응답을 만듭니다.
+### 도구의 이름·설명·입력 형식
 
-도구를 등록했어도 모델이 항상 호출하는 것은 아닙니다. 프롬프트의 요청과 코드로 강제한 조건은 다릅니다. 이 예제에는 과도한 실행을 막는 `recursion_limit`이 있으며, 업무 성공을 보장하는 검사는 아닙니다.
+```python
+from langchain.tools import tool
 
-**예측:** 모델이 `{name: lookup_policy, args: {topic: 정산}}`을 반환한 순간, 담당 팀 조회는 아직 시작 전입니다. 다음에는 함수 실행이 일어나야 합니다.
+@tool
+def lookup_team(topic: str) -> str:
+    """업무명으로 담당 팀을 찾습니다. 정산 또는 계정을 입력합니다."""
+    teams = {"정산": "재무지원팀", "계정": "IT지원팀"}
+    return teams.get(topic.strip(), "등록된 업무가 없습니다")
+
+print(lookup_team.name)
+print(lookup_team.description)
+print(lookup_team.invoke({"topic": "정산"}))
+```
+
+`@tool`은 함수를 LangChain 도구로 만듭니다. 함수 이름은 도구 이름, docstring은 용도 설명, `topic: str`은 입력 형식이 됩니다. 변환한 도구를 직접 실행할 때는 `.invoke()`에 입력 dict를 전달합니다.
+
+`create_agent`는 일반 Python 함수도 도구 목록으로 받을 수 있습니다. **이번 파일 실습은 이 방법을 사용**하므로 학생 함수에 `@tool`을 추가할 필요는 없습니다. 두 방식 모두 이름·설명·입력 형식을 모델에 알리는 것이 핵심입니다. [공식 도구 문서](https://docs.langchain.com/oss/python/langchain/tools)
 
 </section>
-
 <section class="slide">
 
-## 결과와 실행 기록을 구분합니다
+## 개념 3 · Agent를 만들고 실행합니다
 
 <p class="section-time">예상 5분 · 10:55–11:00</p>
 
-실행 기록이 아직 낯설다면 앞 장의 [추적 화면과 JSON 읽는 법](./agent#trace-ui)을 먼저 확인합니다. 여기서는 조회 도구의 반환값과 그 뒤에 나온 모델 답변을 비교합니다.
+```python
+from langchain.agents import create_agent
 
+agent = create_agent(
+    model=model,
+    tools=[lookup_team],
+    system_prompt="업무 문의는 도구로 조회하고 담당 팀을 알려주세요.",
+)
+result = agent.invoke({
+    "messages": [{"role": "user", "content": "정산은 어느 팀에 문의하나요?"}]
+})
+print(result["messages"][-1].content)
+```
 
-다음 표는 메시지의 역할을 설명하는 예시입니다. 실제 실행 결과를 보장하는 로그는 아닙니다. 뒤에서 자신의 실행 기록과 비교합니다.
+앞에서 준비한 `model`과 도구를 연결한 예제입니다. `tools`에는 `lookup_team(...)`의 실행 결과가 아니라 **도구 자체**를 넣습니다. `system_prompt`에는 Agent의 역할과 응답 지침을 적습니다.
 
-| 순서 | role | 관찰 |
-|---|---|---|
-|1|human|topic=정산 입력|
-|2|ai|lookup_policy 호출 요청|
-|3|tool|found=true, policy.id=P-01|
-|4|ai|재무지원팀과 근거 P-01 응답|
+`create_agent()`는 실행 구성을 만들고, `agent.invoke()`는 질문을 전달해 실행합니다. `messages`는 대화 목록이며 `role`과 `content`로 발화자와 내용을 표현합니다. 마지막 메시지는 `result["messages"][-1]`로 읽습니다.
 
-마지막 문장만 읽으면 모델이 규정을 추측했는지 조회했는지 구분하기 어렵습니다. 도구 이름·인자·실제 반환값·최종 응답을 함께 봅니다.
+<CourseVisual kind="langchain" />
 
-구조화 출력은 결과의 필드를 일정하게 받는 방법입니다. 오늘 기본 과제에서는 이미 구조화된 도구 결과를 읽고 문장을 구성합니다. 출력 schema가 맞는 것과 내용이 사실인 것은 별개입니다. 존재하지 않는 정책 ID를 정확한 JSON 모양으로 반환해도 올바른 답은 아닙니다.
+LangChain은 모델의 도구 요청을 받아 함수를 실행하고, 결과를 메시지에 추가해 모델에 돌려줍니다. 우리는 조회 로직과 지침을 작성하고, 이 반복 연결은 프레임워크를 사용합니다. 직접 연결할 수도 있지만 도구 요청 처리와 메시지 누적도 직접 구현해야 합니다.
 
-**확인:** 없는 정책을 조회했는데 모델이 담당 팀을 단정하면 어느 기록부터 볼까요? tool 결과의 `found`와 최종 답변이 일치하는지 확인합니다.
-
-### 모델은 함수의 용도를 어떻게 아는가
-
-`lookup_policy(topic: str)`에는 이름, 설명 문자열(docstring), 입력의 타입이 있습니다. LangChain은 이 정보로 모델에 전달할 도구 설명을 구성합니다. 함수 본문을 모델이 실행하는 것은 아닙니다.
-
-|Python 함수에서 읽는 정보|모델에 알려 주는 내용|실행 기록에서 찾는 곳|
-|---|---|---|
-|`lookup_policy`|호출할 도구 이름|`tool_calls`의 `name`|
-|함수 첫 설명 문자열|어떤 업무에 쓰는 도구인지|도구 선택의 근거가 되는 설명|
-|`topic: str`|topic이라는 문자열 입력이 필요함|`args`의 `topic`|
-|함수 본문|실제 정책 조회 로직|실행 후 `tool` 메시지|
-
-`course/common.py`의 함수와 `runs/langchain.json`을 나란히 엽니다. 정산이라는 값이 함수의 어느 인자로 전달됐는지 찾습니다. 이어서 “이 함수는 문자열을 처리합니다”라는 설명만 주었다면 모델이 용도를 구별하기 충분한지 설명합니다. 도구 설명은 선택을 돕고, 실제 허용된 동작과 입력 검사는 실행 코드가 담당합니다.
-
-<aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>회사 규정의 담당 팀이 오늘 바뀌었습니다. 그런데 Agent는 조회하지 않고 어제 기억한 팀을 답했습니다.<br><br><strong>최신 규정을 꼭 조회하게 하려면 어디를 고치면 좋을까요?</strong> 지시문에 적는 방법과 실행 코드에서 조회를 빠뜨리지 못하게 하는 방법을 비교해 봅니다.</p></aside>
-
-<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
-
-최신 규정 조회가 필수라면 조회 결과 없이 답변을 내보내지 않도록 실행 흐름에서 확인할 수 있습니다. 프롬프트의 요청과 코드의 강제를 구분합니다.
-
-한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
-
-</details>
+이제 아래 실습에서 `lookup_policy`와 `build_agent`를 완성합니다. 첫 함수는 데이터를 찾고, 두 번째 함수는 모델과 그 도구를 연결합니다.
 
 </section>
-
 <section class="slide">
 
-## 함께 실행합니다 {#observe}
+## 실습 · 조회 함수와 Agent 만들기 {#observe}
 
 <p class="section-time">예상 15분 · 11:00–11:15</p>
 
-[실습: 조회 함수와 Agent 구성](./build#first-code)를 엽니다. `build_lab/student.py`의 `lookup_policy`와 `build_agent`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
+아래 순서대로 VS Code의 `build_lab/student.py`를 작성합니다. 실습 안내와 풀이를 이 페이지에서 이어서 읽습니다.
+
+<!-- lesson-exercise:first-code -->
+
+<!-- lesson-exercise:materials -->
+
+<!-- lesson-exercise:langchain -->
 
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
 
@@ -224,7 +229,7 @@ uv run python -m course.cli langchain --question "정산 문의도 해야 하고
 
 <p class="section-time">예상 15분 · 11:15–11:30</p>
 
-앞에서 시작한 [조회 함수와 Agent 구성 실습](./build#langchain)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
+앞에서 시작한 조회 함수와 Agent 구성 실습을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
 아래 준비 문제는 주 실습에서 막힌 개념을 작은 함수로 확인할 때 사용합니다.
 
@@ -393,7 +398,13 @@ uv run python -m exercises.read_trace
 
 </details>
 
-수정한 두 함수로 정상·없는 정책을 조회하고 도구 요청과 반환값을 확인합니다. 핵심 질문은 “도구를 호출했는가?”와 “그 결과대로 답했는가?”입니다. 다음 LangGraph에서는 정보가 부족할 때 다른 노드로 이동하도록 코드로 표현합니다.
+### 기본 사용법을 정리합니다
+
+1. `create_agent()`와 `agent.invoke()` 중 실제 질문을 보내는 것은 무엇인가요?
+2. `tools=[lookup_policy]`에 함수 호출 결과를 넣으면 왜 안 될까요?
+3. 새 업무를 지원하려면 정책 데이터·도구 설명·Agent 지침 중 무엇을 바꿔야 할까요?
+
+직접 만든 조회 도구를 모델에 연결하고 실행하는 것이 이 장의 목표였습니다. 다음 LangGraph에서는 정보가 부족할 때 다른 처리 단계로 이동하도록 흐름을 코드로 표현합니다.
 
 참고: [LangChain Agents](https://docs.langchain.com/oss/python/langchain/agents).
 

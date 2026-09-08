@@ -51,7 +51,7 @@ A2A는 8월 AAIF 합류 발표에서 서로 다른 프레임워크와 조직의 
 
 </section>
 
-<nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
+<nav class="lesson-nav" aria-label="개념과 실습"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a></nav>
 
 <section class="slide" id="concept">
 
@@ -169,11 +169,13 @@ sequenceDiagram
 
 <section class="slide" id="observe">
 
-## 함께 실습
+## 실습 · 직접 구현하고 실행하기
 
 <p class="section-time">예상 10분 · 17:00–17:10</p>
 
-[실습: 원격 검토 수용](./build#a2a)를 엽니다. `build_lab/student.py`의 `accept_review`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
+아래 순서대로 VS Code의 `build_lab/student.py`를 작성합니다. 실습 안내와 풀이를 이 페이지에서 이어서 읽습니다.
+
+<!-- lesson-exercise:a2a -->
 
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
 
@@ -199,7 +201,7 @@ Card 이름, state=completed, artifact.request_id/version/passed, decision=accep
 
 <p class="section-time">예상 10분 · 17:10–17:20</p>
 
-앞에서 시작한 [원격 검토 수용 실습](./build#a2a)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
+앞에서 시작한 원격 검토 수용 실습을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
 공통 구현은 `build_lab/student.py`의 `accept_review`입니다. submitted·working은 pending으로 처리합니다. completed인 경우에도 요청 ID가 비어 있지 않고 일치하며, 기대 버전과 산출물 버전이 모두 양의 정수로 일치하고, `passed is True`인 경우에만 accepted입니다. 불리언 버전, 산출물 누락, 다른 종료 상태는 held입니다. 요청·버전 검사는 주 프로젝트의 필수 계약입니다. 아래 준비 문제는 이 계약을 상태 판정부터 나누어 익힙니다.
 
@@ -359,7 +361,7 @@ completed이면서 이전 버전인 결과 하나를 제시하고 왜 보류하�
 
 </details>
 
-주 실습 풀이는 `build_lab/reference.py`의 해당 함수를 자신의 구현과 비교합니다. [완성 기준](./build#finish)에 따라 코드·실행 경로·반례를 설명합니다. 아래 표와 명령은 준비 문제의 풀이입니다.
+주 실습 풀이는 `build_lab/reference.py`의 해당 함수를 자신의 구현과 비교합니다. 위 실습의 정상 입력과 반례를 실행하고 결과를 비교합니다. 아래 표와 명령은 준비 문제의 풀이입니다.
 
 <div class="command-purpose">준비 문제 풀이 확인</div>
 

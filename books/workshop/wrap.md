@@ -12,7 +12,7 @@ pageClass: lec-page
 
 # 전체 구조를 연결하고 적용점을 정리한다
 
-주 실습의 최종 결과는 [내 업무 Agent 완성 기준](./build#finish)으로 확인합니다. `build_lab.runner complete`에서 학생 도구·Agent·분기·MCP 등록·수용 판단과 제공 그래프·수정 루프가 연결된 실행 기록을 설명합니다.
+주 실습의 최종 결과는 아래 통합 실습의 완성 기준으로 확인합니다. `build_lab.runner complete`에서 학생 도구·Agent·분기·MCP 등록·수용 판단과 제공 그래프·수정 루프가 연결된 실행 기록을 설명합니다.
 
 <p class="lead">문의 하나가 조회·답변 작성·검토를 거치는 과정을 따라갑니다. 사용자가 업무명을 다르게 말해도 같은 규정을 찾도록 코드를 고칩니다.</p>
 
@@ -58,6 +58,8 @@ LangChain은 최근 Agent 평가 과제를 만드는 글에서 실행 환경과 
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#observe">01 통합 실행</a><a href="#practice">02 독립 변경</a><a href="#solution">03 풀이</a></nav>
 
 <section class="slide" id="observe">
+
+<!-- lesson-exercise:finish -->
 
 ## 전체 부품을 관찰합니다
 

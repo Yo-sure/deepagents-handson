@@ -53,7 +53,7 @@ Codex나 Claude Code 사용 경험이 있으면 “계속해”를 반복했던 
 
 </section>
 
-<nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
+<nav class="lesson-nav" aria-label="개념과 실습"><a href="#concept">01 개념</a><a href="#practice">02 실습</a><a href="#solution">03 풀이</a></nav>
 
 <section class="slide" id="concept">
 
@@ -167,9 +167,9 @@ DeepAgents가 언제나 더 정확하거나 저렴하다는 뜻은 아닙니다.
 
 <p class="section-time">예상 10분 · 14:30–14:40</p>
 
-[실제 담론과 사례](./engineering#distinction)를 읽습니다. Peter Steinberger와 Addy Osmani의 Loop 설명은 사람이 매번 다음 지시를 쓰던 일을 시스템에 맡기는 방향입니다. 시작 계기·작업 선택·검증·진행 상태·종료를 함께 설계합니다.
+아래 사례로 실제 담론을 살펴봅니다. Peter Steinberger와 Addy Osmani의 Loop 설명은 사람이 매번 다음 지시를 쓰던 일을 시스템에 맡기는 방향입니다. 시작 계기·작업 선택·검증·진행 상태·종료를 함께 설계합니다.
 
-Graph Engineering 담론에서는 여러 역할의 의존성, 병렬 실행, 산출물 계약과 검증 경계를 다룹니다. 조건 분기 하나나 LangGraph API를 이 용어 전체와 동일시하지 않습니다. [코드 검수 사례](./engineering#case)에서 기능 검토와 교재 검토가 서로를 기다려야 하는지 판단합니다.
+Graph Engineering 담론에서는 여러 역할의 의존성, 병렬 실행, 산출물 계약과 검증 경계를 다룹니다. 조건 분기 하나나 LangGraph API를 이 용어 전체와 동일시하지 않습니다. 아래 코드 검수 사례에서 기능 검토와 교재 검토가 서로를 기다려야 하는지 판단합니다.
 
 현재 제공된 초안 수정 코드는 피드백과 종료 조건을 볼 수 있는 작은 예제입니다. 작업을 자동 발견하거나 세션을 넘어 여러 에이전트를 운영하지는 않습니다. 아래 그림은 그 **업무 수정 반복**만 보여 줍니다.
 
@@ -189,6 +189,10 @@ flowchart TB
 </section>
 
 <section class="slide" id="observe">
+
+<!-- lesson-engineering:distinction -->
+
+<!-- lesson-engineering:case -->
 
 ## 함께 실습
 
@@ -225,7 +229,11 @@ uv run python -m course.cli deepagent
 
 <p class="section-time">예상 20분 · 14:50–15:10</p>
 
-[Loop·Graph Engineering 설계 활동](./engineering#task)을 진행합니다. build_lab/HARNESS_WORKSHEET.md에 시작·작업 선택·종료 조건과 역할별 의존성·산출물 계약·상태 기록을 작성합니다. F1/D1 검수 사례로 중복 작업과 잘못된 PASS를 처리합니다.
+아래 설계 활동을 진행합니다.
+
+<!-- lesson-engineering:task -->
+
+ build_lab/HARNESS_WORKSHEET.md에 시작·작업 선택·종료 조건과 역할별 의존성·산출물 계약·상태 기록을 작성합니다. F1/D1 검수 사례로 중복 작업과 잘못된 PASS를 처리합니다.
 
 코딩 도구를 사용할 수 있으면 자신의 설계에 대한 검토를 요청합니다. 계정이 없다면 동일한 활동지를 작성하고 사례 풀이와 비교합니다. 실제 자동화 등록이나 코드 변경은 공통 과제가 아닙니다.
 
@@ -255,7 +263,9 @@ uv run python -m course.cli deepagent
 
 </details>
 
-개인 활동은 [설계 풀이와 하이프에 대한 반론](./engineering#review)으로 비교합니다. 아래 표와 명령은 업무 수정 루프를 읽기 위한 추가 참고입니다.
+<!-- lesson-engineering:review -->
+
+ 아래 표와 명령은 업무 수정 루프를 읽기 위한 추가 참고입니다.
 
 <div class="command-purpose">준비 문제 풀이 확인</div>
 

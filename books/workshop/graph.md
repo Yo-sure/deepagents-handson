@@ -51,7 +51,7 @@ LangChain은 장시간 실행되는 Agent의 운영 기반으로 중단·재개�
 
 </section>
 
-<nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
+<nav class="lesson-nav" aria-label="개념과 실습"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a></nav>
 
 <section class="slide" id="concept">
 
@@ -157,11 +157,18 @@ State는 노드마다 처음부터 다시 만드는 요청서가 아닙니다. �
 
 <section class="slide" id="observe">
 
-## 함께 실행
+<PythonPlayground kind="route" />
+
+입력을 바꾸며 분기 조건을 확인한 뒤, 아래 VS Code 실습에서 상태를 읽는 함수로 구현합니다.
+
+
+## 실습 · 업무 분기 구현
 
 <p class="section-time">예상 15분 · 13:10–13:25</p>
 
-[실습: 업무 분기](./build#graph)를 엽니다. `build_lab/student.py`의 `route_inquiry`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
+아래 순서대로 VS Code의 `build_lab/student.py`를 작성합니다. 실습 안내와 풀이를 이 페이지에서 이어서 읽습니다.
+
+<!-- lesson-exercise:graph -->
 
 주 실습은 위 개념 예제에 정책 데이터와 검토 단계를 추가합니다. 필드 이름과 마지막 노드가 달라지므로 `build_lab/materials.py`의 Inquiry와 `guided.py`를 기준으로 구현합니다.
 
@@ -201,7 +208,7 @@ uv run python -m course.cli approval --decision reject
 
 <p class="section-time">예상 15분 · 13:25–13:40</p>
 
-앞에서 시작한 [업무 분기 실습](./build#graph)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
+앞에서 시작한 업무 분기 실습을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
 아래 준비 문제는 주 실습에서 막힌 개념을 작은 함수로 확인할 때 사용합니다.
 

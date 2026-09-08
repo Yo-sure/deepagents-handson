@@ -51,7 +51,7 @@ MCP의 새 로드맵은 필요한 도구를 점차 발견하는 방향을 다룹
 
 </section>
 
-<nav class="lesson-nav" aria-label="학습 단계"><a href="#concept">01 개념</a><a href="#observe">02 함께 실행</a><a href="#practice">03 개인 과제</a><a href="#solution">04 풀이</a></nav>
+<nav class="lesson-nav" aria-label="개념과 실습"><a href="#concept">01 개념</a><a href="#observe">02 실습</a><a href="#solution">03 풀이</a></nav>
 
 <section class="slide" id="concept">
 
@@ -155,11 +155,13 @@ uv run python -c "import json; from exercises.extension_solutions import ticket_
 
 <section class="slide" id="observe">
 
-## 함께 실습
+## 실습 · 직접 구현하고 실행하기
 
 <p class="section-time">예상 15분 · 15:50–16:05</p>
 
-[실습: MCP 도구 공개](./build#protocols)를 엽니다. `build_lab/student.py`의 `build_mcp_server`를 작성합니다. 해당 단계의 입력·반환값과 검사 방법을 따라 진행한 뒤 이 장으로 돌아옵니다. 아래 완성 예제는 비교가 필요할 때 펼칩니다.
+아래 순서대로 VS Code의 `build_lab/student.py`를 작성합니다. 실습 안내와 풀이를 이 페이지에서 이어서 읽습니다.
+
+<!-- lesson-exercise:protocols -->
 
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
 
@@ -201,7 +203,7 @@ LangChain 1.4의 `langchain.mcp.MCPAdapter`가 MCP 도구를 LangChain 도구로
 
 <p class="section-time">예상 15분 · 16:05–16:20</p>
 
-앞에서 시작한 [MCP 도구 공개 실습](./build#protocols)을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
+앞에서 시작한 MCP 도구 공개 실습을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
 아래 준비 문제는 주 실습에서 막힌 개념을 작은 함수로 확인할 때 사용합니다.
 
@@ -368,7 +370,7 @@ MCP 명세는 프로토콜 오류와 도구 실행 오류를 구분합니다. `f
 
 </details>
 
-주 실습 풀이는 `build_lab/reference.py`의 해당 함수를 자신의 구현과 비교합니다. [완성 기준](./build#finish)에 따라 코드·실행 경로·반례를 설명합니다. 아래 표와 명령은 준비 문제의 풀이입니다.
+주 실습 풀이는 `build_lab/reference.py`의 해당 함수를 자신의 구현과 비교합니다. 위 실습의 정상 입력과 반례를 실행하고 결과를 비교합니다. 아래 표와 명령은 준비 문제의 풀이입니다.
 
 <div class="command-purpose">준비 문제 풀이 확인</div>
 
