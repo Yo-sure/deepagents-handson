@@ -1,27 +1,22 @@
 """공통 정책 데이터와 실제 LLM 연결입니다."""
 from __future__ import annotations
 
-import json
 import os
 from pathlib import Path
 
 from dotenv import load_dotenv
 
+from .policy_store import load_policies, search_policy
+
 ROOT = Path(__file__).resolve().parents[1]
-POLICIES = {
-    "정산": {"id": "P-01", "team": "재무지원팀", "rule": "정산 문의는 재무지원팀에 전달합니다."},
-    "계정": {"id": "P-02", "team": "IT지원팀", "rule": "계정 잠금은 IT지원팀에 문의합니다."},
-}
+
+POLICIES = load_policies()
 
 
 #pragma region lookup
 def lookup_policy(topic: str) -> str:
     """Look up the current internal policy for a business topic."""
-    policy = POLICIES.get(topic)
-    return json.dumps(
-        {"found": bool(policy), "topic": topic, "policy": policy},
-        ensure_ascii=False,
-    )
+    return search_policy(topic)
 #pragma endregion lookup
 
 

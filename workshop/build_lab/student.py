@@ -1,20 +1,19 @@
 """도구·Agent·분기·MCP 등록·A2A 수용을 구현합니다. 그래프·수정 루프 구조는 제공됩니다. 재료와 계약은 교재 '직접 완성하기'에 있습니다."""
-import json
 from langchain.agents import create_agent
-from langgraph.graph import StateGraph, START, END
+from langchain.tools import tool
 from mcp.server.mcpserver import MCPServer
-from .materials import POLICIES, Inquiry, inspect_draft
+from course.policy_store import search_policy
 
 #pragma region lookup
 def lookup_policy(topic: str) -> str:
     """Look up the current internal policy by topic, such as 정산 or 계정."""
-    # 공백을 제거한 topic으로 POLICIES를 조회합니다. JSON 문자열을 반환합니다.
-    raise NotImplementedError("1A: found, topic, policy를 반환하는 조회 도구를 구현하십시오.")
+    # 제공 search_policy(topic)을 호출하고 결과를 그대로 반환합니다.
+    raise NotImplementedError("1A: search_policy를 연결하고 도구의 용도를 docstring에 설명하십시오.")
 #pragma endregion lookup
 
 #pragma region agent
 def build_agent(model, policy_tool):
-    # model·tools·system_prompt를 지정합니다. 실제 호출은 호출자가 수행합니다.
+    # tool(policy_tool)로 도구를 만들고 model·tools·system_prompt를 지정합니다.
     raise NotImplementedError("1B: create_agent로 도구를 가진 Agent를 구성하십시오.")
 #pragma endregion agent
 

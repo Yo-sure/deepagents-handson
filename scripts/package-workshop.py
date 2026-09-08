@@ -15,7 +15,7 @@ import zipfile
 VERSION = "2026.09-rc1"
 TOP_FILES = {"README.md", "RELEASE.md", "VALIDATION.md",
              "pyproject.toml", "uv.lock", ".env.example", ".gitignore"}
-EXTRA_FILES = {"build_lab/HARNESS_WORKSHEET.md"}
+EXTRA_FILES = {"build_lab/HARNESS_WORKSHEET.md", "data/policies.csv"}
 DIRECTORIES = {
     "course": {".py"}, "build_lab": {".py"}, "exercises": {".py"},
     "tests": {".py"}, "notebooks": {".ipynb"}, "skills": {".md"},

@@ -32,7 +32,7 @@ pageClass: lec-page
 
 LangChain 장의 개념 설명을 마친 뒤 진행합니다. 먼저 편집기에서 압축을 푼 `workshop` 폴더의 `build_lab/student.py`를 엽니다. 오늘 직접 수정할 파일입니다.
 
-1. `def lookup_policy`를 찾습니다. 이 함수가 업무명에 맞는 규정을 조회하도록 작성합니다.
+1. `def lookup_policy`를 찾습니다. 제공된 search_policy를 호출하도록 작성하고, 도구의 용도를 docstring으로 설명합니다.
 2. 함수 안의 `raise NotImplementedError(...)`는 아직 구현하지 않았다는 표시입니다. 이 줄을 지우고 자신의 코드를 작성합니다. 함수 이름과 인자는 그대로 둡니다.
 3. 아래 재료를 읽고 함수를 완성한 뒤, 바로 아래 검사 명령을 실행합니다. 아직 다른 함수는 수정하지 않습니다.
 
@@ -48,14 +48,14 @@ LangChain 장의 개념 설명을 마친 뒤 진행합니다. 먼저 편집기�
 
 <p class="section-time">예상 3분 · 해당 수업 시간에 포함</p>
 
-정책 정본은 `course/common.py`의 `POLICIES`입니다. `build_lab/materials.py`의 `POLICIES`를 엽니다. 업무명을 키로 규정을 찾는 Python dict이며, 학습용 데이터 두 건이 들어 있습니다.
+정책 데이터는 제공된 `data/policies.csv`에 있습니다. `course/policy_store.py`의 `search_policy(topic)`이 파일 읽기·공백 처리·결과 JSON 생성을 맡습니다. 학습자는 CSV 파서나 JSON 조립 코드를 작성하지 않습니다.
 
 |업무명|정책 ID|담당 팀|
 |---|---|---|
 |정산|P-01|재무지원팀|
 |계정|P-02|IT지원팀|
 
-정책 원본은 수정하지 않습니다. 작성할 조회 함수가 이 표에서 필요한 값을 읽어 반환하게 만듭니다. 파일의 다른 정의는 뒤 단계에서 사용할 때 설명합니다.
+먼저 CSV의 두 행을 읽습니다. 실습에서는 이 데이터 접근 함수를 감싸 모델에게 보여줄 조회 도구를 만들고, Agent에 연결합니다. 원본 CSV를 바꾸면 조회 결과도 달라집니다. 기본 실습은 제공된 두 행으로 진행합니다.
 
 <details><summary>주피터로 진행하는 경우</summary>
 
@@ -80,21 +80,15 @@ uv run --locked --group notebook jupyter lab notebooks/build-agent.ipynb
 
 <p class="section-time">예상 25분 · 해당 수업 시간에 포함</p>
 
-모델 없이 도구부터 만듭니다. `lookup_policy(topic)`는 공백을 제거한 주제로 정책을 찾고 JSON **문자열**을 반환합니다. 계정의 반환값을 파싱하면 다음 객체가 됩니다.
+제공 함수부터 호출해 반환값을 확인합니다. 아래 명령은 모델 없이 실행되며, 계정의 담당 팀과 정책 ID를 출력합니다.
 
-```json
-{
-  "found": true,
-  "topic": "계정",
-  "policy": {
-    "id": "P-02",
-    "team": "IT지원팀",
-    "rule": "계정 잠금은 IT지원팀에 문의합니다."
-  }
-}
+```bash
+uv run python -c "from course.policy_store import search_policy; print(search_policy('계정'))"
 ```
 
-없는 정책은 found=false, policy=null입니다. topic은 정리한 입력을 유지합니다. API 재료는 `dict.get`, `str.strip`, `json.dumps(..., ensure_ascii=False)`입니다. docstring은 모델에게 도구 용도를 설명하므로 삭제하지 않습니다.
+결과의 `policy`에서 `P-02`와 `IT지원팀`을 찾습니다. 없는 업무는 `found=false`, `policy=null`로 돌아옵니다. **이 결과 JSON은 제공 함수가 만듭니다. 학습자가 옮겨 적거나 조립할 데이터가 아닙니다.**
+
+이제 `lookup_policy(topic)` 안에서 `search_policy(topic)`을 호출하고 결과를 그대로 반환합니다. docstring에는 언제 이 도구를 쓰는지와 어떤 업무명을 받는지 설명합니다. 제공 함수는 데이터 접근을, 작성할 함수는 모델에 공개할 도구의 역할을 맡습니다.
 
 <<< ../../workshop/build_lab/student.py#lookup{python}
 
@@ -106,7 +100,7 @@ uv run --locked --group notebook jupyter lab notebooks/build-agent.ipynb
 uv run pytest tests/test_build_lab.py --build-student -q -k lookup
 ```
 
-검사가 통과하면 이어서 `build_agent(model, policy_tool)`을 구현합니다. `create_agent(model=..., tools=[...], system_prompt=...)`로 구성한 Agent를 반환합니다. 생성 함수 안에서 실행까지 하지 않습니다. 다른 모델이나 조회 도구를 연결하려면 어디를 바꾸면 될까요? 함수 안에 고정하지 않고 model과 policy_tool을 인자로 받는 이유를 생각해 봅니다.
+검사가 통과하면 이어서 `build_agent(model, policy_tool)`을 구현합니다. 먼저 `tool(policy_tool)`로 LangChain 도구 객체를 만들고 `tools` 목록에 넣습니다. `create_agent(model=..., tools=[...], system_prompt=...)`로 구성한 Agent를 반환합니다. 생성 함수 안에서 실행까지 하지 않습니다. 다른 모델이나 조회 도구를 연결하려면 어디를 바꾸면 될까요? 함수 안에 고정하지 않고 model과 policy_tool을 인자로 받는 이유를 생각해 봅니다.
 
 <<< ../../workshop/build_lab/student.py#agent{python}
 

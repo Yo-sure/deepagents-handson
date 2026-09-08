@@ -286,7 +286,7 @@ except ValidationError:
 
 `create_agent`의 LangChain 1.0.0 배포본(2025-10-17)에도 `tools` 인자로 `Callable`을 받는 정의가 있습니다. 최근에 `@tool`이 없어졌다는 뜻은 아닙니다. 일반 함수를 넘기면 내부에서 도구로 변환하며, 이름·설명·타입 힌트는 여전히 필요합니다. 과거의 다른 Agent 생성 API까지 같은 동작이었다고 일반화하지 않습니다. [1.0.0 배포 파일](https://pypi.org/project/langchain/1.0.0/#files)
 
-기본 정보를 함수에서 가져오면 충분할 때는 일반 함수를 넘겨도 됩니다. **공개 이름·설명·입력 제약을 명시하거나, 생성한 도구를 따로 확인하려면 `@tool`이 편리합니다.** 이번 주 실습은 일반 함수 방식이므로 `student.py`에 데코레이터를 추가할 필요는 없습니다. 위 예제에서는 변환을 직접 보고 설정하는 법을 익혔습니다.
+기본 정보를 함수에서 가져오면 충분할 때는 일반 함수를 넘겨도 됩니다. **공개 이름·설명·입력 제약을 명시하거나, 생성한 도구를 따로 확인하려면 `@tool`이 편리합니다.** 이번 주 실습에서는 조회 함수를 일반 함수로 작성하고, `build_agent` 안에서 `tool(policy_tool)`로 명시적으로 변환합니다. MCP에서도 같은 조회 함수를 재사용하기 위해 `lookup_policy` 자체에는 데코레이터를 붙이지 않습니다.
 
 참고: [공식 도구 사용법](https://docs.langchain.com/oss/python/langchain/tools), [tool 옵션 API](https://reference.langchain.com/python/langchain-core/tools/convert/tool)
 
@@ -344,7 +344,7 @@ LangChain은 모델의 도구 요청을 받아 함수를 실행하고, 결과를
 
 <details><summary>비교하며 읽는 완성 예제와 시연</summary>
 
-1. `course/common.py`의 `lookup_policy`와 `POLICIES`를 엽니다. 정산 결과를 먼저 예측합니다.
+1. `data/policies.csv`와 `course/policy_store.py`의 `search_policy`를 엽니다. 정산 결과를 먼저 예측합니다.
 2. 다음 명령으로 실행하고 `trace`에서 질문·도구 요청·도구 결과·최종 응답을 찾습니다. 실제 모델의 메시지 수가 비교 표와 같을 필요는 없습니다.
 
 <div class="command-purpose">완성 예제 실행</div>
@@ -507,7 +507,7 @@ uv run python -m exercises.extension_check langchain --solution
 
 |주 실습에서 확인할 입력·변경|확인할 근거|틀렸을 때 먼저 볼 곳|
 |---|---|---|
-|`" 정산 "`을 조회|앞뒤 공백을 정리한 topic, P-01, 재무지원팀|조회 함수의 입력 정리와 JSON 반환|
+|`" 정산 "`을 조회|앞뒤 공백을 정리한 topic, P-01, 재무지원팀|제공 search_policy에 전달한 입력과 반환값|
 |없는 업무를 조회|`found=false`, `policy=null`|없는 결과를 정상 정책으로 채우지 않았는지|
 |정산 대신 계정을 질문|실제 도구 인자와 P-02·IT지원팀|정산 답을 코드나 프롬프트에 고정했는지|
 |도구를 등록한 Agent 실행|호출 요청 뒤 실제 도구 결과가 존재|`tools`에 전달한 함수와 도구 설명|

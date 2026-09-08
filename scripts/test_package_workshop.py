@@ -26,6 +26,7 @@ class PackagingTests(unittest.TestCase):
             for name in package.DIRECTORIES:
                 (root / name).mkdir()
             for name in package.EXTRA_FILES:
+                (root / name).parent.mkdir(parents=True, exist_ok=True)
                 (root / name).write_text("", encoding="utf-8")
             # A directory where .env would be makes accidental reading fail.
             (root / ".env").mkdir()

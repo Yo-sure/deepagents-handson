@@ -1,20 +1,20 @@
 """풀이 시간에 읽는 구현. 학생 파일과 별개입니다."""
 import json
 from langchain.agents import create_agent
+from langchain.tools import tool
 from langgraph.graph import StateGraph, START, END
 from mcp.server.mcpserver import MCPServer
-from .materials import POLICIES, Inquiry, inspect_draft
+from course.policy_store import search_policy
+from .materials import Inquiry, inspect_draft
 
 
 def lookup_policy(topic: str) -> str:
     """Look up the current internal policy by topic, such as 정산 or 계정."""
-    topic = topic.strip()
-    policy = POLICIES.get(topic)
-    return json.dumps({"found": policy is not None, "topic": topic, "policy": policy}, ensure_ascii=False)
+    return search_policy(topic)
 
 
 def build_agent(model, policy_tool):
-    return create_agent(model=model, tools=[policy_tool], system_prompt=
+    return create_agent(model=model, tools=[tool(policy_tool)], system_prompt=
         "사내 문의에 답하기 전에 lookup_policy로 규정을 확인하십시오. "
         "topic은 정산, 계정 같은 업무명입니다. 등록된 담당 팀과 근거 ID를 답하십시오. "
         "정책이 없으면 추가 확인을 요청하고 근거를 만들지 마십시오.")
