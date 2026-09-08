@@ -12,7 +12,7 @@ pageClass: lec-page
 
 # 전체 구조를 연결하고 적용점을 정리한다
 
-주 실습의 최종 결과는 아래 통합 실습의 완성 기준으로 확인합니다. `labs/a2a.py`에서 학생 도구·Agent·분기·MCP 등록·수용 판단과 제공 그래프·수정 루프가 연결된 실행 기록을 설명합니다.
+주 실습의 최종 결과는 아래 통합 실습의 완성 기준으로 확인합니다. 노트북의 ‘6. 통합’ 셀에서 학생 도구·Agent·분기·MCP 등록·수용 판단과 제공 그래프·수정 루프가 연결된 실행 기록을 설명합니다.
 
 <p class="lead">문의 하나가 조회·답변 작성·검토를 거치는 과정을 따라갑니다. 사용자가 업무명을 다르게 말해도 같은 규정을 찾도록 코드를 고칩니다.</p>
 
@@ -72,9 +72,7 @@ LangChain은 최근 Agent 평가 과제를 만드는 글에서 실행 환경과 
 
 <div class="command-purpose">내 구현 실행</div>
 
-```bash
-uv run python -m labs.a2a
-```
+노트북의 **6. 통합** 셀에서 입력을 변경하고 Shift+Enter로 실행합니다.
 
 학생 MCP 서버의 정책 조회→제공 Graph와 학생 분기→학생 LangChain Agent의 초안→제공 루프의 검토·필요 시 수정→A2A 검토→학생 수용 판단을 확인합니다. 초안이 처음부터 통과하면 수정하지 않습니다. 수정이 필요하면 정책·초안·피드백을 모델에 전달합니다.
 
@@ -82,17 +80,17 @@ uv run python -m labs.a2a
 
 현재 예제는 정책 갱신 배포를 자동 동기화하지 않습니다. DeepAgents는 앞의 별도 예제에서 비교하며, 통합에 프레임워크를 중복으로 얹지 않습니다.
 
-실행 후 터미널에 출력된 결과에서 아래 필드를 확인합니다. `labs/a2a.py`는 결과를 출력하며 로그 파일을 자동 저장하지 않습니다. 하나의 결과 안에 각 단계의 기록이 들어 있습니다.
+노트북의 ‘6. 통합’ 셀 아래에서 Graph 결과와 원격 검토, 수용 판단을 확인합니다. 정책은 snapshot, 그래프 상태는 result, 원격 검토는 review에 남습니다.
 
 | 단계 | 찾을 증거 | 확인할 질문 |
 |---|---|---|
-|MCP 조회 결과|state.data|조회한 규정 ID와 담당 팀은 무엇인가?|
-|LangGraph|state.visited, state.decision|초안 작성 경로를 택한 이유는 무엇인가?|
-|LangChain|trace|도구 결과와 답변의 근거가 같은가?|
-|수정 루프|state.history, state.draft, state.decision|수정을 했는가? 하지 않았다면 왜인가?|
-|A2A 검토|review.state, review.artifact, review.decision|현재 요청의 완료 상태와 검토 통과를 함께 확인했는가?|
+|MCP 조회 결과|result.data|조회한 규정 ID와 담당 팀은 무엇인가?|
+|LangGraph|result.visited, result.decision|초안 작성 경로를 택한 이유는 무엇인가?|
+|LangChain|1B 셀의 messages|도구 결과와 답변의 근거가 같은가?|
+|수정 루프|result.history, result.draft, result.decision|수정을 했는가? 하지 않았다면 왜인가?|
+|A2A 검토|review.state, review.artifact, decision|현재 요청의 완료 상태와 검토 통과를 함께 확인했는가?|
 
-조회한 정책은 요청 단위의 snapshot으로 초안 생성에 전달됩니다. Agent의 도구 호출은 이 snapshot을 읽으며 호출할 때마다 MCP 서버를 다시 조회하지 않습니다. `state.data`와 최종 `state.draft`를 직접 대조합니다. HTTP 도구 목록과 응답 포장까지 다시 확인하려면 `labs/mcp.py`의 `transport`를 읽습니다. complete 로그에는 그 포장 대신 조회된 업무 데이터가 남습니다.
+조회한 정책은 요청 단위의 snapshot으로 초안 생성에 전달됩니다. Agent의 도구 호출은 이 snapshot을 읽으며 호출할 때마다 MCP 서버를 다시 조회하지 않습니다. `result["data"]`와 최종 `result["draft"]`를 직접 대조합니다. HTTP 도구 목록과 응답 포장까지 다시 확인하려면 노트북 4번 셀의 `wire`를 읽습니다.
 
 모델 호출이 실패하면 해당 단계의 오류를 해결한 뒤 다시 실행합니다. 실제 호출과 결과 전달이 확인되어야 통합 실습을 완료한 것입니다.
 
@@ -121,13 +119,15 @@ uv run python -m labs.a2a
 
 <div class="command-purpose">내 구현 실행</div>
 
-```bash
-uv run pytest tests/test_transfer.py --build-student -q
-uv run pytest tests/test_build_lab.py --build-student -q
-uv run python -m labs.a2a
+```python
+# 노트북에 새 셀을 추가합니다.
+for text in ["로그인", " 비용 ", "정산", "계정", "로그인 장애", "비용 취소"]:
+    print(text, json.loads(lookup_policy(text)))
 ```
 
-새 계약과 기존 계약을 모두 검사합니다. 실제 연결에서는 `state.data.topic=계정`, P-02·IT지원팀, 최종 수용 판단을 확인합니다. 서버 응답의 topic을 별칭 그대로 두면 뒤의 Agent가 정규 업무명으로 다시 조회할 때 문제가 생길 수 있습니다. 어디서 이름을 정리하고 이후 단계에 무엇을 전달할지 설명합니다.
+위 표와 비교한 뒤 6번 통합 셀의 topic을 로그인으로 바꿔 실행합니다.
+
+새 계약과 기존 계약을 모두 검사합니다. 실제 연결에서는 `result.data.topic=계정`, P-02·IT지원팀, 최종 수용 판단을 확인합니다. 서버 응답의 topic을 별칭 그대로 두면 뒤의 Agent가 정규 업무명으로 다시 조회할 때 문제가 생길 수 있습니다. 어디서 이름을 정리하고 이후 단계에 무엇을 전달할지 설명합니다.
 
 변경 전후의 검사 결과를 비교하고, 미등록 별칭 하나를 직접 골라 기존 동작이 유지되는지 확인합니다.
 
@@ -139,9 +139,7 @@ uv run python -m labs.a2a
 
 <div class="command-purpose">내 구현 실행</div>
 
-```bash
-uv run python -m labs.a2a
-```
+노트북의 **6. 통합** 셀에서 입력을 변경하고 Shift+Enter로 실행합니다.
 
 P-02·IT지원팀이 조회부터 검토까지 이어지는지 확인합니다. 예상과 다르면 처음 어긋난 단계의 필드를 기록합니다. 마지막 답변만 다시 고치기 전에 앞 단계에서 어떤 데이터가 전달됐는지 확인합니다.
 
@@ -149,9 +147,7 @@ P-02·IT지원팀이 조회부터 검토까지 이어지는지 확인합니다. 
 
 <div class="command-purpose">내 구현 실행</div>
 
-```bash
-uv run python -m labs.a2a
-```
+노트북의 **6. 통합** 셀에서 입력을 변경하고 Shift+Enter로 실행합니다.
 
 더 살펴보려면 다음 중 하나를 골라 수정할 위치·예상 결과·확인 방법을 생각해 봅니다.
 
@@ -200,7 +196,7 @@ uv run python -m labs.a2a
 
 검사 명령에서 `--build-student`를 빼면 별도 변경 풀이를 검사합니다. 풀이 통합 실행은 `uv run python -m build_lab.transfer_solution complete --topic 로그인`입니다. 학생 구현의 실행과 구분합니다.
 
-회신 대상이 빈 요청은 `state.decision=ask`, `state.visited=["lookup", "ask"]`로 종료합니다. `state.draft`에는 추가 확인 문장이 있고 `state.history=[]`, `trace=[]`입니다. 모델 초안·수정·원격 검토를 실행하지 않으므로 `review` 필드는 없습니다. 오류 때문에 빠진 결과와 의도한 분기로 생성되지 않은 결과를 구분합니다.
+회신 대상이 빈 요청은 `state.decision=ask`, `state.visited=["lookup", "ask"]`로 종료합니다. `result["draft"]`에는 추가 확인 문장이 있고 `state.history=[]`, `trace=[]`입니다. 모델 초안·수정·원격 검토를 실행하지 않으므로 `review` 필드는 없습니다. 오류 때문에 빠진 결과와 의도한 분기로 생성되지 않은 결과를 구분합니다.
 
 계정 요청의 성공 기준은 P-02와 IT지원팀이 나온다는 사실뿐 아니라 같은 요청의 검토가 통과했는지도 포함합니다. 답변 문장이 기준 예시와 완전히 같을 필요는 없습니다.
 

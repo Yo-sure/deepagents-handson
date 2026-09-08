@@ -61,7 +61,7 @@ LangChain은 장시간 실행되는 Agent의 운영 기반으로 중단·재개�
 
 앞 장에서는 `create_agent(...)`로 실행 구조를 만들고 `agent.invoke(...)`로 질문을 보냈습니다. 그때 만들어진 `agent`는 실행 가능한 LangGraph 객체인 `CompiledStateGraph`입니다. Python에서는 `create_agent`, JavaScript에서는 `createAgent`라는 이름을 사용합니다.
 
-`labs/langchain.py`의 `agent = build_agent(...)` 바로 아래, `invoke` 앞에 다음 두 줄을 넣으면 이미 만든 객체의 구조를 확인할 수 있습니다. 이 두 줄 자체는 모델을 호출하지 않습니다.
+주 실습 노트북의 1B에서 Agent를 만든 뒤 새 셀에 다음 두 줄을 넣으면 이미 만든 객체의 구조를 확인할 수 있습니다. 이 두 줄 자체는 모델을 호출하지 않습니다.
 
 ```python
 print(type(agent).__name__)
@@ -181,7 +181,7 @@ print([(m.id, m.content) for m in messages])
 
 메시지는 세 개가 아니라 두 개입니다. 두 번째 AIMessage가 같은 `a1`을 갱신했습니다. 여기의 메시지 `id`는 도구 요청과 결과를 짝짓는 `tool_call_id`와 별개입니다. [메시지 State와 add_messages](https://docs.langchain.com/oss/python/langgraph/graph-api#working-with-messages-in-graph-state)
 
-**실행해서 비교:** `labs/state_updates.py`를 열고 `uv run python -m labs.state_updates`로 실행합니다. 모델 호출은 없습니다. 위의 두 노드 비교와 메시지 병합이 함께 들어 있습니다. 마지막 메시지 ID를 `a2`로 바꾸면 몇 개가 남을지 예상한 뒤 확인합니다.
+**실행해서 비교:** `notebooks/concepts.ipynb`의 ‘State의 교체와 누적’ 셀을 실행합니다. 모델 호출은 없습니다. 마지막 메시지 ID를 `a2`로 바꾸면 몇 개가 남을지 예상한 뒤 확인합니다.
 
 ### Super-step · 여러 노드는 언제 값을 주고받을까요? {#supersteps}
 
@@ -258,30 +258,17 @@ LangChain Agent를 노드 안에서 호출할 수도 있습니다. 기본 예제
 
 ### 2. 저장소와 실행 ID를 준비합니다
 
-아래 세 블록은 제공 파일 `labs/approval.py`의 실행 순서입니다.
+`notebooks/concepts.ipynb`의 ‘중단과 재개’에서 준비 → 중단 → 결정 셀을 차례로 실행합니다. 중단 셀을 실행하면 승인 요청이 출력됩니다. 이를 읽고 다음 셀의 decision을 선택합니다.
 
-<<< ../../workshop/labs/approval.py#setup{python}
-
-`InMemorySaver`는 이 프로세스의 상태 저장소이고, `thread_id`는 이어갈 실행을 찾는 식별자입니다.
-
-### 3. 중단 결과를 읽습니다
-
-<<< ../../workshop/labs/approval.py#pause{python}
-
-첫 `invoke`는 터미널 입력을 기다리는 함수가 아닙니다. 중단 정보를 반환하므로 다음 `print`가 실행됩니다. `decision`은 아직 반환되지 않았습니다.
-
-### 4. 사람이 입력한 결정으로 재개합니다
-
-<<< ../../workshop/labs/approval.py#resume{python}
-
-이번에는 `input`에서 사람이 입력할 때까지 기다립니다. 같은 `app`과 `config`로 재개해야 저장된 실행을 이어갑니다. 원래 `approval_demo`는 결정을 인자로 받아 즉시 재개하는 자동 시연 함수였고, 이 파일은 그 두 호출 사이에 사람의 입력을 둡니다.
-
-```bash
-uv run python -m labs.approval
+```python
+decision = "approve"  # 거절을 확인하려면 reject
+assert decision in {"approve", "reject"}
+resumed = app.invoke(Command(resume=decision), config)
+print(resumed["decision"])
+print(app.get_state(config).next)
 ```
 
-**확인:** `approve`를 입력하면 `결정: approved`, 다시 실행해 `reject`를 입력하면 `결정: held`입니다. 둘 다 `남은 실행: ()`이면 그래프가 끝났습니다. 모델 호출과 실제 발송은 없습니다. [공식 중단·재개 설명](https://docs.langchain.com/oss/python/langgraph/interrupts)
-
+`approve`는 approved, `reject`는 held입니다. 남은 실행이 `()`이면 끝났습니다. 같은 app과 config를 사용해야 중단한 실행을 이어갑니다. 반대 결정을 비교할 때는 준비 셀부터 다시 실행합니다.
 
 |시점|입력/동작|관찰값|
 |---|---|---|
@@ -356,14 +343,14 @@ checkpoint가 있어도 외부 발송이 자동으로 취소되거나 중복 방
 
 <PythonPlayground kind="route" />
 
-입력을 바꾸며 분기 조건을 확인한 뒤, 아래 VS Code 실습에서 상태를 읽는 함수로 구현합니다.
+입력을 바꾸며 분기 조건을 확인한 뒤, 아래 노트북 실습에서 상태를 읽는 함수로 구현합니다.
 
 
 ## 실습 · 업무 분기 구현
 
 <p class="section-time">예상 15분 · 13:10–13:25</p>
 
-아래 순서대로 VS Code의 `build_lab/student.py`를 작성합니다. 실습 안내와 풀이를 이 페이지에서 이어서 읽습니다.
+JupyterLab의 `notebooks/build-agent.ipynb`에서 해당 번호의 구현 셀을 작성합니다. 실행 결과는 셀 바로 아래에서 확인합니다.
 
 <!-- lesson-exercise:graph -->
 
@@ -495,7 +482,7 @@ uv run python -m exercises.extension_check graph --solution
 
 </details>
 
-주 실습 풀이는 `build_lab/reference.py`의 `route_inquiry`를 자신의 구현과 비교합니다. 한 줄 조건을 맞히는 데서 끝내지 않고, 그 조건이 어떤 실행을 허용하거나 막는지 설명합니다.
+주 실습 풀이는 `notebooks/build-agent-solution.ipynb`의 `route_inquiry`를 자신의 구현과 비교합니다. 한 줄 조건을 맞히는 데서 끝내지 않고, 그 조건이 어떤 실행을 허용하거나 막는지 설명합니다.
 
 |주 실습의 State|기대 경로|이유|
 |---|---|---|

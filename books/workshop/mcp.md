@@ -159,7 +159,7 @@ uv run python -c "import json; from exercises.extension_solutions import ticket_
 
 <p class="section-time">예상 15분 · 15:50–16:05</p>
 
-아래 순서대로 VS Code의 `build_lab/student.py`를 작성합니다. 실습 안내와 풀이를 이 페이지에서 이어서 읽습니다.
+JupyterLab의 `notebooks/build-agent.ipynb`에서 해당 번호의 구현 셀을 작성합니다. 실행 결과는 셀 바로 아래에서 확인합니다.
 
 <!-- lesson-exercise:protocols -->
 
@@ -439,7 +439,7 @@ MCP에도 장시간 작업이 있다는 이유로 A2A와 같아지는 것은 아
 
 </details>
 
-주 실습 풀이는 `build_lab/reference.py`의 해당 함수를 자신의 구현과 비교합니다. 위 실습의 정상 입력과 반례를 실행하고 결과를 비교합니다. 아래 표와 명령은 준비 문제의 풀이입니다.
+주 실습 풀이는 `notebooks/build-agent-solution.ipynb`의 해당 함수를 자신의 구현과 비교합니다. 위 실습의 정상 입력과 반례를 실행하고 결과를 비교합니다. 아래 표와 명령은 준비 문제의 풀이입니다.
 
 <div class="command-purpose">준비 문제 풀이 확인</div>
 

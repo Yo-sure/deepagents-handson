@@ -105,7 +105,7 @@ LangChain의 ChatOpenAI
 }
 ```
 
-같은 내용을 LangChain 메시지 객체로 쓰면 다음과 같습니다. VS Code에서 `workshop` 폴더에 `message_basics.py`를 만들어 아래 코드를 넣고, 터미널에서 `uv run python message_basics.py`로 실행해 봅니다. 이 예제는 실제 모델을 한 번 호출합니다.
+같은 내용을 LangChain 메시지 객체로 쓰면 다음과 같습니다. 주 실습 노트북의 환경 셀을 실행한 뒤 새 코드 셀에 아래 코드를 넣어 실행합니다. 이 예제는 실제 모델을 한 번 호출합니다.
 
 ```python
 from course.common import get_model
@@ -184,7 +184,7 @@ asyncio.run(main())  # 일반 Python 파일에서 실행
 
 <PythonPlayground kind="lookup" />
 
-여기서는 모델을 호출하지 않습니다. 다음 VS Code 실습에서는 이 조회 원리를 사용해 JSON 문자열을 반환하는 함수를 작성합니다.
+여기서는 모델을 호출하지 않습니다. 다음 노트북 실습에서는 이 조회 원리를 사용해 JSON 문자열을 반환하는 함수를 작성합니다.
 
 ### 도구의 이름·설명·입력 형식
 
@@ -224,11 +224,9 @@ print(lookup_team.invoke({"topic": "정산"}))
 
 기본값은 함수 이름 → 도구 이름, docstring → 도구 설명, 타입 힌트 → 입력 schema입니다. 함수 이름을 바꾸지 않고 공개 이름을 정하거나, 허용할 입력을 더 분명히 제한할 수도 있습니다.
 
-제공된 `labs/tool_basics.py`를 VS Code에서 열고 실행합니다. 모델 호출이나 API 키는 필요하지 않습니다.
+`notebooks/concepts.ipynb`의 ‘도구 입력 조건’ 셀을 실행합니다. 모델 호출이나 API 키는 필요하지 않습니다.
 
-```bash
-uv run python -m labs.tool_basics
-```
+
 
 <<< ../../workshop/labs/tool_basics.py{python}
 
@@ -258,9 +256,7 @@ uv run python -m labs.tool_basics
 
 `type="tool_call"`과 `id`를 함께 전달하면 `ToolMessage`를 받아 두 필드를 확인할 수 있습니다. 단순 입력 dict로 호출하면 이 메시지 포장을 받지 못합니다. artifact는 모델 입력에 자동으로 포함되지 않습니다.
 
-```bash
-uv run python -m labs.tool_artifact
-```
+`concepts.ipynb`의 ‘도구의 content와 artifact’ 셀에서 두 출력을 확인합니다.
 
 
 `return_direct=True`는 이 도구 실행 뒤 추가 모델 응답 단계를 거치지 않고 Agent 실행을 끝내도록 하는 설정입니다. 실제 종료 처리는 도구를 사용하는 Agent 실행기에 달려 있습니다. 단순히 “도구를 빠르게 실행하는 옵션”은 아니며, 결과를 모델이 설명해야 하는 이번 실습에는 기본값 `False`를 사용합니다.
@@ -275,7 +271,7 @@ uv run python -m labs.tool_artifact
 
 ### 직접 실행 · 허용 목록만 늘리면 될까요? {#tool-input-lab}
 
-아래는 **입력 검사 → 함수 실행**을 나누어 보는 Python 예제입니다. 브라우저에서는 같은 원리를 일반 Python으로 확인하고, 실제 `args_schema`와 `ValidationError`는 위 `labs/tool_basics.py`에서 확인합니다.
+아래는 **입력 검사 → 함수 실행**을 나누어 보는 Python 예제입니다. 브라우저에서는 같은 원리를 일반 Python으로 확인하고, 실제 `args_schema`와 `ValidationError`는 개념 노트북의 ‘도구 입력 조건’ 셀에서 확인합니다.
 
 <PythonPlayground kind="validation" />
 
@@ -285,7 +281,7 @@ uv run python -m labs.tool_artifact
 |2|`allowed`에 `"휴가"` 추가|입력은 통과하지만 `teams`에 값이 없어 `KeyError`|
 |3|`teams`에 `"휴가": "인사지원팀"` 추가|인사지원팀 출력|
 
-VS Code에서는 `TeamInput`의 `Literal`에 휴가를 추가한 뒤, 함수의 dict에도 담당 팀을 추가합니다. **입력 허용과 실제 처리 코드를 모두 바꿔야 완료입니다.**
+편집기에서는 `TeamInput`의 `Literal`에 휴가를 추가한 뒤, 함수의 dict에도 담당 팀을 추가합니다. **입력 허용과 실제 처리 코드를 모두 바꿔야 완료입니다.**
 
 ### 일반 함수도 결국 도구 객체로 변환됩니다
 
@@ -353,7 +349,7 @@ LangChain은 모델의 도구 요청을 받아 함수를 실행하고, 결과를
 
 <p class="section-time">예상 15분 · 11:08–11:23</p>
 
-아래 순서대로 VS Code의 `build_lab/student.py`를 작성합니다. 실습 안내와 풀이를 이 페이지에서 이어서 읽습니다.
+JupyterLab의 `notebooks/build-agent.ipynb`에서 해당 번호의 구현 셀을 작성합니다. 실행 결과는 셀 바로 아래에서 확인합니다.
 
 <!-- lesson-exercise:first-code -->
 
@@ -522,7 +518,7 @@ uv run python -m exercises.extension_check langchain --solution
 
 <p class="section-time">예상 10분 · 11:38–11:48</p>
 
-주 실습 풀이는 `build_lab/reference.py`의 `lookup_policy`와 `build_agent`를 자신의 구현과 비교합니다. 코드가 비슷한지보다 아래 입력에서 무엇이 실행되고 어떤 근거가 남는지 설명합니다.
+주 실습 풀이는 `notebooks/build-agent-solution.ipynb`의 `lookup_policy`와 `build_agent`를 자신의 구현과 비교합니다. 코드가 비슷한지보다 아래 입력에서 무엇이 실행되고 어떤 근거가 남는지 설명합니다.
 
 |주 실습에서 확인할 입력·변경|확인할 근거|틀렸을 때 먼저 볼 곳|
 |---|---|---|

@@ -205,7 +205,7 @@ uv --version
 현재 위치가 `workshop`인 상태에서 의존성을 설치합니다.
 
 ```bash
-uv sync --locked --python 3.12
+uv sync --locked --python 3.12 --group notebook
 uv run python --version
 uv run python -c "import langchain, langgraph, deepagents, mcp, a2a; print('라이브러리 준비 완료')"
 ```
@@ -216,7 +216,7 @@ uv run python -c "import langchain, langgraph, deepagents, mcp, a2a; print('라�
 
 위 명령은 `workshop/.venv`에 실습용 환경을 만듭니다. 교재는 웹에서 읽으므로 실습을 위해 Node나 교재 빌드 환경을 설치할 필요는 없습니다.
 
-VS Code에서 Python 확장을 설치하고 **Ctrl+Shift+P → Python: Select Interpreter**로 현재 열린 `workshop` 폴더의 `.venv/bin/python`을 선택합니다. 코드 실행은 교재에 있는 `uv run ...` 명령을 사용합니다.
+편집기에서 Python 확장을 설치하고 **Ctrl+Shift+P → Python: Select Interpreter**로 현재 열린 `workshop` 폴더의 `.venv/bin/python`을 선택합니다. 코드 실행은 교재에 있는 `uv run ...` 명령을 사용합니다.
 
 ### 5. 키 설정 파일을 만듭니다
 
@@ -239,7 +239,7 @@ WORKSHOP_MODEL=google/gemini-3.1-flash-lite
 uv run python -m course.cli langchain
 ```
 
-명령이 끝나면 VS Code에서 `runs/langchain.json`을 엽니다. 마지막 답변에서 정산 담당 팀과 근거 ID를 확인합니다. 문장이 예시와 똑같을 필요는 없습니다. 아래 메시지별 항목은 다음 Agent 장에서 자세히 읽습니다.
+명령이 끝나면 편집기에서 `runs/langchain.json`을 엽니다. 마지막 답변에서 정산 담당 팀과 근거 ID를 확인합니다. 문장이 예시와 똑같을 필요는 없습니다. 아래 메시지별 항목은 다음 Agent 장에서 자세히 읽습니다.
 
 <details><summary>실행 결과에서 찾을 항목 · 다음 장에서 함께 읽습니다</summary>
 
@@ -260,10 +260,20 @@ uv run python -m course.cli langchain
 
 </details>
 
+### 실습 노트북을 엽니다
+
+환경 준비와 첫 모델 호출을 마친 뒤 workshop 폴더의 터미널에서 JupyterLab을 시작합니다.
+
+```bash
+uv run --group notebook jupyter lab notebooks/build-agent.ipynb
+```
+
+열린 화면에서 Python 커널을 선택하고 첫 환경 확인 셀을 Shift+Enter로 실행합니다. 이후 수업은 이 노트북에서 코드를 작성하고 입력을 바꿔 실행합니다. 서버를 종료하면 노트북 실행도 멈추므로 이 터미널은 열어 둡니다. 셀 정의를 바꿨다면 정의 셀부터 다시 실행합니다. 커널을 재시작했다면 앞에서 완성한 셀들을 순서대로 실행합니다. 키는 기존 .env를 사용합니다.
+
 ### 준비 완료 체크
 
 <div class="setup-checklist" role="group" aria-label="준비 완료 체크">
-<label><input type="checkbox"><span><code>workshop</code> 폴더가 있고, 편집기에서 <code>build_lab/student.py</code>를 열 수 있습니다.</span></label>
+<label><input type="checkbox"><span><code>workshop</code> 폴더가 있고, 편집기에서 <code>notebooks/build-agent.ipynb</code>를 열고 첫 셀을 실행할 수 있습니다.</span></label>
 <label><input type="checkbox"><span>편집기 터미널의 현재 위치가 <code>workshop</code>이며 Python과 라이브러리 확인이 성공합니다.</span></label>
 <label><input type="checkbox"><span><code>.env</code>를 저장했고 실제 모델 호출이 성공합니다.</span></label>
 <label><input type="checkbox"><span><code>runs/langchain.json</code> 파일이 생겼고 정산 문의에 대한 답변을 확인했습니다.</span></label>
