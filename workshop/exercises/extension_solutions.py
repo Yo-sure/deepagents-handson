@@ -1,4 +1,5 @@
 """확장 참고 풀이. 아래 조건은 학습용이며 운영 환경 전체 검증은 아닙니다."""
+
 import asyncio
 import json
 import tempfile
@@ -11,12 +12,16 @@ from course.processes import server
 
 def evidence_matches(answer, policy):
     import re
+
     ids = set(re.findall(r"P-\d+", answer))
     return ids == {policy["id"]} and policy["team"] in answer
 
 
 def approval_matrix():
-    return {value: approval_demo(value)["decision"] for value in ["approve", "reject", "", "approv"]}
+    return {
+        value: approval_demo(value)["decision"]
+        for value in ["approve", "reject", "", "approv"]
+    }
 
 
 def refine_without_stall(draft, topic, revise, limit=2):
@@ -37,11 +42,15 @@ def refine_without_stall(draft, topic, revise, limit=2):
 
 def ticket_restart():
     from mcp.client import Client
+
     async def call(url, content):
         async with Client(url + "/mcp", mode=PROTOCOL) as client:
-            result = await client.call_tool("submit_ticket", {"business_key": "operation-1", "content": content})
+            result = await client.call_tool(
+                "submit_ticket", {"business_key": "operation-1", "content": content}
+            )
             data = None if result.is_error else json.loads(result.content[0].text)
             return {"error": result.is_error, "data": data}
+
     with tempfile.TemporaryDirectory() as temp:
         db = Path(temp) / "tickets.sqlite"
         with server("course.mcp_lab", "--db", db) as url:
@@ -59,7 +68,11 @@ def review_version(state, artifact, request_id, version):
         return "held"
     if not isinstance(request_id, str) or not request_id.strip():
         return "held"
-    if type(version) is not int or version < 1 or type(artifact.get("version")) is not int:
+    if (
+        type(version) is not int
+        or version < 1
+        or type(artifact.get("version")) is not int
+    ):
         return "held"
     if artifact.get("request_id") != request_id or artifact.get("version") != version:
         return "held"

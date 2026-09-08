@@ -1,4 +1,5 @@
 """MCP 조회 결과를 그래프·초안·검증·A2A 검토에 전달하는 통합 예제입니다."""
+
 import argparse
 import asyncio
 import json
@@ -14,7 +15,14 @@ from .harness_lab import bounded_refine
 from .processes import server
 
 
-def run(topic="정산", contact="requester@example.test", *, model=None, router=route, refiner=bounded_refine):
+def run(
+    topic="정산",
+    contact="requester@example.test",
+    *,
+    model=None,
+    router=route,
+    refiner=bounded_refine,
+):
     with tempfile.TemporaryDirectory() as temp:
         with server("course.mcp_lab", "--db", Path(temp) / "tickets.sqlite") as url:
             remote = asyncio.run(query(url + "/mcp", topic))
@@ -24,8 +32,11 @@ def run(topic="정산", contact="requester@example.test", *, model=None, router=
     # 현재 검토 서버는 배포에 포함된 정책 fixture로 검사합니다.
     # 원격 조회 정책과 검토 기준이 다르면 같은 기준인 것처럼 진행하지 않습니다.
     if policy != POLICIES.get(topic):
-        return {"policy": policy_data, "decision": "held",
-                "reason": "policy_snapshot_mismatch"}
+        return {
+            "policy": policy_data,
+            "decision": "held",
+            "reason": "policy_snapshot_mismatch",
+        }
 
     def remote_lookup(state):
         return {"policy_id": policy["id"] if policy else "", "visited": ["lookup"]}
@@ -33,15 +44,20 @@ def run(topic="정산", contact="requester@example.test", *, model=None, router=
     def ready(state):
         return {"decision": "draft", "visited": state["visited"] + ["draft"]}
 
-    state = build_graph(router=router, lookup_node=remote_lookup, draft_node=ready).invoke(
-        {"topic": topic, "contact": contact})
+    state = build_graph(
+        router=router, lookup_node=remote_lookup, draft_node=ready
+    ).invoke({"topic": topic, "contact": contact})
     output = {"policy": policy_data, "graph": state}
     if state["decision"] == "ask":
         return {**output, "decision": "ask"}
 
     def lookup_policy(topic: str) -> str:
         """Read the policy snapshot obtained from the MCP server for this request."""
-        data = policy_data if topic == policy_data["topic"] else {"found": False, "policy": None, "topic": topic}
+        data = (
+            policy_data
+            if topic == policy_data["topic"]
+            else {"found": False, "policy": None, "topic": topic}
+        )
         return json.dumps(data, ensure_ascii=False)
 
     model = model if model is not None else get_model()
@@ -50,15 +66,24 @@ def run(topic="정산", contact="requester@example.test", *, model=None, router=
 
     def revise(text, feedback):
         response = model.invoke(
-            "규정을 근거로 초안을 수정하십시오. 담당 팀과 근거 ID를 포함하십시오.\n" +
-            json.dumps({"policy": policy, "draft": text, "feedback": feedback}, ensure_ascii=False))
+            "규정을 근거로 초안을 수정하십시오. 담당 팀과 근거 ID를 포함하십시오.\n"
+            + json.dumps(
+                {"policy": policy, "draft": text, "feedback": feedback},
+                ensure_ascii=False,
+            )
+        )
         return response.content
 
     refined = refiner(draft, topic, revise)
     output.update({"langchain": generated, "loop": refined})
     if refined["status"] != "passed":
         return {**output, "decision": "held"}
-    payload = {"topic": topic, "draft": refined["draft"], "request_id": str(uuid.uuid4()), "version": 1}
+    payload = {
+        "topic": topic,
+        "draft": refined["draft"],
+        "request_id": str(uuid.uuid4()),
+        "version": 1,
+    }
     with server("course.a2a_lab") as url:
         reviewed = asyncio.run(delegate(url, payload))
     return {**output, "review": reviewed, "decision": reviewed["decision"]}

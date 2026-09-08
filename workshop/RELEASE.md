@@ -4,14 +4,14 @@
 
 ## 설치
 
-ZIP을 압축 해제하면 `workshop/` 폴더가 생성됩니다. 해당 폴더의 `README.md`에 따라 `uv sync --locked`로 환경을 준비하고, `.env.example`을 `.env`로 복사한 뒤 자신의 API 키를 입력합니다. 실제 API 키는 이 자료에 포함하지 않습니다. 노트북을 사용하는 경우 README의 노트북 설치 절차를 따릅니다.
+ZIP을 압축 해제하면 `workshop/` 폴더가 생성됩니다. 해당 폴더의 `README.md`에 따라 `uv sync --locked --group notebook`로 환경을 준비하고, `.env.example`을 `.env`로 복사한 뒤 자신의 API 키를 입력합니다. 실제 API 키는 이 자료에 포함하지 않습니다. 수업은 Jupyter 노트북으로 진행하며 README의 실행 순서를 따릅니다.
 
 ## 포함 자료
 
 - `course/`: 비교하고 실행할 완성 예제
-- `build_lab/`: 직접 구현하는 주 실습의 재료, 학생 코드와 기준 풀이
-- `exercises/`: 개념 확인 문제와 확장 과제
-- `notebooks/`: 학생용·풀이용 노트북. 실행 출력은 포함하지 않습니다.
+- `build_lab/`: 노트북이 사용하는 제공 구조와 개발 검증용 참고 구현
+- `exercises/`: 개발 검증용 기존 문제와 참고 풀이
+- `notebooks/`: orientation(환경 확인), build-agent(주 실습), concepts(개념 예제), build-agent-solution(풀이). 실행 출력은 포함하지 않습니다.
 - `skills/`: 예제에서 사용하는 공개 실습 절차
 - `tests/`: 코드 동작 검증용 테스트
 - `build_lab/HARNESS_WORKSHEET.md`: 하네스의 실행·피드백·완료 조건을 설계하는 활동지

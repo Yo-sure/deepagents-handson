@@ -1,4 +1,5 @@
 """풀이 시간에 읽는 구현. 학생 파일과 별개입니다."""
+
 import json
 from langchain.agents import create_agent
 from langchain.tools import tool
@@ -14,32 +15,60 @@ def lookup_policy(topic: str) -> str:
 
 
 def build_agent(model, policy_tool):
-    return create_agent(model=model, tools=[tool(policy_tool)], system_prompt=
-        "사내 문의에 답하기 전에 lookup_policy로 규정을 확인하십시오. "
+    return create_agent(
+        model=model,
+        tools=[tool(policy_tool)],
+        system_prompt="사내 문의에 답하기 전에 lookup_policy로 규정을 확인하십시오. "
         "topic은 정산, 계정 같은 업무명입니다. 등록된 담당 팀과 근거 ID를 답하십시오. "
-        "정책이 없으면 추가 확인을 요청하고 근거를 만들지 마십시오.")
+        "정책이 없으면 추가 확인을 요청하고 근거를 만들지 마십시오.",
+    )
 
 
 def route_inquiry(state):
-    return "draft" if state["data"]["found"] and state.get("contact", "").strip() else "ask"
+    return (
+        "draft"
+        if state["data"]["found"] and state.get("contact", "").strip()
+        else "ask"
+    )
 
 
 def build_workflow(lookup, generate, refine, limit=2):
     def read(state):
         return {"data": json.loads(lookup(state["topic"])), "visited": ["lookup"]}
+
     def route(state):
         return route_inquiry(state)
+
     def ask(state):
-        return {"decision": "ask", "draft": "업무 주제와 회신 대상을 확인해 주세요.",
-                "history": [], "visited": state["visited"] + ["ask"]}
+        return {
+            "decision": "ask",
+            "draft": "업무 주제와 회신 대상을 확인해 주세요.",
+            "history": [],
+            "visited": state["visited"] + ["ask"],
+        }
+
     def draft(state):
-        return {"draft": generate(state["topic"]), "visited": state["visited"] + ["draft"]}
+        return {
+            "draft": generate(state["topic"]),
+            "visited": state["visited"] + ["draft"],
+        }
+
     def review(state):
         result = refine(state["draft"], state["data"], limit)
-        return {"draft": result["draft"], "history": result["history"],
-                "decision": result["status"], "visited": state["visited"] + ["review"]}
+        return {
+            "draft": result["draft"],
+            "history": result["history"],
+            "decision": result["status"],
+            "visited": state["visited"] + ["review"],
+        }
+
     graph = StateGraph(Inquiry)
-    for name, node in [("lookup", read), ("ask", ask), ("draft", draft), ("review", review)]:
+    for name, node in [
+        ("lookup", read),
+        ("ask", ask),
+        ("draft", draft),
+        ("review", review),
+    ]:
         graph.add_node(name, node)
     graph.add_edge(START, "lookup")
     graph.add_conditional_edges("lookup", route, {"ask": "ask", "draft": "draft"})
@@ -78,7 +107,11 @@ def accept_review(state, artifact, request_id, version):
         return "held"
     if not isinstance(request_id, str) or not request_id.strip():
         return "held"
-    if type(version) is not int or version < 1 or type(artifact.get("version")) is not int:
+    if (
+        type(version) is not int
+        or version < 1
+        or type(artifact.get("version")) is not int
+    ):
         return "held"
     if artifact.get("request_id") != request_id or artifact.get("version") != version:
         return "held"
@@ -88,4 +121,5 @@ def accept_review(state, artifact, request_id, version):
 if __name__ == "__main__":
     from .runner import main
     from . import reference
+
     main(reference)

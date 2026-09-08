@@ -138,15 +138,16 @@ workshop/                   ← 압축을 푼 자료와 명령 실행 위치
 ├── .env.example            ← 키 설정 양식
 ├── RELEASE.md              ← 자료 버전과 시작 안내
 ├── MANIFEST.json           ← 파일별 무결성 정보
-├── build_lab/              ← 주 실습·제공 구조·활동지·풀이
-├── labs/                   ← 질문·입력을 바꾸고 실행할 Python 파일
+├── notebooks/              ← 환경 확인·주 실습·개념 예제·풀이
+├── build_lab/              ← 노트북이 사용하는 제공 구조·참고 구현
+├── labs/                   ← 교재에 임베드하는 개념 코드
 ├── course/                 ← 비교 시연용 완성 예제
-├── exercises/              ← 준비 문제와 선택 심화
+├── exercises/              ← 개발용 회귀 검사에 사용한 기존 예제
 ├── tests/                  ← 단계별 검사
 └── skills/                 ← Agent가 읽는 업무 지침
 ```
 
-압축을 푼 뒤 `workshop/build_lab/student.py`가 있는지 확인합니다. 파일이 없다면 위 ZIP을 다시 받아 다른 폴더에 압축을 풉니다.
+압축을 푼 뒤 `workshop/notebooks/build-agent.ipynb`가 있는지 확인합니다. 파일이 없다면 위 ZIP을 다시 받아 다른 폴더에 압축을 풉니다.
 
 ### 2. Windows에서는 Ubuntu 터미널을 엽니다
 
@@ -206,17 +207,15 @@ uv --version
 
 ```bash
 uv sync --locked --python 3.12 --group notebook
-uv run python --version
-uv run python -c "import langchain, langgraph, deepagents, mcp, a2a; print('라이브러리 준비 완료')"
 ```
 
 `uv`는 이 폴더의 `.venv`에 Python 실행 환경과 라이브러리를 준비합니다. `--locked`는 배포된 `uv.lock`과 일치하는 버전을 설치하도록 합니다. 다운로드 시간은 네트워크에 따라 달라집니다.
 
-`uv run`은 현재 프로젝트의 실행 환경으로 명령을 실행합니다. 따라서 다른 위치의 Python에 라이브러리가 설치되어 있어도 이 폴더의 `.venv`와 같다고 가정하지 않습니다.
+Python 버전과 라이브러리는 아래 환경 확인 노트북에서 확인합니다.
 
 위 명령은 `workshop/.venv`에 실습용 환경을 만듭니다. 교재는 웹에서 읽으므로 실습을 위해 Node나 교재 빌드 환경을 설치할 필요는 없습니다.
 
-편집기에서 Python 확장을 설치하고 **Ctrl+Shift+P → Python: Select Interpreter**로 현재 열린 `workshop` 폴더의 `.venv/bin/python`을 선택합니다. 코드 실행은 교재에 있는 `uv run ...` 명령을 사용합니다.
+편집기에서 Python 확장을 설치하고 **Ctrl+Shift+P → Python: Select Interpreter**로 현재 열린 `workshop` 폴더의 `.venv/bin/python`을 선택합니다. 실습 코드는 JupyterLab 노트북 셀에서 실행합니다.
 
 ### 5. 키 설정 파일을 만듭니다
 
@@ -231,44 +230,21 @@ WORKSHOP_MODEL=google/gemini-3.1-flash-lite
 
 개인 학습자는 자신의 OpenRouter 계정에서 API 키를 준비해 같은 설정을 사용합니다. [공식 시작 안내](https://openrouter.ai/docs/quickstart)에서 계정과 API 사용 방법을 확인합니다. 모델을 바꿀 때는 도구 호출 지원과 자신의 사용 한도를 확인하고, 아래 첫 호출로 연결을 검증합니다.
 
-### 6. 실제 모델과 도구가 연결됐는지 확인합니다
+### 6. JupyterLab을 열고 환경을 확인합니다
 
-<div class="command-purpose">완성 예제 실행</div>
-
-```bash
-uv run python -m course.cli langchain
-```
-
-명령이 끝나면 편집기에서 `runs/langchain.json`을 엽니다. 마지막 답변에서 정산 담당 팀과 근거 ID를 확인합니다. 문장이 예시와 똑같을 필요는 없습니다. 아래 메시지별 항목은 다음 Agent 장에서 자세히 읽습니다.
-
-<details><summary>실행 결과에서 찾을 항목 · 다음 장에서 함께 읽습니다</summary>
-
-|확인 위치|찾아야 하는 내용|뜻|
-|---|---|---|
-|`human` 메시지|`정산`이라는 주제|프로그램에 넣은 요청|
-|`ai`의 `tool_calls`|`lookup_policy`와 조회 인자|모델이 선택한 조회 요청|
-|`tool` 메시지|`found`, `P-01`, `재무지원팀`|함수가 실제로 반환한 정책|
-|마지막 `ai` 메시지|조회 근거를 사용한 답변|도구 결과를 받은 모델의 응답|
-
-</details>
-
-`ai` 메시지의 본문이 비어 있어도 `tool_calls`가 있으면 도구 요청일 수 있습니다. 파일 생성이나 마지막 문장만으로 연결 성공을 판단하지 않습니다. 실제 호출이 실패했다면 아래 복구 안내에 따라 해결한 뒤 다시 실행합니다.
-
-<details class="instructor-note"><summary>강사용 진행 노트 · 설치 확인</summary>
-
-화면이나 오류를 함께 볼 때는 키 값과 개인 업무 데이터를 가립니다. 전체에게 오류 전문을 읽게 하기보다 폴더·설치·인증·접속 중 막힌 단계를 먼저 확인합니다.
-
-</details>
-
-### 실습 노트북을 엽니다
-
-환경 준비와 첫 모델 호출을 마친 뒤 workshop 폴더의 터미널에서 JupyterLab을 시작합니다.
+workshop 폴더에서 한 번 실행합니다. 이 명령은 노트북 화면을 여는 준비 단계입니다. 이후 실습은 셀에서 실행합니다.
 
 ```bash
-uv run --group notebook jupyter lab notebooks/build-agent.ipynb
+.venv/bin/jupyter lab notebooks/orientation.ipynb
 ```
 
-열린 화면에서 Python 커널을 선택하고 첫 환경 확인 셀을 Shift+Enter로 실행합니다. 이후 수업은 이 노트북에서 코드를 작성하고 입력을 바꿔 실행합니다. 서버를 종료하면 노트북 실행도 멈추므로 이 터미널은 열어 둡니다. 셀 정의를 바꿨다면 정의 셀부터 다시 실행합니다. 커널을 재시작했다면 앞에서 완성한 셀들을 순서대로 실행합니다. 키는 기존 .env를 사용합니다.
+터미널에 표시된 로컬 주소를 열고 Python 3 커널을 선택합니다. 터미널은 열어 둡니다. **환경 확인** 셀을 Shift+Enter로 실행하여 Python 경로와 라이브러리를 확인합니다.
+
+### 7. 노트북에서 모델과 도구를 호출합니다
+
+`orientation.ipynb`의 **모델과 도구 호출** 셀을 실행합니다. 이 셀은 .env의 키로 실제 모델을 호출합니다. 메시지에서 lookup_policy 요청, P-01·재무지원팀이 담긴 도구 결과, 마지막 답변을 확인합니다. 문장이 예시와 같을 필요는 없습니다. API 오류가 나면 아래 복구 안내를 확인하고 다시 실행합니다.
+
+이 노트북은 입문에서 완성 예제를 관찰하는 용도입니다. LangChain 장부터는 왼쪽 파일 탐색기에서 `build-agent.ipynb`를 열어 직접 함수를 작성합니다. 개념 예제를 따로 실행할 때는 `concepts.ipynb`를 사용합니다. 함수 정의를 고쳤다면 정의 셀과 연결·실행 셀을 다시 실행합니다. 커널을 재시작했다면 해당 단계까지 순서대로 실행합니다.
 
 ### 준비 완료 체크
 
@@ -276,7 +252,7 @@ uv run --group notebook jupyter lab notebooks/build-agent.ipynb
 <label><input type="checkbox"><span><code>workshop</code> 폴더가 있고, 편집기에서 <code>notebooks/build-agent.ipynb</code>를 열고 첫 셀을 실행할 수 있습니다.</span></label>
 <label><input type="checkbox"><span>편집기 터미널의 현재 위치가 <code>workshop</code>이며 Python과 라이브러리 확인이 성공합니다.</span></label>
 <label><input type="checkbox"><span><code>.env</code>를 저장했고 실제 모델 호출이 성공합니다.</span></label>
-<label><input type="checkbox"><span><code>runs/langchain.json</code> 파일이 생겼고 정산 문의에 대한 답변을 확인했습니다.</span></label>
+<label><input type="checkbox"><span><code>orientation.ipynb</code> 셀 아래에서 도구 요청·결과와 정산 문의 답변을 확인했습니다.</span></label>
 </div>
 
 수업 당일에는 이 상태를 확인하고 오늘의 흐름을 안내합니다. 환경이 준비되지 않았다면 어느 단계에서 막혔는지와 오류 메시지를 전달합니다. 키 값은 공유하지 않습니다.
@@ -290,7 +266,7 @@ uv run --group notebook jupyter lab notebooks/build-agent.ipynb
 
 <p class="section-time">예상 2분 · 09:37–09:39</p>
 
-교재의 모델 호출 명령은 실제 LLM에 연결합니다. 실제 모델이므로 답변 표현이나 도구 호출 횟수는 실행마다 달라질 수 있습니다.
+노트북의 모델 호출 셀은 실제 LLM에 연결합니다. 실제 모델이므로 답변 표현이나 도구 호출 횟수는 실행마다 달라질 수 있습니다.
 
 앞의 준비 단계에서 설정한 키를 사용합니다. `WORKSHOP_MODEL`로 모델을 바꿀 수 있으며, 제공 키의 사용 가능 여부는 수업 전에 확인합니다.
 
@@ -317,7 +293,7 @@ LLM 호출 성공까지가 실습 준비입니다. 오류 코드와 메시지를
 
 <p class="section-time">예상 1분 · 09:39–09:40</p>
 
-다음 장에서는 방금 실행한 예제를 보며 Agent가 모델과 도구를 어떻게 사용하는지 알아봅니다. `runs/langchain.json`은 그때 다시 엽니다. 지금은 프로그램을 수정하거나 미완성 함수를 검사하지 않아도 됩니다.
+다음 장에서는 방금 실행한 예제를 보며 Agent가 모델과 도구를 어떻게 사용하는지 알아봅니다. `orientation.ipynb`의 셀 출력을 그때 다시 읽습니다. 지금은 프로그램을 수정하거나 미완성 함수를 검사하지 않아도 됩니다.
 
 [다음: Agent는 어떻게 실행되는가](./agent)
 

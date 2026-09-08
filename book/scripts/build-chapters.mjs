@@ -78,6 +78,9 @@ for (let i = 0; i < workshopPages.length; i++) {
     return `<div id="engineering-${id}">` + match[1].replace(/^## /gm, '### ')
       .replace(/<p class="section-time">.*?<\/p>/g, '').replace(/\]\(#/g, '](#engineering-') + '</div>'
   })
+  if (/uv run|python -m|--build-student/.test(raw)) {
+    throw new Error(`Workshop ${slug}: use the embedded runtime or a Jupyter cell for execution`)
+  }
   // Keep diagram measurements independent from the surrounding Korean prose styles.
   raw = raw.replace(/```mermaid\r?\n/g, '```mermaid\n%%{init: {"theme": "base", "htmlLabels": false, "flowchart": { "useMaxWidth": false, "padding": 16, "rankSpacing": 36, "curve": "linear"}, "sequence": {"useMaxWidth": false, "wrap": true}, "themeVariables": {"fontSize": "17px", "fontFamily": "Segoe UI, Malgun Gothic, sans-serif", "primaryColor": "#f2f6f4", "primaryBorderColor": "#718b80", "primaryTextColor": "#25312e"}}}%%\n')
   const links = [i > 0 ? `<a href="./${workshopPages[i - 1]}">이전 모듈</a>` : '', '<a href="../toc">전체 목차</a>', i < workshopPages.length - 1 ? `<a href="./${workshopPages[i + 1]}">${workshopPages[i + 1] === 'engineering' ? '설계 확장' : '다음 모듈'}</a>` : ''].filter(Boolean)

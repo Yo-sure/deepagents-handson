@@ -1,4 +1,5 @@
 """학습용 서버 기동·종료. 자신이 시작한 프로세스만 정리합니다."""
+
 import contextlib
 import socket
 import subprocess
@@ -11,7 +12,9 @@ def server(module: str, *args):
     with socket.socket() as sock:
         sock.bind(("127.0.0.1", 0))
         port = sock.getsockname()[1]
-    process = subprocess.Popen([sys.executable, "-m", module, "--port", str(port), *map(str, args)])
+    process = subprocess.Popen(
+        [sys.executable, "-m", module, "--port", str(port), *map(str, args)]
+    )
     try:
         deadline = time.monotonic() + 20
         while time.monotonic() < deadline:

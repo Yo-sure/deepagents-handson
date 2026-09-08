@@ -1,7 +1,12 @@
 """구현에 필요한 데이터·상태·검토 기준. 모델 응답을 대신하지 않습니다."""
+
 import re
 from typing import TypedDict
 from course.common import POLICIES, get_model, trace_messages
+
+# 기존 개발용 실행기의 공개 재료 인터페이스입니다.
+__all__ = ["POLICIES", "get_model", "trace_messages", "Inquiry", "inspect_draft"]
+
 
 class Inquiry(TypedDict, total=False):
     topic: str

@@ -1,13 +1,17 @@
 # 실행 환경과 검사 범위
 
-자료 버전: 2026.09-rc1. 공통 실행 환경: WSL Ubuntu 24.04, Python 3.12, uv.lock. 선택 주피터 환경도 같은 lock의 notebook 그룹을 사용합니다.
+수강생은 교재의 Python 실행 창에서 짧은 예제를 실행하고, 모델 호출과 연결 실습은 Jupyter 노트북에서 진행합니다. orientation.ipynb → build-agent.ipynb 순서이며 concepts.ipynb는 개념 예제, build-agent-solution.ipynb는 비교할 풀이입니다.
 
-기준 풀이 회귀 검사는 `uv run --locked pytest -q`입니다. 학생 구현은 `uv run --locked pytest tests/test_build_lab.py --build-student -q`로 검사합니다. 처음 학생 파일은 미구현 부분이 있어 실패하는 것이 정상입니다.
+## 2026-09-09 점검
 
-실제 실행은 build_lab.runner를 사용합니다. 기준 풀이 실행은 build_lab.reference이며 학생 구현의 성공을 의미하지 않습니다. 자동 검사는 tests의 모델 대역으로 코드 계약을 확인합니다. 실제 모델의 답변은 실행 기록에서 별도로 확인합니다.
+- 기존 코드 계약 검사 83개와 노트북 검사 10개를 통과했습니다.
+- 노트북 검사는 새 Jupyter 커널에서 풀이 전체를 실행합니다. MCP와 A2A는 실제 HTTP 연결을 사용하고, 모델만 테스트 대역으로 대체합니다.
+- 정상 업무명과 별칭 입력을 각각 실행하여 조회부터 원격 검토까지 같은 정규 업무명이 전달되는지 확인합니다.
+- 개념 노트북의 각 절은 환경 셀 다음에 독립 실행하여 앞 절의 import에 의존하지 않는지 확인합니다.
+- 모든 노트북의 문법·형식과 실행 출력 제거를 확인합니다. Python 코드의 미사용 import·정의 오류를 점검하고 서식을 통일했습니다.
+- 참조가 없는 labs 실행 파일 7개를 제거했습니다. course.cli와 build_lab.runner 및 exercises는 기존 회귀 검사·참고 구현이 사용하므로 유지합니다. 수업 실행 경로에는 포함하지 않습니다.
+- 교재 빌드 시 워크숍 본문과 삽입된 실습에 CLI 실행 안내가 다시 들어오면 빌드를 중단합니다.
 
-검증 범위에는 학생 도구 계약·업무 분기·제공 그래프·수정 예산·MCP 실제 HTTP·A2A 실제 검토·새 커널의 풀이 노트북 실행을 포함합니다. 운영 인증은 이 예제에 포함되어 있지 않으며, 자연어 답변의 정확성은 다양한 입력으로 별도 평가해야 합니다.
+이번 검사는 실제 LLM 응답의 정확성이나 유료 API 연결 성공을 검증하지 않습니다. 수강 환경에서는 orientation.ipynb의 모델 호출부터 확인합니다. 운영 인증과 재시작 후 영속 복구는 이 실습의 검증 범위에 포함하지 않습니다.
 
-주요 고정 버전: LangChain 1.4.0, LangGraph 1.2.11, DeepAgents 0.7.13, MCP 2.1.1, A2A SDK 1.1.2. JupyterLab 4.6.3, ipykernel 7.3.0은 선택 notebook 그룹입니다. 전체 의존성 버전은 uv.lock을 봅니다.
-
-알려진 표시: LangChain MCPAdapter의 beta 경고는 현재 API 상태 안내입니다. 오류가 발생하면 실제 원인을 해결한 뒤 다시 실행합니다. 검증 완료와 작업 접수, completed와 accepted를 구분합니다.
+공통 환경은 WSL Ubuntu 24.04, Python 3.12이며 전체 의존성은 uv.lock으로 고정합니다. notebook 그룹은 수업에 필수입니다. LangChain MCPAdapter의 beta 경고는 현재 API 상태 안내이며 검사 실패와 구분합니다.

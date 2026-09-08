@@ -325,28 +325,15 @@ flowchart TB
 
 <p class="section-time">예상 10분 · 14:40–14:50</p>
 
-함께 20분은 제공 수정 루프 10분과 DeepAgents·Skill 사용 기록 10분으로 나눕니다. 아래 명령의 출력에서 실제 피드백과 read_file 호출 여부를 읽습니다. 개인 시간에는 코딩 하네스 활용 활동으로 넘어갑니다.
+함께 20분은 제공 수정 루프 10분과 DeepAgents·Skill 사용 기록 10분으로 나눕니다. 아래 노트북 셀의 출력에서 실제 피드백과 read_file 호출 여부를 읽습니다. 개인 시간에는 코딩 하네스 활용 활동으로 넘어갑니다.
 
-<details open><summary>관찰할 업무 루프와 DeepAgents 예제</summary>
+### 두 노트북에서 관찰할 것
 
-<div class="command-purpose">완성 예제 실행</div>
+1. `build-agent.ipynb`의 **3. 수정 피드백 Loop 관찰**: limit를 0과 2로 바꾸어 history·status를 비교합니다. 최초 초안은 고정되어 있고, limit가 1 이상이면 실제 수정 모델을 호출합니다. 이후 **연결하고 관찰합니다** 셀은 초안 생성부터 실제 모델을 호출합니다.
+2. `concepts.ipynb`의 **Skill · 문서 확인과 실제 사용 확인**: Skill 문서를 읽고 수정한 뒤 모델 셀을 실행합니다. read_file 등 문서 읽기 요청·결과와 답변을 함께 확인합니다.
 
-```bash
-uv run python -m course.cli harness --revisions 0
-uv run python -m course.cli harness --revisions 2
-uv run python -m course.cli deepagent
-```
+**완료 기준:** 수정 상한이 0이면 수정 함수가 호출되지 않고, 개선이 없으면 stalled가 됩니다. Skill 사용은 좋은 답변만으로 추정하지 않고 문서 읽기 기록으로 확인합니다. 두 예제는 서로 다른 실행입니다.
 
-첫 실행은 근거가 부족한 최초 초안을 보류하며 수정 모델을 호출하지 않습니다. 두 번째는 실제 모델에 수정을 요청합니다. 통과 여부는 모델이 반환한 초안과 검토 결과에 따라 달라집니다. `history`에서 실패 이유와 다음 초안이 바뀌었는지 확인합니다.
-
-2026-09-06 실제 모델 실행에서는 `read_file(file_path="/policy-answer/SKILL.md")` → `lookup_policy(topic="정산")` → P-01·재무지원팀 답변 순서를 확인했습니다. 이는 해당 입력에서 관찰한 한 번의 기록이며, 모든 질문에서 같은 Skill을 읽는다는 보장은 아닙니다.
-
-앞의 `harness`와 세 번째 `deepagent`는 서로 독립된 실행입니다. 전자는 직접 작성한 검토·수정 반복문의 종료 조건을 관찰하고, 후자는 프레임워크가 Skill과 파일 도구를 모델에 제공하는 방식을 관찰합니다. DeepAgent가 앞에서 만든 `bounded_refine`을 자동으로 실행하는 구조는 아닙니다. 두 실행에서 코드가 제어하는 부분과 모델이 선택하는 부분을 각각 표시합니다.
-
-세 번째 명령은 실제 모델과 DeepAgents를 실행합니다. 자신의 기록에서 `read_file` 등의 호출과 Skill 선택을 확인합니다. 도구 호출이 없는데 Skill을 읽었다고 주장하지 않습니다.
-
-
-</details>
 
 </section>
 
@@ -401,13 +388,9 @@ uv run python -m course.cli deepagent
 
 <!-- lesson-engineering:review -->
 
- 아래 표와 명령은 업무 수정 루프를 읽기 위한 추가 참고입니다.
+ 아래 표는 업무 수정 루프를 읽기 위한 추가 참고입니다.
 
-<div class="command-purpose">준비 문제 풀이 확인</div>
-
-```bash
-uv run python -m exercises.check harness --solution
-```
+`build-agent.ipynb`의 3번 검사 셀과 `build-agent-solution.ipynb`의 같은 번호를 비교합니다.
 
 | 검사 순서 | 마지막 수정에서 성공 | 문제 |
 |---|---|---|

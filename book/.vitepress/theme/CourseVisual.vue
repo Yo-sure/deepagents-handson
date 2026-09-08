@@ -23,14 +23,14 @@ const examples: Record<string, Lesson> = {
           ],
           [
             "실제 모델 호출",
-            "제공 예제로 정산 규정을 조회합니다."
+            "orientation.ipynb의 모델 호출 셀을 실행합니다."
           ],
           [
             "결과 확인",
-            "runs/langchain.json을 편집기에서 엽니다."
+            "셀 아래에서 도구 요청·결과·답변을 읽습니다."
           ]
         ],
-        "note": "교재 웹사이트는 안내서입니다. 실습 명령은 workshop 폴더의 터미널에서 실행합니다."
+        "note": "짧은 예제는 교재의 Python 실행 창에서, 모델 호출과 연결 실습은 Jupyter 노트북에서 실행합니다."
       }
     ]
   },

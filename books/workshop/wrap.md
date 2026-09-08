@@ -68,7 +68,7 @@ LangChain은 최근 Agent 평가 과제를 만드는 글에서 실행 환경과 
 <CourseVisual kind="wrap" />
 
 
-이번에는 자신의 구현을 연결한 요청 하나를 추적합니다. `course.integration`은 제공된 완성 예제의 비교 자료이며 학생 파일을 실행하지 않습니다. 최종 확인에는 아래 학생 실행 명령을 사용합니다.
+이번에는 자신의 구현을 연결한 요청 하나를 추적합니다. `course.integration`은 제공된 완성 예제의 비교 자료이며 학생 파일을 실행하지 않습니다. 최종 확인에는 아래 노트북 셀을 사용합니다.
 
 <div class="command-purpose">내 구현 실행</div>
 
@@ -90,7 +90,7 @@ LangChain은 최근 Agent 평가 과제를 만드는 글에서 실행 환경과 
 |수정 루프|result.history, result.draft, result.decision|수정을 했는가? 하지 않았다면 왜인가?|
 |A2A 검토|review.state, review.artifact, decision|현재 요청의 완료 상태와 검토 통과를 함께 확인했는가?|
 
-조회한 정책은 요청 단위의 snapshot으로 초안 생성에 전달됩니다. Agent의 도구 호출은 이 snapshot을 읽으며 호출할 때마다 MCP 서버를 다시 조회하지 않습니다. `result["data"]`와 최종 `result["draft"]`를 직접 대조합니다. HTTP 도구 목록과 응답 포장까지 다시 확인하려면 노트북 4번 셀의 `wire`를 읽습니다.
+조회한 정책은 요청 단위의 snapshot으로 초안 생성에 전달됩니다. Agent의 도구 호출은 이 snapshot을 읽으며 호출할 때마다 MCP 서버를 다시 조회하지 않습니다. `result["data"]`와 최종 `result["draft"]`를 직접 대조합니다. HTTP 도구 목록과 응답 포장까지 다시 확인하려면 노트북 4A 셀의 출력를 읽습니다.
 
 모델 호출이 실패하면 해당 단계의 오류를 해결한 뒤 다시 실행합니다. 실제 호출과 결과 전달이 확인되어야 통합 실습을 완료한 것입니다.
 
@@ -194,7 +194,7 @@ P-02·IT지원팀이 조회부터 검토까지 이어지는지 확인합니다. 
 
 `"로그인" in topic`으로 구현하면 `로그인 장애`까지 계정으로 처리해 계약을 어깁니다. 별칭을 정책 dict에 추가하면 현재 요청을 처리하기 위해 공유 원본까지 바꾸게 됩니다. 별칭 입력만 통과해도 정상·미등록 입력이 달라졌다면 완료가 아닙니다.
 
-검사 명령에서 `--build-student`를 빼면 별도 변경 풀이를 검사합니다. 풀이 통합 실행은 `uv run python -m build_lab.transfer_solution complete --topic 로그인`입니다. 학생 구현의 실행과 구분합니다.
+노트북에 작성한 별칭 처리 함수를 1A 정의 셀에 반영하고 정의·연결 셀부터 다시 실행합니다. 6번 통합 셀에서 topic을 로그인으로 바꾸어 결과를 비교합니다.
 
 회신 대상이 빈 요청은 `state.decision=ask`, `state.visited=["lookup", "ask"]`로 종료합니다. `result["draft"]`에는 추가 확인 문장이 있고 `state.history=[]`, `trace=[]`입니다. 모델 초안·수정·원격 검토를 실행하지 않으므로 `review` 필드는 없습니다. 오류 때문에 빠진 결과와 의도한 분기로 생성되지 않은 결과를 구분합니다.
 

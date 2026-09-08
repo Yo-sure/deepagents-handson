@@ -1,9 +1,11 @@
 """State 병합 규칙을 모델 호출 없이 비교합니다."""
+
 from operator import add
 from typing import Annotated, TypedDict
 from langchain.messages import HumanMessage, AIMessage
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
+
 
 class State(TypedDict):
     latest: list[str]

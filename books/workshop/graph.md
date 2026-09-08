@@ -365,24 +365,10 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 해당 번호의 구현 셀을
 
 공통 과제는 상태·노드·간선의 역할을 설명하고 `route_inquiry`를 직접 작성하는 것입니다. 전체 그래프 조립을 다시 작성하는 것은 선택 심화입니다.
 
-<details><summary>비교하며 읽는 완성 예제와 시연</summary>
+### 개념 그래프와 중단·재개를 실행합니다
 
-먼저 `course/graph_lab.py`를 열고 각 노드가 반환하는 값을 표시합니다. 다음 두 입력의 `visited`를 비교합니다.
+`concepts.ipynb`의 **그래프 경로 비교**에서 연락처 유무에 따른 visited를 확인합니다. **중단과 재개**는 준비 → 중단 → 결정 전달의 세 셀을 순서대로 실행합니다. 모델 호출은 없습니다. reject는 held, approve는 approved이며 다시 비교할 때는 준비 셀부터 실행합니다.
 
-<div class="command-purpose">완성 예제 실행</div>
-
-```bash
-uv run python -m course.cli graph --contact requester@example.test
-uv run python -m course.cli graph --contact ""
-uv run python -m course.cli approval --decision reject
-```
-
-첫 입력은 lookup→draft, 두 번째는 lookup→ask입니다. 세 번째는 승인 대기 후 거부하여 held가 됩니다. `approve`와 빈 결정도 비교합니다. 예제는 외부 이메일을 보내지 않습니다.
-
-예측한 노드 순서와 결과가 다르면 조건 함수의 입력값부터 읽습니다. `visited`는 모델의 숨은 추론이 아니라 우리가 남긴 실행 기록입니다.
-
-
-</details>
 
 </section>
 
@@ -396,67 +382,12 @@ uv run python -m course.cli approval --decision reject
 
 아래 준비 문제는 주 실습에서 막힌 개념을 작은 함수로 확인할 때 사용합니다.
 
-<details><summary>개념을 확인하는 준비 문제와 추가 반례</summary>
+### 네 입력을 비교합니다
 
-**기본:** `route_inquiry`에서 회신 대상이 없는 요청도 ask로 보내도록 수정합니다.
+교재의 Python 실행 창에서 정책 유무와 연락처를 바꿔 경로를 예측합니다. 실제 그래프는 `build-agent.ipynb`의 **2A** 셀에서 실행합니다. 정상 연락처, 빈 문자열, 공백만 있는 연락처, 없는업무를 비교합니다.
 
-<<< ../../workshop/exercises/student.py#graph{python}
+**완료 기준:** 정상 입력은 lookup→draft→review, 정보가 부족한 입력은 lookup→ask이며 모델 호출 기록이 비어 있습니다. 분기 함수를 고친 뒤 정의 셀과 그래프 연결 셀부터 다시 실행합니다.
 
-<div class="command-purpose">준비 문제 검사</div>
-
-```bash
-uv run python -m exercises.check graph
-```
-
-검사는 실제 StateGraph에 학생의 분기 함수를 연결하여 정상·회신 대상 없음·정책 없음 세 경로를 실행합니다.
-
-### 조건 하나가 바뀌면 경로는 어떻게 달라지는가
-
-정책과 회신 대상의 조합을 채우고, 초기 코드가 틀릴 행을 표시합니다.
-
-| policy_id | contact | 예상 경로 | 조건의 이유 |
-|---|---|---|---|
-|P-01|user|작성|작성|
-|P-01|빈 문자열|작성|작성|
-|빈 문자열|user|작성|작성|
-|빈 문자열|빈 문자열|작성|작성|
-
-수정 후 네 번째 행을 직접 확인합니다. 과제 검사의 세 입력에 없는 조합입니다.
-
-```bash
-uv run python -c "from exercises.student import route_inquiry; print(route_inquiry({'policy_id': '', 'contact': ''}))"
-```
-
-다음에는 `contact`를 공백 한 칸으로 바꿔 봅니다. 값이 존재한다는 것과 유효한 회신 주소라는 것은 다릅니다. 현재 과제는 빈 문자열만 구분합니다. 주소 형식 검증을 추가하려면 분기 전에 어떤 입력 정리가 필요한지 한 문장으로 제안합니다. 이번 기본 과제에 주소 검증 전체를 구현하지는 않습니다.
-
-**확장:** 승인 함수의 입력을 approve/reject/빈 문자열/오타로 바꿔 안전한 보류를 검사합니다. 수업 후 심화에서는 별도 영속 저장소를 연결해 재시작 복구를 실험합니다. 현재 설치에 없는 영속 패키지는 강사와 검증 후 추가하며 메모리 저장소를 영속이라고 설명하지 않습니다.
-
-이 확장 검사는 각 입력에 대한 반환값을 확인합니다. 미리 작성한 결과 표만 반환하는 것은 그래프 재개 구현이 아닙니다. 실제 `approval_demo` 호출 또는 자신의 그래프 재개 코드를 남기고, 입력마다 실행한 결과와 비교합니다.
-
-확장 시작 파일은 `exercises/extensions.py`의 `approval_matrix()`입니다. 기본 함수의 인자는 바꾸지 않습니다.
-
-```bash
-uv run python -m exercises.extension_check graph
-```
-
-학생 검사 결과를 먼저 확인합니다. 다음 명령은 풀이 시간에 기준 구현을 확인할 때만 실행합니다.
-
-```bash
-uv run python -m exercises.extension_check graph --solution
-```
-
-네 결정을 차례대로 실제 승인 예제에 전달합니다. approve만 approved, reject·빈 문자열·approv는 held가 기대 결과입니다.
-
-시작 코드는 FAIL이 정상입니다. 첫 명령으로 자신의 구현을 검사하고, 풀이 시간에 `exercises/extension_solutions.py`의 같은 함수를 열어 비교합니다. 정상·실패 사례는 `exercises/extension_check.py`에서 확인합니다.
-
-<details><summary>힌트</summary>
-
-정책을 찾았다는 것과 전달할 대상이 있다는 것은 서로 다른 조건입니다. 두 값이 함께 있어야 draft로 보냅니다.
-
-</details>
-
-
-</details>
 
 <aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>문의에 답장을 받을 주소가 없습니다. 그런데 프로그램은 주소를 묻지 않고 답변 초안부터 만들었습니다.<br><br><strong>초안이 잘 작성됐어도 실습 요구를 만족한 걸까요?</strong> 실행 기록의 visited에서 ask와 draft 중 어느 단계로 갔는지 확인합니다.</p></aside>
 
@@ -491,9 +422,9 @@ uv run python -m exercises.extension_check graph --solution
 |정책 있음·회신 대상 공백만 있음|lookup→ask|공백은 회신 대상으로 인정하지 않음|
 |정책 없음·회신 대상 있음|lookup→ask|담당 팀을 추측해 초안을 만들지 않음|
 
-주 실습은 `state['data']['found']`와 공백을 제거한 contact를 봅니다. 아래 준비 문제의 `policy_id`를 그대로 옮기면 데이터 구조가 맞지 않습니다. 또한 이 조건은 주소가 비어 있는지를 검사할 뿐, 이메일 형식이나 실제 수신 가능성을 보장하지 않습니다.
+주 실습은 `state['data']['found']`와 공백을 제거한 contact를 봅니다. 개념 예제의 `policy_id`를 그대로 옮기면 데이터 구조가 맞지 않습니다. 또한 이 조건은 주소가 비어 있는지를 검사할 뿐, 이메일 형식이나 실제 수신 가능성을 보장하지 않습니다.
 
-각 행에서 `visited`와 `decision`을 확인합니다. `draft`를 방문했다는 기록만으로 검토까지 통과했다고 말할 수는 없습니다. 이 단계의 `runner graph`는 검토를 한 번만 하며 `passed` 또는 `held`를 반환합니다. 뒤의 `workflow` 단계는 수정 반복까지 연결하므로 같은 초안이 반복되면 `stalled`도 나올 수 있습니다. 이 값은 주 실습이 정한 업무 판정이며 LangGraph의 예약 상태명이 아닙니다.
+각 행에서 `visited`와 `decision`을 확인합니다. `draft`를 방문했다는 기록만으로 검토까지 통과했다고 말할 수는 없습니다. 노트북 2번 단계는 검토를 한 번만 하며 `passed` 또는 `held`를 반환합니다. 뒤의 3번 수정 루프 단계는 수정 반복까지 연결하므로 같은 초안이 반복되면 `stalled`도 나올 수 있습니다. 이 값은 주 실습이 정한 업무 판정이며 LangGraph의 예약 상태명이 아닙니다.
 
 ### 노드 반환값은 전체 상태가 아닙니다
 
@@ -503,25 +434,7 @@ uv run python -m exercises.extension_check graph --solution
 
 여러 노드를 병렬로 늘릴 때는 같은 필드를 동시에 갱신하는지 확인해야 합니다. 현재의 순차 코드에서 직접 목록을 이어 붙이는 방식을 그대로 병렬 누적 규칙으로 삼지는 않습니다. 어떤 결과를 합치고 어떤 값은 한 담당자만 바꿀지 먼저 정합니다. 전체 병렬 그래프 구현은 선택 심화입니다.
 
-<details><summary>준비 문제를 사용했다면: 조건식 풀이</summary>
 
-<div class="command-purpose">준비 문제 풀이 확인</div>
-
-```bash
-uv run python -m exercises.check graph --solution
-```
-
-| 오답 조건 | 문제가 드러나는 경우 | 관찰할 값 |
-|---|---|---|
-|정책 ID만 확인|회신 대상이 없음|visited에 draft가 남음|
-|두 조건을 or로 연결|한쪽 정보만 있음|ask 대신 draft로 이동|
-|모두 ask 반환|정상 입력|정상 초안까지 차단|
-
-`and`는 두 조건이 함께 참이어야 하고, `or`는 하나만 참이어도 통과합니다. 자신의 예측표에서 두 조건의 차이가 드러나는 행을 짚습니다. 이후 승인 예제에서 reject를 approve로 바꾸면 달라지는 출력과 그대로인 thread_id의 역할을 설명합니다.
-
-정책 ID만 검사하는 초기 구현은 회신 대상이 없어도 초안을 작성합니다. 조건을 추가한 뒤 정상 입력이 계속 draft로 가는지도 확인합니다. 오류를 고친 뒤 정상 경로까지 막히면 회귀입니다.
-
-</details>
 
 </section>
 <section class="slide"><details><summary>복습 자료 · 운영으로 옮길 때 확인할 것</summary>

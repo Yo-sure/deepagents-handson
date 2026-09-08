@@ -1,4 +1,5 @@
 """LangChain 1.4 MCPAdapter로 원격 도구를 Agent에 연결합니다."""
+
 import argparse
 import asyncio
 import json
@@ -12,7 +13,7 @@ from .mcp_lab import PROTOCOL
 from .processes import server
 
 
-#pragma region adapter
+# pragma region adapter
 async def connect_agent(url, topic="정산", *, model=None):
     client = Client(url, mode=PROTOCOL)
     async with MCPAdapter(client) as adapter:
@@ -21,14 +22,29 @@ async def connect_agent(url, topic="정산", *, model=None):
         tools = [tool for tool in catalog if tool.name == "lookup_policy"]
         if len(tools) != 1:
             raise ValueError("정책 조회 도구를 찾지 못했습니다.")
-        agent = create_agent(model if model is not None else get_model(), tools=tools,
-            system_prompt="정책을 도구로 조회하고 담당 팀과 근거 ID를 답하십시오. 없으면 추가 확인을 요청하십시오.")
+        agent = create_agent(
+            model if model is not None else get_model(),
+            tools=tools,
+            system_prompt="정책을 도구로 조회하고 담당 팀과 근거 ID를 답하십시오. 없으면 추가 확인을 요청하십시오.",
+        )
         result = await agent.ainvoke(
-            {"messages": [{"role": "user", "content": json.dumps({"topic": topic}, ensure_ascii=False)}]},
-            config={"recursion_limit": 12})
-        return {"tools": [tool.name for tool in tools],
-                "trace": trace_messages(result["messages"])}
-#pragma endregion adapter
+            {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": json.dumps({"topic": topic}, ensure_ascii=False),
+                    }
+                ]
+            },
+            config={"recursion_limit": 12},
+        )
+        return {
+            "tools": [tool.name for tool in tools],
+            "trace": trace_messages(result["messages"]),
+        }
+
+
+# pragma endregion adapter
 
 
 def run(topic="정산", *, model=None):
