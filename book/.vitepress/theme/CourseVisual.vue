@@ -111,7 +111,7 @@ const examples: Record<string, Lesson> = {
   },
   "langchain": {
   "title": "한 번의 Agent 실행에서 messages가 쌓이는 과정",
-  "hint": "단계를 눌러 목록이 늘어나는 모습을 봅니다. 기존 메시지를 덮어쓰지 않고 다음 메시지가 추가됩니다.",
+  "hint": "단계를 눌러 목록이 늘어나는 모습을 봅니다. 이 예시는 서로 다른 ID의 메시지가 차례로 추가되는 흐름입니다.",
   "scenarios": [
     {
       "label": "1 질문",

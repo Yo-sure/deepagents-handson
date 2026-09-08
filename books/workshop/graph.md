@@ -107,9 +107,78 @@ State는 실행 중 노드들이 읽고 갱신하는 값입니다. 이 예제에
 
 `TypedDict`는 dict에 어떤 필드가 들어가는지 코드에 표시합니다. 그 자체가 모든 실행 입력을 검증해 주는 장치는 아닙니다.
 
-`lookup`은 기존 State를 받아 정책 ID와 방문 기록을 반환합니다. 반환하지 않은 다른 필드는 남습니다. 방문 기록은 기존 기록에 새 항목을 추가한 리스트를 반환하여 갱신합니다.
+`lookup`은 정책 ID와 방문 기록만 반환합니다. 반환하지 않은 `topic`과 `contact`는 남습니다. 여기의 `visited`에는 reducer가 없으므로 반환한 리스트로 덮어씁니다. 뒤 노드가 `state["visited"] + ["draft"]`를 반환하는 것은 코드에서 기존 기록을 합쳐 새 리스트를 만드는 방식입니다. 리스트가 자동으로 누적되는 것은 아닙니다.
 
 `route`는 다음 노드 이름을 반환합니다. 정책 ID와 회신 대상이 모두 있을 때만 draft로 갑니다. 여기서 다음 단계는 모델이 아니라 조건문이 결정합니다.
+
+
+### Reducer · 반환한 값을 기존 값에 어떻게 합칠까요? {#reducers}
+
+노드는 전체 State 대신 바뀐 필드만 반환할 수 있습니다. **Reducer는 필드별로 기존 값과 새 값을 합치는 규칙**입니다. 지정하지 않은 필드는 새 값으로 덮어씁니다. 같은 리스트 타입이어도 규칙에 따라 결과가 달라집니다.
+
+```python
+from operator import add
+from typing import Annotated, TypedDict
+
+class State(TypedDict):
+    latest: list[str]                  # 새 값으로 교체
+    history: Annotated[list[str], add] # 기존 리스트 + 새 리스트
+```
+
+`Annotated[타입, 규칙]`은 타입에 부가 정보를 붙입니다. LangGraph는 여기에 지정한 `add`를 병합 함수로 사용합니다.
+
+|순서|노드가 반환한 값|합쳐진 State|
+|---|---|---|
+|초기 입력|두 필드 모두 `[]`|`latest=[]`, `history=[]`|
+|첫 노드|두 필드 모두 `["조회"]`|`latest=["조회"]`, `history=["조회"]`|
+|둘째 노드|두 필드 모두 `["초안"]`|`latest=["초안"]`, `history=["조회", "초안"]`|
+
+`history`에는 새 항목만 반환합니다. `add`를 붙이고도 매번 기존 기록까지 반환하면 이전 항목이 중복됩니다. [Reducer 공식 설명](https://docs.langchain.com/oss/python/langgraph/graph-api#reducers)
+
+### 앞 장의 messages는 왜 쌓였을까요?
+
+정확히는 **`messages`는 Agent State 안의 필드**입니다. State 전체가 메시지 목록인 것은 아닙니다. 현재 설치된 `AgentState`에서 핵심 정의를 발췌하면 다음과 같습니다.
+
+```python
+messages: Required[Annotated[list[AnyMessage], add_messages]]
+```
+
+`Required`는 이 필드가 필수임을 나타내는 타입 표기입니다. `AnyMessage`는 여러 메시지 종류를 나타내며, 병합은 `add_messages`가 맡습니다. 새 ID의 메시지는 추가하고, 기존 메시지와 ID가 같으면 그 메시지를 갱신합니다. 단순 리스트 덧붙이기와 다릅니다.
+
+```python
+from langchain.messages import HumanMessage, AIMessage
+from langgraph.graph.message import add_messages
+
+messages = [HumanMessage(content="계정 담당 팀은?", id="q1")]
+messages = add_messages(messages, [AIMessage(content="확인 중입니다.", id="a1")])
+messages = add_messages(messages, [AIMessage(content="IT지원팀입니다.", id="a1")])
+print([(m.id, m.content) for m in messages])
+# [('q1', '계정 담당 팀은?'), ('a1', 'IT지원팀입니다.')]
+```
+
+메시지는 세 개가 아니라 두 개입니다. 두 번째 AIMessage가 같은 `a1`을 갱신했습니다. 여기의 메시지 `id`는 도구 요청과 결과를 짝짓는 `tool_call_id`와 별개입니다. [메시지 State와 add_messages](https://docs.langchain.com/oss/python/langgraph/graph-api#working-with-messages-in-graph-state)
+
+**실행해서 비교:** `labs/state_updates.py`를 열고 `uv run python -m labs.state_updates`로 실행합니다. 모델 호출은 없습니다. 위의 두 노드 비교와 메시지 병합이 함께 들어 있습니다. 마지막 메시지 ID를 `a2`로 바꾸면 몇 개가 남을지 예상한 뒤 확인합니다.
+
+### Super-step · 여러 노드는 언제 값을 주고받을까요? {#supersteps}
+
+Super-step은 그래프 실행의 한 라운드입니다. 그 라운드에서 실행 가능한 노드들이 작업하고, 반환한 갱신을 반영한 뒤 다음 라운드로 넘어갑니다. **한 super-step이 언제나 노드 하나인 것은 아닙니다.**
+
+|업무 실행 라운드 예시|실행할 노드|다음 라운드가 읽을 값|
+|---|---|---|
+|첫 라운드|문의 읽기|정리한 문의|
+|둘째 라운드|정책 조회와 연락처 확인을 병렬 실행|각 노드가 반환한 갱신을 반영한 상태|
+|셋째 라운드|초안 작성|조회·확인 결과를 함께 읽음|
+
+같은 라운드의 병렬 노드는 서로의 중간 결과를 순서대로 읽는다고 가정하면 안 됩니다. 둘이 같은 필드에 값을 쓰려면 적절한 reducer가 필요하며, 기본 덮어쓰기 필드에 동시 갱신을 보내면 오류가 납니다. reducer는 업무상 올바른 병합 규칙이어야 하고, 병렬 완료 순서를 곧 업무 순서로 해석하지 않습니다.
+
+앞의 `first → second` 예제는 순차 실행이므로 두 노드는 서로 다른 super-step에서 실행됩니다. `create_agent`의 모델 → 도구 → 모델도 이런 실행 단계를 거칩니다. 다만 도구 노드 안의 여러 도구 호출을 각각 별도의 그래프 super-step으로 세지는 않습니다. [Graph 실행 모델](https://docs.langchain.com/oss/python/langgraph/graph-api#graphs)
+
+<details class="instructor-note"><summary>강사 진행 노트 · 상태 갱신의 핵심</summary>
+
+State·node·edge 7분 설명 중 기본 교체 규칙을 짚고, 병합 비교 실행과 super-step에는 추가 5분을 예상합니다. 뒤 운영 복습 시간에서 조절합니다. “리스트면 누적된다”, “messages가 State 전체다”, “super-step은 도구 호출 한 번이다”라는 세 오해를 확인합니다. 병렬 그래프의 직접 구현은 여기서 요구하지 않습니다.
+
+</details>
 
 </section>
 
@@ -455,7 +524,8 @@ uv run python -m exercises.check graph --solution
 |다시 짚을 개념|오늘 확인한 내용|
 |---|---|
 |기존 Agent와 State|create_agent도 실행 가능한 그래프입니다. 이번에는 바깥 업무 흐름의 상태와 조건을 정했습니다.|
-|Node·edge|노드는 일을 수행하고, 간선과 분기 함수는 다음 노드를 정합니다.|
+|Node·edge·super-step|노드는 갱신을 반환하고 간선은 다음 실행을 정합니다. 병렬 노드는 같은 실행 라운드에 속할 수 있습니다.|
+|Reducer|필드별 병합 규칙입니다. 기본은 교체, add는 리스트 연결, add_messages는 메시지 ID를 반영한 병합입니다.|
 |멈춤과 재개|interrupt와 checkpointer의 역할을 구별합니다. END에 도착했다고 업무가 통과한 것은 아닙니다.|
 
 **짧게 설명해 보기:** 정책은 있지만 회신 대상이 빈칸이면 어느 경로로 가야 할까요? 초안 생성은 실행될까요?
