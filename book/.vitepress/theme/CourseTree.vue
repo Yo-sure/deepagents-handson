@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, watch } from 'vue'
+import { computed, ref, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { useRoute, withBase } from 'vitepress'
 const route = useRoute()
 const path = computed(() => route.path.replace(/^\/deepagents-handson/, '').replace(/\.html$/, '').replace(/\/$/, '') || '/')
@@ -20,7 +20,23 @@ function revealCurrent() {
   groups.forEach((group, i) => { if (group.items.some(([, link]) => link === path.value)) expanded.value[i] = true })
 }
 watch(path, revealCurrent, { immediate: true })
+const activePart = ref('concept')
+let frame = 0
+function updatePart() {
+  frame = 0
+  const practice = path.value.endsWith('/harness') ? 'practice' : 'observe'
+  const sections = ['concept', practice, 'solution'].map(id => ({ id, node: document.getElementById(id) })).filter(item => item.node)
+  let current = sections[0]?.id || ''
+  for (const item of sections) if (item.node!.getBoundingClientRect().top <= 150) current = item.id
+  activePart.value = current
+}
+function schedulePart() { if (!frame) frame = requestAnimationFrame(updatePart) }
+watch(() => route.path, async () => { await nextTick(); schedulePart() })
+onBeforeUnmount(() => { window.removeEventListener('scroll', schedulePart); window.removeEventListener('resize', schedulePart); cancelAnimationFrame(frame) })
 onMounted(() => {
+  window.addEventListener('scroll', schedulePart, { passive: true })
+  window.addEventListener('resize', schedulePart)
+  schedulePart()
   try { open.value = localStorage.getItem('course-tree-open') !== 'false' } catch {}
 })
 function toggle() {
@@ -45,9 +61,9 @@ function toggle() {
           <li v-for="[label, link] in group.items" :key="link">
             <a :href="withBase(link)" :aria-current="path === link ? 'page' : undefined">{{ label }}</a>
             <div v-if="path === link && ['/workshop/langchain', '/workshop/graph', '/workshop/harness', '/workshop/mcp', '/workshop/a2a'].includes(link)" class="module-parts">
-              <a :href="withBase(link + '#concept')">개념</a>
-              <a :href="withBase(link + (link.endsWith('/harness') ? '#practice' : '#observe'))">실습</a>
-              <a :href="withBase(link + '#solution')">풀이</a>
+              <a :aria-current="activePart === 'concept' ? 'location' : undefined" :href="withBase(link + '#concept')">개념</a>
+              <a :aria-current="['practice', 'observe'].includes(activePart) ? 'location' : undefined" :href="withBase(link + (link.endsWith('/harness') ? '#practice' : '#observe'))">실습</a>
+              <a :aria-current="activePart === 'solution' ? 'location' : undefined" :href="withBase(link + '#solution')">풀이</a>
             </div>
           </li>
         </ul>
@@ -78,3 +94,5 @@ function toggle() {
 </style>
 
 <style>.module-parts {padding-left:16px; border-left:1px solid #cbd8d1; margin-left:12px}.module-parts a {font-size:13px; padding:5px 12px}</style>
+
+<style>.module-parts a[aria-current="location"] {background:#e1eee8;color:#07594e;font-weight:700;box-shadow:inset 3px 0 #0f766e}</style>

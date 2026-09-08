@@ -34,9 +34,9 @@ LangChain 장의 개념 설명을 마친 뒤 진행합니다. 먼저 편집기�
 
 1. `def lookup_policy`를 찾습니다. 제공된 search_policy를 호출하도록 작성하고, 도구의 용도를 docstring으로 설명합니다.
 2. 함수 안의 `raise NotImplementedError(...)`는 아직 구현하지 않았다는 표시입니다. 이 줄을 지우고 자신의 코드를 작성합니다. 함수 이름과 인자는 그대로 둡니다.
-3. 아래 재료를 읽고 함수를 완성한 뒤, 바로 아래 검사 명령을 실행합니다. 아직 다른 함수는 수정하지 않습니다.
+3. 아래 재료를 읽고 함수를 완성한 뒤, 바로 아래 실행 명령을 실행합니다. 아직 다른 함수는 수정하지 않습니다.
 
-`build_lab/reference.py`는 풀이입니다. 먼저 자신의 코드를 실행해 본 뒤 막힌 부분이나 풀이를 비교할 때 엽니다. 주피터를 사용하려면 아래의 ‘주피터로 진행하는 경우’를 펼칩니다.
+`build_lab/reference.py`는 풀이입니다. 먼저 자신의 코드를 실행해 본 뒤 막힌 부분이나 풀이를 비교할 때 엽니다.
 
 </section>
 <section class="slide" id="materials">
@@ -57,26 +57,13 @@ LangChain 장의 개념 설명을 마친 뒤 진행합니다. 먼저 편집기�
 
 먼저 CSV의 두 행을 읽습니다. 실습에서는 이 데이터 접근 함수를 감싸 모델에게 보여줄 조회 도구를 만들고, Agent에 연결합니다. 원본 CSV를 바꾸면 조회 결과도 달라집니다. 기본 실습은 제공된 두 행으로 진행합니다.
 
-<details><summary>주피터로 진행하는 경우</summary>
-
-환경 준비를 마친 `workshop` 폴더에서 실행합니다. 파일 실습은 주피터를 설치하지 않아도 됩니다.
-
-```bash
-uv sync --locked --group notebook
-uv run --locked --group notebook jupyter lab notebooks/build-agent.ipynb
-```
-
-터미널에 표시된 로컬 주소를 열고 Python 3 커널에서 첫 환경 확인 셀을 실행합니다. 키는 기존 `.env`에서 읽습니다. 노트북에 키를 붙여 넣지 않습니다.
-
-노트북에서는 조회·Agent·분기를 셀에서 작성하고 제공 그래프·루프를 실행해 관찰합니다. 완료한 함수를 `build_lab/student.py`의 같은 이름으로 옮겨 MCP·A2A 파일 실습을 이어갑니다. 셀을 바꿔도 Python 파일은 자동으로 바뀌지 않습니다.
-
-파일로 옮기는 시점과 확인 명령은 [Graph 실습의 노트북 전환 안내](#notebook-export)를 따릅니다.
-
-</details>
+수업은 VS Code와 Python 파일로 진행합니다. `build_lab/student.py`에 구현하고 `labs/`의 실행 파일에서 질문·입력값을 바꿉니다. 노트북으로 옮기는 단계는 없습니다.
 </section>
 <section class="slide" id="langchain">
 
 ## 1. 조회 도구와 Agent 구성
+
+실행 파일은 `labs/langchain.py`입니다. `question`을 수정하면 모델에 보내는 질문이 바뀝니다. 조회 예측 → 실행 → messages 목록 읽기 순서로 진행합니다.
 
 <p class="section-time">예상 25분 · 해당 수업 시간에 포함</p>
 
@@ -92,15 +79,17 @@ uv run python -c "from course.policy_store import search_policy; print(search_po
 
 <<< ../../workshop/build_lab/student.py#lookup{python}
 
-작성한 파일을 저장하고, `workshop` 폴더의 터미널에서 다음 명령을 실행합니다. `pytest`는 예상한 입력과 결과로 함수를 검사합니다. `--build-student`는 자신의 구현을 선택하고, `-k lookup`은 조회 함수 검사만 고릅니다. 아직 뒤 단계 함수가 미완성이어도 이 검사부터 진행할 수 있습니다.
+작성한 파일을 저장하고 아래 명령으로 실행합니다. `labs/lookup.py`의 세 입력과 출력 결과를 비교합니다. 아직 뒤 단계 함수는 미완성이어도 됩니다.
 
-<div class="command-purpose">내 조회 함수 검사</div>
+<div class="command-purpose">내 조회 함수 실행</div>
 
 ```bash
-uv run pytest tests/test_build_lab.py --build-student -q -k lookup
+uv run python -m labs.lookup
 ```
 
-검사가 통과하면 이어서 `build_agent(model, policy_tool)`을 구현합니다. 먼저 `tool(policy_tool)`로 LangChain 도구 객체를 만들고 `tools` 목록에 넣습니다. `create_agent(model=..., tools=[...], system_prompt=...)`로 구성한 Agent를 반환합니다. 생성 함수 안에서 실행까지 하지 않습니다. 다른 모델이나 조회 도구를 연결하려면 어디를 바꾸면 될까요? 함수 안에 고정하지 않고 model과 policy_tool을 인자로 받는 이유를 생각해 봅니다.
+
+
+정산·계정의 담당 팀과 없는 업무의 결과를 확인했으면 이어서 `build_agent(model, policy_tool)`을 구현합니다. 먼저 `tool(policy_tool)`로 LangChain 도구 객체를 만들고 `tools` 목록에 넣습니다. `create_agent(model=..., tools=[...], system_prompt=...)`로 구성한 Agent를 반환합니다. 생성 함수 안에서 실행까지 하지 않습니다. 다른 모델이나 조회 도구를 연결하려면 어디를 바꾸면 될까요? 함수 안에 고정하지 않고 model과 policy_tool을 인자로 받는 이유를 생각해 봅니다.
 
 <<< ../../workshop/build_lab/student.py#agent{python}
 
@@ -109,7 +98,7 @@ uv run pytest tests/test_build_lab.py --build-student -q -k lookup
 <div class="command-purpose">내 구현 실행</div>
 
 ```bash
-uv run python -m build_lab.runner agent --topic 계정
+uv run python -m labs.langchain
 ```
 
 **완료 기준:** 실제 기록에 학생 도구의 요청·실행·결과가 남고, P-02와 IT지원팀을 근거로 답합니다. 없는업무도 실행합니다. 답변이 매번 같다고 가정하지 않습니다.
@@ -155,12 +144,11 @@ START → lookup → [정책 있음 AND 회신 대상이 공백 아님]
 <div class="command-purpose">내 구현 실행</div>
 
 ```bash
-uv run pytest tests/test_build_lab.py --build-student -q -k graph
-uv run python -m build_lab.runner graph --topic 정산 --contact "   "
-uv run python -m build_lab.runner graph --topic 계정 --contact user@example.test
+
+uv run python -m labs.graph
 ```
 
-graph 단계는 제공 검토 함수로 한 번만 검사합니다. 제공 수정 루프는 다음 단계에서 연결해 관찰합니다. 공백 입력은 trace가 비어 있고 visited가 lookup→ask여야 합니다. 정상 입력은 lookup→draft→review를 거칩니다.
+`labs/graph.py`에서 `contact`를 `"   "`로 바꿔 실행한 뒤 원래 주소로 되돌려 비교합니다. `topic`도 같은 파일에서 수정합니다. graph 단계는 제공 검토 함수로 한 번만 검사합니다. 제공 수정 루프는 다음 단계에서 연결해 관찰합니다. 공백 입력은 trace가 비어 있고 visited가 lookup→ask여야 합니다. 정상 입력은 lookup→draft→review를 거칩니다.
 
 **완료 기준:** 결과 문자열뿐 아니라 실제 모델·수정 함수가 호출되지 않아야 하는 경로를 설명합니다. 검사는 compile된 그래프를 실행해 호출 횟수와 방문 경로를 확인합니다.
 
@@ -169,23 +157,7 @@ graph 단계는 제공 검토 함수로 한 번만 검사합니다. 제공 수�
 [수업으로 돌아가기: LangGraph 풀이](./graph#solution)
 
 </section>
-<section class="slide" id="notebook-export">
 
-## 노트북에서 파일 실습으로 이어가기
-
-<p class="section-time">필요할 때 약 3분 · 다음 활동에서 조절</p>
-
-조회·Agent·분기 함수를 노트북에서 작성했다면 각 함수의 완성 코드를 `build_lab/student.py`의 같은 함수에 옮깁니다. 파일 실습을 진행한 경우에는 이 단계를 건너뜁니다.
-
-옮긴 직후 아래 명령으로 파일의 세 구현을 확인합니다. 실패가 나오면 노트북 셀이 아니라 `build_lab/student.py`를 확인합니다.
-
-```bash
-uv run pytest tests/test_build_lab.py --build-student -q -k "lookup or agent or graph"
-```
-
-함수 셀을 수정하면 해당 셀과 아래 실행 셀을 다시 실행합니다. 마지막에는 커널을 재시작하고 처음부터 실행하여 오래된 함수가 남아 우연히 성공한 것은 아닌지 확인합니다. `build-agent-solution.ipynb`는 별도 풀이입니다.
-
-</section>
 <section class="slide" id="loop">
 
 ## 3. 제공 루프를 관찰하고 하네스 활용을 설명합니다
@@ -197,7 +169,7 @@ uv run pytest tests/test_build_lab.py --build-student -q -k "lookup or agent or 
 <div class="command-purpose">내 구현 실행</div>
 
 ```bash
-uv run python -m build_lab.runner workflow --topic 계정
+uv run python -m labs.harness
 ```
 
 최초 답변이 이미 통과하면 수정은 0회입니다. 노트북의 '확인 완료' 초안 관찰 또는 Harness 모듈의 revisions 예제를 실행하여 실제 피드백과 다음 초안도 비교합니다. 같은 문자열 반복, 예산 0, 마지막 수정 성공의 예상 결과를 먼저 말합니다.
@@ -224,8 +196,8 @@ history 항목은 `{'attempt': 0, 'draft': '초안', 'feedback': [...]}`입니�
 <div class="command-purpose">내 구현 실행</div>
 
 ```bash
-uv run pytest tests/test_build_lab.py --build-student -q -k loop
-uv run python -m build_lab.runner workflow --topic 계정
+
+uv run python -m labs.harness
 ```
 
 **부족한 초안을 직접 넣습니다.** 노트북에서는 '확인 완료'를 초기 draft로 전달하고 feedback이 다음 모델 입력으로 넘어가는지 봅니다. 최초 답변이 이미 통과한 실행만으로 수정 경로를 확인했다고 할 수 없습니다.
@@ -250,11 +222,11 @@ MCP 모듈 실습 시간에 진행합니다. `build_mcp_server(policy_tool)`에�
 <div class="command-purpose">내 구현 실행</div>
 
 ```bash
-uv run pytest tests/test_build_lab.py --build-student -q -k mcp
-uv run python -m build_lab.runner mcp --topic 계정
+
+uv run python -m labs.mcp
 ```
 
-처음에는 미구현 함수를 가리키는 NotImplementedError가 나옵니다. 설치 실패와 구분합니다. 첫 검사는 SDK 내부 경로입니다. 두 번째는 학생 서버를 별도 프로세스로 띄워 실제 HTTP로 목록과 결과를 가져옵니다. 서버 기동·종료는 제공 실행기가 맡습니다. 함수 반환값과 HTTP 응답의 content 포장을 비교합니다.
+처음에는 미구현 함수를 가리키는 NotImplementedError가 나옵니다. 설치 실패와 구분합니다. 이 실행은 학생 서버를 별도 프로세스로 띄워 실제 HTTP로 목록과 결과를 가져옵니다. 서버 기동·종료는 제공 실행기가 맡습니다. 함수 반환값과 HTTP 응답의 content 포장을 비교합니다.
 
 도구의 인자 이름을 topic에서 category로 바꿨습니다. 클라이언트가 여전히 topic을 보내면 호출이 될까요? 서버가 받는 이름과 클라이언트가 보내는 이름을 비교합니다. 기본 구현 후 MCP 모듈의 재시작·업무 키 실험을 이어갑니다. Stateless의 의미를 업무 데이터 삭제로 해석하지 않습니다.
 
@@ -272,8 +244,8 @@ A2A 모듈 실습 시간에 `accept_review(state, artifact, request_id, version)
 <div class="command-purpose">내 구현 실행</div>
 
 ```bash
-uv run pytest tests/test_build_lab.py --build-student -q -k a2a
-uv run python -m build_lab.runner complete --topic 계정
+
+uv run python -m labs.a2a
 ```
 
 완성 실행은 **학생 MCP 조회 → 제공 Graph와 학생 분기 → 학생 LangChain Agent → 제공 수정 루프 → 제공 A2A 서버 → 학생 수용 판단**입니다. 선택 심화에서 그래프·루프를 교체했다면 그 구현이 연결됩니다. 모델과 서버는 실제로 실행합니다. 검토가 통과하지 않으면 그 이유를 읽고 보류합니다.
@@ -295,11 +267,9 @@ A2A 수신부와 검토 서버는 제공 코드입니다. 서버를 처음부터
 
 </details>
 
-```bash
-uv run pytest tests/test_build_lab.py --build-student -q
-```
 
-`--build-student`를 빼면 기준 풀이 검사입니다. 학생 구현을 검증할 때는 이 옵션을 유지합니다. 테스트의 모델 대역은 tests에만 있으며 runner의 실제 실행을 대체하지 않습니다. 자신의 코드에서 정상·추가 확인·보류가 각각 어떤 조건으로 결정되는지 확인합니다. 실행마다 runs/build-단계-고유값.json으로 따로 저장합니다. 실제 문장을 읽고 근거와 대조합니다.
+
+자동 회귀 검사는 개발용 tests에 있습니다. 수업에서는 실행 파일의 입력을 바꾸고 자신의 코드가 반환한 결과를 확인합니다. 자신의 코드에서 정상·추가 확인·보류가 각각 어떤 조건으로 결정되는지 확인합니다. 결과는 터미널에 출력됩니다. 실제 문장을 읽고 근거와 대조합니다.
 
 풀이 시간에는 reference.py를 열어 노드 경계, 조건 순서, 도구 인자, 수용 계약을 비교합니다.
 
@@ -357,7 +327,7 @@ uv run python -m build_lab.reference complete --topic 계정
 |MCP|lookup_policy|
 |A2A 통합|lookup_policy, build_agent, route_inquiry, build_mcp_server|
 
-필요한 함수를 보완했다면 원래 진행하던 실습으로 돌아가 해당 단계의 검사 명령을 실행합니다. 직접 작성하다 막힌 부분은 보관한 파일과 풀이를 비교하며 다시 살펴봅니다.
+필요한 함수를 보완했다면 원래 진행하던 실습으로 돌아가 해당 단계의 실행 명령을 실행합니다. 직접 작성하다 막힌 부분은 보관한 파일과 풀이를 비교하며 다시 살펴봅니다.
 </section>
 
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>

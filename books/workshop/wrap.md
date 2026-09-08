@@ -12,7 +12,7 @@ pageClass: lec-page
 
 # 전체 구조를 연결하고 적용점을 정리한다
 
-주 실습의 최종 결과는 아래 통합 실습의 완성 기준으로 확인합니다. `build_lab.runner complete`에서 학생 도구·Agent·분기·MCP 등록·수용 판단과 제공 그래프·수정 루프가 연결된 실행 기록을 설명합니다.
+주 실습의 최종 결과는 아래 통합 실습의 완성 기준으로 확인합니다. `labs/a2a.py`에서 학생 도구·Agent·분기·MCP 등록·수용 판단과 제공 그래프·수정 루프가 연결된 실행 기록을 설명합니다.
 
 <p class="lead">문의 하나가 조회·답변 작성·검토를 거치는 과정을 따라갑니다. 사용자가 업무명을 다르게 말해도 같은 규정을 찾도록 코드를 고칩니다.</p>
 
@@ -73,7 +73,7 @@ LangChain은 최근 Agent 평가 과제를 만드는 글에서 실행 환경과 
 <div class="command-purpose">내 구현 실행</div>
 
 ```bash
-uv run python -m build_lab.runner complete --topic 정산
+uv run python -m labs.a2a
 ```
 
 학생 MCP 서버의 정책 조회→제공 Graph와 학생 분기→학생 LangChain Agent의 초안→제공 루프의 검토·필요 시 수정→A2A 검토→학생 수용 판단을 확인합니다. 초안이 처음부터 통과하면 수정하지 않습니다. 수정이 필요하면 정책·초안·피드백을 모델에 전달합니다.
@@ -92,7 +92,7 @@ uv run python -m build_lab.runner complete --topic 정산
 |수정 루프|state.history, state.draft, state.decision|수정을 했는가? 하지 않았다면 왜인가?|
 |A2A 검토|review.state, review.artifact, review.decision|현재 요청의 완료 상태와 검토 통과를 함께 확인했는가?|
 
-조회한 정책은 요청 단위의 snapshot으로 초안 생성에 전달됩니다. Agent의 도구 호출은 이 snapshot을 읽으며 호출할 때마다 MCP 서버를 다시 조회하지 않습니다. `state.data`와 최종 `state.draft`를 직접 대조합니다. HTTP 도구 목록과 응답 포장까지 다시 확인하려면 `build_lab.runner mcp --topic 정산`의 `transport`를 읽습니다. complete 로그에는 그 포장 대신 조회된 업무 데이터가 남습니다.
+조회한 정책은 요청 단위의 snapshot으로 초안 생성에 전달됩니다. Agent의 도구 호출은 이 snapshot을 읽으며 호출할 때마다 MCP 서버를 다시 조회하지 않습니다. `state.data`와 최종 `state.draft`를 직접 대조합니다. HTTP 도구 목록과 응답 포장까지 다시 확인하려면 `labs/mcp.py`의 `transport`를 읽습니다. complete 로그에는 그 포장 대신 조회된 업무 데이터가 남습니다.
 
 모델 호출이 실패하면 해당 단계의 오류를 해결한 뒤 다시 실행합니다. 실제 호출과 결과 전달이 확인되어야 통합 실습을 완료한 것입니다.
 
@@ -124,7 +124,7 @@ uv run python -m build_lab.runner complete --topic 정산
 ```bash
 uv run pytest tests/test_transfer.py --build-student -q
 uv run pytest tests/test_build_lab.py --build-student -q
-uv run python -m build_lab.runner complete --topic 로그인
+uv run python -m labs.a2a
 ```
 
 새 계약과 기존 계약을 모두 검사합니다. 실제 연결에서는 `state.data.topic=계정`, P-02·IT지원팀, 최종 수용 판단을 확인합니다. 서버 응답의 topic을 별칭 그대로 두면 뒤의 Agent가 정규 업무명으로 다시 조회할 때 문제가 생길 수 있습니다. 어디서 이름을 정리하고 이후 단계에 무엇을 전달할지 설명합니다.
@@ -140,7 +140,7 @@ uv run python -m build_lab.runner complete --topic 로그인
 <div class="command-purpose">내 구현 실행</div>
 
 ```bash
-uv run python -m build_lab.runner complete --topic 계정
+uv run python -m labs.a2a
 ```
 
 P-02·IT지원팀이 조회부터 검토까지 이어지는지 확인합니다. 예상과 다르면 처음 어긋난 단계의 필드를 기록합니다. 마지막 답변만 다시 고치기 전에 앞 단계에서 어떤 데이터가 전달됐는지 확인합니다.
@@ -150,7 +150,7 @@ P-02·IT지원팀이 조회부터 검토까지 이어지는지 확인합니다. 
 <div class="command-purpose">내 구현 실행</div>
 
 ```bash
-uv run python -m build_lab.runner complete --topic 계정 --contact ""
+uv run python -m labs.a2a
 ```
 
 더 살펴보려면 다음 중 하나를 골라 수정할 위치·예상 결과·확인 방법을 생각해 봅니다.

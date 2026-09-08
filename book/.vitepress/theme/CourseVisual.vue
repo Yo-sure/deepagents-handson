@@ -110,47 +110,75 @@ const examples: Record<string, Lesson> = {
     ]
   },
   "langchain": {
-    "title": "내 코드가 모델의 답변으로 이어지는 과정",
-    "hint": "조회 결과가 달라지면 답변에 사용할 근거도 달라집니다.",
-    "scenarios": [
-      {
-        "label": "계정 문의",
-        "steps": [
-          [
-            "모델 요청",
-            "lookup_policy(topic=\"계정\")"
-          ],
-          [
-            "내 조회 함수",
-            "found=true · P-02 · IT지원팀"
-          ],
-          [
-            "모델 응답",
-            "조회한 팀과 정책 ID를 근거로 안내"
-          ]
+  "title": "한 번의 Agent 실행에서 messages가 쌓이는 과정",
+  "hint": "단계를 눌러 목록이 늘어나는 모습을 봅니다. 기존 메시지를 덮어쓰지 않고 다음 메시지가 추가됩니다.",
+  "scenarios": [
+    {
+      "label": "1 질문",
+      "steps": [
+        [
+          "messages[0] · HumanMessage",
+          "content: 계정은 어느 팀에 문의하나요?"
+        ]
+      ],
+      "note": "첫 모델 호출에 사용자 질문을 전달합니다. system_prompt는 모델 호출에 추가되는 지시이며 이 반환 목록의 별도 항목으로 세지 않습니다."
+    },
+    {
+      "label": "2 도구 요청",
+      "steps": [
+        [
+          "messages[0] · HumanMessage",
+          "content: 계정은 어느 팀에 문의하나요?"
         ],
-        "note": "예시 응답의 요약입니다. 실제 모델의 문장은 실행마다 달라질 수 있습니다."
-      },
-      {
-        "label": "없는 업무",
-        "steps": [
-          [
-            "모델 요청",
-            "lookup_policy(topic=\"없는업무\")"
-          ],
-          [
-            "내 조회 함수",
-            "found=false · policy=null"
-          ],
-          [
-            "기대하는 응답",
-            "등록된 규정이 없으므로 추가 확인 안내"
-          ]
+        [
+          "messages[1] · AIMessage",
+          "tool_calls: [{id: call_1, name: lookup_policy, args: {topic: 계정}}]"
+        ]
+      ],
+      "note": "모델이 만든 AIMessage의 tool_calls입니다. 아직 도구 실행 결과는 없습니다."
+    },
+    {
+      "label": "3 도구 결과",
+      "steps": [
+        [
+          "messages[0] · HumanMessage",
+          "content: 계정은 어느 팀에 문의하나요?"
         ],
-        "note": "정책이 없다는 정상 조회 결과와 함수 실행 오류는 다릅니다."
-      }
-    ]
-  },
+        [
+          "messages[1] · AIMessage",
+          "tool_calls: [{id: call_1, name: lookup_policy, args: {topic: 계정}}]"
+        ],
+        [
+          "messages[2] · ToolMessage",
+          "tool_call_id: call_1 · content: {found: true, policy: {id: P-02, team: IT지원팀, …}}"
+        ]
+      ],
+      "note": "프로그램이 함수를 실행하고 ToolMessage를 추가합니다. tool_call_id가 앞 요청의 id와 같습니다. 이 목록을 모델에 다시 전달합니다."
+    },
+    {
+      "label": "4 최종 답변",
+      "steps": [
+        [
+          "messages[0] · HumanMessage",
+          "content: 계정은 어느 팀에 문의하나요?"
+        ],
+        [
+          "messages[1] · AIMessage",
+          "tool_calls: [{id: call_1, name: lookup_policy, args: {topic: 계정}}]"
+        ],
+        [
+          "messages[2] · ToolMessage",
+          "tool_call_id: call_1 · content: {found: true, policy: {id: P-02, team: IT지원팀, …}}"
+        ],
+        [
+          "messages[3] · AIMessage",
+          "content: 계정 문의는 IT지원팀에 문의하세요. 근거는 P-02입니다."
+        ]
+      ],
+      "note": "마지막 AIMessage는 도구 결과를 읽고 생성한 답변입니다. messages[-1]은 마지막 답변, messages 전체는 이번 실행의 대화 기록입니다. checkpointer 없이 다음 invoke에 자동으로 기억되는 것은 아닙니다."
+    }
+  ]
+},
   "graph": {
     "title": "입력을 바꾸면 어느 경로로 갈까요?",
     "hint": "아래 경로는 course/graph_lab.py의 기본 그래프를 읽어 구성했습니다.",

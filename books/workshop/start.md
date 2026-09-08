@@ -139,7 +139,7 @@ workshop/                   ← 압축을 푼 자료와 명령 실행 위치
 ├── RELEASE.md              ← 자료 버전과 시작 안내
 ├── MANIFEST.json           ← 파일별 무결성 정보
 ├── build_lab/              ← 주 실습·제공 구조·활동지·풀이
-├── notebooks/              ← 학생/풀이 주피터 노트북
+├── labs/                   ← 질문·입력을 바꾸고 실행할 Python 파일
 ├── course/                 ← 비교 시연용 완성 예제
 ├── exercises/              ← 준비 문제와 선택 심화
 ├── tests/                  ← 단계별 검사
