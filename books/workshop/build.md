@@ -113,9 +113,13 @@ print("답변:", result["draft"])
 
 ## 5. 원격 검토 수용 조건을 구현합니다
 
-노트북 ‘5. A2A’의 `accept_review`를 작성합니다. submitted·working은 pending, completed 외 종료 상태는 held입니다. completed일 때 요청 ID·양의 정수 버전·artifact 버전·passed is True가 모두 맞아야 accepted입니다. 빈 ID와 bool 버전도 거절합니다.
+노트북 ‘5. A2A’에서 다음 세 단계를 진행합니다.
 
-바로 아래 반례 셀의 출력이 순서대로 pending, accepted, held, held인지 확인합니다. 이어 ‘6. 통합’ 셀을 실행해 실제 MCP 조회·모델 답변·원격 검토를 연결합니다. 현재 요청의 검토가 completed이고 계약을 만족하면 수용 판단은 accepted입니다. 인증·네트워크 오류는 해결한 뒤 다시 실행합니다.
+1. **5A — 발견:** 실제 HTTP로 Agent Card를 읽고 `review-policy`, JSONRPC, streaming=false를 찾습니다. 모델 호출은 없습니다.
+2. **5B — 위임:** `draft`를 바꿔 검토를 요청합니다. 보낸 Message와 받은 Task·Artifact를 읽습니다. 이 셀은 실제 모델을 호출합니다.
+3. **5C — 수용:** `accept_review`를 구현합니다. submitted·working은 pending, completed 외 상태는 held입니다. 완료된 결과의 요청 ID·양의 정수 버전·passed가 모두 맞아야 accepted입니다. 불리언 버전과 빈 ID도 거절합니다.
+
+**완료 기준:** Card에서 기능을 찾고, 실제 Task ID와 산출물을 확인하며, 반례 셀은 pending·accepted·held·held를 출력합니다. 정상 초안의 실제 결과는 accepted, 팀·정책 ID를 지운 초안은 completed여도 held입니다. 이후 ‘6. 통합’에서 전체 흐름을 연결합니다.
 
 </section>
 <section class="slide" id="finish">

@@ -3,6 +3,7 @@ import asyncio
 import json
 import uuid
 import httpx
+from google.protobuf.json_format import MessageToDict
 from a2a.server.agent_execution import AgentExecutor
 from a2a.server.events import EventQueue
 from a2a.server.request_handlers import DefaultRequestHandler
@@ -84,16 +85,19 @@ async def delegate(url: str, payload: dict):
             configuration=SendMessageConfiguration(return_immediately=False))
         state, artifact = "unknown", None
         events = []
+        task_data = None
         async for response in client.send_message(request=request):
             item = response[0] if isinstance(response, tuple) else response
             events.append(type(item).__name__)
             if item.HasField("task"):
                 task = item.task
+                task_data = MessageToDict(task)
                 state = TaskState.Name(task.status.state).removeprefix("TASK_STATE_").lower()
                 for candidate in task.artifacts:
                     if candidate.name == "ReviewResult":
                         artifact = json.loads("".join(p.text for p in candidate.parts))
         return {"card": card.name, "state": state, "artifact": artifact, "events": events,
+                "message": MessageToDict(request.message), "task": task_data,
                 "decision": accept_result(state, artifact, payload["request_id"], payload["version"])}
 #pragma endregion delegate
 
