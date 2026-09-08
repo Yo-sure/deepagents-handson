@@ -581,7 +581,7 @@ uv run python -m exercises.read_trace
 2. `tools=[lookup_policy]`에 함수 호출 결과를 넣으면 왜 안 될까요?
 3. 새 업무를 지원하려면 정책 데이터·도구 설명·Agent 지침 중 무엇을 바꿔야 할까요?
 
-직접 만든 조회 도구를 모델에 연결하고 실행하는 것이 이 장의 목표였습니다. 다음 LangGraph에서는 정보가 부족할 때 다른 처리 단계로 이동하도록 흐름을 코드로 표현합니다.
+직접 만든 조회 도구를 모델에 연결하고 실행하는 것이 이 장의 목표였습니다. 지금 만든 Agent도 LangGraph의 실행 가능한 그래프입니다. 다음 장에서는 이 구조를 펼쳐 보고, Agent 앞뒤에 업무 조건을 붙입니다.
 
 참고: [LangChain Agents](https://docs.langchain.com/oss/python/langchain/agents).
 

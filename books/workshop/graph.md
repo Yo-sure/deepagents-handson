@@ -12,7 +12,7 @@ pageClass: lec-page
 
 # LangGraph로 상태와 분기 정의하기
 
-<p class="lead">정보가 부족하면 질문으로 보내고 충분하면 초안을 작성합니다. 상태가 어떤 값인지 보고 조건 분기를 수정합니다.</p>
+<p class="lead">앞 장의 create_agent도 LangGraph 위에서 실행됩니다. 이번에는 그 실행 구조를 펼쳐 보고, Agent 앞뒤에 업무 조건과 중단·재개를 연결합니다.</p>
 
 앞에서는 모델이 규정을 조회해 답하게 했습니다. 이번에는 “회신 대상이 없거나 정책을 못 찾으면 초안을 만들지 않는다”는 업무 조건이 추가됩니다. 모델에게 주의를 요청하는 대신, 초안 작성 노드에 들어가기 전에 조건을 검사합니다. 앞서 만든 도구와 Agent는 그대로 사용합니다.
 
@@ -55,8 +55,47 @@ LangChain은 장시간 실행되는 Agent의 운영 기반으로 중단·재개�
 
 <section class="slide" id="concept">
 
-<aside class="teacher-aside"><strong>강사의 한마디</strong><p>그래프의 화살표는 보기 좋은 그림보다 실행 조건에 가깝습니다. 연락처를 비웠을 때 어느 경로로 가는지 먼저 예상해 보겠습니다.</p></aside>
+## 앞에서 만든 Agent도 그래프였습니다
 
+<p class="section-time">예상 3분 · State 설명의 도입에 포함</p>
+
+앞 장에서는 `create_agent(...)`로 실행 구조를 만들고 `agent.invoke(...)`로 질문을 보냈습니다. 그때 만들어진 `agent`는 실행 가능한 LangGraph 객체인 `CompiledStateGraph`입니다. Python에서는 `create_agent`, JavaScript에서는 `createAgent`라는 이름을 사용합니다.
+
+`labs/langchain.py`의 `agent = build_agent(...)` 바로 아래, `invoke` 앞에 다음 두 줄을 넣으면 이미 만든 객체의 구조를 확인할 수 있습니다. 이 두 줄 자체는 모델을 호출하지 않습니다.
+
+```python
+print(type(agent).__name__)
+print(list(agent.get_graph().nodes))
+```
+
+기본 도구 Agent에서 확인한 결과입니다. 미들웨어나 구성에 따라 노드는 추가될 수 있습니다.
+
+```text
+CompiledStateGraph
+['__start__', 'model', 'tools', '__end__']
+```
+
+```mermaid
+flowchart TB
+ S[시작] --> M[model]
+ M -->|도구 요청| T[tools]
+ T -->|도구 결과| M
+ M -->|최종 답변| E[종료]
+```
+
+앞 장에서 본 메시지 누적은 이 실행 경로에서 일어납니다. `model`이 만든 도구 요청을 `tools`가 처리하고, 그 결과를 받은 `model`이 다시 답합니다. `create_agent`가 이 기본 구조를 조립해 주었으므로 직접 노드와 간선을 작성하지 않았던 것입니다. [LangChain Agent 문서](https://docs.langchain.com/oss/python/langchain/agents)
+
+### 그렇다면 왜 StateGraph를 직접 다룰까요?
+
+이제 “회신 대상이 없으면 초안을 만들지 않는다”는 조건을 추가합니다. 기본 Agent를 다시 만드는 대신, 바깥 업무 흐름에서 입력을 확인하고 조건이 맞을 때만 기존 Agent를 호출합니다.
+
+|앞 장에서 맡긴 부분|이번 장에서 직접 정할 부분|
+|---|---|
+|모델과 도구가 주고받는 기본 반복|조회 → 조건 확인 → 질문 또는 초안 생성의 업무 순서|
+|`messages` 중심의 Agent 상태|업무명·회신 대상·조회 결과·처리 상태|
+|`create_agent`가 조립한 그래프|`StateGraph`에 명시할 노드와 간선|
+
+작은 도구 Agent라면 `create_agent`만으로 충분할 수 있습니다. 미들웨어로 처리할 수 있는 조건도 있습니다. 이번에는 여러 업무 단계를 명시적으로 나누기 위해 바깥 그래프를 구성합니다. 다음 State·node·edge를 그 재료로 읽습니다.
 
 ## State·node·edge
 
@@ -152,6 +191,41 @@ State는 노드마다 처음부터 다시 만드는 요청서가 아닙니다. �
 한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
 
 </details>
+
+</section>
+
+<section class="slide" id="production-runtime">
+
+## 더 읽기 · 초안을 잘 만드는 것과 내일 이어가는 것은 다릅니다
+
+<p class="section-time">예상 5분 · 운영 복습 시간에서 조절</p>
+
+[The runtime behind production deep agents](https://www.langchain.com/blog/runtime-behind-production-deep-agents)(2026-04-20)는 Harness 아래의 실행 기반을 다룹니다. 글에서 runtime은 특히 LangSmith Deployment와 Agent Server를 가리킵니다. 제품이 제공하는 운영 기능과 로컬 LangGraph 예제를 구별해 읽습니다.
+
+|업무 상황|필요한 기반|
+|---|---|
+|20분 조사 중 서버가 종료됨|checkpoint와 작업 복구|
+|승인이 다음 날 도착함|상태를 저장하고 중단·재개|
+|다른 대화에서도 사용자 선호를 사용함|thread별 checkpoint와 별도의 장기 store|
+|처리 중 “아니, 다른 조건으로 해줘”가 도착함|후속 입력을 대기·거절·중단·재시작 중 어떻게 처리할지 결정|
+
+이 글의 핵심은 긴 작업을 단순한 한 번의 HTTP 응답처럼 취급하지 않는다는 점입니다. 운영 서비스에는 저장소뿐 아니라 작업 큐, 인증·권한, 스트리밍, 관측도 필요합니다. LangGraph의 그래프를 만든 것만으로 이 구성이 모두 준비되지는 않습니다.
+
+### 현재 실습은 어디까지 확인하나요?
+
+주 실습은 checkpointer 없이 업무 분기를 실행합니다. 승인 예제의 `InMemorySaver`는 같은 프로세스 안의 재개를 보여줍니다. 프로세스를 종료한 뒤 복구하려면 영속 checkpointer와 재실행을 담당할 운영 구성이 필요합니다. [LangGraph 상태 저장](https://docs.langchain.com/oss/python/langgraph/persistence)
+
+checkpoint가 있어도 외부 발송이 자동으로 취소되거나 중복 방지되는 것은 아닙니다. 특히 `interrupt` 이후 재개할 때 해당 노드는 처음부터 다시 실행될 수 있으므로, 승인 전에 수행할 작업과 승인 뒤의 쓰기 작업을 나눠야 합니다. [Interrupt 재개 동작](https://docs.langchain.com/oss/python/langgraph/interrupts)
+
+**함께 생각하기:** 초안 v1을 검토하는 동안 사용자가 조건을 바꿔 v2를 요청했습니다. 나중에 도착한 v1 승인을 v2에 적용해도 될까요?
+
+<details><summary>설명 비교</summary>
+
+적용하면 안 됩니다. 승인에는 검토한 초안의 버전을 연결해야 합니다. 새 입력을 대기시킬지, 진행 중 작업을 중단할지 먼저 정하고 승인 대상과 현재 실행 대상을 대조합니다. 단순히 “승인됨”이라는 값 하나로는 부족합니다.
+
+</details>
+
+다음 Harness 장에서는 모델이 작업을 잘 수행하도록 무엇을 준비하는지 다룹니다. 여기서는 그 작업을 어떤 상태와 실행 경로로 이어갈지 확인했습니다.
 
 </section>
 
@@ -380,7 +454,7 @@ uv run python -m exercises.check graph --solution
 
 |다시 짚을 개념|오늘 확인한 내용|
 |---|---|
-|State|노드 사이에 전달할 업무 데이터입니다.|
+|기존 Agent와 State|create_agent도 실행 가능한 그래프입니다. 이번에는 바깥 업무 흐름의 상태와 조건을 정했습니다.|
 |Node·edge|노드는 일을 수행하고, 간선과 분기 함수는 다음 노드를 정합니다.|
 |멈춤과 재개|interrupt와 checkpointer의 역할을 구별합니다. END에 도착했다고 업무가 통과한 것은 아닙니다.|
 
