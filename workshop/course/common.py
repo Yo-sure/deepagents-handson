@@ -34,7 +34,7 @@ def get_model():
     from langchain_openai import ChatOpenAI
 
     return ChatOpenAI(
-        model=os.getenv("WORKSHOP_MODEL", "google/gemini-3.1-flash-lite"),
+        model=os.getenv("WORKSHOP_MODEL", "google/gemini-3.8-flash"),
         api_key=key,
         base_url="https://openrouter.ai/api/v1",
         temperature=0,

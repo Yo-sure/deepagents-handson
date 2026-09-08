@@ -13,7 +13,21 @@ title: 2026.09 기술 변화와 추가 읽기
 |MCP 2026-07-28의 세션·초기화 변경|새 요청 버전을 지정한 실제 HTTP 실습|연결 상태와 업무 저장소의 차이는 무엇인가?|
 |ACP 명칭과 연결 대상|A2A와 두 ACP를 구분|Agent 간 작업 위임인가, 편집기와 Agent의 연결인가?|
 
-## 검증한 최신 안정 버전
+## 필요한 자료부터 고릅니다
+
+교재 구성과 실행 안내는 2026-09-09에 Jupyter 흐름으로 재점검했습니다. 아래 외부 자료의 기술 확인일은 각 항목의 원래 기준을 유지합니다. 최신 문서의 코드가 수업 lock과 같다고 가정하지 않습니다.
+
+|목적|먼저 볼 곳|읽고 확인할 것|
+|---|---|---|
+|설치·첫 호출|[시작 안내](./workshop/start#setup), [Git 사용자 안내](./git-setup)|orientation.ipynb의 환경·모델 호출 셀|
+|실습 재개|[실습 전체 모아보기](./workshop/build)|노트북 번호·필요한 앞 단계·완료 기준|
+|모델·도구·상태|[LangChain](./workshop/langchain#learning-goals), [LangGraph](./workshop/graph#learning-goals)|메시지 흐름과 State 갱신|
+|Harness·Skill|[Harness 개념](./workshop/harness#concept), [설계 활동](./workshop/engineering)|실행 기능 구현과 지침 설정의 차이|
+|MCP 원리·로드맵|[MCP](./workshop/mcp#concept)|현재 실습에서 사용한 기능과 향후 방향 구분|
+|A2A 원리·예제|[A2A 추가 읽기](./workshop/a2a#wrap)|Card·Task·Artifact와 SDK 버전|
+|전체 개념 복습|[20개 퀴즈](./workshop/wrap#wrap)|오답 해설과 연결된 개념|
+
+## 수업에 고정한 패키지 버전
 
 PyPI의 최신 배포 정보와 설치 lock을 2026-09-06에 대조했습니다. 핵심 패키지는 아래 버전이며, 이 목록이 수업 이후에도 최신이라는 뜻은 아닙니다.
 

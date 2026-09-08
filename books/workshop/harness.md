@@ -16,16 +16,19 @@ pageClass: lec-page
 
 `create_agent`에서는 모델이 도구를 요청하고, 프로그램이 실행 결과를 돌려주었습니다. 코딩 Agent도 파일을 읽고 수정하고 테스트한 결과를 받아 다음 행동을 고르는 흐름으로 이해할 수 있습니다. 긴 작업을 맡기려면 여기에 프로젝트 지침, 작업 기록, 실행 권한 같은 구성이 더 필요합니다.
 
-이 장에서는 **코딩 Agent의 화면 → Harness의 구성 → DeepAgents 코드와 Skill** 순서로 살펴봅니다. 실습에서는 오전에 만든 문의 Agent의 답변을 검사하고 수정하는 과정을 실행합니다. 마지막에는 코딩 Agent에게 프로그램 수정을 맡길 때 필요한 지시와 완료 기준을 직접 작성합니다.
+이 장에서는 <strong><mark class="key-point">코딩 Agent의 화면 → Harness의 구성 → DeepAgents 코드와 Skill</mark></strong> 순서로 살펴봅니다. 실습에서는 오전에 만든 문의 Agent의 답변을 검사하고 수정하는 과정을 실행합니다. 마지막에는 코딩 Agent에게 프로그램 수정을 맡길 때 필요한 지시와 완료 기준을 직접 작성합니다.
 
-<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
-<details class="instructor-note"><summary>강사용 예상 시간 · 14:10–15:20 / 70분</summary>
+<div class="cue"><div class="cue-body">짧은 예제는 교재의 Python 실행 창에서, 실습은 <code>workshop/notebooks</code>의 Jupyter 노트북에서 진행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
 
-**예상 배분:** 각 소제목 아래의 소요 시간과 예상 시각을 참고합니다. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+### 이 장의 목표와 완료 확인 {#learning-goals}
 
-engineering 페이지 활동이 이 70분에 포함됩니다. 예제 전체 시연은 조절하되 코딩 하네스 활용과 업무 Agent 루프의 차이는 짚습니다.
+|할 수 있어야 하는 일|확인할 결과|
+|---|---|
+|Agent 실행 루프와 Harness 구성을 연결해 설명합니다.|DeepAgents의 create_agent·middleware 연결을 짚고 구현과 설정을 구별합니다.|
+|수정 횟수와 종료 이유를 확인합니다.|build-agent.ipynb 3에서 limit=0과 2의 호출·history를 비교합니다.|
+|Skill과 코딩 작업의 완료 기준을 작성합니다.|제공 Skill의 적용 조건을 읽고 설계 활동에서 실패 근거·다음 작업·중단 조건을 적습니다.|
 
-</details>
+
 
 </section>
 
@@ -439,6 +442,9 @@ DeepAgents v0.7은 평가 결과를 바탕으로 TodoListMiddleware를 기본 �
 실패 원인과 완료 기준을 구체화하고 다음 작업 범위를 줄입니다. 검증 결과를 다음 실행에 전달하며 반복 상한도 정합니다.
 
 </details>
+
+
+**목표 확인:** [이 장 첫머리의 완료 기준](#learning-goals)을 자신의 출력이나 설명과 대조합니다. 확인하지 못한 항목은 해당 셀 또는 개념 예제로 돌아갑니다. 풀이를 읽은 것과 직접 실행해 확인한 것을 구분합니다.
 
 </section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>

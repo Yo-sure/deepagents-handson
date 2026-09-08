@@ -16,14 +16,17 @@ pageClass: lec-page
 
 앞에서는 모델이 규정을 조회해 답하게 했습니다. 이번에는 “회신 대상이 없거나 정책을 못 찾으면 초안을 만들지 않는다”는 업무 조건이 추가됩니다. 모델에게 주의를 요청하는 대신, 초안 작성 노드에 들어가기 전에 조건을 검사합니다. 앞서 만든 도구와 Agent는 그대로 사용합니다.
 
-<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">앞 단계 보완 안내</a>에서 필요한 함수만 확인합니다.</div></div>
-<details class="instructor-note"><summary>강사용 예상 시간 · 12:50–14:00 / 70분</summary>
+<div class="cue"><div class="cue-body">짧은 예제는 교재의 Python 실행 창에서, 실습은 <code>workshop/notebooks</code>의 Jupyter 노트북에서 진행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">앞 단계 보완 안내</a>에서 필요한 함수만 확인합니다.</div></div>
 
-**예상 배분:** 각 소제목 아래의 소요 시간과 예상 시각을 참고합니다. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+### 이 장의 목표와 완료 확인 {#learning-goals}
 
-State·노드·조건 분기를 우선합니다. 전체 그래프 작성은 선택 심화입니다.
+|할 수 있어야 하는 일|확인할 결과|
+|---|---|
+|State 갱신과 reducer·super-step의 역할을 설명합니다.|concepts.ipynb에서 교체·리스트 병합·메시지 병합을 비교합니다.|
+|정보가 부족하면 모델 호출 전에 분기합니다.|build-agent.ipynb 2·2A의 네 입력에서 visited와 호출 기록을 확인합니다.|
+|중단과 재개의 조건을 설명합니다.|concepts.ipynb에서 interrupt 후 같은 thread_id로 재개합니다.|
 
-</details>
+
 
 </section>
 
@@ -478,17 +481,20 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 해당 번호의 구현 셀을
 |다시 짚을 개념|오늘 확인한 내용|
 |---|---|
 |기존 Agent와 State|create_agent도 실행 가능한 그래프입니다. 이번에는 바깥 업무 흐름의 상태와 조건을 정했습니다.|
-|Node·edge·super-step|노드는 갱신을 반환하고 간선은 다음 실행을 정합니다. 병렬 노드는 같은 실행 라운드에 속할 수 있습니다.|
+|Node·edge·super-step|<mark class="key-point">노드는 갱신을 반환하고 간선은 다음 실행을 정합니다.</mark> 병렬 노드는 같은 실행 라운드에 속할 수 있습니다.|
 |Reducer|필드별 병합 규칙입니다. 기본은 교체, add는 리스트 연결, add_messages는 메시지 ID를 반영한 병합입니다.|
 |멈춤과 재개|interrupt와 checkpointer의 역할을 구별합니다. END에 도착했다고 업무가 통과한 것은 아닙니다.|
 
-**짧게 설명해 보기:** 정책은 있지만 회신 대상이 빈칸이면 어느 경로로 가야 할까요? 초안 생성은 실행될까요?
+**짧게 설명해 보기:** <mark class="key-point">정책은 있지만 회신 대상이 빈칸이면 어느 경로로 가야 할까요?</mark> 초안 생성은 실행될까요?
 
 <details><summary>설명 비교</summary>
 
 ask 경로로 가며 초안 생성은 실행하지 않습니다. 입력 조건과 visited를 함께 확인합니다.
 
 </details>
+
+
+**목표 확인:** [이 장 첫머리의 완료 기준](#learning-goals)을 자신의 출력이나 설명과 대조합니다. 확인하지 못한 항목은 해당 셀 또는 개념 예제로 돌아갑니다. 풀이를 읽은 것과 직접 실행해 확인한 것을 구분합니다.
 
 </section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>

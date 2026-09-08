@@ -25,20 +25,9 @@ cd deepagents-handson/workshop
 
 ## 환경 준비와 첫 호출
 
-Python·uv가 아직 없다면 [환경 준비](./workshop/start#setup)부터 진행합니다. 준비된 환경에서는 다음 명령으로 실습 의존성을 설치합니다.
+복제한 저장소의 `workshop` 폴더에서 [환경 준비](./workshop/start#setup)를 따릅니다. ZIP과 같은 notebook 의존성 그룹을 설치하고 `.env`를 준비한 뒤 JupyterLab을 엽니다.
 
-```bash
-uv sync --locked --python 3.12
-cp .env.example .env
-```
-
-`.env`에 자신의 `OPENROUTER_API_KEY`를 입력한 뒤 모델 호출을 확인합니다. 이미 `.env`를 만들었다면 복사 명령을 다시 실행하지 않습니다.
-
-```bash
-uv run --locked python -m course.cli langchain --topic 정산
-```
-
-이후에는 ZIP 경로와 동일하게 [시작 안내](./workshop/start)와 `workshop/README.md`를 따라갑니다. 직접 작성할 파일은 `build_lab/student.py`입니다.
+`orientation.ipynb`로 환경과 첫 모델 호출을 확인합니다. 직접 코드를 작성하는 파일은 `notebooks/build-agent.ipynb`이며, 풀이 비교는 `build-agent-solution.ipynb`에서 합니다. Python 파일로 옮기거나 별도 CLI를 실행하지 않습니다.
 
 ## 수업 중 자료가 갱신된 경우
 
@@ -49,7 +38,7 @@ git rev-parse --short HEAD
 git status --short
 ```
 
-학생 파일을 수정한 상태에서 자료를 새로 받을 때는 자신의 작업을 먼저 보관합니다. 새 버전은 다른 폴더에 복제하고, 변경 안내에 따라 작성한 함수만 옮깁니다. 기존 실습 폴더에 새 ZIP을 덮어쓰거나 학생 파일 전체를 교체하지 않습니다.
+실습 노트북을 수정한 상태에서 자료를 새로 받을 때는 자신의 작업을 먼저 보관합니다. 새 버전은 다른 폴더에 복제하고, 변경 안내에 따라 작성한 함수만 옮깁니다. 기존 실습 폴더에 새 ZIP을 덮어쓰거나 실습 노트북 전체를 교체하지 않습니다.
 
 [전체 시간표로 돌아가기](./toc)
 

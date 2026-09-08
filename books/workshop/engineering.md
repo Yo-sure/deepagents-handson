@@ -16,11 +16,7 @@ pageClass: lec-page
 이 절에서는 실제 발언과 글을 먼저 읽습니다. 이어서 무엇을 자동화하고 어떤 결과에서 멈출지, 여러 작업을 어떻게 연결할지 판단합니다. 특정 프레임워크의 API를 외우거나 자체 하네스를 구현하는 수업은 아닙니다.
 
 공통 범위는 개념·사례·설계 활동입니다. 제품 계정 없이도 참여할 수 있습니다. LangGraph의 상태·분기 구현은 [별도 모듈](./graph)에서 배우며, 여기서 다루는 업계 용어와 동일시하지 않습니다.
-<details class="instructor-note"><summary>강사용 예상 시간 · 본 수업에 포함</summary>
 
-Harness 세션 14:10–15:20 안에서 진행합니다. 담론·개인 활동 30분과 비교·풀이 10분이며 별도 추가 세션이 아닙니다.
-
-</details>
 
 </section>
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#distinction">01 실제 담론</a><a href="#case">02 작업 방식</a><a href="#task">03 개인 설계</a><a href="#review">04 풀이와 반론</a></nav>

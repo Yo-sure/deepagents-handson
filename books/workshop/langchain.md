@@ -14,17 +14,20 @@ pageClass: lec-page
 
 <p class="lead">앞 장에서 읽은 실행 기록을 이제 직접 만들어 봅니다. 사내 정책을 찾는 Python 함수와, 그 함수를 도구로 사용하는 Agent를 작성합니다.</p>
 
-마칠 때는 **조회 함수를 도구로 등록하고, 모델과 연결해 정산 문의를 처리할 수 있어야 합니다.** 정책이 없는 입력도 실행해 반환값과 답변을 비교합니다.
+마칠 때는 <strong><mark class="key-point">조회 함수를 도구로 등록하고, 모델과 연결해 정산 문의를 처리할 수 있어야 합니다.</mark></strong> 정책이 없는 입력도 실행해 반환값과 답변을 비교합니다.
 
-<div class="cue"><div class="cue-body">모든 명령은 <code>workshop</code> 폴더에서 실행합니다. 환경 준비가 필요하면 <a href="./start">시작 안내</a>를 확인합니다.</div></div>
+<div class="cue"><div class="cue-body">짧은 예제는 교재의 Python 실행 창에서, 실습은 <code>workshop/notebooks</code>의 Jupyter 노트북에서 진행합니다. 환경 준비가 필요하면 <a href="./start">시작 안내</a>를 확인합니다.</div></div>
 
-<details class="instructor-note"><summary>강사용 예상 시간 · 10:40–11:50 / 70분</summary>
 
-**예상 배분:** 각 소제목 아래의 소요 시간과 예상 시각을 참고합니다. 시작 질문도 세션 시간에 포함됩니다. 현장 실측이 아닌 진행 기준이며 학습자의 반응에 따라 조절합니다.
+### 이 장의 목표와 완료 확인 {#learning-goals}
 
-조회 함수와 Agent 구성은 직접 작성합니다. 운영 심화는 복습으로 돌릴 수 있습니다. 점심은 11:50에 시작합니다.
+|할 수 있어야 하는 일|확인할 결과|
+|---|---|
+|메시지 역할과 모델 응답을 읽습니다.|role·content·도구 요청·토큰 사용량이 각각 무엇인지 설명합니다.|
+|조회 함수를 도구로 만들고 Agent에 연결합니다.|build-agent.ipynb 1A·1B에서 정산·계정·미등록 업무를 실행합니다.|
+|입력 검사와 함수 실행 오류를 구분합니다.|교재 실행 창 또는 concepts.ipynb에서 입력 제약을 바꿔 결과를 비교합니다.|
 
-</details>
+
 
 </section>
 
@@ -76,7 +79,7 @@ print(response.content)
 
 ### OpenAI 호환 API인데 Gemini를 부르는 이유
 
-`get_model()`은 `.env`의 값을 읽고 `ChatOpenAI` 객체를 만드는 제공 함수입니다. 접속 주소는 OpenRouter이며, 모델 이름은 `google/gemini-3.1-flash-lite`입니다.
+`get_model()`은 `.env`의 값을 읽고 `ChatOpenAI` 객체를 만드는 제공 함수입니다. 접속 주소는 OpenRouter이며, 모델 이름은 `google/gemini-3.8-flash`입니다.
 
 **OpenAI 호환은 요청과 응답의 형식을 맞췄다는 뜻입니다.** OpenRouter가 Chat Completions 형식을 제공하므로 `ChatOpenAI`로도 Gemini에 요청할 수 있습니다. `base_url`은 접속할 서버, `model`은 그 서버에서 선택할 모델, `api_key`는 해당 서버의 인증 키입니다. 모델 제공사와 접속 서버, Python 클래스 이름을 구별해 읽습니다.
 
@@ -97,7 +100,7 @@ LangChain의 ChatOpenAI
 
 ```json
 {
-  "model": "google/gemini-3.1-flash-lite",
+  "model": "google/gemini-3.8-flash",
   "messages": [
     {"role": "system", "content": "한국어로 한 문장만 답합니다."},
     {"role": "user", "content": "LangChain은 무엇인가요?"}
@@ -492,6 +495,9 @@ for message in result["messages"]:
 ToolMessage의 조회 결과와 마지막 AIMessage의 답변을 비교합니다.
 
 </details>
+
+
+**목표 확인:** [이 장 첫머리의 완료 기준](#learning-goals)을 자신의 출력이나 설명과 대조합니다. 확인하지 못한 항목은 해당 셀 또는 개념 예제로 돌아갑니다. 풀이를 읽은 것과 직접 실행해 확인한 것을 구분합니다.
 
 </section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>

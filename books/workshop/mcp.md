@@ -14,9 +14,17 @@ pageClass: lec-page
 
 <p class="lead">Python 조회 함수를 MCP 서버로 공개하고, LangChain Agent에서 원격 도구로 사용합니다. 통신 원리는 교재에서 읽고, 실제 호출은 Jupyter에서 실행합니다.</p>
 
-앞 장의 `create_agent`에는 같은 프로그램의 함수를 연결했습니다. 이제 여러 Agent가 동일한 정책 조회를 쓰도록 별도 서버로 제공합니다. **JSON-RPC로 무엇을 요청하는지 → transport로 어떻게 전달하는지 → LangChain에서 어떻게 사용하는지**를 순서대로 배웁니다.
+앞 장의 `create_agent`에는 같은 프로그램의 함수를 연결했습니다. 이제 여러 Agent가 동일한 정책 조회를 쓰도록 별도 서버로 제공합니다. <strong><mark class="key-point">JSON-RPC로 무엇을 요청하는지 → transport로 어떻게 전달하는지 → LangChain에서 어떻게 사용하는지</mark></strong>를 순서대로 배웁니다.
 
 실습은 `notebooks/build-agent.ipynb`의 4번입니다. 조회 데이터와 함수는 앞 장 것을 재사용합니다. 새로 할 일은 도구 등록과 LangChain 연결 두 가지입니다.
+
+
+### 이 장의 목표와 완료 확인 {#learning-goals}
+
+|할 수 있어야 하는 일|확인할 결과|
+|---|---|
+|JSON-RPC 메시지와 transport의 역할을 구분합니다.|교재의 요청 ID·method·params와 HTTP 전달 경로를 설명합니다.|
+|기존 조회 함수를 원격 도구로 등록하고 연결합니다.|build-agent.ipynb 4A에서 세 조회 결과, 4B에서 Agent의 원격 도구 호출을 확인합니다.|
 
 </section>
 <section class="slide" id="icebreaker">
@@ -293,6 +301,9 @@ MCP에도 장시간 작업이 있다는 이유로 A2A와 같아지는 것은 아
 </details>
 
 다음 장에서는 조회 도구를 호출하는 데서 더 나아가 완성한 초안을 독립 검토 Agent에 맡깁니다.
+
+
+**목표 확인:** [이 장 첫머리의 완료 기준](#learning-goals)을 자신의 출력이나 설명과 대조합니다. 확인하지 못한 항목은 해당 셀 또는 개념 예제로 돌아갑니다. 풀이를 읽은 것과 직접 실행해 확인한 것을 구분합니다.
 
 </section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>

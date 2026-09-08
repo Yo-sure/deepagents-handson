@@ -14,15 +14,19 @@ pageClass: lec-page
 
 <p class="lead">다른 팀의 Agent가 어떤 일을 하는지 알아내고, 초안을 맡긴 뒤 작업 상태와 검토 산출물을 받습니다. Agent Card → Message → Task·Artifact를 실제 Jupyter 출력과 연결합니다.</p>
 
-지금까지 문의 Agent가 정책을 조회하고 답변을 만들었습니다. 이제 별도로 운영하는 검토 Agent에 “이 초안의 정책 근거를 확인해 달라”고 맡깁니다. 상대가 어떤 모델·도구·프레임워크를 쓰는지 알아야 할까요? **내부 구현을 공유하지 않고도 역할·요청·진행 상태·결과를 주고받는 규약**이 A2A입니다.
+지금까지 문의 Agent가 정책을 조회하고 답변을 만들었습니다. 이제 별도로 운영하는 검토 Agent에 “이 초안의 정책 근거를 확인해 달라”고 맡깁니다. 상대가 어떤 모델·도구·프레임워크를 쓰는지 알아야 할까요? <strong><mark class="key-point">내부 구현을 공유하지 않고도 역할·요청·진행 상태·결과를 주고받는 규약</mark></strong>이 A2A입니다.
 
 이 장을 마치면 Card에서 가능한 일을 찾고, Message와 Task·Artifact를 구별하며, 노트북에서 실제 원격 검토 결과를 받아 사용할 수 있어야 합니다. 실습은 `notebooks/build-agent.ipynb`의 5번에서 진행합니다.
 
-<details class="instructor-note"><summary>강사용 예상 시간 · 45분</summary>
 
-시작 3분, 개념 17분, 실습 15분, 풀이 7분, Wrap 3분입니다. Card·Message·Task 실물 읽기를 우선하고, 추가 입력·전송 방식·ACP는 선택 자료로 조절합니다. 별도 CLI나 서버 터미널을 열지 않습니다.
+### 이 장의 목표와 완료 확인 {#learning-goals}
 
-</details>
+|할 수 있어야 하는 일|확인할 결과|
+|---|---|
+|Card·Message·Task·Artifact를 구분합니다.|build-agent.ipynb 5A·5B의 실제 응답에서 기능·요청·상태·검토서를 찾습니다.|
+|완료 상태와 업무 수용 여부를 따로 판단합니다.|5C에서 정상 결과는 accepted, 진행 중은 pending, 불일치 결과는 held로 분류합니다.|
+
+
 </section>
 <section class="slide" id="icebreaker">
 
@@ -123,7 +127,7 @@ contextId가 같다고 모든 내부 대화와 메모리가 자동 공유되는 
 
 ### 검토 작업이 끝났다는 것과 초안이 통과했다는 것
 
-`completed`는 검토 작업이 끝났다는 뜻입니다. 검토서에 `passed=false`가 있다면 초안은 통과하지 못했습니다. “검토 완료: 수정 필요”도 정상적인 완료 결과입니다. 반대로 서버 자체가 검토를 수행하지 못했다면 failed 같은 상태로 표현합니다.
+`completed`는 검토 작업이 끝났다는 뜻입니다. 검토서에 `passed=false`가 있다면 초안은 통과하지 못했습니다. <mark class="key-point">“검토 완료: 수정 필요”도 정상적인 완료 결과입니다.</mark> 반대로 서버 자체가 검토를 수행하지 못했다면 failed 같은 상태로 표현합니다.
 
 <CourseVisual kind="a2a" />
 
@@ -269,6 +273,9 @@ Card에서 검토 기능과 접속 방식을 찾았습니다. Message의 Part에
 | [A2A 명세](https://a2a-protocol.org/latest/specification/) | 바인딩·필드·상태의 정확한 정의 |
 | [공식 Python 튜토리얼](https://a2a-protocol.org/latest/tutorials/python/1-introduction/) | Card → Executor → 서버 → 클라이언트 구성 순서 |
 | [LangGraph 구현 예제](https://github.com/a2aproject/a2a-samples/tree/main/samples/python/agents/langgraph) | 내부 Agent와 A2A Executor 연결. 예제 SDK 버전을 먼저 확인 |
+
+
+**목표 확인:** [이 장 첫머리의 완료 기준](#learning-goals)을 자신의 출력이나 설명과 대조합니다. 확인하지 못한 항목은 해당 셀 또는 개념 예제로 돌아갑니다. 풀이를 읽은 것과 직접 실행해 확인한 것을 구분합니다.
 
 </section>
 <nav class="chapnav"><a href="../toc">전체 목차</a></nav>

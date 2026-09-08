@@ -4,7 +4,7 @@
 
 ## 설치
 
-ZIP을 압축 해제하면 `workshop/` 폴더가 생성됩니다. 해당 폴더의 `README.md`에 따라 `uv sync --locked --group notebook`로 환경을 준비하고, `.env.example`을 `.env`로 복사한 뒤 자신의 API 키를 입력합니다. 실제 API 키는 이 자료에 포함하지 않습니다. 수업은 Jupyter 노트북으로 진행하며 README의 실행 순서를 따릅니다.
+ZIP을 풀고 Ubuntu의 workshop 폴더에서 `bash setup.sh`를 실행합니다. 설치 중 강사가 공유한 workshop-access.txt의 경로를 입력하면 키와 모델을 .env에 저장합니다. 구체적인 순서는 README.md를 따릅니다. 실제 키는 이 ZIP에 포함하지 않습니다.
 
 ## 포함 자료
 

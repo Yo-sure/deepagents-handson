@@ -7,7 +7,7 @@ type Scenario = { label: string; steps: string[][]; note: string; decision?: { b
 type Lesson = { title: string; hint: string; scenarios: Scenario[] }
 const examples: Record<string, Lesson> = {
   "start": {
-    "title": "오늘 실습에서 오가는 것",
+    "title": "실습 준비 순서",
     "hint": "교재를 읽는 창과 코드를 실행하는 창을 구분합니다.",
     "scenarios": [
       {
@@ -19,7 +19,7 @@ const examples: Record<string, Lesson> = {
           ],
           [
             "실행 준비",
-            "터미널에서 라이브러리와 .env를 준비합니다."
+            "설치 스크립트를 실행하고 공유 키 파일을 지정합니다."
           ],
           [
             "실제 모델 호출",

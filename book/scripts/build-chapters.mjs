@@ -57,6 +57,14 @@ for (const { file, slug } of MIGRATED) {
 }
 console.log(`[build-chapters] ${MIGRATED.length}개 챕터 빌드 포함`)
 
+// Shared entry pages must follow the same notebook execution path as lessons.
+for (const page of ['toc', 'git-setup', 'updates']) {
+  const source = await readFile(resolve(__dirname, `../${page}.md`), 'utf8')
+  if (/uv run|build_lab\/student\.py/.test(source)) {
+    throw new Error(`${page}: stale workshop execution guidance`)
+  }
+}
+
 const workshopPages = ['start', 'agent', 'langchain', 'graph', 'harness', 'mcp', 'a2a', 'wrap', 'engineering', 'build']
 const workshopDst = resolve(__dirname, '../workshop')
 await mkdir(workshopDst, { recursive: true })
