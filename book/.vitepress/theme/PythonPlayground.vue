@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeUnmount } from 'vue'
+import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { withBase } from 'vitepress'
 const props = defineProps<{ kind?: string }>()
 const snippets = {
@@ -20,13 +20,35 @@ print(route(True, "담당자@example.test"))`
 }
 const initial = snippets[props.kind as keyof typeof snippets] || snippets.lookup
 const code = ref(initial)
+const editorHost = ref<HTMLElement>()
+const editorReady = ref(false)
+let editor: import('@codemirror/view').EditorView | undefined
+let unmounted = false
+onMounted(async () => {
+  try {
+  const [{ EditorView, keymap, lineNumbers }, { EditorState }, { python }, { defaultKeymap, indentWithTab }, { oneDark }] = await Promise.all([
+    import('@codemirror/view'), import('@codemirror/state'), import('@codemirror/lang-python'), import('@codemirror/commands'), import('@codemirror/theme-one-dark')
+  ])
+  if (unmounted || !editorHost.value) return
+  editor = new EditorView({
+    parent: editorHost.value,
+    state: EditorState.create({ doc: code.value, extensions: [
+      lineNumbers(), python(), oneDark, keymap.of([...defaultKeymap, indentWithTab]),
+      EditorView.contentAttributes.of({ 'aria-label': '실행할 Python 코드' }),
+      EditorView.updateListener.of(update => { if (update.docChanged) code.value = update.state.doc.toString() }),
+      EditorView.theme({ '&': { fontSize: '15px' }, '.cm-scroller': { fontFamily: 'Consolas, monospace', lineHeight: '1.7', overflow: 'auto', maxHeight: '440px' }, '.cm-content': { padding: '16px 0' }, '.cm-gutters': { paddingRight: '8px' }, '&.cm-focused': { outline: '2px solid #438a75' } })
+    ] })
+  })
+  editorReady.value = true
+  } catch { output.value = '코드 색상을 불러오지 못했습니다. 아래 입력 칸에서 코드를 편집하고 실행할 수 있습니다.' }
+})
 const output = ref('입력이나 코드를 바꾸고 실행해 봅니다.')
 const busy = ref(false)
 let worker: Worker | undefined
 let timer: ReturnType<typeof setTimeout> | undefined
 function dispose() { clearTimeout(timer); worker?.terminate(); worker = undefined; busy.value = false }
 function stop() { dispose(); output.value = '실행을 중단했습니다. 코드를 수정해 다시 실행할 수 있습니다.' }
-function reset() { dispose(); code.value = initial; output.value = '처음 코드로 돌아왔습니다.' }
+function reset() { dispose(); code.value = initial; editor?.dispatch({ changes: { from: 0, to: editor.state.doc.length, insert: initial } }); output.value = '처음 코드로 돌아왔습니다.' }
 function run() {
   if (busy.value) return
   busy.value = true
@@ -45,13 +67,14 @@ function run() {
     worker.postMessage({ code: code.value })
   } catch { dispose(); output.value = '이 브라우저에서 실행 환경을 시작하지 못했습니다. VS Code에서 같은 코드를 실행할 수 있습니다.' }
 }
-onBeforeUnmount(dispose)
+onBeforeUnmount(() => { unmounted = true; editor?.destroy(); dispose() })
 </script>
 <template>
   <div class="python-playground">
     <strong>교재에서 Python 실행</strong>
     <p>작은 함수의 동작을 확인합니다. 실제 모델 호출은 VS Code 실습에서 진행합니다. 편집 내용은 새로고침하면 초기화됩니다.</p>
-    <textarea v-model="code" aria-label="실행할 Python 코드" spellcheck="false" :rows="initial.split('\n').length + 1" />
+    <div ref="editorHost" class="python-editor" v-show="editorReady" />
+    <textarea v-if="!editorReady" v-model="code" aria-label="실행할 Python 코드" spellcheck="false" rows="9" />
     <div class="python-controls">
       <button @click="run" :disabled="busy">{{ busy ? '실행 중…' : 'Python 실행' }}</button>
       <button @click="stop" :disabled="!busy">중단</button>
@@ -63,7 +86,8 @@ onBeforeUnmount(dispose)
 <style scoped>
 .python-playground {border:1px solid #b8cec4; padding:20px; background:#f6faf7; margin:24px 0; border-radius:6px}
 .python-playground p {font-size:14px; line-height:1.7}
-.python-playground textarea {display:block; width:100%; box-sizing:border-box; padding:16px; resize:vertical; background:#fff; color:#25312e; border:1px solid #b9c6bf; font:15px/1.7 Consolas,monospace; tab-size:4}
+.python-editor {border:1px solid #46544d;border-radius:4px;overflow:hidden;min-height:180px;background:#282c34}
+.python-playground textarea {width:100%;padding:16px;background:#282c34;color:#e5e9f0;font:15px/1.7 Consolas,monospace}
 .python-controls {display:flex;gap:10px;margin:12px 0}
 .python-controls button {padding:8px 16px;background:#235d4a;color:white;border-radius:4px;cursor:pointer}
 .python-controls button:disabled {opacity:.45;cursor:default}

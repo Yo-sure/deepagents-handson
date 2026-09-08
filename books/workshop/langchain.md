@@ -58,11 +58,11 @@ pageClass: lec-page
 
 ## 개념 1 · LangChain으로 모델을 호출합니다
 
-<p class="section-time">예상 6분 · 10:43–10:49</p>
+<p class="section-time">예상 14분 · 10:43–10:57</p>
 
 LangChain은 모델 호출, 메시지, 도구 연결에 쓰는 인터페이스를 제공합니다. 이 장에서는 **모델 설정 → 도구 등록 → Agent 생성 → 질문 전달 → 응답 읽기** 순서로 기본 사용법을 익힙니다.
 
-### 모델 객체와 메시지
+### 먼저 한 번 호출합니다
 
 ```python
 from course.common import get_model
@@ -74,22 +74,111 @@ print(response.content)
 
 `model`은 모델 접속 설정을 담은 객체입니다. `invoke()`가 실제 요청을 보내고, 응답 객체의 `content`에서 답변을 읽습니다. 이 호출에는 도구가 없으므로 모델의 응답만 받습니다.
 
-`get_model()`은 환경설정에서 준비한 값을 읽는 제공 함수입니다. 내부에서는 `langchain_openai.ChatOpenAI`에 모델 이름(`model`), OpenRouter 주소(`base_url`), 환경변수의 키(`api_key`)를 전달합니다. 따라서 OpenAI 모델만 사용하는 코드가 아닙니다. 키는 `.env`에서 읽으며 코드에 직접 적지 않습니다.
+### OpenAI 호환 API인데 Gemini를 부르는 이유
 
-|사용법|역할|
+`get_model()`은 `.env`의 값을 읽고 `ChatOpenAI` 객체를 만드는 제공 함수입니다. 접속 주소는 OpenRouter이며, 모델 이름은 `google/gemini-3.1-flash-lite`입니다.
+
+**OpenAI 호환은 요청과 응답의 형식을 맞췄다는 뜻입니다.** OpenRouter가 Chat Completions 형식을 제공하므로 `ChatOpenAI`로도 Gemini에 요청할 수 있습니다. `base_url`은 접속할 서버, `model`은 그 서버에서 선택할 모델, `api_key`는 해당 서버의 인증 키입니다. 모델 제공사와 접속 서버, Python 클래스 이름을 구별해 읽습니다.
+
+```text
+LangChain의 ChatOpenAI
+  → OpenRouter /api/v1/chat/completions
+  → 선택한 Gemini 모델
+  ← 응답 JSON을 LangChain의 AIMessage로 변환
+```
+
+이 연결에서는 공통 호출 형식을 사용합니다. 제공사 전용 기능이나 모든 옵션까지 같다는 뜻은 아니므로 도구 호출·구조화 출력 등의 지원 여부는 별도로 확인합니다. [OpenRouter API 형식](https://openrouter.ai/docs/api_reference/overview)
+
+### 문자열을 펼치면 역할이 있는 메시지입니다
+
+위의 문자열 입력은 사용자 메시지 한 개를 보내는 간단한 표기입니다. 대화에 지시문과 이전 답변을 넣으려면 **누가 한 말인지 나타내는 `role`과 내용인 `content`**를 함께 전달합니다.
+
+아래는 HTTP 요청 본문에 들어가는 메시지의 원시 JSON 형태입니다. 키와 HTTP 헤더는 생략했습니다.
+
+```json
+{
+  "model": "google/gemini-3.1-flash-lite",
+  "messages": [
+    {"role": "system", "content": "한국어로 한 문장만 답합니다."},
+    {"role": "user", "content": "LangChain은 무엇인가요?"}
+  ]
+}
+```
+
+같은 내용을 LangChain 메시지 객체로 쓰면 다음과 같습니다. VS Code에서 `workshop` 폴더에 `message_basics.py`를 만들어 아래 코드를 넣고, 터미널에서 `uv run python message_basics.py`로 실행해 봅니다. 이 예제는 실제 모델을 한 번 호출합니다.
+
+```python
+from course.common import get_model
+from langchain.messages import SystemMessage, HumanMessage
+
+model = get_model()
+messages = [
+    SystemMessage(content="한국어로 한 문장만 답합니다."),
+    HumanMessage(content="LangChain은 무엇인가요?"),
+]
+response = model.invoke(messages)
+
+print("응답 종류:", type(response).__name__)
+print("답변:", response.content)
+print("토큰 사용량:", response.usage_metadata)
+print("종료 이유:", response.response_metadata.get("finish_reason"))
+```
+
+|API의 `role`|LangChain 객체|담기는 내용|
+|---|---|---|
+|`system`|`SystemMessage`|답변 방식 등 전체 지시|
+|`user`|`HumanMessage`|사용자의 질문이나 요청|
+|`assistant`|`AIMessage`|모델의 답변 또는 도구 호출 요청|
+|`tool`|`ToolMessage`|프로그램이 실행한 도구의 결과|
+
+LangChain은 `[{"role": "user", "content": "..."}]` 같은 Python dict 목록도 받습니다. 객체와 dict는 메시지를 작성하는 두 가지 표현입니다. 도구 결과를 보낼 때는 `tool_call_id`로 앞의 도구 요청과 짝을 맞춥니다. 다음 절의 Agent가 이 연결을 처리합니다. [LangChain 메시지 문서](https://docs.langchain.com/oss/python/langchain/messages)
+
+### 답변 문자열 밖에 무엇이 남을까요?
+
+`response`는 답변만 든 문자열이 아니라 `AIMessage` 객체입니다. 방금 출력한 `usage_metadata`에서 `input_tokens`, `output_tokens`, `total_tokens`를 찾아봅니다. 토큰은 모델이 입력과 출력을 처리하는 단위이며 글자 수나 단어 수와 같지 않습니다. 입력에는 사용자 질문 외에 함께 보낸 지시문과 대화 기록도 포함됩니다.
+
+|HTTP 응답 JSON에서 읽는 위치|LangChain에서 읽는 위치|
 |---|---|
-|`get_model()`|실습에 설정한 모델 연결 객체 준비|
-|`model.invoke(...)`|모델에 입력을 보내 실제 응답 받기|
-|`response.content`|응답 본문 읽기|
+|`choices[0].message.content`|`response.content`|
+|`usage.prompt_tokens`|`response.usage_metadata["input_tokens"]`|
+|`usage.completion_tokens`|`response.usage_metadata["output_tokens"]`|
+|`usage.total_tokens`|`response.usage_metadata["total_tokens"]`|
+|`choices[0].finish_reason`|`response.response_metadata.get("finish_reason")`|
 
-위 코드는 API를 읽는 예제입니다. 아래 VS Code 실습에서는 같은 모델 객체를 제공 실행기가 Agent에 전달합니다.
+사용량이 없는 응답에서는 `usage_metadata`가 `None`일 수 있습니다. 이때 사용량이 0이라고 해석하지 않습니다. 모델에 따라 추론 토큰 등 세부 항목이 추가되기도 하며, 토큰 수만으로 내부 추론 내용을 볼 수 있는 것은 아닙니다.
+
+**직접 비교:** 지시문을 “한국어로 다섯 문장 답합니다.”로 바꾸고 다시 실행합니다. 답변 길이와 출력 토큰은 어떻게 달라졌나요? 입력 토큰도 달라졌는지 확인합니다. 실제 수치는 응답마다 달라질 수 있습니다.
+
+### `ainvoke()`는 언제 쓰나요?
+
+`invoke()`는 응답이 돌아올 때까지 현재 실행 흐름을 기다리게 합니다. 한 파일에서 한 요청씩 확인할 때는 이 방식으로 충분합니다. **비동기 서버처럼 기다리는 동안 다른 요청도 처리해야 하는 환경에서는 `await model.ainvoke(...)`를 사용합니다.** `a`는 async를 뜻합니다.
+
+```python
+# 위 파일의 model과 messages를 사용합니다.
+# 동기 호출을 아래 방식으로 바꾸어 실행하는 예입니다.
+import asyncio
+
+async def main():
+    response = await model.ainvoke(messages)
+    print(response.content)
+
+asyncio.run(main())  # 일반 Python 파일에서 실행
+```
+
+`await`는 이 함수의 다음 줄을 응답이 올 때까지 기다리게 하되, 이벤트 루프가 다른 비동기 작업을 처리할 수 있게 합니다. `ainvoke()` 하나로 여러 요청이 자동 병렬화되거나 모델이 더 빨리 생성하는 것은 아닙니다. Jupyter처럼 이벤트 루프가 이미 있는 곳에서는 `asyncio.run()` 대신 셀에서 `await main()`을 실행합니다. 답변을 조금씩 표시하는 스트리밍은 별도 기능인 `stream()`·`astream()`입니다. [ChatOpenAI 동기·비동기 API](https://reference.langchain.com/python/langchain-openai/langchain_openai/chat_models/base/ChatOpenAI)
+
+<details class="instructor-note"><summary>강사 진행 노트 · 기초 호출 14분</summary>
+
+연결 구조 2분 → 역할과 메시지 4분 → 실제 응답·토큰 비교 5분 → 비동기 사용 상황 3분을 예상합니다. 비동기는 서버에서 기다림을 처리하는 목적까지만 설명하고 이벤트 루프 구현으로 확장하지 않습니다. 주 실습의 함수 작성 시간은 유지하고, 마지막 운영 사례는 필요에 따라 복습으로 이어갑니다.
+
+</details>
 
 </section>
 <section class="slide">
 
 ## 개념 2 · Python 함수를 도구로 등록합니다
 
-<p class="section-time">예상 6분 · 10:49–10:55</p>
+<p class="section-time">예상 6분 · 10:57–11:03</p>
 
 먼저 함수는 입력을 받아 결과를 돌려주는 일반 Python 코드입니다. 아래 실행 칸에서 `topic`을 `정산`, `계정`, `없는업무`로 바꿔 실행해 봅니다.
 
@@ -122,7 +211,7 @@ print(lookup_team.invoke({"topic": "정산"}))
 
 ## 개념 3 · Agent를 만들고 실행합니다
 
-<p class="section-time">예상 5분 · 10:55–11:00</p>
+<p class="section-time">예상 5분 · 11:03–11:08</p>
 
 ```python
 from langchain.agents import create_agent
@@ -153,7 +242,7 @@ LangChain은 모델의 도구 요청을 받아 함수를 실행하고, 결과를
 
 ## 실습 · 조회 함수와 Agent 만들기 {#observe}
 
-<p class="section-time">예상 15분 · 11:00–11:15</p>
+<p class="section-time">예상 15분 · 11:08–11:23</p>
 
 아래 순서대로 VS Code의 `build_lab/student.py`를 작성합니다. 실습 안내와 풀이를 이 페이지에서 이어서 읽습니다.
 
@@ -227,7 +316,7 @@ uv run python -m course.cli langchain --question "정산 문의도 해야 하고
 
 ## 개인 과제 {#practice}
 
-<p class="section-time">예상 15분 · 11:15–11:30</p>
+<p class="section-time">예상 15분 · 11:23–11:38</p>
 
 앞에서 시작한 조회 함수와 Agent 구성 실습을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
@@ -322,7 +411,7 @@ uv run python -m exercises.extension_check langchain --solution
 
 ## 풀이와 다음 모듈 {#solution}
 
-<p class="section-time">예상 10분 · 11:30–11:40</p>
+<p class="section-time">예상 10분 · 11:38–11:48</p>
 
 주 실습 풀이는 `build_lab/reference.py`의 `lookup_policy`와 `build_agent`를 자신의 구현과 비교합니다. 코드가 비슷한지보다 아래 입력에서 무엇이 실행되고 어떤 근거가 남는지 설명합니다.
 
@@ -341,7 +430,7 @@ uv run python -m exercises.extension_check langchain --solution
 
 ## 운영으로 옮길 때 확인할 것
 
-<p class="section-time">예상 10분 · 11:40–11:50</p>
+<p class="section-time">예상 2분 · 11:48–11:50 · 상세 사례는 복습</p>
 
 풀이에서는 주 실습의 입력·근거 표와 자신의 실패 한 건을 비교합니다. 아래 운영 사례는 실습 후 읽으며 자신의 업무에 적용할 항목을 고릅니다.
 
