@@ -6,6 +6,7 @@ import PythonPlayground from './PythonPlayground.vue'
 import CourseVisual from './CourseVisual.vue'
 import Slides from './Slides.vue'
 import Quiz from './Quiz.vue'
+import WrapQuiz from './WrapQuiz.vue'
 import ConceptGraph from './ConceptGraph.vue'
 import './style.css'
 import './concept.css'
@@ -21,6 +22,7 @@ export default {
     app.component('CourseVisual', CourseVisual)
     app.component('PythonPlayground', PythonPlayground)
     app.component('Quiz', Quiz)
+    app.component('WrapQuiz', WrapQuiz)
     app.component('ConceptGraph', ConceptGraph)
 
     // 입력 미리보기 갤러리 이미지를 클릭하면 전체화면으로 확대(의존성 없는 라이트박스).
