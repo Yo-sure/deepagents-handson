@@ -67,6 +67,16 @@ LangChain 장의 개념 설명을 마친 뒤 진행합니다. 먼저 편집기�
 
 <p class="section-time">예상 25분 · 해당 수업 시간에 포함</p>
 
+|이번에 할 일|구체적인 작업|
+|---|---|
+|수정 파일|`build_lab/student.py`|
+|구현 함수|`lookup_policy`: 제공 조회 함수 연결. `build_agent`: 도구 변환·모델 연결·지침 작성|
+|제공되는 것|CSV 데이터, `search_policy`, 모델 설정, 실행 파일|
+|실행 순서|아래 조회 실행으로 두 정책과 미등록 업무 확인 → Agent 실행으로 실제 도구 호출 확인|
+|완료 모습|계정 문의에서 도구 결과 P-02·IT지원팀을 읽고 답함. 미등록 업무에는 담당 팀을 지어내지 않음|
+
+
+
 제공 함수부터 호출해 반환값을 확인합니다. 아래 명령은 모델 없이 실행되며, 계정의 담당 팀과 정책 ID를 출력합니다.
 
 ```bash
@@ -107,7 +117,7 @@ uv run python -m labs.langchain
 
 <details><summary>막힐 때 읽는 힌트</summary>
 
-정책을 조회한 다음 found를 계산합니다. 없는 정책을 빈 문자열로 바꾸지 않습니다. tools에는 함수의 실행 결과가 아닌 함수 자체를 전달합니다. 도구를 직접 실행한 결과와 ToolMessage를 비교합니다.
+조회 함수는 `search_policy`의 반환값을 그대로 돌려줍니다. Agent의 tools에는 `tool(policy_tool)`로 만든 도구 객체를 넣습니다. 도구를 직접 실행한 결과와 ToolMessage를 비교합니다.
 
 </details>
 
@@ -120,9 +130,30 @@ uv run python -m labs.langchain
 
 <p class="section-time">예상 30분 · 해당 수업 시간에 포함</p>
 
+**이번 과제는 `route_inquiry` 한 함수를 완성하는 것입니다.** 앞 개념의 `course/graph_lab.py`는 읽는 예제이고, 직접 수정할 파일은 `build_lab/student.py`입니다.
+
+1. `route_inquiry(state)`의 `raise NotImplementedError(...)`를 자신의 조건문으로 바꿉니다.
+2. `state['data']['found']`가 참이고 `contact`가 공백이 아닐 때 `"draft"`, 나머지는 `"ask"`를 반환합니다.
+3. `labs/graph.py`에서 아래 입력을 하나씩 설정하고 실행합니다.
+
+```bash
+uv run python -m labs.graph
+```
+
+|topic / contact|터미널에서 확인할 `state.visited`|성공 판단|
+|---|---|---|
+|계정 / 정상 주소|`['lookup', 'draft', 'review']`|초안 생성과 검토로 진입함|
+|계정 / 빈 문자열|`['lookup', 'ask']`|`state.decision='ask'`, `trace=[]`|
+|계정 / 공백 세 칸|`['lookup', 'ask']`|공백도 정보 부족으로 처리함|
+|없는업무 / 정상 주소|`['lookup', 'ask']`|규정이 없으면 모델을 호출하지 않음|
+
+**네 입력이 모두 기대 경로로 가면 분기 구현 완료입니다.** 정상 경로에서 검토 결과가 `held`라면 `state.history`의 이유와 초안을 확인합니다. 모델 인증·네트워크 오류는 성공 결과가 아니므로 해결 후 다시 실행합니다. 그래프 조립과 조회·초안·검토 노드는 제공됩니다.
+
+
+
 LangGraph 장에서 State·노드·분기를 배운 뒤 진행합니다. 여기서는 `build_lab/materials.py`의 `Inquiry`가 이 프로그램의 상태 형식입니다. `topic`은 업무명, `contact`는 회신 대상, `data`는 조회 결과, `draft`는 답변 초안입니다. `history`는 검토 이력, `decision`은 처리 결과, `visited`는 지나간 노드입니다.
 
-Inquiry의 입력은 topic과 contact입니다. `guided.py`의 노드와 간선을 읽고 다음 경로를 그립니다. 공통 과제는 `student.py`의 `route_inquiry(state)`를 작성하는 것입니다. 정책이 있고 회신 대상이 공백이 아닐 때 draft, 그 외에는 ask를 반환합니다. `build_workflow`가 이 함수를 제공 그래프에 연결합니다.
+`guided.py`의 `build_workflow`가 작성한 분기 함수를 다음 그래프에 연결합니다. 아래 표에서 각 노드가 어떤 State를 반환하는지 확인합니다.
 
 ```text
 START → lookup → [정책 있음 AND 회신 대상이 공백 아님]
@@ -172,7 +203,7 @@ uv run python -m labs.graph
 uv run python -m labs.harness
 ```
 
-최초 답변이 이미 통과하면 수정은 0회입니다. 노트북의 '확인 완료' 초안 관찰 또는 Harness 모듈의 revisions 예제를 실행하여 실제 피드백과 다음 초안도 비교합니다. 같은 문자열 반복, 예산 0, 마지막 수정 성공의 예상 결과를 먼저 말합니다.
+최초 답변이 이미 통과하면 수정은 0회입니다. Harness 모듈의 revisions 예제를 실행하여 실제 피드백과 다음 초안도 비교합니다. 같은 문자열 반복, 예산 0, 마지막 수정 성공의 예상 결과를 먼저 말합니다.
 
 공통 개인 활동은 [Loop·Graph Engineering의 실제 담론과 활용](./engineering#task)의 작업 정의입니다. Codex·Claude Code에 무엇을 읽히고, 어디를 고치게 하고, 어떤 검증 결과로 다음 행동을 판단할지 작성합니다. 코딩 에이전트 계정이 없으면 활동지와 비교 시연으로 진행합니다. 업무 수정 루프와 코딩 하네스의 반복은 제어 대상이 다릅니다.
 
@@ -200,7 +231,7 @@ history 항목은 `{'attempt': 0, 'draft': '초안', 'feedback': [...]}`입니�
 uv run python -m labs.harness
 ```
 
-**부족한 초안을 직접 넣습니다.** 노트북에서는 '확인 완료'를 초기 draft로 전달하고 feedback이 다음 모델 입력으로 넘어가는지 봅니다. 최초 답변이 이미 통과한 실행만으로 수정 경로를 확인했다고 할 수 없습니다.
+**부족한 초안을 직접 넣습니다.** 직접 구현한 `refine_answer`에 '확인 완료'를 초기 draft로 전달하고 feedback이 다음 모델 입력으로 넘어가는지 봅니다. 최초 답변이 이미 통과한 실행만으로 수정 경로를 확인했다고 할 수 없습니다.
 
 **검토의 한계:** 'IT지원팀 P-02가 맞는지는 모릅니다'도 이름·ID 검사에는 통과할 수 있습니다. 직접 반례를 만들고 자동 검사와 사람이 읽는 판단을 구분합니다. 기준을 보완한다면 어떤 오탐을 새로 만들지도 적습니다.
 
@@ -216,6 +247,16 @@ DeepAgents와 비교할 때에는 이 수동 루프가 자동으로 프레임워
 ## 4. 내가 만든 도구를 MCP로 공개합니다
 
 <p class="section-time">예상 30분 · 해당 수업 시간에 포함</p>
+
+|이번에 할 일|구체적인 작업|
+|---|---|
+|수정 파일·함수|`build_lab/student.py`의 `build_mcp_server(policy_tool)`|
+|구현할 것|MCPServer 생성 → 받은 함수를 도구로 등록 → 서버 반환|
+|제공되는 것|앞 장의 조회 함수, HTTP 서버 기동·종료, 클라이언트|
+|실행|`labs/mcp.py`의 topic을 계정으로 설정하고 아래 명령 실행|
+|완료 모습|`transport`의 도구 목록에 lookup_policy가 보이고, `data.policy`에 P-02·IT지원팀이 있음. 없는업무는 found=False|
+
+
 
 MCP 모듈 실습 시간에 진행합니다. `build_mcp_server(policy_tool)`에서 MCPServer를 생성하고 `server.tool()(policy_tool)`로 학생 조회 함수를 등록한 뒤 서버를 반환합니다.
 
@@ -238,6 +279,28 @@ uv run python -m labs.mcp
 ## 5. 원격 검토를 받아도 바로 승인하지 않습니다
 
 <p class="section-time">예상 20분 · 해당 수업 시간에 포함</p>
+
+|이번에 할 일|구체적인 작업|
+|---|---|
+|수정 파일·함수|`build_lab/student.py`의 `accept_review`|
+|구현할 것|작업 상태·요청 ID·버전·통과 여부를 검사해 pending / held / accepted 반환|
+|제공되는 것|원격 검토 서버와 클라이언트, 앞 장에서 연결한 Agent|
+|실행|아래 `labs.a2a` 명령으로 실제 통합 실행|
+|완료 모습|현재 요청의 검토가 completed이고 ID·버전·passed가 모두 맞으면 `review.decision='accepted'`. 이전 버전 결과는 held|
+
+반례는 터미널 명령을 더 조합하지 않고 자신의 함수를 직접 호출해 확인합니다. 다음 코드를 `labs/review_cases.py`에 저장하고 `uv run python -m labs.review_cases`로 실행합니다.
+
+```python
+from build_lab.student import accept_review
+
+artifact = {"request_id": "case-1", "version": 1, "passed": True}
+print(accept_review("working", artifact, "case-1", 1))    # pending
+print(accept_review("completed", artifact, "case-1", 1))  # accepted
+print(accept_review("completed", artifact, "case-1", 2))  # held
+print(accept_review("completed", artifact, "other", 1))   # held
+```
+
+
 
 A2A 모듈 실습 시간에 `accept_review(state, artifact, request_id, version)`을 구현합니다. submitted·working은 pending입니다. completed 외의 종료 상태는 held입니다. completed이면 요청 ID, 양의 정수 버전, artifact 버전 일치, passed is True를 확인한 경우만 accepted입니다. 빈 요청 ID와 bool 버전은 거부합니다.
 

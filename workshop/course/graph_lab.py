@@ -14,26 +14,34 @@ class InquiryState(TypedDict, total=False):
     answer: str
     decision: str
     visited: list[str]
-
-
-def lookup(state: InquiryState) -> dict:
-    policy = POLICIES.get(state["topic"])
-    return {"policy_id": policy["id"] if policy else "", "visited": ["lookup"]}
-
-
-def route(state: InquiryState) -> str:
-    return "draft" if state.get("contact") and state.get("policy_id") else "ask"
 #pragma endregion state
 
 
+#pragma region lookup
+def lookup(state: InquiryState) -> dict:
+    policy = POLICIES.get(state["topic"])
+    return {"policy_id": policy["id"] if policy else "", "visited": ["lookup"]}
+#pragma endregion lookup
+
+
+#pragma region route
+def route(state: InquiryState) -> str:
+    return "draft" if state.get("contact") and state.get("policy_id") else "ask"
+#pragma endregion route
+
+
+#pragma region draft
 def draft(state):
     return {"answer": POLICIES[state["topic"]]["rule"], "decision": "draft",
             "visited": state["visited"] + ["draft"]}
+#pragma endregion draft
 
 
+#pragma region ask
 def ask(state):
     return {"answer": "업무 주제와 회신 대상을 확인해 주세요.", "decision": "ask",
             "visited": state["visited"] + ["ask"]}
+#pragma endregion ask
 
 
 #pragma region graph
@@ -51,9 +59,11 @@ def build_graph(router=route, lookup_node=lookup, draft_node=draft):
 
 
 #pragma region approval
+#pragma region review
 def review(state):
     decision = interrupt({"proposal": state["answer"], "choices": ["approve", "reject"]})
     return {"decision": "approved" if decision == "approve" else "held"}
+#pragma endregion review
 
 
 def approval_demo(decision="approve"):

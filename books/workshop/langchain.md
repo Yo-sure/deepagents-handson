@@ -224,34 +224,13 @@ print(lookup_team.invoke({"topic": "정산"}))
 
 기본값은 함수 이름 → 도구 이름, docstring → 도구 설명, 타입 힌트 → 입력 schema입니다. 함수 이름을 바꾸지 않고 공개 이름을 정하거나, 허용할 입력을 더 분명히 제한할 수도 있습니다.
 
-아래 코드는 별도로 실행할 수 있는 완전한 예제입니다. `workshop/tool_basics.py`에 저장하고 `uv run python tool_basics.py`로 실행합니다. 모델 호출이나 API 키는 필요하지 않습니다.
+제공된 `labs/tool_basics.py`를 VS Code에서 열고 실행합니다. 모델 호출이나 API 키는 필요하지 않습니다.
 
-```python
-from typing import Literal
-from pydantic import BaseModel, Field, ValidationError
-from langchain.tools import tool
-
-class TeamInput(BaseModel):
-    topic: Literal["정산", "계정"] = Field(description="담당 팀을 찾을 업무명")
-
-@tool(
-    "lookup_team",
-    description="정산 또는 계정 업무의 담당 팀을 찾습니다. 다른 업무는 지원하지 않습니다.",
-    args_schema=TeamInput,
-)
-def find_team(topic: str) -> str:
-    return {"정산": "재무지원팀", "계정": "IT지원팀"}[topic]
-
-print(find_team.name)         # lookup_team
-print(find_team.description)
-print(find_team.args)
-print(find_team.invoke({"topic": "정산"}))  # 재무지원팀
-
-try:
-    find_team.invoke({"topic": "휴가"})
-except ValidationError:
-    print("입력 오류: 정산 또는 계정만 조회할 수 있습니다.")
+```bash
+uv run python -m labs.tool_basics
 ```
+
+<<< ../../workshop/labs/tool_basics.py{python}
 
 `Literal`은 허용하는 값 두 개를 나타냅니다. `Field(description=...)`은 그 필드의 뜻을 설명합니다. `args_schema`가 함수 실행 전에 입력을 검사하므로 `휴가`는 함수 본문에 들어가기 전에 거절됩니다. schema의 `topic`과 함수 인자 `topic`은 이름을 맞춥니다.
 
@@ -268,7 +247,21 @@ except ValidationError:
 
 <details><summary>추가 옵션 · 결과 전달과 종료</summary>
 
-`response_format="content_and_artifact"`는 함수가 `(모델에 전달할 내용, 프로그램이 보관할 부가 데이터)` 두 값을 반환하게 합니다. 예를 들어 모델에는 조회 요약을 전달하고 원본 행은 artifact로 남길 수 있습니다. 기본값은 `"content"`입니다. artifact는 도구 호출 ID가 있는 `ToolMessage` 경로에서 확인하며, 일반 dict로 `.invoke()`한 반환값만 보고 artifact까지 확인했다고 생각하지 않습니다.
+조회한 원본 데이터가 길면 모델에는 짧은 설명만 보내고, 프로그램은 원본을 따로 사용할 수 있습니다. `content_and_artifact`를 지정한 도구는 **설명과 원본을 한 쌍으로 반환**합니다.
+
+<<< ../../workshop/labs/tool_artifact.py{python}
+
+|출력 필드|예제의 값|사용처|
+|---|---|---|
+|`content`|정산 담당은 재무지원팀입니다.|모델이 다음 답변을 작성할 때 읽음|
+|`artifact`|정책 ID와 담당 팀을 담은 dict|프로그램이 화면 표시·후속 처리에 사용|
+
+`type="tool_call"`과 `id`를 함께 전달하면 `ToolMessage`를 받아 두 필드를 확인할 수 있습니다. 단순 입력 dict로 호출하면 이 메시지 포장을 받지 못합니다. artifact는 모델 입력에 자동으로 포함되지 않습니다.
+
+```bash
+uv run python -m labs.tool_artifact
+```
+
 
 `return_direct=True`는 이 도구 실행 뒤 추가 모델 응답 단계를 거치지 않고 Agent 실행을 끝내도록 하는 설정입니다. 실제 종료 처리는 도구를 사용하는 Agent 실행기에 달려 있습니다. 단순히 “도구를 빠르게 실행하는 옵션”은 아니며, 결과를 모델이 설명해야 하는 이번 실습에는 기본값 `False`를 사용합니다.
 
@@ -280,13 +273,34 @@ except ValidationError:
 
 설명에 “읽기 전용”이라고 쓰는 것만으로 쓰기가 차단되지는 않습니다. 인증 키·사용자 권한은 모델이 채울 인자로 받지 않고 프로그램에서 관리하며, 조회 함수 안에서 필요한 권한을 검사합니다. 타입 힌트는 입력 형식의 재료이고, 반환 타입 `-> str`만으로 업무 결과가 정확한지 검사해 주지는 않습니다.
 
-**직접 바꿔 보기:** `TeamInput`에 `"휴가"`만 추가하고 다시 실행하면 어떻게 될까요? 입력 검사는 통과하지만 함수의 dict에 `휴가`가 없어 `KeyError`가 납니다. schema와 구현을 함께 바꿔야 한다는 점을 확인한 뒤 담당 팀을 추가해 완성합니다.
+### 직접 실행 · 허용 목록만 늘리면 될까요? {#tool-input-lab}
 
-### 일반 함수를 넘기는 방식은 언제부터 있었나요?
+아래는 **입력 검사 → 함수 실행**을 나누어 보는 Python 예제입니다. 브라우저에서는 같은 원리를 일반 Python으로 확인하고, 실제 `args_schema`와 `ValidationError`는 위 `labs/tool_basics.py`에서 확인합니다.
 
-`create_agent`의 LangChain 1.0.0 배포본(2025-10-17)에도 `tools` 인자로 `Callable`을 받는 정의가 있습니다. 최근에 `@tool`이 없어졌다는 뜻은 아닙니다. 일반 함수를 넘기면 내부에서 도구로 변환하며, 이름·설명·타입 힌트는 여전히 필요합니다. 과거의 다른 Agent 생성 API까지 같은 동작이었다고 일반화하지 않습니다. [1.0.0 배포 파일](https://pypi.org/project/langchain/1.0.0/#files)
+<PythonPlayground kind="validation" />
 
-기본 정보를 함수에서 가져오면 충분할 때는 일반 함수를 넘겨도 됩니다. **공개 이름·설명·입력 제약을 명시하거나, 생성한 도구를 따로 확인하려면 `@tool`이 편리합니다.** 이번 주 실습에서는 조회 함수를 일반 함수로 작성하고, `build_agent` 안에서 `tool(policy_tool)`로 명시적으로 변환합니다. MCP에서도 같은 조회 함수를 재사용하기 위해 `lookup_policy` 자체에는 데코레이터를 붙이지 않습니다.
+|순서|바꿀 곳|실행해서 확인할 것|
+|---|---|---|
+|1|처음 코드 실행|허용 목록에 휴가가 없어 입력 거절|
+|2|`allowed`에 `"휴가"` 추가|입력은 통과하지만 `teams`에 값이 없어 `KeyError`|
+|3|`teams`에 `"휴가": "인사지원팀"` 추가|인사지원팀 출력|
+
+VS Code에서는 `TeamInput`의 `Literal`에 휴가를 추가한 뒤, 함수의 dict에도 담당 팀을 추가합니다. **입력 허용과 실제 처리 코드를 모두 바꿔야 완료입니다.**
+
+### 일반 함수도 결국 도구 객체로 변환됩니다
+
+`create_agent(tools=[lookup_team], ...)`처럼 일반 함수를 넘겨도 내부에서 `tool(lookup_team)` 변환을 거칩니다. 소스 코드에 `@tool` 문자를 붙이는 것이 아니라, 같은 변환 함수를 호출하는 방식입니다.
+
+```python
+# 직접 변환한 도구를 전달
+policy_tool = tool(lookup_team)
+agent = create_agent(model=model, tools=[policy_tool])
+
+# 일반 함수를 전달하면 내부에서 변환
+agent = create_agent(model=model, tools=[lookup_team])
+```
+
+`@tool`은 함수 정의 시 변환하고, 일반 함수 전달은 Agent 구성 과정에서 변환합니다. 공개 이름이나 입력 제약을 직접 정하려면 `@tool(...)` 또는 `tool(...)(함수)`를 사용합니다. 이번 실습은 MCP에서도 같은 조회 함수를 쓰므로 원래 함수는 유지하고 `build_agent` 안에서 변환합니다.
 
 참고: [공식 도구 사용법](https://docs.langchain.com/oss/python/langchain/tools), [tool 옵션 API](https://reference.langchain.com/python/langchain-core/tools/convert/tool)
 
@@ -322,6 +336,11 @@ print(result["messages"][-1].content)
 `create_agent()`는 실행 구성을 만들고, `agent.invoke()`는 질문을 전달해 실행합니다. `messages`는 대화 목록이며 `role`과 `content`로 발화자와 내용을 표현합니다. 마지막 메시지는 `result["messages"][-1]`로 읽습니다.
 
 <CourseVisual kind="langchain" />
+
+`system_prompt`는 이 구성에서 `SystemMessage`로 만들어져 **각 모델 호출 시 현재 messages 앞에 붙습니다.** 따라서 반환된 `result["messages"]`에 시스템 지침이 없다고 해서 모델이 지침을 못 받은 것은 아닙니다.
+
+OpenAI API에는 애플리케이션 지침을 담는 `developer` 역할도 있습니다. 모든 제공자의 `system`이 일괄적으로 이름을 바꾼 것은 아닙니다. 이 그림은 LangChain의 `SystemMessage`를 기준으로 하며, 실제 API 역할은 모델·연결 어댑터에 따라 확인합니다. [OpenAI 메시지 역할 설명](https://developers.openai.com/api/docs/guides/text)
+
 
 LangChain은 모델의 도구 요청을 받아 함수를 실행하고, 결과를 메시지에 추가해 모델에 돌려줍니다. `messages`는 Agent State의 필드이며 `add_messages`라는 병합 규칙이 적용됩니다. 새 ID는 추가하고 같은 ID는 갱신합니다. 다음 장의 [Reducer 설명](./graph#reducers)에서 직접 비교합니다. 우리는 조회 로직과 지침을 작성하고, 이 반복 연결은 프레임워크를 사용합니다. 직접 연결할 수도 있지만 도구 요청 처리와 메시지 누적도 직접 구현해야 합니다.
 

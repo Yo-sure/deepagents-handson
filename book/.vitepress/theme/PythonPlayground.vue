@@ -10,6 +10,15 @@ def lookup_team(topic):
 
 topic = "정산"
 print(lookup_team(topic))`,
+  validation: `allowed = ["정산", "계정"]
+teams = {"정산": "재무지원팀", "계정": "IT지원팀"}
+topic = "휴가"
+
+if topic not in allowed:
+    print("입력 거절: 허용 목록에 없는 업무입니다.")
+else:
+    print("입력 통과: 이제 담당 팀을 조회합니다.")
+    print(teams[topic])`,
   route: `def route(found, contact):
     if found and contact.strip():
         return "draft"

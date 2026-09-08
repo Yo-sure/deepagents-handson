@@ -103,14 +103,37 @@ flowchart TB
 
 State는 실행 중 노드들이 읽고 갱신하는 값입니다. 이 예제에서는 업무 주제·회신 대상·정책 ID·답변·방문 기록을 담습니다. node는 State를 받아 변경할 값을 반환하는 함수이며, edge는 다음 노드를 연결합니다.
 
+### State · 어떤 값을 주고받을까요?
+
+`TypedDict`를 상속하는 문법으로 딕셔너리의 키와 값 타입을 선언합니다. 편집기·타입 검사기는 이 선언을 참고하고, LangGraph는 상태 스키마로 읽습니다. `total=False`는 선언한 키를 처음부터 모두 채울 필요는 없다는 뜻입니다. 처음에는 문의와 회신 대상만 받고, 뒤 노드가 답변을 채웁니다.
+
 <<< ../../workshop/course/graph_lab.py#state{python}
 
-`TypedDict`는 dict에 어떤 필드가 들어가는지 코드에 표시합니다. 그 자체가 모든 실행 입력을 검증해 주는 장치는 아닙니다.
+실제 값은 일반 `dict`입니다. `TypedDict`가 누락된 키를 만들거나 실행 중 값을 검증하지는 않습니다. 아직 없는 키를 `state["answer"]`로 읽으면 `KeyError`가 납니다.
 
-`lookup`은 정책 ID와 방문 기록만 반환합니다. 반환하지 않은 `topic`과 `contact`는 남습니다. 여기의 `visited`에는 reducer가 없으므로 반환한 리스트로 덮어씁니다. 뒤 노드가 `state["visited"] + ["draft"]`를 반환하는 것은 코드에서 기존 기록을 합쳐 새 리스트를 만드는 방식입니다. 리스트가 자동으로 누적되는 것은 아닙니다.
+### 조회 노드 · 정책 ID를 찾습니다
 
-`route`는 다음 노드 이름을 반환합니다. 정책 ID와 회신 대상이 모두 있을 때만 draft로 갑니다. 여기서 다음 단계는 모델이 아니라 조건문이 결정합니다.
+<<< ../../workshop/course/graph_lab.py#lookup{python}
 
+`topic`을 읽고 `policy_id`와 `visited`만 반환합니다. 반환하지 않은 `topic`과 `contact`는 남습니다. 정책이 없으면 ID는 빈 문자열입니다.
+
+### 초안 노드 · 조회한 규정을 답변에 넣습니다
+
+<<< ../../workshop/course/graph_lab.py#draft{python}
+
+`draft`는 정책의 `rule`을 답변으로 사용하고 방문 목록에 자신의 이름을 더합니다. 이 개념 예제에서는 State 변화를 보기 위해 규정 문장을 그대로 사용합니다. 뒤 주 실습에서는 이 자리에 앞 장의 Agent 호출을 연결합니다.
+
+### 질문 노드 · 부족한 정보를 요청합니다
+
+<<< ../../workshop/course/graph_lab.py#ask{python}
+
+`ask`는 추가 확인 문장과 `decision="ask"`를 반환합니다. 두 노드 모두 바꿀 필드만 반환합니다. 여기의 `visited`는 기존 목록을 코드에서 합쳐 반환한 것이며, 자동 누적은 아래 reducer에서 구별합니다.
+
+### 조건 분기 · 어느 노드로 갈까요?
+
+<<< ../../workshop/course/graph_lab.py#route{python}
+
+`route`는 State를 갱신하지 않고 다음 경로 이름을 반환합니다. 정책 ID와 회신 대상이 있으면 `draft`, 부족하면 `ask`입니다. 아래 `add_conditional_edges`가 이 이름을 실제 노드에 연결합니다. 주 실습에서는 공백만 있는 회신 대상도 거절하도록 조건을 보강합니다.
 
 ### Reducer · 반환한 값을 기존 값에 어떻게 합칠까요? {#reducers}
 
@@ -227,7 +250,38 @@ LangChain Agent를 노드 안에서 호출할 수도 있습니다. 기본 예제
 
 사람의 결정을 기다릴 때는 진행 위치와 State가 필요합니다. checkpoint는 실행 상태를 저장하고 thread_id는 어떤 실행을 이어갈지 구분합니다.
 
-<<< ../../workshop/course/graph_lab.py#approval{python}
+### 1. 승인을 요청하는 노드
+
+<<< ../../workshop/course/graph_lab.py#review{python}
+
+처음 만난 `interrupt`는 승인 요청을 호출자에게 돌려주고 그래프를 중단합니다. `choices`는 화면에 보여줄 데이터일 뿐 입력 검증 기능은 아닙니다. 재개할 때 보낸 값이 `decision`에 들어갑니다.
+
+### 2. 저장소와 실행 ID를 준비합니다
+
+아래 세 블록은 제공 파일 `labs/approval.py`의 실행 순서입니다.
+
+<<< ../../workshop/labs/approval.py#setup{python}
+
+`InMemorySaver`는 이 프로세스의 상태 저장소이고, `thread_id`는 이어갈 실행을 찾는 식별자입니다.
+
+### 3. 중단 결과를 읽습니다
+
+<<< ../../workshop/labs/approval.py#pause{python}
+
+첫 `invoke`는 터미널 입력을 기다리는 함수가 아닙니다. 중단 정보를 반환하므로 다음 `print`가 실행됩니다. `decision`은 아직 반환되지 않았습니다.
+
+### 4. 사람이 입력한 결정으로 재개합니다
+
+<<< ../../workshop/labs/approval.py#resume{python}
+
+이번에는 `input`에서 사람이 입력할 때까지 기다립니다. 같은 `app`과 `config`로 재개해야 저장된 실행을 이어갑니다. 원래 `approval_demo`는 결정을 인자로 받아 즉시 재개하는 자동 시연 함수였고, 이 파일은 그 두 호출 사이에 사람의 입력을 둡니다.
+
+```bash
+uv run python -m labs.approval
+```
+
+**확인:** `approve`를 입력하면 `결정: approved`, 다시 실행해 `reject`를 입력하면 `결정: held`입니다. 둘 다 `남은 실행: ()`이면 그래프가 끝났습니다. 모델 호출과 실제 발송은 없습니다. [공식 중단·재개 설명](https://docs.langchain.com/oss/python/langgraph/interrupts)
+
 
 |시점|입력/동작|관찰값|
 |---|---|---|

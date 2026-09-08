@@ -439,6 +439,11 @@ const scene = computed(() => lesson.value.scenarios[selected.value] || lesson.va
       <button v-for="(item, i) in lesson.scenarios" :key="item.label" type="button" :aria-pressed="selected === i" @click="selected = i">{{ item.label }}</button>
     </div>
     <div aria-live="polite" aria-atomic="true">
+      <aside v-if="kind === 'langchain'" class="teacher-aside">
+        <strong>모델 호출 때 앞에 붙이는 지침 · SystemMessage</strong>
+        <p>“업무 문의는 도구로 조회하고 담당 팀을 알려주세요.”</p>
+        <p>모델 입력 = 이 지침 + 아래에 누적된 messages. 도구 결과를 받은 뒤 다시 모델을 호출할 때도 지침을 붙입니다.</p>
+      </aside>
       <ol class="visual-steps">
         <li v-for="(step, i) in scene.steps" :key="i"><span class="visual-number" aria-hidden="true">{{ i + 1 }}</span><div><strong>{{ step[0] }}</strong><p>{{ step[1] }}</p></div></li>
       </ol>
