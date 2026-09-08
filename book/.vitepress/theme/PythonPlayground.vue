@@ -81,7 +81,7 @@ onBeforeUnmount(() => { unmounted = true; editor?.destroy(); dispose() })
 <template>
   <div class="python-playground">
     <strong>교재에서 Python 실행</strong>
-    <p>작은 함수의 동작을 확인합니다. 실제 모델 호출은 VS Code 실습에서 진행합니다. 편집 내용은 새로고침하면 초기화됩니다.</p>
+    <p>작은 함수의 동작을 확인합니다. 실제 모델 호출은 주피터 노트북에서 진행합니다. 편집 내용은 새로고침하면 초기화됩니다.</p>
     <div ref="editorHost" class="python-editor" v-show="editorReady" />
     <textarea v-if="!editorReady" v-model="code" aria-label="실행할 Python 코드" spellcheck="false" rows="9" />
     <div class="python-controls">
@@ -102,3 +102,4 @@ onBeforeUnmount(() => { unmounted = true; editor?.destroy(); dispose() })
 .python-controls button:disabled {opacity:.45;cursor:default}
 .python-playground pre {white-space:pre-wrap;overflow-wrap:anywhere;max-height:260px;overflow:auto;background:white;color:#25312e;padding:14px;border:1px solid #dbe4dd;font:14px/1.7 Consolas,monospace}
 </style>
+
