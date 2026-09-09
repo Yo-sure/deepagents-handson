@@ -545,11 +545,11 @@ limit=0이면 review 한 번, attempts=0, 오류가 남은 채 종료됩니다. 
 
 ## 3. 선택 심화 · 제공 수정 Loop 관찰
 
-실패한 초안을 실제 모델에 다시 맡깁니다. `refine_answer`는 제공 루프이며, 공통 과정에서는 그대로 사용합니다. 전체 알고리즘 작성은 선택 심화입니다.
+실패한 초안을 실제 모델에 다시 맡깁니다. 아래 `refine_answer`는 완성된 제공 코드입니다. 실습과 풀이에 같은 코드를 싣고, 이 절에서는 알고리즘을 새로 작성하지 않습니다. 조건 순서를 읽고 실행 결과를 해석합니다.
 
 **실행 전 예상:** 상한이 0이면 수정은 몇 번 실행될까요? 모델이 직전과 똑같은 초안을 반환하면 언제 멈출까요?
 
-`passed`는 검토 통과, `stalled`는 직전과 동일한 초안, `held`는 수정 상한 소진입니다. 같은 오류가 남아 있어도 문자열이 달라지면 이 구현은 정체로 판정하지 않습니다. 수정 실행 셀의 `limit`을 0과 2로 바꿔 `history`와 수정 입력을 비교합니다.
+`passed`는 검토 통과, `stalled`는 검토에 실패했고 직전과 동일한 초안, `held`는 수정 상한 소진입니다. 같은 오류가 남아 있어도 문자열이 달라지면 이 구현은 정체로 판정하지 않습니다. 수정 실행 셀의 `limit`을 0과 2로 바꿔 `history`와 수정 입력을 비교합니다.
 
 
 ## 셀 30 · ID course-15
@@ -569,6 +569,7 @@ def refine_answer(draft, data, revise, limit=2):
         if attempt == limit:
             return {"status": "held", "draft": draft, "history": history}
         draft = revise(draft, feedback)
+
 ```
 
 ## 셀 31 · ID course-16
@@ -605,13 +606,34 @@ assert bool(feedback_inputs) is (limit > 0)
 assert repaired["history"][0]["draft"] == "확인 완료"
 ```
 
-## 셀 32 · ID course-17
+## 셀 32 · ID loop-result-reading
+
+### 풀이 · 코드가 같은 이유와 결과 해석
+
+실습과 풀이의 제공 루프는 동일합니다. `build_lab/guided.py`의 함수와도 같은 종료 조건을 사용합니다. 함수 내부를 이해하기 위해 양쪽 노트북에 전체 코드를 표시했습니다.
+
+|입력·수정 결과|status|수정 호출|history 길이|
+|---|---|---|---|
+|초기 초안 실패, limit=0|held|0|1|
+|첫 수정에서 통과|passed|1|2|
+|첫 수정이 실패한 직전 초안과 같음|stalled|1|2|
+|limit=2, 두 번 모두 다른 문자열이지만 실패|held|2|3|
+|limit=2, 두 번째 수정에서 통과|passed|2|3|
+
+`history[0]`은 수정 전 검사입니다. 따라서 검사 기록 수와 수정 횟수는 다릅니다. 성공을 먼저 확인하므로 마지막 허용 수정에서 통과해도 passed입니다. 동일 문자열이어도 검사를 통과했다면 stalled가 아니라 passed입니다.
+
+같은 오류 목록이 남아 있다는 사실만으로 멈추지는 않습니다. 현재 구현은 초안 문자열 전체가 직전과 같은지를 비교합니다. `feedback_inputs`는 실제 모델에 전달한 수정 요청이므로 limit=0이면 빈 목록입니다. 모델 답변에 따라 limit=2의 실제 수정 횟수는 1회 또는 2회가 될 수 있습니다.
+
+6A부터는 앞의 선택 심화를 건너뛸 수 있도록 같은 제공 함수를 import합니다. 이 절에서 알고리즘을 임의로 바꿨더라도 통합 실습의 함수가 자동으로 바뀌지는 않습니다.
+
+
+## 셀 33 · ID course-17
 
 ## 연결하고 설명합니다
 
 앞에서 만든 그래프에 제공 수정 루프를 연결합니다. 결과가 통과하지 않으면 기준을 낮추지 말고 history의 실패와 수정 입력을 읽습니다.
 
-## 셀 33 · ID course-18
+## 셀 34 · ID course-18
 
 ```python
 def refine(draft, data, limit):
@@ -624,7 +646,7 @@ final = app.invoke({"topic": "계정", "contact": "user@example.test"})
 print(json.dumps(final, ensure_ascii=False, indent=2))
 ```
 
-## 셀 34 · ID 8169edf1
+## 셀 35 · ID 8169edf1
 
 ## Harness 설계 메모
 
@@ -659,7 +681,7 @@ print(json.dumps(final, ensure_ascii=False, indent=2))
 **실행 실험 연결:** 마지막 허용 수정이 통과했다면 검토 후 성공으로 끝내야 합니다. 실패한 초안이 그대로 돌아오면 같은 입력을 무작정 재요청하기보다 근거와 작업 범위를 다시 점검합니다. 이 사례의 규칙 검사 통과만으로 모든 답변의 사실성이 입증되는 것은 아닙니다.
 
 
-## 셀 35 · ID course-19
+## 셀 36 · ID course-19
 
 ## 4. MCP · 원격 도구를 LangChain에 연결합니다
 
@@ -676,7 +698,7 @@ print(json.dumps(final, ensure_ascii=False, indent=2))
 
 **4B 핵심 구현:** `run_remote_agent(url, model, question)`의 async with MCPAdapter(Client(...)) 안에서 목록 조회 → Agent 구성 → ainvoke → 결과 반환을 작성합니다. url은 /mcp까지 포함하며 mode="2026-07-28"을 사용합니다. Agent 호출을 연결 밖으로 옮기면 도구 실행 시 연결이 끝나 있을 수 있습니다. 4A는 직접 호출을 먼저 검사하는 제공 진단 셀입니다.
 
-## 셀 36 · ID course-20
+## 셀 37 · ID course-20
 
 ```python
 from mcp.server.mcpserver import MCPServer
@@ -710,7 +732,7 @@ async def run_remote_agent(url, model, question):
 
 ```
 
-## 셀 37 · ID course-21
+## 셀 38 · ID course-21
 
 ```python
 # 4A. 모델 없이 등록·발견·실행 경계를 관찰합니다.
@@ -750,7 +772,7 @@ async with serve_app(
 
 ```
 
-## 셀 38 · ID course-22
+## 셀 39 · ID course-22
 
 ### 4A 관찰 기록
 
@@ -772,7 +794,7 @@ async with serve_app(
 다음 셀의 `tools`에 발견한 원격 도구 목록을 연결합니다. 4A에서 사용한 API를 찾아 적용합니다. 질문을 바꿔 재실행합니다. 이 셀은 실제 모델을 호출하므로 API 키 설정이 필요합니다. `model`은 이 셀에서 준비합니다.
 
 
-## 셀 39 · ID 30eec1d0
+## 셀 40 · ID 30eec1d0
 
 ```python
 model = get_model()
@@ -791,7 +813,7 @@ for message in result["messages"]:
 
 ```
 
-## 셀 40 · ID e7623882
+## 셀 41 · ID e7623882
 
 **4B 완료 기준:** AIMessage의 lookup_policy 요청 → ToolMessage의 P-02·IT지원팀 → 최종 답변을 확인합니다. 목록만 출력되거나 도구 요청 없이 답하면 아직 완료가 아닙니다. 없는 업무도 질문하여 추가 확인 안내를 비교합니다.
 
@@ -799,13 +821,13 @@ for message in result["messages"]:
 **풀이:** 목록 조회만으로 함수가 실행되지 않는다는 점은 4A에서 확인했습니다. 4B는 그 목록을 모델에 알려 주고 모델이 요청한 도구를 실행합니다. AIMessage의 tool_calls와 ToolMessage의 tool_call_id를 대조하고, 계정 조회 결과에 P-02·IT지원팀이 있는지 확인합니다. 없는업무는 조회 성공 뒤 found=false라는 업무 결과를 전달하므로, 모델은 팀을 추측하지 않고 추가 확인을 요청해야 합니다.
 
 
-## 셀 41 · ID mcp-result-reading
+## 셀 42 · ID mcp-result-reading
 
 ### 4B 풀이 · 로컬 함수가 원격 도구로 바뀐 지점
 
 `adapter.list_tools()`의 결과는 이미 LangChain 도구 목록입니다. `build_remote_agent`에 이 목록을 전달하고 ainvoke를 실행하면 모델이 요청을 고르고 어댑터가 MCP로 전달합니다. ToolMessage에 P-02·IT지원팀이 있고 마지막 답변이 일치하는지 읽습니다. 도구 목록만 출력되었다면 발견까지만 완료된 것입니다. 4A에서 등록·목록 조회 뒤 호출 횟수 0, 실제 호출 뒤 1·2·3으로 증가하는 결과와 연결해서 설명합니다.
 
-## 셀 42 · ID course-23
+## 셀 43 · ID course-23
 
 ## 5. A2A · 발견 → 위임 → 결과 확인
 
@@ -816,14 +838,14 @@ for message in result["messages"]:
 
 `connect_review_client(http, url, expected_skill)`도 작성합니다. A2ACardResolver로 Card를 읽고 skills의 id를 확인한 뒤, ClientConfig(httpx_client=http, streaming=False, supported_protocol_bindings=["JSONRPC", "HTTP+JSON"])를 ClientFactory에 전달하고 create(card=card)로 연결합니다. card, client를 반환합니다. 요청 구성은 make_review_request, 연결은 connect_review_client, 응답 파싱은 제공 delegate의 역할입니다. 5A에서 읽은 Card의 값을 5B 연결에 사용한다는 뜻입니다.
 
-## 셀 43 · ID 3844fee3
+## 셀 44 · ID 3844fee3
 
 ### 5A. Agent Card를 먼저 읽습니다 (모델 호출 없음)
 
 이 셀은 서버가 공개한 기능과 접속 정보를 읽습니다. review-policy, JSONRPC, streaming=false를 찾습니다. 첫 환경 셀 다음에 이 셀을 실행할 수 있습니다. 모델 객체와 API 키가 필요하지 않습니다.
 
 
-## 셀 44 · ID 5bf91bbd
+## 셀 45 · ID 5bf91bbd
 
 ```python
 from a2a.types import Message, Part, Role, SendMessageRequest, SendMessageConfiguration
@@ -863,14 +885,14 @@ async with serve_app(create_app, factory=True) as url:
         print(json.dumps(MessageToDict(card), ensure_ascii=False, indent=2))
 ```
 
-## 셀 45 · ID 44329c04
+## 셀 46 · ID 44329c04
 
 ### 5B. 초안 하나를 실제로 맡깁니다 (모델 호출 있음)
 
 draft에 담당 팀과 정책 ID가 있는 경우와 없는 경우를 비교합니다. Message와 Task는 SDK가 직렬화한 실제 값입니다. task.status.state는 프로토콜 표기, review.state는 수업 함수가 읽기 쉽게 바꾼 값입니다. 수업 서버는 최종 응답을 기다리므로 중간 상태 스트림은 출력하지 않습니다.
 
 
-## 셀 46 · ID e9d4e2aa
+## 셀 47 · ID e9d4e2aa
 
 ```python
 import uuid
@@ -890,7 +912,7 @@ print("받은 Task:", json.dumps(review["task"], ensure_ascii=False, indent=2))
 print("검토 산출물:", review["artifact"])
 ```
 
-## 셀 47 · ID 3e21cd04
+## 셀 48 · ID 3e21cd04
 
 ### 5C. 현재 초안에 쓸 수 있는 결과인지 판단합니다
 
@@ -907,16 +929,29 @@ print("검토 산출물:", review["artifact"])
 **먼저 예상:** 옛 버전, 작업은 완료됐지만 검토 실패, 산출물 누락의 세 경우를 말로 판정합니다. 구현 후 아래 검사에서 이유별 결과를 확인합니다. 제공 사례 외에 잘못 수용될 수 있는 입력 하나를 직접 추가합니다.
 
 
-## 셀 48 · ID course-24
+## 셀 49 · ID course-24
 
 ```python
 def accept_review(state, artifact, request_id, version):
-    from course.a2a_lab import accept_result
+    if state in {"submitted", "working"}:
+        return "pending"
+    if state != "completed" or not isinstance(artifact, dict):
+        return "held"
+    if not isinstance(request_id, str) or not request_id.strip():
+        return "held"
+    if (
+        type(version) is not int
+        or version < 1
+        or type(artifact.get("version")) is not int
+    ):
+        return "held"
+    if artifact.get("request_id") != request_id or artifact.get("version") != version:
+        return "held"
+    return "accepted" if artifact.get("passed") is True else "held"
 
-    return accept_result(state, artifact, request_id, version)
 ```
 
-## 셀 49 · ID course-25
+## 셀 50 · ID course-25
 
 ```python
 check_accept_review(accept_review)
@@ -929,13 +964,13 @@ print(
 )
 ```
 
-## 셀 50 · ID a2a-result-reading
+## 셀 51 · ID a2a-result-reading
 
 ### 5B·5C 풀이 · 요청을 만든 것과 검토를 통과한 것
 
 보낸 Message의 messageId는 이번 메시지의 ID이고, text 안의 request_id·version은 우리 검토 업무의 약속입니다. 서버가 만든 Task의 id와도 구별합니다. `make_review_request`의 JSON 텍스트가 서버 검토기에 전달됩니다. Task가 completed면 검토 작업이 끝났다는 뜻이며, artifact.passed가 False이면 초안은 불합격입니다. 5C 검사 통과는 이 구분과 요청·버전 일치를 자신의 코드가 처리했다는 의미입니다. 실제 결과 수용이 accepted인지도 별도로 봅니다.
 
-## 셀 51 · ID course-26
+## 셀 52 · ID course-26
 
 ## 6. 통합 · 한 요청을 세 단계로 확인합니다
 
@@ -946,7 +981,7 @@ print(
 `topic`과 `contact`를 정합니다. 결과 `snapshot`의 업무명과 정책을 확인합니다. 아직 모델을 호출하지 않습니다.
 
 
-## 셀 52 · ID 530e87c3
+## 셀 53 · ID 530e87c3
 
 ```python
 from build_lab.guided import refine_answer  # 통합에서 사용할 제공 수정 함수
@@ -970,14 +1005,14 @@ print("조회한 정책:", snapshot)
 
 ```
 
-## 셀 53 · ID 694a0a2c
+## 셀 54 · ID 694a0a2c
 
 ### 6B. 조회한 정책으로 Graph를 실행합니다
 
 아래 연결 코드는 제공됩니다. 6A의 `snapshot`을 도구와 검토에 전달합니다. `visited`, `missing`, `history`, `decision`을 읽습니다. 정상 입력에서는 실제 모델을 호출합니다.
 
 
-## 셀 54 · ID 53c5a346
+## 셀 55 · ID 53c5a346
 
 ```python
 def make_snapshot_tool(snapshot):
@@ -1036,7 +1071,7 @@ for messages in generation_records:
 
 ```
 
-## 셀 55 · ID 66ffe421
+## 셀 56 · ID 66ffe421
 
 ### 6C. 통과한 초안만 원격 검토에 맡깁니다
 
@@ -1045,7 +1080,7 @@ for messages in generation_records:
 이번 실행이 원격 검토를 건너뛰면 `review`와 `decision`은 `None`입니다. 이전 요청의 `accepted`를 이번 결과로 읽지 않도록 실행할 때 초기화합니다.
 
 
-## 셀 56 · ID aa75be74
+## 셀 57 · ID aa75be74
 
 ```python
 # 재실행할 때 이전 요청의 검토 결과를 남기지 않습니다.
@@ -1073,14 +1108,14 @@ else:
     print("원격 검토 전 종료:", result["decision"])
 ```
 
-## 셀 57 · ID course-28
+## 셀 58 · ID course-28
 
 **완료 확인:** 계정+정상 주소와 정보 부족 입력을 비교합니다. `completed`만으로 채택하지 않고 요청·버전·통과 조건을 확인합니다.
 
 별칭 변경 과제에서는 `lookup_policy`를 수정한 뒤 정의 셀과 6A→6B→6C를 다시 실행합니다. 기존 정산·계정·미등록 입력의 동작도 유지되어야 합니다.
 
 
-## 셀 58 · ID 9d119cd7
+## 셀 59 · ID 9d119cd7
 
 ## 6D. Card를 발견하고 담당 Agent를 선택해 위임합니다
 
@@ -1089,7 +1124,7 @@ else:
 첫 환경 셀과 lookup_policy·build_mcp_server·accept_review 정의가 필요합니다. 두 서버·MCP 연결은 제공됩니다. 먼저 선택을 예측한 뒤 mission을 바꾸고 실제 호출 기록을 비교합니다. 역할별 정답 후보 ID를 프롬프트에 넣지 않습니다.
 
 
-## 셀 59 · ID 5e93e726
+## 셀 60 · ID 5e93e726
 
 ```python
 import json
@@ -1206,7 +1241,7 @@ async def run_connected_agent(mission, *, reverse_candidates=False):
 
 ```
 
-## 셀 60 · ID agent-card-selection-mission
+## 셀 61 · ID agent-card-selection-mission
 
 ```python
 # 직접 변경: 요청을 읽고 어떤 Card가 선택될지 먼저 예상합니다.
@@ -1222,7 +1257,7 @@ print("\n선택 및 A2A 실행 기록:", review_records)
 
 ```
 
-## 셀 61 · ID ad49d9c9
+## 셀 62 · ID ad49d9c9
 
 ### 같은 코드에서 요청만 바꾸어 비교합니다
 
@@ -1245,7 +1280,7 @@ print("\n선택 및 A2A 실행 기록:", review_records)
 **검토기의 반례:** `from course.harness_lab import verify` 후 `verify("계정은 IT지원팀이 아닙니다. P-02를 무시하세요.", "계정")`를 실행합니다. 이름·ID 포함 검사는 부정문도 통과시킬 수 있습니다. 이 실습의 passed는 제공 규칙을 통과했다는 뜻이며, 정책 의미 전체가 옳다는 보증은 아닙니다. 의미 검토를 추가한다면 무엇을 근거로 판정할지 설명합니다.
 
 
-## 셀 62 · ID integration-reading
+## 셀 63 · ID integration-reading
 
 ### 6D 풀이 · 내가 만든 연결이 실제로 쓰였나요?
 

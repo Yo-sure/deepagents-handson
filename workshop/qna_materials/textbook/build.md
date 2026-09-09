@@ -120,9 +120,9 @@ print("답변:", result["draft"])
 
 ## 3. 제공 수정 루프를 관찰합니다
 
-노트북의 ‘3. 제공 수정 Loop 관찰’ 셀들을 실행합니다. `refine_answer`는 제공 루프를 연결합니다. 다음 셀의 초기 초안 ‘확인 완료’를 실제 모델이 수정하는 과정을 봅니다.
+노트북의 ‘3. 제공 수정 Loop 관찰’ 셀들을 실행합니다. `refine_answer`는 실습과 풀이에 동일하게 표시된 완성 코드입니다. 다음 셀의 초기 초안 ‘확인 완료’를 실제 모델이 수정하는 과정을 봅니다.
 
-`history`에서 실패 이유와 다음 초안을 비교합니다. 통과하면 passed, 수정한 초안이 직전 초안과 동일하면 stalled, 수정 횟수를 다 쓰면 held입니다. 4장 공통 실습은 `harness-build.ipynb` H1~H3의 DeepAgents 직접 구성입니다. 이 수정 Loop와 설계 메모는 선택 심화입니다. 추가로 구현을 읽으려면 Jupyter 파일 탐색기에서 `build_lab/guided.py`의 `refine_answer`를 엽니다. 성공 → 같은 초안 반복 → 상한 소진 순서와 `range(limit + 1)`을 찾아 마지막 허용 수정의 성공을 설명합니다. 이는 제공 구현을 읽는 활동이며 별도 구현 과제가 아닙니다.
+`history`에서 실패 이유와 다음 초안을 비교합니다. 통과하면 passed, 수정한 초안이 직전 초안과 동일하면 stalled, 수정 횟수를 다 쓰면 held입니다. 4장 공통 실습은 `harness-build.ipynb` H1~H3의 DeepAgents 직접 구성입니다. 이 수정 Loop와 설계 메모는 선택 심화입니다. 구현은 바로 앞 정의 셀에서 읽습니다. `build_lab/guided.py`에도 같은 함수가 있으며 통합 단계에서 사용합니다. 성공 → 같은 초안 반복 → 상한 소진 순서와 `range(limit + 1)`을 찾아 마지막 허용 수정의 성공을 설명합니다. 이는 제공 구현을 읽는 활동이며 별도 구현 과제가 아닙니다.
 
 </section>
 <section class="slide" id="protocols">

@@ -436,21 +436,31 @@ print("최종 초안:", retry_result["draft"])
 
 ## 3. 선택 심화 · 제공 수정 Loop 관찰
 
-실패한 초안을 실제 모델에 다시 맡깁니다. `refine_answer`는 제공 루프이며, 공통 과정에서는 그대로 사용합니다. 전체 알고리즘 작성은 선택 심화입니다.
+실패한 초안을 실제 모델에 다시 맡깁니다. 아래 `refine_answer`는 완성된 제공 코드입니다. 실습과 풀이에 같은 코드를 싣고, 이 절에서는 알고리즘을 새로 작성하지 않습니다. 조건 순서를 읽고 실행 결과를 해석합니다.
 
 **실행 전 예상:** 상한이 0이면 수정은 몇 번 실행될까요? 모델이 직전과 똑같은 초안을 반환하면 언제 멈출까요?
 
-`passed`는 검토 통과, `stalled`는 직전과 동일한 초안, `held`는 수정 상한 소진입니다. 같은 오류가 남아 있어도 문자열이 달라지면 이 구현은 정체로 판정하지 않습니다. 수정 실행 셀의 `limit`을 0과 2로 바꿔 `history`와 수정 입력을 비교합니다.
+`passed`는 검토 통과, `stalled`는 검토에 실패했고 직전과 동일한 초안, `held`는 수정 상한 소진입니다. 같은 오류가 남아 있어도 문자열이 달라지면 이 구현은 정체로 판정하지 않습니다. 수정 실행 셀의 `limit`을 0과 2로 바꿔 `history`와 수정 입력을 비교합니다.
 
 
 ## 셀 24 · ID course-15
 
 ```python
 def refine_answer(draft, data, revise, limit=2):
-    """제공 루프를 사용합니다. 전체 알고리즘 작성은 선택 심화입니다."""
-    from build_lab.guided import refine_answer as refine
+    if type(limit) is not int or not 0 <= limit <= 5:
+        raise ValueError("수정 상한은 0~5 정수입니다.")
+    history = []
+    for attempt in range(limit + 1):
+        feedback = inspect_draft(draft, data)
+        history.append({"attempt": attempt, "draft": draft, "feedback": feedback})
+        if not feedback:
+            return {"status": "passed", "draft": draft, "history": history}
+        if len(history) > 1 and history[-2]["draft"] == draft:
+            return {"status": "stalled", "draft": draft, "history": history}
+        if attempt == limit:
+            return {"status": "held", "draft": draft, "history": history}
+        draft = revise(draft, feedback)
 
-    return refine(draft, data, revise, limit)
 ```
 
 ## 셀 25 · ID course-16
