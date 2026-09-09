@@ -244,3 +244,25 @@ def test_approval_decisions_from_fresh_kernel(decision, expected):
     cells = [notebook.cells[i] for i in [1, 9, 10, 11]]
     cells.append(nbformat.v4.new_code_cell(f'assert resumed["decision"] == "{expected}"; assert app.get_state(config).next == ()'))
     execute(cells)
+
+
+@pytest.mark.parametrize("edition", ["student", "solution"])
+@pytest.mark.parametrize("graph_decision", ["ask", "held", "stalled"])
+def test_skipped_review_clears_previous_request(edition, graph_decision):
+    """입력을 바꿔 6C를 다시 실행하면 이전 요청의 채택 결과를 지웁니다."""
+    import asyncio
+
+    name = "build-agent.ipynb" if edition == "student" else "build-agent-solution.ipynb"
+    notebook = nbformat.read(ROOT / "notebooks" / name, as_version=4)
+    cell = build_cell(notebook, 39)
+    namespace = {
+        "result": {"decision": graph_decision},
+        "payload": {"request_id": "previous-request"},
+        "review": {"state": "completed", "artifact": {"passed": True}},
+        "decision": "accepted",
+    }
+    code = compile(cell.source, "6C", "exec", flags=ast.PyCF_ALLOW_TOP_LEVEL_AWAIT)
+    asyncio.run(eval(code, namespace))
+    assert namespace["payload"] is None
+    assert namespace["review"] is None
+    assert namespace["decision"] is None
