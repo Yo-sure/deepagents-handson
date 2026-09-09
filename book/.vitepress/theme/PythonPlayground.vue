@@ -72,11 +72,11 @@ function run() {
         if (data.type === 'ready') { output.value = '실행 중…'; timeout(10000); return }
         clearTimeout(timer); busy.value = false; output.value = data.output
       }
-      worker.onerror = () => { dispose(); output.value = 'Python 환경을 불러오지 못했습니다. 네트워크 연결을 확인한 뒤 다시 실행하거나 VS Code에서 확인해 주세요.' }
+      worker.onerror = () => { dispose(); output.value = 'Python 환경을 불러오지 못했습니다. 네트워크 연결을 확인한 뒤 다시 실행하거나, 실습 JupyterLab의 새 코드 셀에 위 코드를 복사해 실행하세요.' }
     }
     timeout(60000)
     worker.postMessage({ code: code.value, packages: props.kind === 'validation' ? ['pydantic'] : [] })
-  } catch { dispose(); output.value = '이 브라우저에서 실행 환경을 시작하지 못했습니다. VS Code에서 같은 코드를 실행할 수 있습니다.' }
+  } catch { dispose(); output.value = '이 브라우저에서 실행 환경을 시작하지 못했습니다. 실습 JupyterLab의 새 코드 셀에 위 코드를 복사해 실행하세요.' }
 }
 onBeforeUnmount(() => { unmounted = true; editor?.destroy(); dispose() })
 </script>
