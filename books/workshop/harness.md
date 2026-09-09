@@ -498,7 +498,7 @@ H2 함수를 완성하여 실제 DeepAgents를 호출합니다. 계정 입력에
 
 **고급 확장:** description의 사용 조건과 본문의 절차를 따로 바꾸어 파일 읽기 선택과 답변이 어떻게 달라지는지 비교합니다. 실행 기록에는 변경한 문서와 질문, 읽기 결과, 최종 판단을 남깁니다.
 
-`build-agent.ipynb`의 3번 수정 Loop, `harness-control.ipynb`, [Harness 설계 활동](./engineering#practice)은 주 실습 뒤에 보는 선택 심화입니다. control은 모델 없이 수정 횟수·동일 후보·종료 조건을 비교하는 실험이며 DeepAgents 실행을 대신하지 않습니다.
+`build-agent.ipynb`의 3번 수정 Loop, `harness-control.ipynb`, [Harness 설계 활동](./engineering#task)은 주 실습 뒤에 보는 선택 심화입니다. control은 모델 없이 수정 횟수·동일 후보·종료 조건을 비교하는 실험이며 DeepAgents 실행을 대신하지 않습니다.
 
 <aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>테스트는 “정산 담당 팀은 재무지원팀”이라고 검사합니다. Agent는 틀린 답을 고치는 대신 테스트를 지워서 통과시켰습니다.<br><br><strong>이런 수정을 막으려면 어떤 규칙이 필요할까요?</strong> 실제로 담당 팀이 바뀌어 테스트를 수정해야 할 때는 누가 확인하면 좋을까요?</p></aside>
 
