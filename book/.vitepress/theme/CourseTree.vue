@@ -5,6 +5,25 @@ const route = useRoute()
 const path = computed(() => route.path.replace(/^\/deepagents-handson/, '').replace(/\.html$/, '').replace(/\/$/, '') || '/')
 const visible = computed(() => path.value === '/' || ['/toc', '/git-setup', '/updates'].includes(path.value) || path.value.startsWith('/workshop/'))
 const open = ref(true)
+let compactViewport: MediaQueryList | undefined
+function restoreDesktopPreference() {
+  try { return localStorage.getItem('course-tree-open') !== 'false' } catch { return true }
+}
+function syncViewport() {
+  open.value = compactViewport?.matches ? false : restoreDesktopPreference()
+}
+function closeCompact() {
+  if (compactViewport?.matches) open.value = false
+}
+function onNavClick(event: MouseEvent) {
+  if ((event.target as Element).closest('a')) closeCompact()
+}
+function onEscape(event: KeyboardEvent) {
+  if (event.key === 'Escape' && compactViewport?.matches && open.value) {
+    open.value = false
+    nextTick(() => document.querySelector<HTMLButtonElement>('.course-tree-head button')?.focus())
+  }
+}
 const groups = [
   { title: '수업 순서', items: [
     ['시작 안내 · 환경설정', '/workshop/start'], ['01 Agent 입문', '/workshop/agent'],
@@ -34,16 +53,27 @@ function updatePart() {
 }
 function schedulePart() { if (!frame) frame = requestAnimationFrame(updatePart) }
 watch(() => route.path, async () => { await nextTick(); schedulePart() })
-onBeforeUnmount(() => { window.removeEventListener('scroll', schedulePart); window.removeEventListener('resize', schedulePart); cancelAnimationFrame(frame) })
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', schedulePart)
+  window.removeEventListener('resize', schedulePart)
+  window.removeEventListener('keydown', onEscape)
+  compactViewport?.removeEventListener('change', syncViewport)
+  cancelAnimationFrame(frame)
+})
 onMounted(() => {
   window.addEventListener('scroll', schedulePart, { passive: true })
   window.addEventListener('resize', schedulePart)
   schedulePart()
-  try { open.value = localStorage.getItem('course-tree-open') !== 'false' } catch {}
+  compactViewport = window.matchMedia('(max-width: 767px)')
+  compactViewport.addEventListener('change', syncViewport)
+  window.addEventListener('keydown', onEscape)
+  syncViewport()
 })
 function toggle() {
   open.value = !open.value
-  try { localStorage.setItem('course-tree-open', String(open.value)) } catch {}
+  if (!compactViewport?.matches) {
+    try { localStorage.setItem('course-tree-open', String(open.value)) } catch {}
+  }
 }
 </script>
 
@@ -53,7 +83,7 @@ function toggle() {
       <span v-if="open">교재 목차</span>
       <button type="button" @click="toggle" :aria-expanded="open" aria-controls="course-tree-nav" :aria-label="open ? '교재 목차 접기' : '교재 목차 펼치기'" :title="open ? '교재 목차 접기' : '교재 목차 펼치기'">{{ open ? '‹' : '☰' }}</button>
     </div>
-    <nav id="course-tree-nav" v-show="open" aria-label="교재 페이지">
+    <nav id="course-tree-nav" v-show="open" aria-label="교재 페이지" @click="onNavClick">
       <a class="course-tree-overview" :href="withBase('/toc')" :aria-current="path === '/toc' ? 'page' : undefined">전체 목차 · 시간표</a>
       <section v-for="(group, index) in groups" :key="group.title">
         <button class="course-tree-group" type="button" :aria-expanded="expanded[index]" :aria-controls="'course-group-' + index" @click="expanded[index] = !expanded[index]">
@@ -94,6 +124,10 @@ function toggle() {
 .course-tree a:focus-visible, .course-tree button:focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
 .Layout:has(.course-tree) .VPContent { margin-left: 264px; width: calc(100% - 264px); min-width: 0; }
 .Layout:has(.course-tree[data-open="false"]) .VPContent { margin-left: 48px; width: calc(100% - 48px); }
+@media (max-width: 767px) {
+  .Layout:has(.course-tree) .VPContent { margin-left: 48px; width: calc(100% - 48px); }
+  .course-tree[data-open="true"] { box-shadow: 8px 0 24px #193c2526; max-width: calc(100vw - 48px); }
+}
 </style>
 
 <style>.module-parts {padding-left:16px; border-left:1px solid #cbd8d1; margin-left:12px}.module-parts a {font-size:13px; padding:5px 12px}</style>

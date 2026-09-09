@@ -29,7 +29,7 @@ pageClass: lec-page
 |[Harness](./harness#learning-goals)|3 / 교재 설계 활동|수정 상한 비교, 다음 작업·검증·중단 기준|
 |[MCP](./mcp#learning-goals)|4A·4B|원격 조회와 Agent 도구 호출|
 |[A2A](./a2a#learning-goals)|5A·5B·5C|Card·Task·Artifact와 수용 반례|
-|[통합·복습](./wrap#learning-goals)|6 / 교재 퀴즈|6D에서 Agent의 MCP·A2A 호출을 확인하고 미등록 요청 비교|
+|[통합·복습](./wrap#learning-goals)|6A~6D / 퀴즈는 복습|6C 기준 실행과 6D의 정책·표현 검토 선택 비교|
 
 첫 환경 셀을 실행한 뒤 필요한 앞 단계의 정의·연결 셀을 순서대로 실행합니다. 정의를 수정했다면 그 아래 연결 셀도 다시 실행합니다. 막힌 앞 단계는 [보완 안내](#recovery)를 따르고, 풀이 노트북의 같은 번호와 비교합니다.
 
@@ -71,7 +71,14 @@ docstring에는 도구가 언제 필요한지 설명합니다. 지침에는 조�
 
 **`build-agent.ipynb`의 ‘2. 업무 Graph’로 이동합니다.** 앞 장의 조회·Agent 셀을 실행한 같은 커널에서 이어갑니다.
 
-함께 하는 시간에는 1번 분기를 작성합니다. 2~4번의 질문 노드 구현과 검사는 이어지는 개인 시간에 진행합니다.
+함께 하는 시간에는 `route_inquiry`만 작성하고 아래 세 입력을 함수에 직접 넣어 경로를 확인합니다. `ask_for_details`가 미완성이므로 아직 2A 그래프 검사는 실행하지 않습니다. 개인 시간에 질문 노드를 완성한 뒤 정의·연결 셀 → 2A 검사 → 2B 관찰 순서로 진행합니다.
+
+```python
+for found, contact in [(True, "user@example.test"), (True, "   "), (False, "user@example.test")]:
+    state = {"data": {"found": found}, "contact": contact}
+    print(found, repr(contact), route_inquiry(state))
+# 기대 경로: draft, ask, ask
+```
 
 1. `route_inquiry` 셀을 완성합니다. 정책이 있고 회신 대상이 공백이 아니면 `"draft"`, 그 외에는 `"ask"`를 반환합니다.
 2. `ask_for_details` 노드를 작성합니다. 정책을 찾지 못했으면 업무 주제, 회신 대상이 비었으면 회신 대상을 묻습니다. 둘 다 없으면 둘 다 묻고, 이미 있는 정보는 다시 묻지 않습니다.
@@ -98,7 +105,7 @@ print("답변:", result["draft"])
 
 먼저 제공 `check_graph(build_workflow, lookup_policy)` 검사로 모델 없이 경로와 `missing`을 확인합니다. 이어 네 실제 입력의 경로와 추가 질문을 비교합니다. `draft_calls`는 초안 생성 함수의 호출 기록이며, Agent 내부의 모델 API 호출 횟수는 아닙니다. 정상 경로에서 검토가 held이면 `result['history']`의 실패 이유를 읽습니다. API 오류로 셀이 실패했다면 연결 문제를 해결하고 다시 실행합니다.
 
-2A 실행 셀 아래쪽의 2B 관찰 코드는 생성·검토를 고정하고 자신의 그래프를 실행합니다. `updates`(각 노드의 반환값)와 `values`(반영된 전체 State)를 비교합니다. 개인 과제에서 `visited`를 바꾸어 비교할 때는 2B 코드만 새 셀에 복사해 실행할 수 있습니다. 변경을 복원한 뒤 2A 검사도 다시 통과시킵니다.
+별도 2B 관찰 셀의 코드는 생성·검토를 고정하고 자신의 그래프를 실행합니다. `updates`(각 노드의 반환값)와 `values`(반영된 전체 State)를 비교합니다. 개인 과제에서 `visited`를 바꾸어 비교할 때는 2A 검사 대신 2B 관찰 셀을 실행합니다. 변경을 복원한 뒤 2A 검사도 다시 통과시킵니다.
 
 노트북의 State는 `Inquiry`입니다. `data`는 조회 결과, `draft`는 답변 또는 추가 질문, `visited`는 방문 이력입니다. 조회·초안·검토 노드는 제공하며, `route_inquiry`와 `ask_for_details`는 직접 작성합니다.
 
@@ -112,7 +119,7 @@ print("답변:", result["draft"])
 
 노트북의 ‘3. 제공 수정 Loop 관찰’ 셀들을 실행합니다. `refine_answer`는 제공 루프를 연결합니다. 다음 셀의 초기 초안 ‘확인 완료’를 실제 모델이 수정하는 과정을 봅니다.
 
-`history`에서 실패 이유와 다음 초안을 비교합니다. 통과하면 passed, 수정한 초안이 직전 초안과 동일하면 stalled, 수정 횟수를 다 쓰면 held입니다. 전체 루프 직접 구현은 선택 심화이며, 공통 활동은 Harness 장의 설계 메모입니다.
+`history`에서 실패 이유와 다음 초안을 비교합니다. 통과하면 passed, 수정한 초안이 직전 초안과 동일하면 stalled, 수정 횟수를 다 쓰면 held입니다. 공통 활동은 Harness 장의 설계 메모입니다. 추가로 구현을 읽으려면 Jupyter 파일 탐색기에서 `build_lab/guided.py`의 `refine_answer`를 엽니다. 성공 → 같은 초안 반복 → 상한 소진 순서와 `range(limit + 1)`을 찾아 마지막 허용 수정의 성공을 설명합니다. 이는 제공 구현을 읽는 활동이며 별도 구현 과제가 아닙니다.
 
 </section>
 <section class="slide" id="protocols">
@@ -145,7 +152,7 @@ print("답변:", result["draft"])
 
 ## 전체 실행 결과를 확인합니다
 
-<p class="section-time">예상 10분 · 해당 수업 시간에 포함</p>
+<p class="section-time">통합 장의 기준 실행 7분·Agent 선택 실습 16분에 포함</p>
 
 
 
@@ -159,9 +166,9 @@ print("답변:", result["draft"])
 
 ### 마친 뒤 설명할 수 있어야 하는 것
 
-통합 시간에는 [한 Agent에 MCP·A2A를 연결하는 6D 실습](./wrap#practice)을 수행합니다. 정상 문의와 미등록 문의에서 실제 도구 선택과 원격 검토 기록을 비교합니다. 별칭 변경은 수업 뒤 선택 복습으로 이어갑니다.
+통합 시간에는 [한 Agent에 MCP·A2A를 연결하는 6D 실습](./wrap#practice)을 수행합니다. 정책 검토와 표현 검토 요청에서 담당자 선택과 원격 검토 기록을 비교합니다. 미등록 문의는 선택 복습입니다. 별칭 변경은 수업 뒤 선택 복습으로 이어갑니다.
 
-핵심은 도구·LangChain Agent·업무 분기를 직접 만들고 실행 흐름을 설명하는 능력입니다. 그래프·루프 구조의 전체 작성은 선택 심화이고, Loop·Graph Engineering은 실제 담론을 읽고 반복 작업과 여러 역할을 조직하는 설계 판단까지 다룹니다. MCP 도구 공개와 A2A 결과 수용도 직접 연결합니다. 장기 메모리, 장애 후 복구, 운영 인증, 분산 재시도까지 하루에 숙련하는 과정은 아닙니다. HITL·Skills·DeepAgents는 개념과 제공 예제를 비교하고 구현 심화는 별도 과제로 이어갑니다.
+핵심은 도구·LangChain Agent·업무 분기를 직접 만들고 실행 흐름을 설명하는 능력입니다. 그래프·루프 구조는 제공 구현을 추가로 읽을 수 있고, Loop·Graph Engineering은 실제 담론을 읽고 반복 작업과 여러 역할을 조직하는 설계 판단까지 다룹니다. MCP 도구 공개와 A2A 결과 수용도 직접 연결합니다. 장기 메모리, 장애 후 복구, 운영 인증, 분산 재시도까지 하루에 숙련하는 과정은 아닙니다. HITL·Skills·DeepAgents는 개념과 제공 예제를 비교하고 구현 심화는 별도 과제로 이어갑니다.
 
 ### 더 연습하려면
 

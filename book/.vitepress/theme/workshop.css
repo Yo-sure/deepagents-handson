@@ -152,3 +152,16 @@
   .lec.workshop-edition .tool-flow-stages { grid-template-columns: 1fr; gap: 30px; }
   .lec.workshop-edition .tool-flow-stage:not(:last-child)::after { content: '↓'; right: 50%; top: auto; bottom: -30px; }
 }
+
+/* 좁은 화면에서는 본문 폭을 확보하고 긴 표·코드는 해당 영역 안에서 읽습니다. */
+@media (max-width: 760px) {
+  .lec.workshop-edition .slide { padding: 28px 20px; }
+  .lec.workshop-edition h1 { font-size: 29px; }
+  .lec.workshop-edition h2 { font-size: 24px; }
+  .lec.workshop-edition p:not(.mermaid p) { font-size: 17px; }
+  .lec.workshop-edition .lesson-nav { padding: 10px 20px; gap: 18px; flex-wrap: wrap; }
+  .lec.workshop-edition table { display: block; overflow-x: auto; }
+  .lec.workshop-edition th, .lec.workshop-edition td { min-width: 120px; padding: 10px 12px; }
+  .lec.workshop-edition .mermaid { padding: 16px 12px; }
+  .lec.workshop-edition .chapnav { padding: 24px 20px; gap: 16px; }
+}

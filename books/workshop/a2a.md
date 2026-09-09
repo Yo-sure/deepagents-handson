@@ -102,9 +102,11 @@ flowchart LR
 |요청하고 추가 정보를 주고받기|Message·Part와 작업 연결 ID|업무 입력의 의미와 추가 질문 내용|
 |맡긴 일을 계속 추적하기|Task의 상태·조회·취소·산출물 규약|실행·저장·재시도와 업무 통과 기준|
 
-따라서 **블랙박스로 운영되는 Agent의 발견·메시지·작업 생애주기를 함께 표준화한다**고 이해하면 됩니다. 비동기 처리를 지원하지만 모든 요청이 비동기 Task여야 하는 것은 아닙니다. Card를 찾는 것과 최적의 담당자를 고르는 것도 별개입니다. [A2A 핵심 개념](https://a2a-protocol.org/latest/topics/key-concepts/)
+따라서 **블랙박스로 운영되는 Agent의 자기 설명·메시지·작업 생애주기를 공통 계약으로 연결한다**고 이해하면 됩니다. 비동기 처리를 지원하지만 모든 요청이 비동기 Task여야 하는 것은 아닙니다. Card를 찾는 것과 최적의 담당자를 고르는 것도 별개입니다. [A2A 핵심 개념](https://a2a-protocol.org/latest/topics/key-concepts/)
 
 MCP에도 원격 호출과 장시간 작업이 있으므로 시간·거리·모델 유무만으로 구분할 수 없습니다. 공통 도구 인터페이스가 필요하면 MCP를, 상대의 작업·추가 대화·산출물을 A2A 계약으로 다룰 필요가 있으면 A2A를 검토합니다. **이미 양쪽이 같은 HTTP 업무 API로 충분히 연결되어 있다면 A2A로 바꿀 필요는 없습니다.** 여러 독립 구현과 같은 방식으로 연결할 때 표준화의 이점이 커집니다. [MCP와 A2A의 관계](https://a2a-protocol.org/latest/topics/a2a-and-mcp/)
+
+Card를 찾는 전략은 알려진 주소의 well-known 경로 조회, 후보 주소 직접 설정, 레지스트리 검색 등으로 나뉩니다. A2A가 모든 레지스트리 검색 API를 하나로 정한 것은 아닙니다. 6D는 제공된 후보 주소에서 실제 Card를 조회합니다. [공식 발견 전략](https://a2a-protocol.org/latest/topics/agent-discovery/)
 
 ## 개념 2 · Card로 찾고, Message로 맡깁니다
 
@@ -223,7 +225,7 @@ auth_required는 인증이 필요한 상태, rejected는 요청을 거절한 종
 
 ## 개념 4 · 요청 하나를 서버 코드와 출력까지 따라갑니다
 
-<p class="section-time">예상 8분 · 17:01–17:09</p>
+<p class="section-time">예상 5분 · 17:01–17:06 · 요청·응답·수용 조건 / 서버 내부 코드는 추가 읽기</p>
 
 이번 실습에서는 **제공된 A2A 서버에 초안을 맡기고, 받은 결과를 채택할 조건을 직접 구현**합니다. 서버 전체를 처음부터 작성하지는 않습니다. 다만 어디에서 업무 코드를 실행하고 어디에서 프로토콜 응답을 만드는지 알아야 출력의 오류를 구분할 수 있습니다. 구현 파일은 `workshop/course/a2a_lab.py`, 실행 위치는 `notebooks/build-agent.ipynb`의 5A → 5B → 5C입니다. 첫 환경 셀을 실행한 커널에서 이어갑니다.
 
@@ -254,6 +256,8 @@ payload = {
 ```
 
 `delegate(url, payload)`는 앞에서 본 `Message(parts=[Part(text=...)])`에 이 사전을 JSON 문자열로 넣습니다. 여기서 **messageId는 통신 메시지의 ID, request_id는 우리 업무의 ID**입니다. `version`도 A2A가 자동으로 올려 주지 않습니다. 클라이언트가 어느 초안을 맡기는지 정해 보내야 합니다.
+
+<details><summary>추가 읽기 · 서버의 어느 코드가 요청을 받는가?</summary>
 
 ### 3. 서버의 어느 코드가 요청을 받는가?
 
@@ -298,6 +302,8 @@ await updater.complete()
 ```
 
 첫 호출은 검토서를 전달하고, 두 번째 호출은 **검토 작업이 끝났음**을 알립니다. `passed=False`여도 검토를 정상 수행했다면 completed입니다. 요청 JSON이나 필수 키가 잘못된 경우에는 제공 서버가 failed로 처리합니다. 두 코드 블록은 메서드 내부 발췌이므로 단독 실행하지 않습니다. 전체 클래스의 실행과 서버 연결은 5B가 담당합니다.
+
+</details>
 
 ### 4. 응답에서 무엇을 읽는가?
 
@@ -347,6 +353,8 @@ accept_review(
 
 ### ACP 통합 이후: REST 형태로도 A2A를 사용합니다 {#acp-rest}
 
+이 비교는 통합 장 6D에서 두 서버의 바인딩을 확인할 때 읽습니다. 지금은 Card의 접속 방식이 달라도 Message·Task·Artifact의 의미는 같다는 점만 확인합니다.
+
 Agent Communication Protocol(ACP)은 REST 중심의 Agent 통신 규약이었으며, 공식 사이트는 현재 Linux Foundation의 A2A에 통합되었다고 안내합니다. 에디터와 코딩 Agent를 연결하는 **Agent Client Protocol**과는 다른 ACP입니다. [ACP 공식 통합 안내](https://agentcommunicationprotocol.dev/introduction/welcome)
 
 현재 A2A는 JSON-RPC·gRPC·HTTP+JSON/REST 바인딩을 정의합니다. **REST로 연결한다고 A2A가 아닌 것은 아닙니다.** 기존 ACP의 URL·필드가 변경 없이 호환된다는 뜻도 아닙니다. 연결할 서버가 Card에 공개한 바인딩과 현재 A2A의 요청·응답 형식을 따릅니다.
@@ -361,6 +369,8 @@ Agent Communication Protocol(ACP)은 REST 중심의 Agent 통신 규약이었으
 [공식 바인딩별 메서드 대응표](https://a2a-protocol.org/latest/specification/#53-method-mapping-reference)
 
 아래는 REST 바인딩의 요청 구조 예시입니다. `message`·`configuration`을 본문에 직접 담고 JSON-RPC의 `jsonrpc`·`method`·`params` 포장을 사용하지 않습니다. 주소와 ID는 설명용입니다.
+
+<details><summary>6D 연결 참고 · REST 요청 형식과 서버 구성</summary>
 
 ```http
 POST /message:send HTTP/1.1
@@ -379,34 +389,43 @@ Content-Type: application/a2a+json
 
 SDK 1.1.2의 `from a2a.server.routes import create_rest_routes`로 같은 요청 처리기를 REST 경로에 연결할 수 있습니다. `create_app(..., binding="HTTP+JSON")`은 이 경로와 Card의 바인딩을 함께 설정합니다. 노트북 **6D의 표현 검토 서버가 실제로 이 방식을 사용**하고 정책 검토 서버는 JSON-RPC를 사용합니다. 클라이언트는 Card를 읽어 해당 바인딩을 지원하는 연결을 생성합니다. 단순히 Card 문자열만 REST로 바꿔서는 서버 경로가 생기지 않습니다. [HTTP+JSON/REST 명세](https://a2a-protocol.org/latest/specification/#11-httpjsonrest-protocol-binding)
 
+</details>
+
 </section>
 <section class="slide" id="observe">
 
 ## 실습 · Card와 실제 응답부터 읽습니다
 
-<p class="section-time">예상 4분 · 17:09–17:13</p>
+<p class="section-time">예상 7분 · 17:06–17:13 · 5A Card 조회와 5B 두 초안 비교</p>
 
 <!-- lesson-exercise:a2a -->
 
 제공된 서버를 실행하는 일과 수용 조건을 구현하는 일을 구분합니다. 5A·5B의 통신 코드는 제공되며, 직접 작성할 함수는 5C의 `accept_review`입니다. 화면의 출력에서 먼저 Card·Message·Task·Artifact를 찾은 뒤 조건을 작성합니다.
 
-</section>
-<section class="slide" id="practice">
-
-## 실습 · 정상 초안과 부족한 초안을 비교합니다
-
-<p class="section-time">예상 7분 · 17:13–17:20</p>
-
-5B의 draft만 바꿔 아래 두 경우를 실행합니다. 나머지 코드를 새로 작성하지 않습니다. 그 뒤 5C의 정의·검사 셀을 실행합니다.
+5B의 draft만 바꿔 아래 두 경우를 실행합니다. 나머지 코드를 새로 작성하지 않습니다. 5C는 다음 개인 구현 시간에 작성합니다.
 
 | draft | 기대 상태 | 검토서와 수용 결과 |
 |---|---|---|
 | 계정 문의는 IT지원팀에 전달합니다. 근거: P-02 | completed | passed=true, accepted |
 | 확인했습니다. | completed | passed=false, feedback에 누락 정보, held |
 
-두 실행의 Task ID·messageId·업무 request_id를 찾아 어떤 것이 바뀌었는지 비교합니다. 실제 모델의 표현 검토는 model_note에서 읽습니다. API 오류가 났다면 연결을 복구하고 5B를 다시 실행합니다.
+두 실행의 Task ID·messageId·업무 request_id를 찾아 어떤 것이 바뀌었는지 비교합니다. 실제 모델의 표현 검토는 model_note에서 읽습니다. API 오류가 났다면 연결을 복구하고 5B를 다시 실행합니다. 두 결과를 기록한 뒤 마지막에는 정상 초안으로 5B를 실행해, 다음 5C에서 사용할 `review`와 `payload`를 정상 결과로 준비합니다.
 
 **반례:** 검토는 통과했지만 현재 기대 버전을 2로 바꾸면 어떨까요? Task를 다시 요청하는 실험이 아니라, 받은 결과를 현재 초안에 적용해도 되는지 판단하는 실험입니다. 5C에서 held가 나와야 합니다.
+
+
+</section>
+<section class="slide" id="practice">
+
+## 개인 구현 · 현재 초안에 쓸 수 있는 검토 결과를 판단합니다
+
+<p class="section-time">예상 10분 · 17:13–17:23 · 5C 구현·반례 검사</p>
+
+5A·5B에서 받은 실제 결과를 바탕으로 `accept_review`를 작성합니다. **판단 순서 예상 2분 → 구현 5분 → 검사와 버전 반례 3분**으로 진행합니다.
+
+submitted·working은 pending, 그 외 미완료 상태는 held입니다. completed일 때만 산출물의 요청 ID·버전·passed를 비교합니다. 반환값의 계약은 앞의 개념 4와 노트북 5C 표를 따릅니다.
+
+먼저 정상 결과를 채택하고, 같은 결과의 현재 기대 버전만 2로 바꿔 held인지 확인합니다. 이어 `check_accept_review`로 누락 필드와 타입 반례를 확인합니다. `True`를 버전 1로 받지 않으려면 값의 비교뿐 아니라 타입도 확인해야 합니다. 마지막으로 자신이 고른 반례 하나를 추가합니다.
 
 </section>
 <section class="slide" id="operations">
@@ -431,7 +450,7 @@ SDK 1.1.2의 `from a2a.server.routes import create_rest_routes`로 같은 요청
 
 ## 풀이 · 통신 결과를 업무 판단에 연결합니다
 
-<p class="section-time">예상 7분 · 17:20–17:27</p>
+<p class="section-time">예상 4분 · 17:23–17:27</p>
 
 `notebooks/build-agent-solution.ipynb`의 5C와 비교합니다. 상태가 submitted·working이면 pending입니다. <mark class="key-point">completed일 때만 산출물을 읽고 현재 요청·버전·통과 여부를 확인합니다.</mark>
 
