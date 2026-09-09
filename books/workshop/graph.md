@@ -497,7 +497,7 @@ checkpoint가 있어도 외부 발송이 자동으로 취소되거나 중복 방
 
 <section class="slide" id="observe">
 
-## 실습 · 업무 분기 구현
+## 실습 · 노드와 엣지로 업무 그래프를 직접 만듭니다
 
 <p class="section-time">예상 15분 · 13:10–13:25</p>
 
@@ -507,7 +507,7 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 2번 정의·연결 셀을 작
 
 <!-- lesson-exercise:graph -->
 
-주 실습은 위 개념 예제에 정책 데이터와 검토 단계를 추가합니다. 필드 이름과 마지막 노드가 달라지므로 `build_lab/materials.py`의 Inquiry와 `guided.py`를 기준으로 구현합니다.
+주 실습은 위 개념 예제에 정책 데이터와 검토 단계를 추가합니다. 필드 이름과 마지막 노드가 달라지므로 `build_lab/materials.py`의 Inquiry와 노트북에 제공된 read·draft·review 본문을 기준으로 구현합니다. **StateGraph 생성 → add_node 네 개 → add_edge와 add_conditional_edges → compile은 직접 작성합니다.** 조회 후 조건부 경로와 각 종료점을 먼저 그립니다.
 
 |개념 예제 `course/graph_lab.py`|주 실습 `build_lab`|
 |---|---|
@@ -537,12 +537,12 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 2번 정의·연결 셀을 작
 
 <p class="section-time">예상 15분 · 13:25–13:40</p>
 
-### 이미 받은 정보는 다시 묻지 않습니다
+### 그래프를 완성하고 실제 실행 경로를 검사합니다
 
 이제 앞에서 예상한 추가 질문을 직접 구현합니다. **정책이 없으면 업무 주제를, 연락처가 없으면 회신 대상을 묻고, 이미 받은 정보는 다시 묻지 않아야 합니다.** 두 정보가 모두 부족할 수도 있습니다.
 
 1. **예측 3분:** 정책만 없음·연락처만 없음·둘 다 없음에서 필요한 질문을 적습니다. 정상 입력에서는 질문 노드를 방문하는지도 예상합니다.
-2. **구현 7분:** 노트북 2번의 `ask_for_details(state)`를 완성합니다. 부족한 항목을 `missing` 목록에 `"topic"`, `"contact"` 순서로 담고 그 목록으로 질문을 만듭니다. 질문 문장은 직접 정합니다.
+2. **구현 7분:** 노트북 2번의 `ask_for_details(state)`와 `build_workflow`의 노드 등록·엣지·compile을 완성합니다. 부족한 항목을 `missing` 목록에 `"topic"`, `"contact"` 순서로 담고 그 목록으로 질문을 만듭니다. 질문 문장은 직접 정합니다.
 3. **검사·관찰 5분:** 2A의 `check_graph` 검사를 통과한 뒤 2B에서 방문 기록을 바꾸어 반환값과 전체 State를 비교하고, 원래 구현으로 복원한 뒤 2A 검사와 실제 실행을 다시 수행하여 질문·초안 생성 호출을 확인합니다. 마지막으로 자신의 반례 하나를 추가합니다. 예를 들어 미등록 업무에 공백 연락처까지 들어오면 질문 하나가 누락되지 않는지 확인합니다.
 
 **완료 기준:** <mark class="key-point">`missing`과 질문이 부족한 정보만 담으며, `lookup→ask` 기록과 `decision="ask"`가 남고 초안 생성 호출은 0회입니다.</mark> `topic`·`contact`·조회 결과는 유지합니다. 정상 입력의 `lookup→draft→review`도 그대로 동작해야 합니다. 정의 셀을 고친 뒤 그래프 연결 셀부터 다시 실행합니다.
@@ -571,7 +571,7 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 2번 정의·연결 셀을 작
 
 </details>
 
-주 실습 풀이는 `notebooks/build-agent-solution.ipynb`의 `route_inquiry`와 `ask_for_details`를 자신의 구현과 비교합니다. 분기는 다음 노드 이름을 반환하고, 질문 노드는 State 갱신값을 반환합니다. 두 함수의 반환값이 왜 다른지 설명합니다.
+**막히면 `notebooks/build-agent-solution.ipynb`의 같은 2번을 찾습니다.** `route_inquiry`, `ask_for_details`, `build_workflow`의 전체 연결과 자신의 코드를 비교합니다. 2A·2B 코드 뒤에는 출력의 정확한 필드를 짚는 해석 셀이 있습니다. 분기는 다음 노드 이름을 반환하고, 질문 노드는 State 갱신값을 반환합니다. 두 함수의 반환값이 왜 다른지 설명합니다.
 
 |주 실습의 State|기대 경로|이유|
 |---|---|---|
@@ -585,6 +585,10 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 2번 정의·연결 셀을 작
 각 행에서 `visited`와 `decision`을 확인합니다. `draft`를 방문했다는 기록만으로 검토까지 통과했다고 말할 수는 없습니다. 노트북 2번 단계는 검토를 한 번만 하며 `passed` 또는 `held`를 반환합니다. 뒤의 3번 수정 루프 단계는 수정 반복까지 연결하므로 수정한 초안이 직전 초안과 동일하면 `stalled`도 나올 수 있습니다. 이 값은 주 실습이 정한 업무 판정이며 LangGraph의 예약 상태명이 아닙니다.
 
 질문 노드의 풀이에서는 부족한 항목을 각각 검사합니다. `if … elif …`로 하나만 고르면 두 정보가 모두 부족한 입력에서 질문을 빠뜨릴 수 있습니다. 반대로 항상 두 항목을 묻는 구현은 이미 받은 정보까지 다시 요구합니다. 자신이 만든 반례가 어느 실수를 잡았는지 비교합니다.
+
+### 고급 확장 · 검토 뒤의 재작업 경로를 직접 연결합니다
+
+노트북 **2C**는 별도 `build_retry_graph`에서 review → revise → review를 연결하는 추가 15분 과제입니다. 실패하면서 수정 예산이 남은 경우에만 되돌아가게 합니다. `route_review`, 노드 등록과 조건부·일반 엣지를 작성하고 실제 모델에 초안을 수정시킵니다. limit=0·2와 같은 초안을 계속 반환하는 수정 함수를 비교합니다. **END에 도달한 것과 검토 통과를 구별하여 attempts·feedback·visited로 설명해야 완료입니다.** 풀이의 같은 2C에 코드와 결과별 해설이 있습니다.
 
 ### 관찰 풀이 · 같은 답변인데 기록은 왜 달라질까요?
 
@@ -624,7 +628,7 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 2번 정의·연결 셀을 작
 |여러 요청에 공통인 데이터|사용자 선호·공유 정책 등|별도 장기 기억 Store 구현 없음|
 |업무 처리 기록|실제 발송·접수 여부와 중복 확인|그래프 checkpoint만으로 해결되지 않음|
 
-주 실습의 `guided.build_workflow`는 checkpointer 없이 compile합니다. `thread_id`만 입력에 추가한다고 저장 기능이 생기지 않습니다. 승인 시연은 같은 프로세스에서만 이어지며, 운영용 영속 저장소와 접근 제어를 제공하지 않습니다. [Persistence 공식 설명](https://docs.langchain.com/oss/python/langgraph/persistence)
+주 실습에서 직접 작성하는 `build_workflow`는 checkpointer 없이 compile합니다. `thread_id`만 입력에 추가한다고 저장 기능이 생기지 않습니다. 승인 시연은 같은 프로세스에서만 이어지며, 운영용 영속 저장소와 접근 제어를 제공하지 않습니다. [Persistence 공식 설명](https://docs.langchain.com/oss/python/langgraph/persistence)
 
 운영에서는 다른 문의가 같은 저장 스레드를 잘못 이어받지 않도록 실행 식별자를 정해야 합니다. 식별자는 권한 확인의 대체물이 아닙니다. 누가 그 실행을 조회·재개할 수 있는지도 애플리케이션에서 확인합니다.
 

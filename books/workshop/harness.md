@@ -33,7 +33,7 @@ pageClass: lec-page
 |---|---|
 |Agent 실행 루프와 Harness 구성을 연결해 설명합니다.|DeepAgents의 create_agent·middleware 연결을 짚고 구현과 설정을 구별합니다.|
 |수정 횟수와 종료 이유를 확인합니다.|build-agent.ipynb 3에서 limit=0과 2의 호출·history를 비교합니다.|
-|Skill과 코딩 작업의 완료 기준을 작성합니다.|제공 Skill의 적용 조건을 읽고 설계 활동에서 실패 근거·다음 작업·중단 조건을 적습니다.|
+|DeepAgents와 자기 Skill을 연결해 실행합니다.|harness-build.ipynb의 H1~H3 코드와 Skill 읽기·조회·응답 기록을 확인합니다.|
 
 
 
@@ -470,35 +470,35 @@ flowchart TB
 
 <!-- lesson-engineering:case -->
 
-## 함께 실습
-
-이제 **문의 Agent의 답변을 개선하는 실습**으로 돌아옵니다. 아래 수정 루프는 답변 초안과 검토 결과를 처리합니다. 소스 코드를 편집하거나 테스트 파일을 만드는 코딩 작업은 뒤의 ‘Harness 설계 메모’에서 별도로 다룹니다.
+## 함께 실습 · DeepAgents와 자기 Skill을 연결합니다
 
 <p class="section-time">예상 10분 · 14:40–14:50</p>
 
-함께 10분 동안 제공 수정 루프와 DeepAgents·Skill 사용 기록을 비교합니다. 아래 노트북 셀의 출력에서 실제 피드백과 read_file 호출 여부를 읽습니다. 개인 시간에는 코딩 하네스 활용 활동으로 넘어갑니다.
+**JupyterLab에서 `notebooks/harness-build.ipynb`를 엽니다.** 이 장의 주 실습은 H1~H3입니다. 이전 장의 커널 변수는 필요하지 않습니다. 첫 환경 셀 다음 H1에서 Skill의 조회 절차·정책 없음·완료 기준을 직접 쓰고, H2의 Harness 구성 함수를 시작합니다.
 
-### 두 노트북에서 관찰할 것
+|직접 작성할 것|API와 확인할 의미|
+|---|---|
+|Skill 본문|학습자가 작성한 절차가 파일에 저장됨|
+|backend와 skills|FilesystemBackend의 root와 /skills/ 가상 경로를 연결|
+|create_deep_agent|model·tools·backend·skills·system_prompt를 직접 지정|
+|run_harness|messages와 invoke를 직접 작성하여 전체 실행 결과 반환|
 
-1. `build-agent.ipynb`의 **3. 제공 수정 Loop 관찰**: limit를 0과 2로 바꾸어 history·status를 비교합니다. 최초 초안은 고정되어 있고, limit가 1 이상이면 실제 수정 모델을 호출합니다. 이후 **연결하고 설명합니다** 셀은 초안 생성부터 실제 모델을 호출합니다.
-2. `concepts.ipynb`의 **Skill · 문서 확인과 실제 사용 확인**: Skill 문서를 읽고 미등록 업무 입력으로 모델 셀을 실행합니다. read_file 등 문서 읽기 요청·결과와 추가 질문을 확인합니다. 문서 수정 전후 비교는 위의 선택 실험에서 진행합니다.
-
-**완료 기준:** 수정 상한이 0이면 수정 함수가 호출되지 않고, 수정 함수가 직전과 완전히 같은 초안을 반환하면 stalled가 됩니다. 실패 이유가 같더라도 초안이 달라졌다면 남은 횟수 안에서 검토를 계속합니다. <mark class="key-point">Skill 사용은 좋은 답변만으로 추정하지 않고 문서 읽기 기록으로 확인합니다.</mark> 두 예제는 서로 다른 실행입니다.
-
+저장 코드와 출력 도우미는 제공합니다. 파일을 저장했다고 Agent가 읽은 것은 아닙니다. H2 실행 셀의 read_file 요청과 같은 tool_call_id의 ToolMessage에서 자신의 문서가 읽혔는지 확인합니다.
 
 </section>
-
 <section class="slide" id="practice">
 
-## 개인 활동
+## 개인 활동 · 직접 실행하고 Skill을 개선합니다
 
 <p class="section-time">예상 20분 · 14:50–15:10</p>
 
-이번에는 코딩 Agent에게 맡길 검수 작업을 설계합니다. **작성 위치는 `build-agent.ipynb` 3번 뒤의 ‘Harness 설계 메모’ 셀입니다.** 반복 조건을 모델 없이 확인하는 실험 5분과, 실행 순서·반례 대응을 작성하는 설계 15분으로 진행합니다. 코드를 따라 입력하는 대신 수정 후보를 직접 만들고 관찰 결과를 설계의 근거로 사용합니다.
+H2 함수를 완성하여 실제 DeepAgents를 호출합니다. 계정 입력에서는 정책 ID·팀을, 없는업무 입력에서는 추측 없는 추가 질문을 확인합니다. H3에서 정책이 없을 때 질문하는 절차를 바꾸고 같은 입력으로 다시 실행합니다. **Skill 저장 → Harness 생성 → 요청 → 파일 읽기 → 정책 조회 → 답변**을 자신의 코드와 trace에서 연결해 설명합니다.
 
-<!-- lesson-engineering:task -->
+**완료 기준:** 직접 작성한 코드로 DeepAgents가 실행되고, 자기 Skill의 읽기 성공 기록과 정책 결과에 맞는 답변이 있습니다. 실패했다면 경로·사용 조건·지침 중 첫 번째 어긋난 부분을 찾아 고치고 동일 입력으로 다시 확인합니다. 좋은 답변만으로 Skill 사용을 추정하지 않습니다.
 
-공통 과제를 마친 뒤 [제공 루프 구현 추가 읽기](./build#loop)에서 검토·수정·종료 조건을 코드와 대조할 수 있습니다.
+**고급 확장:** description의 사용 조건과 본문의 절차를 따로 바꾸어 파일 읽기 선택과 답변이 어떻게 달라지는지 비교합니다. 실행 기록에는 변경한 문서와 질문, 읽기 결과, 최종 판단을 남깁니다.
+
+`build-agent.ipynb`의 3번 수정 Loop, `harness-control.ipynb`, [Harness 설계 활동](./engineering#practice)은 주 실습 뒤에 보는 선택 심화입니다. control은 모델 없이 수정 횟수·동일 후보·종료 조건을 비교하는 실험이며 DeepAgents 실행을 대신하지 않습니다.
 
 <aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>테스트는 “정산 담당 팀은 재무지원팀”이라고 검사합니다. Agent는 틀린 답을 고치는 대신 테스트를 지워서 통과시켰습니다.<br><br><strong>이런 수정을 막으려면 어떤 규칙이 필요할까요?</strong> 실제로 담당 팀이 바뀌어 테스트를 수정해야 할 때는 누가 확인하면 좋을까요?</p></aside>
 
@@ -517,6 +517,11 @@ flowchart TB
 ## 풀이
 
 <p class="section-time">예상 10분 · 15:10–15:20</p>
+
+**정답과 해설은 `notebooks/harness-build-solution.ipynb`의 같은 H1~H3에 있습니다.** H1은 Skill 본문 예시, H2는 backend·skills·도구·모델 연결과 invoke 정답, 마지막 표는 read_file 요청·성공 결과·정책 결과·답변의 해석입니다. 자기 실행에서 문서 읽기가 없으면 어떤 경로와 사용 조건부터 확인할지도 설명합니다.
+
+아래 설계 메모 풀이는 선택 심화에 해당합니다. DeepAgents 직접 구현의 정답과 혼동하지 않습니다.
+
 
 <details class="instructor-note"><summary>함께 짚어보기 · 설계 풀이</summary>
 

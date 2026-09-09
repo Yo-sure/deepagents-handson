@@ -396,6 +396,10 @@ SDK 1.1.2의 `from a2a.server.routes import create_rest_routes`로 같은 요청
 
 ## 실습 · Card와 실제 응답부터 읽습니다
 
+**직접 구현:** 5A 정의 셀의 `make_review_request(payload)`에서 Message의 역할·ID·JSON 텍스트 Part와 SendMessageRequest를 만듭니다. `connect_review_client(http, url, expected_skill)`에서는 Card 조회 → 기능 ID 확인 → ClientConfig·ClientFactory로 연결을 작성합니다. 5B는 이 두 함수를 실제 서버 연결·전송에 사용합니다. 5C의 `accept_review`도 직접 작성합니다. 서버 실행과 응답 파싱은 제공됩니다.
+
+**구현 순서:** 요청·연결 함수 작성 10분 → 5A·5B 실행 5분 → 5C 수용 조건과 반례는 이어지는 개인 실습에서 구현합니다. 막히면 풀이 노트북의 같은 5A·5B·5C 번호와 각 결과 해석을 확인합니다. 요청의 message_id, Task의 id, 업무 payload의 request_id·version을 구별해야 합니다.
+
 <p class="section-time">예상 7분 · 17:06–17:13 · 5A Card 조회와 5B 두 초안 비교</p>
 
 <!-- lesson-exercise:a2a -->

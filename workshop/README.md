@@ -1,4 +1,4 @@
-# AI Agent 개발 실습 — 2026.09-rc1
+# AI Agent 개발 실습 — 2026.09-rc2
 
 주 실습은 `notebooks/build-agent.ipynb`입니다. 함수는 노트북 셀에 작성하고 실행합니다. Python 파일로 옮기지 않습니다.
 
@@ -18,12 +18,13 @@ orientation.ipynb에서 Python 경로가 workshop/.venv/bin/python인지 확인�
 
 ## 노트북 구성
 
-- 1A·1B: 조회 도구와 Agent를 직접 작성하고 실제 메시지를 확인합니다.
-- 2·2A: 업무 분기와 필요한 정보만 되묻는 노드를 구현합니다. 모델 없는 검사와 실제 Agent 실행으로 경로·질문·초안 생성 호출을 비교합니다.
-- 3: 제공 수정 루프의 피드백과 종료 조건을 관찰합니다.
-- 4: 같은 노트북의 함수를 MCP 서버에 등록하고 실제 HTTP로 호출합니다.
-- 5: A2A 결과의 수용 조건과 반례를 구현합니다.
-- 6: 실제 조회·답변·원격 검토를 연결합니다.
+- 1A·1B·1C: 조회 도구·Agent 구성·호출을 작성하고 두 도구의 근거 흐름을 확인합니다.
+- 2·2A·2B: 업무 분기·질문 노드와 StateGraph의 노드 등록·엣지·compile을 직접 구현합니다. 2C는 검토·수정 순환 그래프 고급 확장입니다. 모델 없는 검사와 실제 Agent 실행으로 경로·질문·초안 생성 호출을 비교합니다.
+- 4장 주 실습: `harness-build.ipynb`의 H1~H3에서 자기 Skill과 DeepAgents Harness를 직접 구성·호출합니다. 정답·해설은 `harness-build-solution.ipynb`입니다.
+- build-agent의 3번 수정 Loop와 harness-control.ipynb는 선택 심화입니다.
+- 4: 서버 등록과 MCP 클라이언트 연결·도구 발견·Agent 호출을 직접 작성합니다.
+- 5: A2A 요청 Message·Card 기반 클라이언트 연결·결과 수용 조건을 구현합니다.
+- 6: 기준 실행 뒤 6D에서 MCP·발견·위임 도구를 가진 Agent를 직접 조립합니다.
 
 `concepts.ipynb`에는 도구 옵션, State reducer, 중단·재개 예제가 있습니다. `build-agent-solution.ipynb`는 풀이입니다. 먼저 자신의 구현을 실행한 뒤 같은 번호를 비교합니다. API 오류가 발생하면 원인을 해결한 뒤 재실행합니다. 출력은 실제 응답이며 매번 같지 않을 수 있습니다.
 

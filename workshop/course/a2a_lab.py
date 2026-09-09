@@ -161,18 +161,21 @@ def create_app(port: int, *, model=None, profile="policy", binding="JSONRPC"):
 
 
 # region delegate
-async def delegate(url: str, payload: dict, *, expected_skill="review-policy"):
+async def delegate(url: str, payload: dict, *, expected_skill="review-policy", request=None, connect=None):
     from a2a.client import A2ACardResolver, ClientConfig, ClientFactory
     from a2a.types import Message, Role, SendMessageConfiguration, SendMessageRequest
 
     async with asyncio.timeout(60), httpx.AsyncClient(timeout=50) as http:
-        card = await A2ACardResolver(httpx_client=http, base_url=url).get_agent_card()
-        if expected_skill not in [skill.id for skill in card.skills]:
-            raise ValueError("검토 기능이 없는 Agent입니다.")
-        client = ClientFactory(
-            config=ClientConfig(httpx_client=http, streaming=False, supported_protocol_bindings=["JSONRPC", "HTTP+JSON"])
-        ).create(card=card)
-        request = SendMessageRequest(
+        if connect is not None:
+            card, client = await connect(http, url, expected_skill)
+        else:
+            card = await A2ACardResolver(httpx_client=http, base_url=url).get_agent_card()
+            if expected_skill not in [skill.id for skill in card.skills]:
+                raise ValueError("검토 기능이 없는 Agent입니다.")
+            client = ClientFactory(
+                config=ClientConfig(httpx_client=http, streaming=False, supported_protocol_bindings=["JSONRPC", "HTTP+JSON"])
+            ).create(card=card)
+        request = request if request is not None else SendMessageRequest(
             message=Message(
                 role=Role.ROLE_USER,
                 message_id=str(uuid.uuid4()),

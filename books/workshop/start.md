@@ -132,7 +132,7 @@ print(json.loads(result)["team"])
 
 ### 1. 이번 수업 자료를 받습니다
 
-**2026.09-rc1 실습 자료**를 [ZIP으로 받습니다](../downloads/agent-workshop-2026.09-rc1.zip). 압축을 풀면 workshop 폴더가 나옵니다. 교재 웹페이지를 여는 것만으로 실습 코드가 설치되지는 않습니다. 다른 버전의 파일을 섞지 않습니다. Git을 사용하는 경우 [Git으로 받기](../git-setup)의 별도 안내를 따릅니다.
+**2026.09-rc2 실습 자료**를 [ZIP으로 받습니다](../downloads/agent-workshop-2026.09-rc2.zip). 압축을 풀면 workshop 폴더가 나옵니다. 교재 웹페이지를 여는 것만으로 실습 코드가 설치되지는 않습니다. 다른 버전의 파일을 섞지 않습니다. Git을 사용하는 경우 [Git으로 받기](../git-setup)의 별도 안내를 따릅니다.
 
 ```text
 workshop/                   ← 압축을 푼 자료와 명령 실행 위치
@@ -241,7 +241,7 @@ workshop 폴더에서 한 번 실행합니다. 이 명령은 노트북 화면을
 .venv/bin/jupyter lab --no-browser --ServerApp.root_dir=. notebooks/orientation.ipynb
 ```
 
-`--ServerApp.root_dir=.`는 현재 `workshop` 폴더 전체를 Jupyter 파일 탐색기에 표시합니다. 따라서 노트북뿐 아니라 뒤 Skill 실습에서 수정할 `skills/policy-answer/SKILL.md`도 열 수 있습니다. 파일 탐색기가 `notebooks` 안을 보여 주면 위쪽 경로 맨 왼쪽의 폴더 아이콘을 눌러 최상위로 이동한 뒤 `skills → policy-answer → SKILL.md`를 엽니다.
+`--ServerApp.root_dir=.`는 현재 `workshop` 폴더 전체를 Jupyter 파일 탐색기에 표시합니다. 따라서 노트북뿐 아니라 H1에서 저장할 `workspace/harness-practice/skills/my-policy/SKILL.md`와 개념 예제의 `skills/policy-answer/SKILL.md`도 열 수 있습니다. 파일 탐색기가 `notebooks` 안을 보여 주면 위쪽 경로 맨 왼쪽의 폴더 아이콘을 눌러 최상위로 이동한 뒤 `skills → policy-answer → SKILL.md`를 엽니다.
 
 `--no-browser`는 WSL에서 브라우저를 자동으로 여는 대신 주소를 직접 열도록 합니다. 터미널에 표시된 `http://localhost:.../lab?token=...` 또는 `http://127.0.0.1:...` 주소 전체를 Windows 브라우저 주소창에 붙여 넣습니다. 주소의 포트는 실행 결과를 따르며, 토큰이 포함된 주소는 공유하지 않습니다.
 

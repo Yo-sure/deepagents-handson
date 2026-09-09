@@ -41,9 +41,19 @@ def check_graph(build_workflow, lookup):
     ]
     for topic, contact, missing in cases:
         calls.clear()
-        result = app.invoke({"topic": topic, "contact": contact})
+        executed = []
+        for mode, chunk in app.stream(
+            {"topic": topic, "contact": contact}, stream_mode=["updates", "values"]
+        ):
+            if mode == "updates":
+                executed.extend(chunk)
+            else:
+                result = chunk
         label = f"topic={topic!r}, contact={contact!r}"
         expected_path = ["lookup", "ask"] if missing else ["lookup", "draft", "review"]
+        assert executed == expected_path, (
+            f"{label}: 실제 노드 실행 {executed}. add_edge와 조건부 연결을 확인하십시오."
+        )
         assert result["visited"] == expected_path, (
             f"{label}: 방문 경로 {result['visited']}"
         )

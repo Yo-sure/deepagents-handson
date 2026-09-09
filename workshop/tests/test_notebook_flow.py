@@ -106,6 +106,9 @@ def test_solution_notebook_end_to_end(alias, edition):
         # 6D has a separate model-driven discovery suite with real Card/Task assertions.
         if "await run_connected_agent(mission)" in cell.source:
             continue
+        # 복합 도구 선택은 별도 1C 테스트에서 검증합니다.
+        if cell.id == "service-agent-run":
+            continue
         if alias and "snapshot_topics" in cell.source:
             raise AssertionError("옛 snapshot 구현이 남아 있습니다.")
         if alias and "snapshot =" in cell.source:
@@ -187,12 +190,12 @@ def completed_student():
     """학생용 제공 셀을 유지하고 지정된 구현 부분만 완성합니다."""
     student = nbformat.read(ROOT / "notebooks/build-agent.ipynb", as_version=4)
     solution = nbformat.read(ROOT / "notebooks/build-agent-solution.ipynb", as_version=4)
-    for index in [3, 6, 10, 21, 32]:
+    for index in [3, 6, 10, 21, 28, 32, 42]:
         build_cell(student, index).source = build_cell(solution, index).source
-    build_cell(student, 24).source = build_cell(student, 24).source.replace(
-        "tools = []  # TODO: adapter에서 도구 목록을 받아 연결합니다.",
-        "tools = await adapter.list_tools()",
-    )
+    for identifier in ["service-agent-build", "retry-graph-build"]:
+        next(c for c in student.cells if c.id == identifier).source = next(
+            c for c in solution.cells if c.id == identifier
+        ).source
     return student
 
 
@@ -201,7 +204,7 @@ def completed_student():
     ("loop", [3, 15, 16], 'assert repaired["status"] == "passed"'),
     ("mcp", [3, 21, 22, 24], 'assert any(m.type == "tool" for m in result["messages"])'),
     ("a2a", [28, 30, 32, 33], 'assert review["artifact"]["passed"] is True'),
-    ("integration", [3, 6, 10, 15, 21, 28, 32, 35, 37, 39], 'assert decision == "accepted"'),
+    ("integration", [3, 6, 10, 21, 28, 32, 35, 37, 39], 'assert decision == "accepted"'),
 ])
 def test_student_sections_from_fresh_kernel(section, indices, assertion):
     notebook = completed_student()
@@ -232,8 +235,10 @@ def test_unfinished_mcp_connection_stops_before_model_call():
     original = nbformat.read(ROOT / "notebooks/build-agent.ipynb", as_version=4)
     cells = [build_cell(notebook, 1), nbformat.v4.new_code_cell(MODEL_SETUP)]
     cells.extend(build_cell(notebook, i) for i in [3, 21])
+    unfinished = build_cell(original, 21).source.split("async def run_remote_agent", 1)[1]
+    cells.append(nbformat.v4.new_code_cell("async def run_remote_agent" + unfinished))
     cells.append(build_cell(original, 24))
-    with pytest.raises(CellExecutionError, match="4B: await adapter.list_tools"):
+    with pytest.raises(CellExecutionError, match="4B: MCP 연결"):
         execute(cells)
 
 

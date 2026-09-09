@@ -15,7 +15,7 @@ pageClass: lec-page
 
 이 자료는 **실패 한 건을 수정 담당에게 전달하고, 두 검토 결과를 모아 다음 행동을 정하는 사례**를 따라갑니다. 읽은 뒤에는 담당자별 입력·산출물, 병렬 실행할 단계, 재검토와 중단 조건을 한 장의 설계 메모로 설명할 수 있어야 합니다.
 
-Harness 수업에서 이 활동을 마쳤다면 필요한 부분만 다시 읽습니다. 실습은 같은 `harness-control.ipynb`와 `build-agent.ipynb`의 ‘Harness 설계 메모’를 사용합니다. 별도 프로젝트를 만들 필요는 없습니다.
+이 페이지는 Harness 주 실습 H1~H3 뒤에 읽는 선택 심화입니다. 이미 이 활동을 마쳤다면 필요한 부분만 다시 읽습니다. 실습은 같은 `harness-control.ipynb`와 `build-agent.ipynb`의 ‘Harness 설계 메모’를 사용합니다. 별도 프로젝트를 만들 필요는 없습니다.
 
 </section>
 <nav class="lesson-nav" aria-label="학습 단계"><a href="#distinction">01 판단 기준</a><a href="#case">02 실행 설계</a><a href="#task">03 설계 과제</a><a href="#review">04 풀이·확장</a></nav>

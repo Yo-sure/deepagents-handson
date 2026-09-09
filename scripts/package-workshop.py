@@ -12,7 +12,7 @@ import re
 import tempfile
 import zipfile
 
-VERSION = "2026.09-rc1"
+VERSION = "2026.09-rc2"
 TOP_FILES = {"README.md", "RELEASE.md",
              "pyproject.toml", "uv.lock", ".env.example", ".gitignore", "setup.sh", "configure_access.py"}
 EXTRA_FILES = {"build_lab/HARNESS_WORKSHEET.md", "data/policies.csv"}
