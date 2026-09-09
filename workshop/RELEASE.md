@@ -1,4 +1,4 @@
-# 실습 자료 안내 — 2026.09-rc2
+# 실습 자료 안내 — 2026.09-rc3
 
 이 자료는 AI Agent 개발 과정의 실습 자료입니다. README.md에서 준비 방법과 구현 순서를 확인합니다.
 
@@ -12,6 +12,8 @@ ZIP을 풀고 Ubuntu의 workshop 폴더에서 `bash setup.sh`를 실행합니다
 - `build_lab/`: 노트북이 사용하는 제공 구조와 개발 검증용 참고 구현
 - `exercises/`: 개발 검증용 기존 문제와 참고 풀이
 - `notebooks/`: orientation(환경 확인), build-agent(주 실습), concepts(개념 예제), build-agent-solution(풀이), harness-build 및 harness-build-solution(DeepAgents 직접 구성·풀이). 실행 출력은 포함하지 않습니다.
+- `notebooks/qna.ipynb`: 질문을 바꾸어 교재·실습·풀이를 검색하는 DeepAgents 학습 도우미
+- `qna_materials/`: Q&A에서 읽는 공개 교재·노트북·코드 자료
 - `skills/`: 예제에서 사용하는 공개 실습 절차
 - `tests/`: 코드 동작 검증용 테스트
 - `build_lab/HARNESS_WORKSHEET.md`: 하네스의 실행·피드백·완료 조건을 설계하는 활동지

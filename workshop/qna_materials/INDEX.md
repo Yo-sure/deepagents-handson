@@ -1,0 +1,45 @@
+# Q&A 자료 목록
+
+교재 원문은 textbook/, 실습과 풀이(이름에 solution)는 notebooks/, 실행 모듈은 code/입니다. 교재의 삽입 표시는 build.md 및 실행 모듈에서 확인합니다. 환경 설정과 개인 작성 파일은 포함하지 않습니다.
+
+- code/build_lab/__init__.md
+- code/build_lab/guided.md
+- code/build_lab/materials.md
+- code/build_lab/notebook_checks.md
+- code/build_lab/reference.md
+- code/build_lab/runner.md
+- code/build_lab/serve.md
+- code/build_lab/student.md
+- code/build_lab/transfer_solution.md
+- code/course/__init__.md
+- code/course/a2a_lab.md
+- code/course/cli.md
+- code/course/common.md
+- code/course/graph_lab.md
+- code/course/harness_lab.md
+- code/course/integration.md
+- code/course/langchain_lab.md
+- code/course/mcp_agent_lab.md
+- code/course/mcp_lab.md
+- code/course/notebook_server.md
+- code/course/policy_store.md
+- code/course/processes.md
+- code/course/qna.md
+- notebooks/build-agent-solution.md
+- notebooks/build-agent.md
+- notebooks/concepts.md
+- notebooks/harness-build-solution.md
+- notebooks/harness-build.md
+- notebooks/harness-control.md
+- notebooks/orientation.md
+- textbook/a2a.md
+- textbook/advanced-quiz.md
+- textbook/agent.md
+- textbook/build.md
+- textbook/engineering.md
+- textbook/graph.md
+- textbook/harness.md
+- textbook/langchain.md
+- textbook/mcp.md
+- textbook/start.md
+- textbook/wrap.md

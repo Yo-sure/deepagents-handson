@@ -165,7 +165,9 @@ def test_student_langchain_cells_and_textbook_followup():
     solution = nbformat.read(ROOT / "notebooks/build-agent-solution.ipynb", as_version=4)
     chapter = ROOT.parent / "books/workshop/langchain.md"
     if not chapter.is_file():
-        pytest.skip("배포 ZIP에는 교재 원문이 포함되지 않습니다.")
+        chapter = ROOT / "qna_materials/textbook/langchain.md"
+    if not chapter.is_file():
+        pytest.skip("교재 원문 또는 Q&A 자료가 필요합니다.")
     section = chapter.read_text(encoding="utf-8").split(
         "### 질문을 바꾸고 메시지를 읽습니다", 1
     )[1]

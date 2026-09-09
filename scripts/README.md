@@ -12,7 +12,7 @@ python scripts/package-workshop.py
 python scripts/package-workshop.py --check
 ```
 
-book의 npm run build도 prebuild에서 ZIP을 생성합니다. 산출물은 book/public/downloads/agent-workshop-2026.09-rc2.zip입니다. 생성 후 --check는 압축 내용·manifest와 현재 원본의 일치를 검사합니다. 원본 변경 후에는 다시 생성해야 합니다.
+book의 npm run build도 prebuild에서 ZIP을 생성합니다. 산출물은 book/public/downloads/agent-workshop-2026.09-rc3.zip입니다. 생성 후 --check는 압축 내용·manifest와 현재 원본의 일치를 검사합니다. 원본 변경 후에는 다시 생성해야 합니다.
 
 ## 포함 범위와 검증
 

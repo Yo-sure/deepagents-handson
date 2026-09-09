@@ -1,3 +1,5 @@
+원본: books/workshop/start.md
+
 ---
 layout: page
 title: 시작 안내와 하루의 흐름

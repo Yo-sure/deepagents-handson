@@ -1,3 +1,5 @@
+원본: books/workshop/wrap.md
+
 ---
 layout: page
 title: 전체 구조를 연결하고 적용점을 정리한다

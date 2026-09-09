@@ -1,0 +1,115 @@
+# 원본: notebooks/harness-control.ipynb
+
+
+## 셀 1 · ID 없음
+
+# 선택 심화 · 언제 수정을 멈출지 코드로 확인합니다
+
+**4장 주 실습은 `harness-build.ipynb` H1~H3입니다. 이 파일은 그 뒤에 보는 추가 실험입니다.**
+
+목적은 모델이 “완료”라고 말하는 것과 프로그램이 수정을 멈추는 조건을 구별하는 것입니다. 여기서는 모델 대신 자신이 정한 후보 문자열을 넣어, 횟수 제한·동일 초안 반복·검사 통과가 각각 어느 분기를 선택하는지 확인합니다. DeepAgents를 구성하거나 모델의 답변 능력을 평가하는 파일은 아닙니다.
+
+출력에서 `status`와 `history`의 마지막 항목을 함께 봅니다. passed이면 검사 오류가 없고, held이면 수정 한도에 도달했으며, stalled이면 직전과 동일한 후보를 반환한 것입니다. 후보가 바뀌었지만 같은 오류가 남아 있으면 이 구현은 stalled로 판정하지 않습니다.
+
+후보 목록을 바꾸기 전에 예상 status와 수정 횟수를 적고, 실행 뒤 실제 값과 비교합니다. `history`의 최초 검사(attempt=0)는 수정 호출이 아닙니다. 이 차이를 실제 Agent의 재시도 예산 설계에 연결해 설명하는 것이 완료 기준입니다.
+
+
+
+## 셀 2 · ID 없음
+
+```python
+from pathlib import Path
+import sys
+
+workshop_root = Path.cwd()
+if not (workshop_root / "build_lab").is_dir():
+    workshop_root = workshop_root.parent
+assert (workshop_root / "build_lab").is_dir(), "workshop 또는 notebooks 폴더에서 실행합니다."
+if str(workshop_root) not in sys.path:
+    sys.path.insert(0, str(workshop_root))
+
+from build_lab.guided import refine_answer
+
+policy_data = {
+    "found": True,
+    "policy": {"id": "P-01", "team": "재무지원팀"},
+}
+print("조회된 정책:", policy_data)
+
+```
+
+## 셀 3 · ID 없음
+
+```python
+# 두 문자열을 직접 작성합니다. 빈 문자열은 미작성 상태입니다.
+candidate_drafts = ["", ""]
+
+
+def run_case(candidates, limit):
+    calls = []
+
+    def revise(draft, feedback):
+        next_draft = candidates[len(calls)]
+        calls.append({"before": draft, "feedback": feedback, "after": next_draft})
+        return next_draft
+
+    result = refine_answer("확인 완료", policy_data, revise, limit)
+    print("종료:", result["status"])
+    print("수정 호출:", len(calls), "검토 횟수:", len(result["history"]))
+    for item in result["history"]:
+        print(item["attempt"], item["draft"], item["feedback"])
+    return result, calls
+
+
+if not all(candidate_drafts):
+    print("첫 수정은 실패, 두 번째 수정은 통과하도록 후보 두 개를 작성합니다.")
+else:
+    result, calls = run_case(candidate_drafts, limit=2)
+    assert result["history"][1]["feedback"], "첫 후보는 아직 검토를 통과하지 않아야 합니다."
+    assert result["status"] == "passed", "두 번째 후보를 조회 정책과 대조합니다."
+    assert len(calls) == 2 and len(result["history"]) == 3
+
+```
+
+## 셀 4 · ID 없음
+
+## 반례를 비교합니다
+
+다음 셀 실행 전에 세 상황의 종료 상태와 수정 호출 수를 예상합니다.
+
+1. 예산이 0이면 수정 함수를 호출할까요?
+2. 수정 결과가 원래 초안과 똑같다면 남은 예산을 모두 쓸까요?
+3. 초안은 달라졌지만 같은 오류가 남아 있으면 즉시 stalled일까요?
+
+`run_case`는 위 셀을 실행하면 정의됩니다. 후보를 아직 작성하지 않아도 아래 반례는 실행할 수 있습니다.
+
+
+## 셀 5 · ID 없음
+
+```python
+print("A. 수정 예산 0")
+zero, zero_calls = run_case([], limit=0)
+
+print("\nB. 원래 초안 그대로 반환")
+same, same_calls = run_case(["확인 완료"], limit=2)
+
+print("\nC. 초안은 달라지지만 오류는 유지")
+changed, changed_calls = run_case(["다시 확인했습니다.", "추가로 확인했습니다."], limit=2)
+
+assert zero["status"] == "held" and len(zero_calls) == 0
+assert same["status"] == "stalled" and len(same_calls) == 1
+assert changed["status"] == "held" and len(changed_calls) == 2
+
+```
+
+## 셀 6 · ID 없음
+
+## 풀이 비교 · 실험 후 읽습니다
+
+후보의 한 예는 `"재무지원팀에 문의합니다."`, `"P-01에 따라 재무지원팀에 문의합니다."`입니다. 첫 후보는 근거 ID가 빠졌고 두 번째는 두 조건을 충족합니다. **수정 2회, 검토 3회, passed**가 됩니다. 상한에 도달했더라도 먼저 성공을 검사하므로 마지막 수정의 성공을 인정합니다.
+
+A는 최초 검토 1회 뒤 held, 수정 호출 0회입니다. B는 수정 1회 뒤 두 번째 검토에서 같은 초안을 확인해 stalled가 됩니다. C는 초안 문자열이 달라졌으므로 stalled가 아니며, 수정 2회·검토 3회 후 held입니다. 같은 실패 이유만으로 무조건 중단하는 구현은 아닙니다.
+
+규칙 검사는 정책 ID와 담당 팀 등 한정된 조건만 검사합니다. 두 문자열을 넣었다고 답변 전체가 사실에 충실하다고 보장하지 않습니다. 이 실험의 목적은 검토 결과·수정·중단 규칙의 연결을 확인하는 것입니다.
+
+**메모로 가져갈 판단:** 결과가 없거나, 상한에 닿았거나, Agent가 완료라고 말했다는 이유만으로 통과시키지 않습니다. 실제 검토 근거와 다음 행동을 연결해 설계합니다.

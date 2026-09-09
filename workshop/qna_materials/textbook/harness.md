@@ -1,3 +1,5 @@
+원본: books/workshop/harness.md
+
 ---
 layout: page
 title: Harness·Loop·Graph Engineering

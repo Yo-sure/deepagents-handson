@@ -12,13 +12,13 @@ import re
 import tempfile
 import zipfile
 
-VERSION = "2026.09-rc2"
+VERSION = "2026.09-rc3"
 TOP_FILES = {"README.md", "RELEASE.md",
              "pyproject.toml", "uv.lock", ".env.example", ".gitignore", "setup.sh", "configure_access.py"}
 EXTRA_FILES = {"build_lab/HARNESS_WORKSHEET.md", "data/policies.csv"}
 DIRECTORIES = {
     "labs": {".py"}, "course": {".py"}, "build_lab": {".py"}, "exercises": {".py"},
-    "tests": {".py"}, "notebooks": {".ipynb"}, "skills": {".md"},
+    "tests": {".py"}, "notebooks": {".ipynb"}, "skills": {".md"}, "qna_materials": {".md"},
 }
 MANIFEST = "workshop/MANIFEST.json"
 SECRET_PATTERNS = [
@@ -151,6 +151,8 @@ def main() -> None:
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
     target = root / "book/public/downloads" / f"agent-workshop-{VERSION}.zip"
+    from build_qna_materials import build
+    build()
     expected = archive_bytes(collect(root / "workshop"))
     data = target.read_bytes() if args.check else expected
     count = verify_archive(data)

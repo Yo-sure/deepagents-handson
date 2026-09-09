@@ -1,4 +1,4 @@
-# AI Agent 개발 실습 — 2026.09-rc2
+# AI Agent 개발 실습 — 2026.09-rc3
 
 주 실습은 `notebooks/build-agent.ipynb`입니다. 함수는 노트북 셀에 작성하고 실행합니다. Python 파일로 옮기지 않습니다.
 
@@ -29,3 +29,7 @@ orientation.ipynb에서 Python 경로가 workshop/.venv/bin/python인지 확인�
 `concepts.ipynb`에는 도구 옵션, State reducer, 중단·재개 예제가 있습니다. `build-agent-solution.ipynb`는 풀이입니다. 먼저 자신의 구현을 실행한 뒤 같은 번호를 비교합니다. API 오류가 발생하면 원인을 해결한 뒤 재실행합니다. 출력은 실제 응답이며 매번 같지 않을 수 있습니다.
 
 서버 기동·종료는 제공 코드가 처리합니다. 기존 course·build_lab·labs Python 파일과 tests는 참고 구현과 개발 검증용입니다. 수강생은 노트북에서 실습합니다.
+
+## 교재 Q&A
+
+`notebooks/qna.ipynb`는 독립 실행합니다. 준비 셀 실행 후 질문만 바꾸면 DeepAgents가 `qna_materials`의 교재·실습·풀이를 검색하고 근거를 읽어 설명합니다. 결과 해석 및 실제 도구 요청 확인 안내도 노트북에 있습니다.

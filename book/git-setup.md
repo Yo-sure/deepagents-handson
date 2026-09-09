@@ -10,7 +10,7 @@ pageClass: lec-page
 
 # Git으로 실습 자료 받기
 
-Git에 익숙하다면 저장소를 복제해서 실습할 수 있습니다. Git 사용은 수업의 필수 조건이 아닙니다. 간단히 시작하려면 [실습 ZIP](./downloads/agent-workshop-2026.09-rc2.zip)을 받습니다.
+Git에 익숙하다면 저장소를 복제해서 실습할 수 있습니다. Git 사용은 수업의 필수 조건이 아닙니다. 간단히 시작하려면 [실습 ZIP](./downloads/agent-workshop-2026.09-rc3.zip)을 받습니다.
 
 ## 저장소 복제
 

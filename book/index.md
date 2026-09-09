@@ -10,7 +10,7 @@ pageClass: lec-page
 
 # 개념을 배우고 내 Agent를 완성합니다
 
-[2026.09-rc2 실습 ZIP 받기](./downloads/agent-workshop-2026.09-rc2.zip) · [Git으로 받기](./git-setup)
+[2026.09-rc3 실습 ZIP 받기](./downloads/agent-workshop-2026.09-rc3.zip) · [Git으로 받기](./git-setup)
 
 <p class="lead">Agent 개념을 처음 접하는 개발자도 작은 예제에서 시작합니다. LangChain·LangGraph·Harness·Loop Engineering·MCP·A2A(+ACP)를 배우고, 도구·Agent·분기를 직접 구현하고 제공 실행 구조에 연결합니다.</p>
 
