@@ -29,7 +29,7 @@ pageClass: lec-page
 |[Harness](./harness#learning-goals)|3 / 교재 설계 활동|수정 상한 비교, 다음 작업·검증·중단 기준|
 |[MCP](./mcp#learning-goals)|4A·4B|원격 조회와 Agent 도구 호출|
 |[A2A](./a2a#learning-goals)|5A·5B·5C|Card·Task·Artifact와 수용 반례|
-|[통합·복습](./wrap#learning-goals)|6 / 교재 퀴즈|별칭 변경과 기존 입력 유지, 개념 오답 재확인|
+|[통합·복습](./wrap#learning-goals)|6 / 교재 퀴즈|6D에서 Agent의 MCP·A2A 호출을 확인하고 미등록 요청 비교|
 
 첫 환경 셀을 실행한 뒤 필요한 앞 단계의 정의·연결 셀을 순서대로 실행합니다. 정의를 수정했다면 그 아래 연결 셀도 다시 실행합니다. 막힌 앞 단계는 [보완 안내](#recovery)를 따르고, 풀이 노트북의 같은 번호와 비교합니다.
 
@@ -60,7 +60,7 @@ pageClass: lec-page
 |---|---|
 |1A의 lookup_policy에 search_policy 연결|바로 아래 셀에서 정산·계정 조회, 없는업무 found=False|
 |1B의 build_agent에서 tool 변환과 create_agent 구성|모델·도구·지침을 넣어 Agent 반환|
-|다음 실행 셀에서 질문 전달|도구 요청·결과·최종 답변에서 P-02·IT지원팀 확인|
+|다음 실행 셀에서 질문 전달|요청의 계정 인자 → 도구 결과 P-02·IT지원팀 → 마지막 답변의 일치 확인|
 
 docstring에는 도구가 언제 필요한지 설명합니다. 지침에는 조회 시점과 정책이 없을 때의 행동을 작성합니다. 질문을 없는업무로 바꾸어 담당 팀을 추측하지 않는지 확인합니다. 출력은 실행한 셀 바로 아래에 남습니다.
 
@@ -97,6 +97,8 @@ print("답변:", result["draft"])
 |없는업무 / 정상 주소|lookup → ask|규정이 없으면 초안 생성 호출 0|
 
 먼저 제공 `check_graph(build_workflow, lookup_policy)` 검사로 모델 없이 경로와 `missing`을 확인합니다. 이어 네 실제 입력의 경로와 추가 질문을 비교합니다. `draft_calls`는 초안 생성 함수의 호출 기록이며, Agent 내부의 모델 API 호출 횟수는 아닙니다. 정상 경로에서 검토가 held이면 `result['history']`의 실패 이유를 읽습니다. API 오류로 셀이 실패했다면 연결 문제를 해결하고 다시 실행합니다.
+
+2A 실행 셀 아래쪽의 2B 관찰 코드는 생성·검토를 고정하고 자신의 그래프를 실행합니다. `updates`(각 노드의 반환값)와 `values`(반영된 전체 State)를 비교합니다. 개인 과제에서 `visited`를 바꾸어 비교할 때는 2B 코드만 새 셀에 복사해 실행할 수 있습니다. 변경을 복원한 뒤 2A 검사도 다시 통과시킵니다.
 
 노트북의 State는 `Inquiry`입니다. `data`는 조회 결과, `draft`는 답변 또는 추가 질문, `visited`는 방문 이력입니다. 조회·초안·검토 노드는 제공하며, `route_inquiry`와 `ask_for_details`는 직접 작성합니다.
 
@@ -145,11 +147,7 @@ print("답변:", result["draft"])
 
 <p class="section-time">예상 10분 · 해당 수업 시간에 포함</p>
 
-<details class="instructor-note"><summary>강사용 진행 노트 · 실습 도움</summary>
 
-입력과 반환 계약을 읽고 한 함수를 직접 완성하도록 돕습니다. 앞 단계가 막히면 학생 파일을 보관한 뒤 필요한 함수만 보완합니다. 모든 코드를 풀이로 교체하거나 별도 보고서를 작성하게 하지 않습니다.
-
-</details>
 
 
 
@@ -161,7 +159,7 @@ print("답변:", result["draft"])
 
 ### 마친 뒤 설명할 수 있어야 하는 것
 
-통합 시간에는 [업무 별칭을 추가하는 독립 변경](./wrap#practice)까지 수행합니다. 새 요구를 보고 수정 위치를 고르고, 변경 전 실패와 기존 동작의 유지 여부를 확인합니다. 각 구현의 계약을 그대로 옮기는 것과 새로운 요구에 맞게 재조합하는 것을 따로 평가합니다.
+통합 시간에는 [한 Agent에 MCP·A2A를 연결하는 6D 실습](./wrap#practice)을 수행합니다. 정상 문의와 미등록 문의에서 실제 도구 선택과 원격 검토 기록을 비교합니다. 별칭 변경은 수업 뒤 선택 복습으로 이어갑니다.
 
 핵심은 도구·LangChain Agent·업무 분기를 직접 만들고 실행 흐름을 설명하는 능력입니다. 그래프·루프 구조의 전체 작성은 선택 심화이고, Loop·Graph Engineering은 실제 담론을 읽고 반복 작업과 여러 역할을 조직하는 설계 판단까지 다룹니다. MCP 도구 공개와 A2A 결과 수용도 직접 연결합니다. 장기 메모리, 장애 후 복구, 운영 인증, 분산 재시도까지 하루에 숙련하는 과정은 아닙니다. HITL·Skills·DeepAgents는 개념과 제공 예제를 비교하고 구현 심화는 별도 과제로 이어갑니다.
 
@@ -174,13 +172,7 @@ print("답변:", result["draft"])
 외부 실습을 실행할 때는 해당 자료의 의존성과 설치 안내를 확인합니다.
 <aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>정산과 계정 검사는 모두 통과했습니다. 하지만 코드에는 “정산이면 재무지원팀, 나머지는 IT지원팀”이라고 적혀 있습니다.<br><br><strong>“없는업무”를 넣으면 어떤 답이 나올까요?</strong> 이 문제를 잡으려면 검사에 어떤 입력을 추가해야 할까요?</p></aside>
 
-<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
 
-없는 업무도 IT지원팀이라고 답하게 됩니다. 미등록 업무에서 found=false와 policy=null이 나오는지 검사합니다. 기존 정상 입력도 유지해야 합니다.
-
-한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
-
-</details>
 
 </section>
 
@@ -192,12 +184,15 @@ print("답변:", result["draft"])
 
 앞 단계 구현이 끝나지 않아 다음 실습을 실행할 수 없을 때 사용합니다. 먼저 Jupyter의 파일 복제 기능으로 자신의 노트북을 보관합니다. 아래 표에서 필요한 함수를 확인하고 `build-agent-solution.ipynb`의 같은 이름 정의 셀로 미완료 함수만 보완합니다. 현재 배우는 단계의 함수까지 교체하지 않습니다.
 
-|진행할 단계|먼저 필요한 함수|
+커널을 다시 시작했다면 저장된 출력만으로 이어갈 수 없습니다. 노트북 첫머리의 **커널을 다시 시작하거나 중간 장부터 복습할 때** 표에서 선행 셀을 확인합니다. 함수 정의뿐 아니라 객체를 만드는 연결 셀도 실행해야 합니다.
+
+|진행할 단계|먼저 필요한 함수·실행|
 |---|---|
-|Graph|lookup_policy, build_agent|
-|수정 루프 관찰|위 두 함수와 route_inquiry, ask_for_details|
-|MCP|lookup_policy|
-|A2A 통합|lookup_policy, build_agent, route_inquiry, ask_for_details, build_mcp_server|
+|Graph|1A·1B 정의와 실행 → 2의 정의·연결 셀|
+|수정 루프만 관찰|1A 정의 → 3의 제공 함수·수정 실행 셀|
+|MCP|1A 정의 → 4의 서버 정의. 모델은 4B에서 준비|
+|A2A Card·위임|환경 셀 → 5A → 5B. Card 조회에는 모델·키 불필요|
+|통합|1A·1B, 2, refine_answer, build_mcp_server, accept_review의 정의와 5A의 import → 6A·6B·6C|
 
 필요한 함수를 보완했다면 원래 진행하던 실습으로 돌아가 정의 셀과 해당 단계의 연결·실행 셀을 순서대로 실행합니다. 직접 작성하다 막힌 부분은 보관한 파일과 풀이를 비교하며 다시 살펴봅니다.
 </section>

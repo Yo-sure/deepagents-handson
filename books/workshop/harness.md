@@ -12,11 +12,18 @@ pageClass: lec-page
 
 # Harness·Loop·Graph Engineering
 
-<p class="lead">앞에서 만든 Agent의 실행 루프가 코딩 도구에서는 어떻게 쓰이는지 살펴봅니다. 파일 편집·실행 기록·Skill을 연결하는 Harness를 이해하고, DeepAgents 예제와 답변 수정 실습으로 확인합니다.</p>
+<p class="lead">앞 장에서는 사내 규정을 조회하고 답변 초안을 만드는 문의 Agent를 만들었습니다. 이번에는 잠시 개발자의 작업으로 관점을 옮겨, Claude Code·Codex 같은 코딩 Agent를 사례로 Harness가 무엇을 제공하는지 살펴봅니다.</p>
 
-`create_agent`에서는 모델이 도구를 요청하고, 프로그램이 실행 결과를 돌려주었습니다. 코딩 Agent도 파일을 읽고 수정하고 테스트한 결과를 받아 다음 행동을 고르는 흐름으로 이해할 수 있습니다. 긴 작업을 맡기려면 여기에 프로젝트 지침, 작업 기록, 실행 권한 같은 구성이 더 필요합니다.
+<mark class="key-point">문의 Agent는 업무 질문에 답하는 프로그램이고, 코딩 Agent는 개발자가 그 프로그램의 코드를 수정하고 검증할 때 사용하는 도구입니다.</mark> 앞에서 만든 문의 Agent가 코딩 Agent로 바뀌는 것은 아닙니다.
 
-이 장에서는 <strong><mark class="key-point">코딩 Agent의 화면 → Harness의 구성 → DeepAgents 코드와 Skill</mark></strong> 순서로 살펴봅니다. 실습에서는 오전에 만든 문의 Agent의 답변을 검사하고 수정하는 과정을 실행합니다. 마지막에는 코딩 Agent에게 프로그램 수정을 맡길 때 필요한 지시와 완료 기준을 직접 작성합니다.
+|구분|맡기는 요청의 예|바꾸거나 만드는 것|
+|---|---|---|
+|우리가 만드는 문의 Agent|“계정이 잠겼는데 어느 팀에 문의하나요?”|정책에 근거한 답변 초안|
+|개발자가 사용하는 코딩 Agent · Claude Code·Codex 등의 사례|“회신 주소가 공백이면 초안을 만들지 않도록 코드를 고치고 테스트해 주세요.”|프로그램의 소스 코드와 테스트|
+
+두 경우 모두 모델이 도구를 요청하고 실행 결과를 받아 다음 행동을 고를 수 있습니다. 이 공통 원리를 바탕으로, 코딩 작업에 필요한 파일 도구·프로젝트 지침·작업 기록·실행 권한을 살펴봅니다. 앞 장의 코드가 Claude Code나 Codex의 내부 구현이라는 뜻은 아닙니다.
+
+이 장은 **코딩 Agent 사례로 Harness 이해 → DeepAgents SDK로 파일·Skill 구성 확인 → 문의 Agent의 답변 수정 실습 → 코딩 Agent에 맡길 개발 작업 설계** 순서로 진행합니다. DeepAgents SDK는 Harness 구성을 코드로 살펴보는 별도의 예제입니다. 답변 수정 실습에서는 다시 문의 Agent로 돌아와, 코드가 아니라 답변 내용을 검사하고 고칩니다.
 
 <div class="cue"><div class="cue-body">짧은 예제는 교재의 Python 실행 창에서, 실습은 <code>workshop/notebooks</code>의 Jupyter 노트북에서 진행합니다. 처음이라면 <a href="./start">시작 안내</a>를 먼저 확인합니다. 앞 단계가 미완료라면 <a href="./build#recovery">복귀 절차</a>로 필요한 함수만 보완한 뒤 이어갑니다.</div></div>
 
@@ -46,13 +53,7 @@ LangChain은 실행·검증·이벤트에 따른 시작·실행 기록을 통한
 
 이 장에서는 코딩 Agent가 쓸 도구와 절차, 검증 방법과 중단 조건을 함께 살펴봅니다.
 
-<details class="instructor-note"><summary>강사용 진행 노트 · 시작 질문</summary>
 
-진행 예: 상황 30초 → 의견 한두 개 1분 → 최근 사례와 본문 연결 1분 30초. 별도 기록이나 제출은 요구하지 않습니다.
-
-Codex나 Claude Code 사용 경험이 있으면 “계속해”를 반복했던 사례 한 건을 듣습니다. 경험이 없으면 본문의 상황만 사용합니다. 글의 반복 구분은 저자의 설명 관점이며 업계의 단일 표준은 아닙니다. 업무 답변 수정과 프로그램 수정도 구분합니다.
-
-</details>
 
 </section>
 
@@ -60,18 +61,42 @@ Codex나 Claude Code 사용 경험이 있으면 “계속해”를 반복했던 
 
 <section class="slide" id="concept">
 
-<aside class="teacher-aside"><strong>강사의 한마디</strong><p>앞에서 만든 Agent는 규정을 조회했습니다. 이번에는 파일을 읽고, 코드를 수정하고, 테스트를 실행하는 Agent로 같은 실행 흐름을 확장해 보겠습니다.</p></aside>
+<p><strong>지금 살펴볼 대상은 개발자가 사용하는 코딩 Agent입니다.</strong> 문의 Agent의 기능을 직접 구현하는 단계에서 잠시 벗어나, 코드 작업을 맡기려면 모델 주변에 무엇을 준비해야 하는지 살펴봅니다.</p>
 
 
 ## Harness는 무엇을 관리하는가
 
 <p class="section-time">예상 8분 · 14:13–14:21</p>
 
-`create_agent`에 연결했던 도구는 정책 조회 함수였습니다. 파일 읽기·편집·명령 실행 도구를 연결하면, 모델은 “어떤 파일을 읽을지”, “수정 뒤 무엇을 실행할지”를 고를 수 있습니다. **모델 요청 → 도구 실행 → 결과를 받은 모델의 다음 판단**이라는 흐름은 앞 장과 연결됩니다. 특정 코딩 제품이 내부에서 LangChain을 사용한다는 의미는 아닙니다.
+문의 Agent에는 정책 조회 도구가 필요했습니다. 코딩 작업에서는 파일 읽기·편집·명령 실행 도구가 필요하며, 모델은 “어떤 파일을 읽을지”, “수정 뒤 무엇을 실행할지”를 고를 수 있습니다. **모델 요청 → 도구 실행 → 결과를 받은 모델의 다음 판단**이라는 흐름은 앞 장과 연결됩니다. 특정 코딩 제품이 내부에서 LangChain을 사용한다는 의미는 아닙니다.
+
+<figure class="trace-example">
+
+![같은 모델 칩을 놓은 두 작업대. 오른쪽은 절차서·파일·검사 도구·작업 기록이 모델 주변에 함께 놓여 있습니다.](/images/workshop/harness-workbench.png)
+
+<figcaption>AI로 제작한 개념 설명용 그림입니다. 실제 제품 화면이나 물리 구조가 아닙니다.</figcaption>
+</figure>
+
+**그림 읽기:** 모델 칩은 같지만 오른쪽에는 절차서, 파일 보관함, 실행·검사 도구, 작업 기록이 있습니다. 왼쪽 모델을 더 큰 모델로 바꾸는 일과, 오른쪽의 작업 환경을 구성하는 일을 구별해 봅니다. 아래에서는 이 비유를 실제 실행 단계와 연결합니다.
 
 <CourseVisual kind="harness" />
 
 그런데 파일 편집 도구만 있으면 긴 개발 작업을 맡길 수 있을까요? 프로젝트의 테스트 명령을 알려 주고, 이전 작업을 기억하게 하고, 실행해도 되는 명령의 범위도 정해야 합니다. **Harness는 모델이 작업을 수행하도록 도구·지침·상태·실행 제어를 묶어 제공하는 구성입니다.**
+
+### Agent와 Harness의 경계를 어디에 둘까요?
+
+이 교재에서 **Agent는 목표를 받아 모델의 판단과 도구 실행을 반복하며 작업하는 전체 시스템**을 가리킵니다. **Harness는 그 시스템에서 모델 주변의 도구·문맥·실행 규칙을 제공하고 반복 실행을 조직하는 소프트웨어 구성**을 가리킵니다. Agent를 모델 하나로 좁히거나, Harness를 Agent와 별개의 두 번째 실행 주체로 읽으면 혼동하기 쉽습니다.
+
+|관점|“코드를 수정하고 테스트해 달라”는 요청에서 하는 일|
+|---|---|
+|모델의 판단|읽을 파일과 호출할 도구·인자를 생성하고, 테스트 결과를 보고 다음 행동을 선택합니다.|
+|Harness의 구성과 제어|사용 가능한 도구와 지침을 모델에 제공하고, 요청한 도구를 실행해 결과를 돌려줍니다. 권한 검사·문맥 관리·중단 조건도 구성합니다.|
+|실행 기반 · 이 예제의 LangGraph|노드 실행과 상태 갱신을 진행하며, 설정된 경우 체크포인트와 중단·재개를 처리합니다.|
+|Agent 전체|위 구성을 사용해 요청받은 코드 수정 작업을 수행합니다.|
+
+<mark class="key-point">“테스트를 실행하자”는 선택은 모델이 생성할 수 있지만, 실제 실행과 허용 여부의 적용은 프로그램이 맡습니다. 이 둘을 포함해 작업하는 전체가 Agent입니다.</mark> 모델이 선택하지 않아도 반드시 해야 하는 검사는 실행 코드의 조건으로 구성합니다.
+
+이는 역할을 설명하기 위한 구분입니다. 제품마다 Harness에 포함하는 범위는 다르고, Harness가 실행 루프와 상태 관리 기능을 함께 제공하기도 합니다. LangChain도 LangGraph를 실행 기반, LangChain을 Agent 구성 프레임워크, DeepAgents를 도구와 관리 기능을 갖춘 Harness로 설명합니다. [공식 제품 계층 설명](https://docs.langchain.com/oss/python/concepts/products)
 
 | 코딩 작업에서 필요한 것 | Harness가 제공할 구성 |
 |---|---|
@@ -99,7 +124,7 @@ Skill에 “테스트를 실행한 뒤 완료한다”는 절차를 적을 수 �
 
 ## DeepAgents와 Skill 구성
 
-<p class="section-time">예상 9분 · 14:21–14:30 · CLI 1분 / 내부 구조와 작업 구분 4분 / SDK·Skill 4분</p>
+<p class="section-time">예상 9분 · 14:21–14:30 · CLI·SDK와 실행 흐름 4분 / 작업 구분·Skill 5분 · 내부 소스는 보충 읽기</p>
 
 ### 먼저 화면으로 보는 Deep Agents CLI {#deepagents-cli}
 
@@ -114,19 +139,47 @@ Claude Code나 Codex처럼 터미널에서 개발 작업을 맡기는 프로그�
 
 ### CLI를 쓰는 것과 SDK로 만드는 것
 
-CLI는 사람이 작업을 입력하고 결과를 확인하는 완성된 응용 프로그램입니다. **DeepAgents SDK는 이런 Agent를 코드로 구성할 때 사용하는 라이브러리**입니다. 공식 Deep Agents Code도 이 SDK 위에 만들어졌습니다. 우리는 CLI를 새로 설치하는 대신, 아래에서 SDK로 업무용 Agent를 구성하는 코드를 읽습니다.
+CLI는 터미널에서 사용하는 응용 프로그램이고, SDK는 다른 프로그램에서 기능을 호출하고 실행 흐름을 연결하는 라이브러리입니다. **CLI에도 비대화형 실행이 있고, 코딩 Agent에도 SDK가 있습니다.** 사람이 입력창에 직접 요청하는 방식과 서버·자동화 코드가 요청하는 방식을 구분하면 됩니다.
 
-| 앞에서 배운 것 | 이번에 연결할 것 |
-|---|---|
-| `create_agent`: 모델과 조회 도구 연결 | `create_deep_agent`: 파일·Skill 등 Harness 기능을 함께 구성 |
-| LangGraph: 상태와 실행 흐름 관리 | DeepAgents의 실행을 받치는 기반 |
-| Python 코드로 Agent 실행 | CLI는 이런 Agent를 터미널에서 사용하도록 만든 앱 |
+|제공 형태|프로그램에서 활용하는 방식|공식 문서|
+|---|---|---|
+|Codex SDK|TypeScript·Python 코드에서 작업과 실행 결과를 다룹니다. CI나 내부 도구에 연결할 수 있습니다.|[Codex SDK](https://learn.chatgpt.com/docs/codex-sdk)|
+|Claude Agent SDK|Python·TypeScript에서 Claude Code의 도구·Agent 루프·문맥 관리 기능을 사용합니다.|[Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview)|
+|DeepAgents SDK|모델·도구·backend·Skill 등을 지정해 자신의 Agent를 구성합니다. Deep Agents Code도 이 SDK를 사용합니다.|[DeepAgents 개요](https://docs.langchain.com/oss/python/deepagents/overview)|
 
-DeepAgents가 별개의 추론 원리를 도입해서 코딩 Agent가 되는 것은 아닙니다. 모델과 도구가 결과를 주고받는 루프에 긴 작업에 필요한 기능을 더합니다. 다음 Skill 예제에서는 그중 **작업 방법을 문서로 알려 주는 기능**을 살펴봅니다. [DeepAgents 공식 개요](https://docs.langchain.com/oss/python/deepagents/overview)
+CLI를 자동화에서 호출하는 방법도 있습니다. Codex의 `codex exec`, Claude Code의 `-p`는 대화형 화면 없이 요청을 처리하는 진입점입니다. SDK나 비대화형 모드를 사용해도 실행 환경의 인증과 도구 권한은 설정해야 합니다. [Codex 비대화형 실행](https://learn.chatgpt.com/docs/non-interactive-mode) · [Claude의 SDK·CLI 선택 안내](https://code.claude.com/docs/en/agent-sdk/overview)
+
+### DeepAgents는 무엇을 만들어 주나요? {#deepagents-overview}
+
+DeepAgents는 **모델과 도구가 반복해서 결과를 주고받는 Agent에 파일 처리·작업 계획·Skill·문맥 관리 등의 기능을 함께 구성하는 Harness 라이브러리**입니다. 코딩 전용 모델의 이름이 아닙니다. 이 수업에서는 업무 규정에 답하는 Agent에 절차 문서를 연결하는 데 사용합니다.
+
+`create_deep_agent(...)`는 모델·도구·지침과 필요한 설정을 받아 **실행 가능한 Agent 객체를 만드는 함수**입니다. 앞 장의 `create_agent(...)`보다 준비된 기능을 많이 묶어 줍니다. 만들어진 객체에 `invoke(...)`로 질문을 보내면 실제 실행이 시작됩니다.
+
+|시점|전달하는 것|일어나는 일|
+|---|---|---|
+|구성 · `create_deep_agent(...)`|모델, 도구, 지침, 파일 backend, Skill 경로 등|기능을 연결해 실행 가능한 Agent 객체를 반환합니다. 이 호출 자체로 업무 질문의 답변을 생성하지 않습니다.|
+|실행 · `agent.invoke({"messages": [...]})`|사용자의 질문 등 초기 상태|모델을 호출하고, 도구 요청이 있으면 실행 결과를 다시 모델에 전달하며 진행합니다.|
+|결과 확인|반환된 상태의 `messages` 등|도구 요청·결과·마지막 응답을 읽습니다. 실제 호출과 문서 사용은 기록에서 확인합니다.|
+
+```mermaid
+flowchart LR
+    A["모델·도구·지침·backend·Skill 설정"] --> B["create_deep_agent: Agent 구성"]
+    B --> C["invoke: 질문 전달"]
+    C --> D["모델의 응답 또는 도구 요청"]
+    D -->|도구 요청| E["도구 실행 · 결과 전달"]
+    E --> D
+    D -->|실행 종료| F["메시지와 상태 반환"]
+```
+
+<mark class="key-point">구성 함수를 호출하는 것과, 구성된 Agent에 작업을 요청하는 것은 서로 다른 단계입니다.</mark> 다음 Skill 예제에서는 파일 backend와 절차 문서 경로를 설정하고, 실행 기록에서 문서를 읽었는지 확인합니다.
 
 ### create_deep_agent 안을 열어 봅니다 {#inside-deepagents}
 
-아래는 수업에 설치된 **DeepAgents 0.7.13과 LangChain 1.4.0의 소스 일부**입니다. 긴 함수에서 연결 지점만 발췌했으므로 그대로 실행하는 예제가 아닙니다. Python API 이름은 `create_agent`입니다.
+이제 구성 함수가 준비된 기능을 어떻게 연결하는지 살펴봅니다. 내부 코드는 보충 설명이며, 아래의 Skill 연결 예제를 읽는 데 모든 구현을 외울 필요는 없습니다.
+
+<details><summary>소스로 확인 · DeepAgents 구성 함수에서 LangGraph까지</summary>
+
+아래는 수업에 설치된 **DeepAgents 0.7.13과 LangChain 1.4.0의 소스 일부**입니다. 긴 함수에서 연결 지점만 발췌했으므로 그대로 실행하는 예제가 아닙니다. DeepAgents의 `create_deep_agent`가 내부에서 LangChain의 `create_agent`를 호출합니다.
 
 **1. DeepAgents가 기능별 미들웨어를 모읍니다.** `deepagents/graph.py`에서 Skill 경로를 받으면 `SkillsMiddleware`를 추가하고, 파일 기능은 `FilesystemMiddleware`로 연결합니다.
 
@@ -177,11 +230,13 @@ flowchart TD
     C --> D["LangGraph: 그래프 컴파일과 실행"]
 ```
 
-앞 장의 Agent와 기반이 이어집니다. **DeepAgents는 LangChain의 Agent 구성과 LangGraph의 실행 기반 위에, 작업에 필요한 미들웨어·도구·설정을 묶은 Harness 구현체입니다.** Harness가 반드시 미들웨어 목록으로만 구현되어야 하는 것은 아니지만, 이 구현에서는 그 연결을 소스로 확인할 수 있습니다. [DeepAgents 0.7.13 소스](https://github.com/langchain-ai/deepagents/blob/deepagents%3D%3D0.7.13/libs/deepagents/deepagents/graph.py) · [LangChain 미들웨어 설명](https://docs.langchain.com/oss/python/langchain/middleware/overview)
+앞 장의 Agent와 기반이 이어집니다. <strong><mark class="key-point">DeepAgents는 LangChain의 Agent 구성과 LangGraph의 실행 기반 위에, 작업에 필요한 미들웨어·도구·설정을 묶은 Harness 구현체입니다.</mark></strong> Harness가 반드시 미들웨어 목록으로만 구현되어야 하는 것은 아니지만, 이 구현에서는 그 연결을 소스로 확인할 수 있습니다. [DeepAgents 0.7.13 소스](https://github.com/langchain-ai/deepagents/blob/deepagents%3D%3D0.7.13/libs/deepagents/deepagents/graph.py) · [LangChain 미들웨어 설명](https://docs.langchain.com/oss/python/langchain/middleware/overview)
+
+</details>
 
 ### “하네스를 만든다”는 말에서 구분할 두 작업 {#harness-work}
 
-실무에서는 실행 기반을 개발하는 일과, 기존 제품을 프로젝트에 맞게 설정하는 일을 모두 “하네스를 만든다”라고 부르기도 합니다. 용어의 범위는 문맥마다 다릅니다. 협업할 때는 **어떤 동작을 구현하는지, 어떤 기존 기능을 설정하는지**를 함께 말하면 작업 범위가 분명해집니다.
+실무에서는 실행 기반을 개발하는 일과, 기존 제품을 프로젝트에 맞게 설정하는 일을 모두 “하네스를 만든다”라고 부르기도 합니다. 용어의 범위는 문맥마다 다릅니다. 협업할 때는 <strong><mark class="key-point">어떤 동작을 구현하는지, 어떤 기존 기능을 설정하는지</mark></strong>를 함께 말하면 작업 범위가 분명해집니다.
 
 | 작업 | 구체적으로 하는 일 | 결과물 |
 |---|---|---|
@@ -190,7 +245,7 @@ flowchart TD
 
 예를 들어 **SkillsMiddleware를 개발하는 일**과 **그 미들웨어가 읽을 SKILL.md를 작성하는 일**은 다릅니다. hook은 특정 이벤트에 연결하는 동작입니다. 제품이 제공하는 이벤트에 스크립트를 등록하는 것은 설정에 가깝고, 새로운 이벤트와 호출 방식을 구현하면 실행 기반의 확장에 가깝습니다. 제품의 hook과 LangChain 미들웨어의 호출 지점은 이름이나 지원 범위가 같다고 가정하지 않습니다.
 
-이번 예제에서는 **기존 DeepAgents에 backend와 Skill 경로를 설정하고 업무 절차를 작성**합니다. 새 Harness나 hook 실행기를 구현하지는 않습니다. 다음 코드의 `skills=["/"]`가 위의 `SkillsMiddleware(..., sources=skills)`로 이어진다는 점을 찾아봅니다.
+이번 예제에서는 **기존 DeepAgents에 backend와 Skill 경로를 설정하고 업무 절차를 작성**합니다. 새 Harness나 hook 실행기를 구현하지는 않습니다. 다음 코드에서 `skills=["/"]`가 절차 문서를 찾을 위치를 지정한다는 점을 확인합니다. 보충 소스에서는 이 설정이 `SkillsMiddleware(..., sources=skills)`로 이어집니다.
 
 <details><summary>여유가 있으면 +2분 · WikiSkill: 지난번 실수를 또 설명하고 있나요?</summary>
 
@@ -235,7 +290,7 @@ DeepAgents는 LangChain·LangGraph 기반의 Harness 구성을 제공합니다. 
 
 ### Skill은 언제 읽히고 무엇을 담아야 할까요? {#skill-authoring}
 
-Skill은 한 번의 요청에 붙이는 긴 프롬프트를 파일로 옮기는 데서 끝나지 않습니다. **어떤 요청에 사용할지 찾을 수 있고, 선택한 뒤 따라 할 절차가 있어야 합니다.**
+Skill은 한 번의 요청에 붙이는 긴 프롬프트를 파일로 옮기는 데서 끝나지 않습니다. <strong><mark class="key-point">어떤 요청에 사용할지 찾을 수 있고, 선택한 뒤 따라 할 절차가 있어야 합니다.</mark></strong>
 
 ```text
 policy-answer/
@@ -250,7 +305,11 @@ policy-answer/
 | 사용 | SKILL.md 본문 | 어떤 도구를 어떤 순서로 쓰며, 결과에 따라 무엇을 할 것인가? |
 | 추가 확인 | 연결된 참고 문서·스크립트 | 필요할 때 어디에서 세부 자료를 얻는가? |
 
+<mark class="key-point">Skill 폴더를 넣었다고 모든 절차가 즉시 실행되는 것은 아닙니다.</mark> 설정된 Skill의 이름·설명은 선택을 위한 문맥으로 제공되고, 관련 Skill을 사용할 때 본문을 읽습니다. 문서에 참조한 파일이나 스크립트는 필요할 때 추가로 읽거나 실행합니다. 스크립트 파일이 들어 있다는 사실과 실행 권한이 있다는 사실도 다릅니다. [DeepAgents의 읽기 단계](https://docs.langchain.com/oss/python/deepagents/skills#how-skills-work)
+
 이름·설명으로 후보를 찾고 필요할 때 본문과 자료를 읽는 방식이 점진적 공개입니다. `description`에는 “업무를 도와준다”보다 “담당 팀과 정책 근거가 필요한 사내 규정 문의에 사용한다”처럼 사용 조건을 적습니다. 본문에는 조회 순서뿐 아니라 **규정 없음·조회 실패·답변 완료의 기준**을 구분해 적습니다. [Agent Skills 명세](https://agentskills.io/specification)
+
+**문서를 검토할 때 세 곳을 봅니다.** `name`은 폴더 이름과 일치하는 `policy-answer`이고, `description`은 사용 조건입니다. 본문에는 정상 조회·미등록 업무·도구 오류를 어떻게 처리할지 안내해야 합니다. `SKILL.md`는 메타데이터와 절차를 담는 파일이며, 선택 폴더의 `references`·`scripts`·`assets`는 참고 문서·실행 코드·서식 등의 재료를 보관합니다. 형식이 유효한 것과 절차가 유용한 것은 별도이므로 정상 입력과 반례로 확인합니다.
 
 현재 예제에서 `skills=["/"]`는 backend 안의 가상 경로입니다. `FilesystemBackend`의 실제 루트가 `workshop/skills`이므로 `policy-answer/SKILL.md`를 찾습니다. 운영체제 전체의 루트 디렉터리를 읽으라는 뜻이 아닙니다. 미들웨어가 경로를 연결하고, 문서는 그 안에서 사용할 절차를 제공합니다.
 
@@ -263,6 +322,39 @@ policy-answer/
 다음 셀은 실제 DeepAgents를 호출합니다. topic을 정산·계정·없는업무로 바꾸어 실행하고 답변과 trace를 비교합니다. **완료 기준:** 파일 변경이 저장되고, Skill 문서 읽기 요청·결과를 확인하며, 규정 없는 입력에서 추가 확인 질문을 합니다. 문서 읽기 기록이 없다면 사용 조건과 경로를 확인합니다. API 오류는 연결을 복구한 뒤 다시 실행합니다.
 
 답변이 마음에 든다는 것과 Skill이 실제로 읽혔다는 것은 별도의 관찰입니다. 실행에 실패했거나 읽기 기록이 없다면 성공으로 표시하지 않습니다.
+
+</details>
+
+### 확장 사례 · Prime Agent는 Python으로 기능을 조합합니다 {#prime-agent}
+
+Prime Intellect의 **Prime Agent**는 지속되는 Python REPL을 중심으로 도구 사용·하위 Agent 호출·문맥 관리를 코드로 수행하는 공개 Harness입니다. REPL은 코드를 실행하고 결과를 확인하며 변수와 함수를 다음 실행에도 사용하는 환경입니다. 수업의 준비된 Skill을 읽는 예제에서, **필요한 기능을 코드로 조합하고 재사용하는 설계**로 시야를 넓혀 줍니다. [공식 저장소와 구조 설명](https://github.com/PrimeIntellect-ai/prime-agent)
+
+|앞에서 확인한 것|Prime Agent에서 확장되는 관점|
+|---|---|
+|모델이 등록된 도구의 이름·인자를 요청|모델이 Python 코드를 작성하고, 그 코드에서 도구·하위 Agent를 호출·조합|
+|필요한 자료를 모델 입력으로 전달|자료를 변수에 두고 코드로 탐색·처리한 뒤 필요한 결과를 모델이 확인|
+|작성된 SKILL.md의 절차를 참고|반복 작업을 import 가능한 Python 패키지 형태의 실행 가능한 Skill로 제작·재사용|
+|실패를 다음 답변 수정에 반영|실행 경험을 보충 지침·메모·Skill 설명·하위 Agent 설정의 갱신에 활용|
+
+공식 문서는 이를 RLM(Recursive Language Model)과 Continual Harness로 설명합니다. 여기서 학습할 것은 이름보다 **문맥을 어떻게 읽고, 작업을 어떤 실행 단위로 만들며, 경험을 어디에 남기는가**입니다. `/refine`의 보충 상태 갱신과 실행 가능한 Skill 코드의 제작·검토는 구분합니다. 모델 가중치를 재학습한다는 뜻도 아닙니다. [공식 README](https://github.com/PrimeIntellect-ai/prime-agent#built-for-long-running-work)
+
+**우리 사례에 적용하면:** 여러 문의의 검사 결과를 Python으로 모아 실패한 항목만 추리고, 반복되는 검사를 함수로 묶을 수 있습니다. 이때 모델은 전체 원시 로그 대신 실패 목록과 근거를 확인합니다. 이는 적용 가능성을 보여 주는 설명이며 현재 노트북에 Prime Agent를 연결한 구현은 아닙니다.
+
+<mark class="key-point">모델이 새 실행 코드를 만들 수 있다는 것과, 그 코드가 안전하게 격리된다는 것은 별개입니다.</mark> Prime Agent의 기본 worker·kernel은 실행 수명과 복구를 분리하지만 보안 샌드박스는 아닙니다. 공식 README는 생성된 Python과 명령이 사용자 권한으로 실행되며, 격리가 필요하면 외부 제한 환경을 사용하도록 명시합니다. [실행 권한 설명](https://github.com/PrimeIntellect-ai/prime-agent#getting-started)
+
+<details><summary>벤치마크는 어떤 조건에서 높았나요? · 선택 읽기</summary>
+
+2026-09-09 확인한 **개발사 발표 수치**입니다. 이 수업에서 재현한 결과나 모든 코딩 작업의 종합 순위는 아닙니다.
+
+|평가와 조건|Prime Agent|비교·해석|
+|---|---|---|
+|ARC-AGI-3 · Opus 5 · RHAE Best@1|95.5%|발표된 세 실행은 95.0·95.2·95.5. Best@3와 구분해야 함|
+|OOLONG yahoo 128k · 동일 GLM-5.2 high|0.700|Pi-mono + subagents는 0.420|
+|LongBenchv2 · 동일 GLM-5.2 high|0.680|Pi-mono + subagents는 0.696|
+
+높은 결과가 있지만 모든 평가에서 앞서지는 않습니다. 모델·과제·시도 수·토큰 및 시간 예산·검사 기준을 함께 읽습니다. “Python으로 도구를 만들어서 점수가 높다”는 단일 원인의 증명으로 해석하지 않습니다. [개발사 평가 보고](https://www.primeintellect.ai/blog/prime-agent#evaluating-prime-agent)
+
+같은 발표는 Factorio에서 점수를 올리려고 게임 규칙을 우회한 사례도 보고합니다. **성공처럼 보인 행동을 Skill로 저장하기 전에 원래 요구를 만족했는지 검증해야 합니다.** 이는 뒤의 개인 활동에서 “테스트 기대값을 바꿔 얻은 PASS를 받아들일 것인가”와 연결됩니다. [개발사 관찰 사례](https://www.primeintellect.ai/blog/prime-agent)
 
 </details>
 
@@ -297,11 +389,65 @@ DeepAgents가 언제나 더 정확하거나 저렴하다는 뜻은 아닙니다.
 
 <p class="section-time">예상 10분 · 14:30–14:40</p>
 
-아래 사례로 실제 담론을 살펴봅니다. Peter Steinberger와 Addy Osmani의 Loop 설명은 사람이 매번 다음 지시를 쓰던 일을 시스템에 맡기는 방향입니다. 시작 계기·작업 선택·검증·진행 상태·종료를 함께 설계합니다.
+아래 사례로 실제 담론을 살펴봅니다. OpenClaw 제작자 Peter Steinberger와 Chrome·개발자 도구 분야의 엔지니어이자 저자인 Addy Osmani의 Loop 설명은 사람이 매번 다음 지시를 쓰던 일을 시스템에 맡기는 방향입니다. 시작 계기·작업 선택·검증·진행 상태·종료를 함께 설계합니다.
 
 Graph Engineering 담론에서는 여러 역할의 의존성, 병렬 실행, 산출물 계약과 검증 경계를 다룹니다. 조건 분기 하나나 LangGraph API를 이 용어 전체와 동일시하지 않습니다. 아래 코드 검수 사례에서 기능 검토와 교재 검토가 서로를 기다려야 하는지 판단합니다.
 
-현재 제공된 초안 수정 코드는 피드백과 종료 조건을 볼 수 있는 작은 예제입니다. 작업을 자동 발견하거나 세션을 넘어 여러 에이전트를 운영하지는 않습니다. 아래 그림은 그 **업무 수정 반복**만 보여 줍니다.
+### 노드 하나가 수행하는 일의 크기를 봅니다
+
+LangGraph의 노드는 상태를 받아 갱신을 반환하는 실행 단위입니다. 함수 안에서 계산만 할 수도 있고, 모델이나 Agent를 호출할 수도 있습니다. **함수라는 구현 형태와 그 함수가 수행하는 작업의 크기는 별개입니다.**
+
+|현재 주 실습의 노드|내부에서 실제로 하는 일|
+|---|---|
+|`lookup`|조회 함수로 정책 데이터를 읽습니다.|
+|`draft`|`generate(topic)`가 앞 장의 Agent를 호출합니다. 안에서는 모델 → 도구 → 모델이 여러 번 실행될 수 있습니다.|
+|`review`|`refine_answer`의 Python 반복문이 규칙 검사·수정 상한을 관리합니다. 수정이 필요하면 `revise`가 모델을 한 번 호출합니다.|
+
+아래는 `build_lab/guided.py`와 노트북의 연결 코드를 설명한 그림입니다. **상자의 모든 단계가 LangGraph 노드는 아닙니다.** 특히 review 안의 반복은 Python 제어 흐름입니다.
+
+```mermaid
+flowchart TB
+    L["lookup 노드: 정책 조회"] --> D
+    subgraph D["draft 노드 · Agent 호출을 감싼 함수"]
+        M["모델: 응답 또는 도구 요청"] -->|요청| T["도구 실행"]
+        T --> M
+    end
+    D --> R
+    subgraph R["review 노드 · 제공된 Python 반복문"]
+        V["inspect_draft: 규칙 검사"] --> Q{"통과?"}
+        Q -->|예| P["passed 반환"]
+        Q -->|아니오| S{"직전과 같은 초안?"}
+        S -->|예| ST["stalled 반환"]
+        S -->|아니오| B{"수정 상한 도달?"}
+        B -->|예| H["held 반환"]
+        B -->|아니오| RV["revise: 모델 1회 호출"]
+        RV --> V
+    end
+```
+
+<mark class="key-point">바깥 노드가 한 번 실행되는 동안 안쪽 Agent는 여러 모델·도구 호출을 할 수 있습니다. 바깥 수정 횟수와 내부 호출 수는 같은 값이 아닙니다.</mark> 현재 수정 함수는 도구를 붙이지 않은 모델 호출이며, DeepAgents·Skill 예제는 별도로 실행합니다.
+
+### 한 노드 안에 하위 그래프를 넣을 수도 있습니다
+
+부모와 자식이 상태 키를 공유하면 컴파일한 그래프를 `add_node`에 직접 넣을 수 있습니다. 상태가 다르거나 필요한 정보만 넘기려면 노드 함수에서 입력을 변환해 자식 그래프를 호출하고 결과를 부모 상태로 돌려줍니다. [LangGraph 공식 하위 그래프 안내](https://docs.langchain.com/oss/python/langgraph/use-subgraphs)
+
+```mermaid
+flowchart TB
+    A["바깥 조정: 작업 선택·예산·의존성"] --> B["한 작업 노드: Agent 또는 하위 그래프"]
+    subgraph H["그 작업에 사용하는 Harness 구성"]
+        C["모델의 다음 행동 선택"] --> D["도구 실행·결과 전달"]
+        D --> C
+        E["지침·Skill·문맥·권한"] -.-> C
+        E -.-> D
+    end
+    B --> C
+    C -->|작업 결과| F["바깥 검증: 재작업·완료·인계 결정"]
+    F -->|재작업 허용| A
+```
+
+*확장 가능한 설계도입니다. 현재 수업 코드가 여러 코딩 Agent를 장기간 운영한다는 뜻은 아닙니다.* Harness는 긴 실행에만 붙는 단계가 아니라 각 Agent의 실행을 구성합니다. Loop 관점은 다음 작업을 언제 다시 맡기고 끝낼지, Graph 관점은 여러 작업이 어떤 결과를 주고받는지에 초점을 둡니다. 합성할수록 전달할 문맥·상태 경계·중단 조건을 분명히 해야 합니다.
+
+<details><summary>요약해서 보는 초안 수정 흐름</summary>
 
 ```mermaid
 flowchart TB
@@ -313,6 +459,8 @@ flowchart TB
  B -->|있음| R[실패 이유로 수정]
  R --> V
 ```
+
+</details>
 
 확인: 사람이 실패할 때마다 다음 프롬프트를 입력하는 작업과, 실패 기록에서 다음 작업을 선택하는 시스템은 무엇이 다른가요? 두 검토를 병렬로 실행해도 최종 판단 전에 확인해야 할 조건은 무엇인가요?
 
@@ -326,6 +474,8 @@ flowchart TB
 
 ## 함께 실습
 
+이제 **문의 Agent의 답변을 개선하는 실습**으로 돌아옵니다. 아래 수정 루프는 답변 초안과 검토 결과를 처리합니다. 소스 코드를 편집하거나 테스트 파일을 만드는 코딩 작업은 뒤의 ‘Harness 설계 메모’에서 별도로 다룹니다.
+
 <p class="section-time">예상 10분 · 14:40–14:50</p>
 
 함께 10분 동안 제공 수정 루프와 DeepAgents·Skill 사용 기록을 비교합니다. 아래 노트북 셀의 출력에서 실제 피드백과 read_file 호출 여부를 읽습니다. 개인 시간에는 코딩 하네스 활용 활동으로 넘어갑니다.
@@ -335,7 +485,7 @@ flowchart TB
 1. `build-agent.ipynb`의 **3. 제공 수정 Loop 관찰**: limit를 0과 2로 바꾸어 history·status를 비교합니다. 최초 초안은 고정되어 있고, limit가 1 이상이면 실제 수정 모델을 호출합니다. 이후 **연결하고 설명합니다** 셀은 초안 생성부터 실제 모델을 호출합니다.
 2. `concepts.ipynb`의 **Skill · 문서 확인과 실제 사용 확인**: Skill 문서를 읽고 수정한 뒤 모델 셀을 실행합니다. read_file 등 문서 읽기 요청·결과와 답변을 함께 확인합니다.
 
-**완료 기준:** 수정 상한이 0이면 수정 함수가 호출되지 않고, 수정 함수가 직전과 완전히 같은 초안을 반환하면 stalled가 됩니다. 실패 이유가 같더라도 초안이 달라졌다면 남은 횟수 안에서 검토를 계속합니다. Skill 사용은 좋은 답변만으로 추정하지 않고 문서 읽기 기록으로 확인합니다. 두 예제는 서로 다른 실행입니다.
+**완료 기준:** 수정 상한이 0이면 수정 함수가 호출되지 않고, 수정 함수가 직전과 완전히 같은 초안을 반환하면 stalled가 됩니다. 실패 이유가 같더라도 초안이 달라졌다면 남은 횟수 안에서 검토를 계속합니다. <mark class="key-point">Skill 사용은 좋은 답변만으로 추정하지 않고 문서 읽기 기록으로 확인합니다.</mark> 두 예제는 서로 다른 실행입니다.
 
 
 </section>
@@ -346,7 +496,7 @@ flowchart TB
 
 <p class="section-time">예상 20분 · 14:50–15:10</p>
 
-이번에는 코딩 Agent에게 맡길 검수 작업을 설계합니다. **작성 위치는 `build-agent.ipynb` 3번 뒤의 ‘Harness 설계 메모’ 셀입니다.** 아래 사례를 읽고 그 셀에 실행 순서 하나와 반례 세 개의 대응을 적습니다.
+이번에는 코딩 Agent에게 맡길 검수 작업을 설계합니다. **작성 위치는 `build-agent.ipynb` 3번 뒤의 ‘Harness 설계 메모’ 셀입니다.** 반복 조건을 모델 없이 확인하는 실험 5분과, 실행 순서·반례 대응을 작성하는 설계 15분으로 진행합니다. 코드를 따라 입력하는 대신 수정 후보를 직접 만들고 관찰 결과를 설계의 근거로 사용합니다.
 
 <!-- lesson-engineering:task -->
 
@@ -385,7 +535,7 @@ flowchart TB
 | 검사 순서 | 마지막 수정에서 성공 | 문제 |
 |---|---|---|
 |예산 소진 → 성공 확인|held|성공을 확인하기 전에 보류합니다.|
-|성공 확인 → 예산 소진|finish|성공한 초안은 추가 수정 없이 끝납니다.|
+|성공 확인 → 예산 소진|passed|성공한 초안은 추가 수정 없이 끝납니다.|
 |실패 시 revise만 반환|계속 수정|상한이 동작하지 않습니다.|
 
 수정 횟수와 검토 횟수도 다릅니다. 수정 상한 2에서 최초 검토를 포함해 몇 번 검사하는지 history의 attempt와 대조합니다. 모델에 “두 번만 수정”이라고 쓰는 것과 이 반복문이 횟수를 제한하는 것의 차이를 설명합니다.

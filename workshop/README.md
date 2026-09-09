@@ -9,7 +9,7 @@ Ubuntu의 workshop 폴더에서 `bash setup.sh`를 실행합니다. uv가 없으
 기본 모델은 google/gemini-3.8-flash입니다. 공유 파일의 WORKSHOP_MODEL이 우선하며 기존 .env를 유지하면 그 모델을 계속 사용합니다. 키를 노트북에 넣지 않습니다. 설치가 끝나면 다음 명령으로 노트북을 엽니다.
 
 ```bash
-.venv/bin/jupyter lab notebooks/orientation.ipynb
+.venv/bin/jupyter lab --ServerApp.root_dir=. notebooks/orientation.ipynb
 ```
 
 orientation.ipynb에서 환경과 첫 모델 호출을 확인한 뒤 build-agent.ipynb를 엽니다. 첫 환경 셀부터 Shift+Enter로 실행합니다. 함수 정의를 수정했다면 그 셀과 아래 연결·실행 셀을 다시 실행합니다. 현재 수업의 번호까지만 진행합니다. Ctrl+S로 저장합니다.

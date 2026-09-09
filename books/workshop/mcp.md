@@ -45,25 +45,97 @@ MCP는 이 발견과 호출 방식을 정합니다. 수업 끝에는 도구가 1
 
 <p class="section-time">예상 5분 · 15:33–15:38</p>
 
-Host는 Agent를 사용하는 앱입니다. 그 안의 MCP client가 MCP server에 요청하고, 서버는 등록된 함수를 실행합니다. 모델은 사용할 도구와 인자를 선택하며 실제 네트워크 통신은 프로그램이 처리합니다.
+### Host 안의 Client가 Server와 통신합니다
+
+|역할|맡는 일|이 수업의 예|
+|---|---|---|
+|**Host**|모델·사용자와 연결되는 앱입니다. Client들을 만들고, 권한·사용자 동의·모델에 전달할 문맥을 관리합니다.|문의 Agent를 실행하는 Python 앱|
+|**Client**|Host 안에서 특정 MCP Server 하나와 프로토콜 메시지를 주고받는 구성요소입니다.|정책 서버에 목록·조회 요청을 보내는 MCP Client|
+|**Server**|Tools·Resources·Prompts 같은 기능을 MCP로 제공합니다. 로컬 프로세스일 수도, 원격 서비스일 수도 있습니다.|정책 CSV를 읽어 조회 결과를 제공하는 서버|
+
+Host 하나가 여러 Client를 둘 수 있고, 각 Client는 Server 하나를 담당합니다. **Client는 모델이나 사용자를 뜻하지 않습니다.** 모델이 도구와 인자를 선택하면 Host 쪽 프로그램이 Client를 통해 요청합니다. Server에 모델이 반드시 필요한 것도 아닙니다.
+
+이 교재의 **2026-07-28 명세는 무상태 프로토콜**입니다. 각 요청에 버전·기능 정보를 담습니다. Client와 Server의 1:1 관계가 서버에 영구 세션을 유지한다는 뜻은 아닙니다. [공식 아키텍처](https://modelcontextprotocol.io/specification/2026-07-28/architecture)
+
+### 서버가 제공하는 세 가지 기본 기능
+
+이런 기본 기능 단위를 **primitive**라고 부릅니다. 아래는 같은 정책 업무를 세 방식으로 제공한다고 가정한 예입니다. 이번 실습에서는 Tools의 `lookup_policy`를 구현합니다.
+
+|기능|무엇을 제공하나요?|요청과 사용 예|
+|---|---|---|
+|**Tools**|인자를 받아 실행하는 기능입니다. 모델이 상황에 맞게 호출을 선택하도록 설계되어 있습니다.|`tools/list`로 이름·설명·입력 형식을 확인하고, `tools/call`로 `lookup_policy(topic="계정")`를 실행해 담당 팀을 조회합니다.|
+|**Resources**|URI로 식별하는 문맥·데이터입니다. Host가 어떤 내용을 대화에 넣을지 관리합니다.|`resources/list`로 목록을 찾고, `resources/read`에 `policy://rules/P-02`를 보내 규정 본문을 읽습니다. 가변 경로는 `resources/templates/list`로 URI 템플릿을 찾을 수 있습니다.|
+|**Prompts**|인자로 내용을 채울 수 있는 메시지 템플릿입니다. 사용자가 원하는 작업을 선택하는 방식으로 설계되어 있습니다.|`prompts/list`에서 `policy_reply`를 찾고, `prompts/get`에 업무 주제를 보내 답변 작성용 메시지를 받습니다. 이 요청 자체가 모델을 실행하거나 답변을 완성하지는 않습니다.|
+
+Tools는 **실행할 기능**, Resources는 **읽을 자료**, Prompts는 **대화를 시작할 메시지 구성**으로 구분합니다. 다만 모델·앱·사용자 중심이라는 설명은 사용 방식의 설계 관점이며, 모든 Host에 같은 화면이나 선택 절차를 강제하는 규칙은 아닙니다. [Tools 명세](https://modelcontextprotocol.io/specification/2026-07-28/server/tools) · [Resources 명세](https://modelcontextprotocol.io/specification/2026-07-28/server/resources) · [Prompts 명세](https://modelcontextprotocol.io/specification/2026-07-28/server/prompts)
+
+### Claude Code에서는 Resource도 도구로 읽습니다
+
+Claude Code는 서버가 Resources를 지원하면 모델이 목록을 찾고 내용을 읽을 수 있도록 `ListMcpResourcesTool`·`ReadMcpResourceTool`을 제공합니다. 사용자가 `@서버이름:URI`로 자료를 지정해 대화에 첨부할 수도 있습니다. **서버의 Resource를 읽도록 Host가 모델용 도구를 제공하는 것**입니다. 서버가 그 자료를 MCP Tool로 다시 등록해야 한다는 뜻은 아닙니다. Prompts는 `/` 메뉴의 명령으로 노출됩니다. [Claude Code의 Resources 사용](https://code.claude.com/docs/en/mcp#use-mcp-resources) · [도구 목록](https://code.claude.com/docs/en/tools-reference) · [Prompts 명령](https://code.claude.com/docs/en/mcp#use-mcp-prompts-as-commands)
+
+이제 이 수업에서 구현하는 Tools의 목록 요청과 실행 요청을 따라갑니다.
 
 <CourseVisual kind="mcp" />
 
-| 선택 | 얻는 것 | 추가로 맡을 일 |
-|---|---|---|
-| 로컬 Python 함수 | 한 앱에서 간단하게 사용 | 여러 앱에 코드 공유·배포 |
-| 일반 HTTP API | 기존 서비스 인프라 활용 | Agent가 읽을 도구 설명과 호출 변환 연결 |
-| MCP 서버 | 도구 목록·입력 형식·호출 규약 공유 | 서버 운영·접근 제어·통신 오류 처리 |
+### 직접 함수 호출과 MCP 호출을 구분합니다
 
-MCP 서버는 기존 API를 감싸도 됩니다. 한 앱 내부의 작은 함수라면 네트워크로 분리할 필요가 없을 수 있습니다. [공식 아키텍처](https://modelcontextprotocol.io/docs/learn/architecture)
+<strong><mark class="key-point">MCP는 프로그램을 작성하는 언어나 배포 장소가 아니라, 기능을 발견하고 요청·응답을 주고받는 프로토콜입니다.</mark></strong> Python 코드에서도 MCP를 사용할 수 있고, 서버를 같은 컴퓨터에서 실행할 수도 있습니다.
+
+|호출 방식|호출이 지나가는 경로|연결할 때 맡는 일|
+|---|---|---|
+|Python 함수 직접 호출|앱 안에서 `lookup_policy("계정")` 실행|함수 import와 인자를 코드로 연결|
+|일반 HTTP API 호출|앱 → HTTP endpoint → 서버 함수|API별 요청·응답을 연결하고, 모델용 도구 설명과 입력 형식을 준비|
+|MCP · stdio|앱의 MCP Client → 자식 프로세스의 표준 입력·출력 → MCP Server → 함수|로컬 서버 프로세스를 실행·관리하며 MCP 규약으로 도구를 발견하고 호출|
+|MCP · Streamable HTTP|앱의 MCP Client → HTTP → MCP Server → 함수|MCP 규약을 사용하며 주소·인증·통신 오류 등을 관리|
+
+같은 조회 함수를 직접 호출할 수도, MCP 서버에 등록해 stdio 또는 HTTP로 호출할 수도 있습니다. MCP 서버가 기존 HTTP API를 대신 호출하는 구성도 가능합니다. **함수가 어디에 있느냐보다 Client와 Server 사이에 어떤 규약이 오가는지를 봅니다.** 한 앱의 작은 기능이라면 직접 호출로 충분할 수 있고, 여러 Host에 같은 인터페이스를 제공하려면 MCP를 선택할 수 있습니다. [공식 전송 규약](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports)
 
 ## 개념 2 · JSON-RPC는 요청의 형식, transport는 전달 방법입니다
 
 <p class="section-time">예상 6분 · 15:38–15:44</p>
 
-JSON은 데이터를 표현하는 형식입니다. **JSON-RPC는 JSON으로 메서드 이름과 인자를 보내고 응답을 짝짓는 규칙**입니다. MCP는 그 위에 `tools/list`, `tools/call` 같은 메서드와 결과 형식을 정의합니다.
+JSON은 데이터를 표현하는 형식입니다. <strong><mark class="key-point">JSON-RPC는 JSON으로 메서드 이름과 인자를 보내고 응답을 짝짓는 규칙</mark></strong>입니다. MCP는 그 위에 `tools/list`, `tools/call` 같은 메서드와 결과 형식을 정의합니다.
 
-아래는 메시지 구조를 읽기 위한 축약 예입니다. 2026-07-28의 요청별 버전·기능 metadata는 생략했습니다. 실제 요청은 SDK가 만듭니다.
+### 먼저 도구의 이름·설명·입력 형식을 받습니다
+
+아래는 메시지 구조를 읽는 예입니다. 요청에는 2026-07-28의 필수 버전·기능 metadata도 표시했습니다. 실제 전송은 SDK가 처리합니다. 응답은 설명에 필요한 필드만 보여 줍니다.
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/list",
+  "params": {
+    "_meta": {
+      "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+      "io.modelcontextprotocol/clientCapabilities": {}
+    }
+  }
+}
+```
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "resultType": "complete",
+    "tools": [{
+      "name": "lookup_policy",
+      "description": "업무명으로 담당 팀과 정책을 조회합니다.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {"topic": {"type": "string"}},
+        "required": ["topic"]
+      }
+    }]
+  }
+}
+```
+
+`id=1`인 요청·응답을 한 쌍으로 읽습니다. `tools`에는 호출할 수 있는 도구의 설명이 있습니다. `required: ["topic"]`은 호출할 때 `topic`이 필요하다는 뜻입니다. **목록을 받은 시점에는 계정 정책을 조회하지 않았습니다.** 페이지가 더 있으면 응답의 `nextCursor`로 다음 목록을 요청합니다.
+
+### 이름을 골라 실제 조회를 요청합니다
 
 ```json
 {
@@ -72,7 +144,11 @@ JSON은 데이터를 표현하는 형식입니다. **JSON-RPC는 JSON으로 메�
   "method": "tools/call",
   "params": {
     "name": "lookup_policy",
-    "arguments": {"topic": "계정"}
+    "arguments": {"topic": "계정"},
+    "_meta": {
+      "io.modelcontextprotocol/protocolVersion": "2026-07-28",
+      "io.modelcontextprotocol/clientCapabilities": {}
+    }
   }
 }
 ```
@@ -84,13 +160,16 @@ JSON은 데이터를 표현하는 형식입니다. **JSON-RPC는 JSON으로 메�
   "jsonrpc": "2.0",
   "id": 2,
   "result": {
+    "resultType": "complete",
     "content": [{"type": "text", "text": "계정 담당 팀: IT지원팀, 정책: P-02"}],
     "isError": false
   }
 }
 ```
 
-위 응답의 문장은 형식 설명용입니다. 실습 도구는 text 안에 정책 JSON 문자열을 반환합니다. `tools/list`는 도구의 이름·설명·입력 schema를 반환하고, `tools/call`이 실제 조회를 실행합니다.
+`resultType="complete"`는 이번 요청의 결과가 완성되었음을 나타냅니다. `isError`는 도구 실행 오류 여부이고, 반환 내용이 실제 업무 질문에 충분한지는 별도로 판단합니다. [도구 요청·응답 명세](https://modelcontextprotocol.io/specification/2026-07-28/server/tools)
+
+위 응답의 문장은 형식 설명용입니다. 실습 도구는 text 안에 정책 JSON 문자열을 반환합니다. <mark class="key-point">`tools/list`는 도구의 이름·설명·입력 schema를 반환하고, `tools/call`이 실제 조회를 실행합니다.</mark>
 
 | Transport | 메시지가 지나가는 경로 | 선택할 때 고려할 점 |
 |---|---|---|
@@ -99,7 +178,58 @@ JSON은 데이터를 표현하는 형식입니다. **JSON-RPC는 JSON으로 메�
 
 SSE는 서버가 응답을 스트림으로 전달하는 방식입니다. HTTP를 사용한다고 매번 스트리밍해야 하는 것은 아닙니다. **이번 실습은 localhost의 Streamable HTTP와 JSON 응답**을 사용합니다. 노트북 안에서 서버를 시작하지만 요청은 실제 HTTP를 통과합니다. [전송 규약](https://modelcontextprotocol.io/specification/2026-07-28/basic/transports)
 
-수업은 MCP 2026-07-28과 SDK 2.1.1을 사용합니다. 이 버전은 요청마다 버전·기능 정보를 보내며 이전 방식의 초기화 handshake와 프로토콜 세션에 의존하지 않습니다. 과거 예제의 `initialize`가 없다고 누락으로 판단하지 않습니다. 무상태 요청이어도 서버의 정책 데이터는 그대로 보관할 수 있습니다.
+### 이전의 initialize는 어디로 갔나요?
+
+수업은 **MCP 2026-07-28과 SDK 2.1.1**을 사용합니다. 이전 예제에서 본 초기화 순서와 비교하면, 버전·기능 정보를 전달하는 시점이 달라졌습니다.
+
+```mermaid
+sequenceDiagram
+    participant C as MCP Client
+    participant S as MCP Server
+    rect rgb(245, 247, 246)
+        Note over C,S: 이전 · 2025-11-25
+        C->>S: initialize · 버전, Client 정보와 기능
+        S-->>C: 사용할 버전, Server 정보와 기능
+        C->>S: notifications/initialized
+        C->>S: tools/list
+        S-->>C: 도구 목록
+        C->>S: tools/call
+        S-->>C: 도구 실행 결과
+    end
+    rect rgb(245, 247, 246)
+        Note over C,S: 현재 · 2026-07-28
+        opt 서버 정보를 먼저 확인할 때
+            C->>S: server/discover + 요청 metadata
+            S-->>C: 지원 버전, Server 정보와 기능
+        end
+        C->>S: tools/list + 요청 metadata
+        S-->>C: 도구 목록
+        C->>S: tools/call + 요청 metadata
+        S-->>C: 도구 실행 결과
+    end
+```
+
+|비교할 부분|이전 · 2025-11-25|현재 · 2026-07-28|
+|---|---|---|
+|업무 요청 전 준비|`initialize` 응답 후 `notifications/initialized` 전송|필수 초기화 handshake 없이 요청 가능|
+|버전·Client 기능|초기화에서 교환한 정보를 이후 통신에서 사용|각 요청의 `params._meta`에 전달|
+|Server 기능 확인|초기화 응답에서 확인|`server/discover`로 조회 가능. 필수 선행 단계는 아님|
+|서버가 버전을 지원하지 않을 때|초기화 응답의 버전과 Client 지원 범위를 대조|지원 버전이 담긴 오류를 받고, 공통 지원 버전으로 재요청하거나 오류 안내|
+|프로토콜 문맥|초기화에서 교환한 문맥을 사용. HTTP 세션 ID 발급은 선택 사항|각 요청이 버전·기능을 전달하며 앞선 요청의 문맥에 의존하지 않음|
+
+<strong><mark class="key-point">현재 방식은 “처음에 알려 줬으니 기억해 둬”에서 “이번 요청에 필요한 정보를 함께 보낼게”로 바뀐 것입니다.</mark></strong> 위 JSON의 `_meta`가 그 정보입니다. `protocolVersion`과 `clientCapabilities`는 필수이고, 예시의 빈 `{}`는 추가 Client 기능을 선언하지 않았다는 뜻입니다. Client 이름·버전인 `clientInfo`는 권장 필드이며 예시에서는 생략했습니다. HTTP에서는 일부 metadata를 헤더에도 싣지만 본문이 기준입니다. [요청 metadata](https://modelcontextprotocol.io/specification/2026-07-28/basic/index#_meta) · [Server discovery](https://modelcontextprotocol.io/specification/2026-07-28/server/discover)
+
+무상태라는 말은 **서버의 정책 DB나 Agent의 대화 기록까지 지운다는 뜻이 아닙니다.** 여러 요청에 걸친 업무 상태가 필요하면 명시적인 식별자를 요청에 담아 연결합니다. stdio 프로세스가 계속 살아 있는 것과 프로토콜 세션을 유지하는 것도 구분합니다.
+
+따라서 과거 예제에서 `initialize` 한 줄만 지워 이식하지 않습니다. Client·Server·SDK가 지원하는 명세를 함께 확인합니다. 두 방식을 지원하는 구현은 이전 서버를 감지해 초기화 방식으로 전환할 수 있지만, 새 방식만 지원하는 Client가 모든 이전 서버와 자동 호환되는 것은 아닙니다. [이전 lifecycle](https://modelcontextprotocol.io/specification/2025-11-25/basic/lifecycle) · [현재 버전·호환성 표](https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning)
+
+<details><summary>이전 HTTP도 여러 서버로 요청을 나눌 수 있지 않았나요?</summary>
+
+**이전 Streamable HTTP도 WebSocket처럼 하나의 연결에 이후 요청을 고정하는 방식은 아니었습니다.** 2025-11-25 명세에서도 Client가 보내는 JSON-RPC 메시지는 각각 새로운 HTTP POST였습니다. `initialize`는 MCP의 버전·기능을 교환하는 절차이며, HTTP 연결을 WebSocket으로 전환하는 handshake가 아닙니다. 서버의 `MCP-Session-Id` 발급도 선택 사항이었고, 발급받은 경우 이후 HTTP 요청에 그 ID를 보냈습니다. [이전 Streamable HTTP와 세션 관리](https://modelcontextprotocol.io/specification/2025-11-25/basic/transports)
+
+따라서 **여러 서버 인스턴스로 요청을 분산하는 것이 새로 가능해진 것은 아닙니다.** 이전에도 가능했으며, 세션 문맥을 사용한다면 같은 인스턴스로 라우팅하거나 문맥을 공유하는 등의 설계가 필요했습니다. 현재 방식은 버전·Client 기능을 요청마다 전달하므로, 그 프로토콜 문맥을 복원·공유해야 하는 부담을 줄입니다. 여기서 서버 A·B는 같은 MCP 서비스를 제공하는 복제 인스턴스를 뜻합니다. 정책 DB·티켓 같은 업무 상태와 진행 중인 스트림의 처리는 여전히 별도로 설계해야 합니다. [현재 무상태 요청 원칙](https://modelcontextprotocol.io/specification/2026-07-28/basic/index#statelessness)
+
+</details>
 
 ## 개념 3 · 조회 함수를 도구로 등록합니다
 
@@ -108,15 +238,22 @@ SSE는 서버가 응답을 스트림으로 전달하는 방식입니다. HTTP를
 등록은 함수를 실행하는 일이 아닙니다. **함수의 이름·설명·입력 형식과 실행할 함수를 서버에 알려 주는 일**입니다. 새 함수라면 다음처럼 데코레이터로 등록합니다. 이 코드는 문법 비교용이며 실습에서는 이미 작성한 조회 함수를 재사용합니다.
 
 ```python
+from mcp.server.mcpserver import MCPServer
+from course.policy_store import search_policy  # 이 교재에서 제공하는 조회 함수
+
+server = MCPServer("업무 정책 도구")
+
 @server.tool()
 def lookup_policy(topic: str) -> str:
     """업무명으로 담당 팀과 정책을 조회합니다."""
     return search_policy(topic)
 ```
 
-이미 만들어 둔 함수를 등록할 때는 같은 데코레이터를 함수에 직접 적용합니다.
+`MCPServer`는 `mcp` 패키지의 서버 클래스입니다. `course.policy_store`는 설치 패키지가 아니라 수업에서 제공하는 모듈입니다. 이미 만들어 둔 `lookup_policy` 함수를 등록할 때는 다음 방식으로 같은 데코레이터를 함수에 직접 적용합니다.
 
 ```python
+from mcp.server.mcpserver import MCPServer
+
 server = MCPServer("업무 정책 도구")
 register_tool = server.tool()
 register_tool(lookup_policy)
@@ -135,11 +272,18 @@ register_tool(lookup_policy)
 
 ```python
 # 연결 구조를 읽는 발췌. 실제 실행은 아래 4A·4B 노트북 셀에서 합니다.
+from fastmcp import Client
+from langchain.mcp import MCPAdapter
+from langchain.agents import create_agent
+
+# url은 /mcp까지 포함한 서버 주소입니다. model과 question은 별도로 준비합니다.
 async with MCPAdapter(Client(url, mode="2026-07-28")) as adapter:
     tools = await adapter.list_tools()
     agent = create_agent(model=model, tools=tools)
     result = await agent.ainvoke({"messages": [{"role": "user", "content": question}]})
 ```
+
+`Client`는 `fastmcp` 패키지의 MCP Client이고, `MCPAdapter`와 `create_agent`는 `langchain` 패키지에서 가져옵니다. Adapter가 MCP 도구를 LangChain 도구 인터페이스로 연결합니다.
 
 `await`는 응답을 기다립니다. `async with`는 연결을 사용하는 범위를 정하고 끝나면 정리합니다. 원격 도구 호출이 끝날 때까지 Agent 실행도 이 범위 안에 둡니다. Jupyter는 `await`를 바로 사용할 수 있습니다.
 
@@ -154,9 +298,11 @@ LangChain 1.4의 `langchain.mcp`는 FastMCP client 위에서 작동합니다. �
 
 <!-- lesson-exercise:protocols -->
 
-**제공되는 것:** 정책 데이터·조회 함수, HTTP 서버 시작과 종료 코드, 결과 출력 코드입니다. 직접 작성하는 것은 `build_mcp_server`의 등록 코드와 4B의 도구 목록 연결 한 줄입니다.
+**제공되는 것:** 정책 데이터·조회 함수, HTTP 서버 시작과 종료, 호출 횟수 기록과 결과 출력입니다. 직접 구현하는 부분은 서버 등록과 4B 도구 연결입니다. 구현량은 작지만 완료 판단에는 **목록 조회와 실행의 차이, 입력 오류와 업무상 결과 없음의 차이**를 설명하는 관찰 기록이 필요합니다.
 
-4A의 `await policy_tool.ainvoke({"topic": topic})`는 모델 없이 도구를 직접 실행합니다. 4B의 `await agent.ainvoke(...)`는 모델이 도구 요청을 만들게 합니다. 같은 `ainvoke`라도 호출 대상이 다릅니다.
+4A의 `recorded_lookup`은 전달된 조회 함수가 실제 실행될 때만 횟수를 늘리는 관찰용 함수입니다. `wraps`는 원래 도구 이름·설명·입력 형식을 유지합니다. 이 기록은 모델의 호출 횟수나 모든 HTTP 요청 횟수가 아닙니다.
+
+4A의 `await policy_tool.ainvoke({"topic": topic})`는 모델 없이 도구를 직접 실행합니다. 4B의 `await remote_agent.ainvoke(...)`는 모델이 도구 요청을 만들게 합니다. 같은 `ainvoke`라도 호출 대상이 다릅니다.
 
 </section>
 <section class="slide" id="practice">
@@ -165,7 +311,11 @@ LangChain 1.4의 `langchain.mcp`는 FastMCP client 위에서 작동합니다. �
 
 <p class="section-time">예상 15분 · 16:05–16:20</p>
 
-먼저 4A의 세 입력을 확인한 뒤, 4B의 질문을 아래처럼 바꾸어 실행합니다. 새 파일을 만들지 않습니다.
+먼저 4A의 호출 횟수를 예상과 비교합니다. 노트북의 ‘4A 관찰 기록’ 표에 결과와 이유를 적습니다. **정책이 없는 경우와 입력이 잘못된 경우가 같은 실패인지** 설명합니다.
+
+이어서 `invalid_arguments`를 자신의 입력 하나로 바꿉니다. `topic` 필수 조건을 위반하는 입력을 만들어 호출 횟수가 늘지 않는지 확인한 뒤, 유효한 업무명 입력과 비교합니다. 잘못된 입력을 다시 넣어 둔 상태로 다음 단계에 진행합니다.
+
+4B에서는 질문을 아래처럼 바꾸어 실행합니다. 도구 이름·인자·ToolMessage·최종 답변을 함께 읽고, 최종 문장만으로 성공 여부를 판단하지 않습니다. 새 파일을 만들지 않습니다.
 
 | 입력 | 4A 도구 결과 | 4B에서 확인할 것 |
 |---|---|---|
@@ -173,7 +323,7 @@ LangChain 1.4의 `langchain.mcp`는 FastMCP client 위에서 작동합니다. �
 | 계정 | P-02·IT지원팀 | 계정으로 조회하며 정산 결과를 재사용하지 않음 |
 | 없는업무 | found=false, policy=null | 임의의 담당 팀 대신 추가 확인 안내 |
 
-**직접 설명하기:** `tools=[]`인 채로 실행해도 문장이 나올 수 있습니다. 그 실행에는 왜 원격 조회가 없었을까요? 도구 목록을 연결한 실행의 `messages`와 비교합니다.
+**직접 설명하기:** 4B는 `tools=[]`가 남아 있으면 미완성 안내와 함께 멈춥니다. `await adapter.list_tools()`를 연결한 뒤 실행하여 요청·도구 결과를 찾습니다. 일반적인 Agent는 도구가 없어도 모델만으로 답할 수 있으므로, 문장이 출력됐다는 사실만으로 원격 조회 성공을 판단하지 않습니다.
 
 셀에서 오류가 나면 마지막 정상 출력부터 찾습니다. 서버 주소가 만들어지기 전인지, 목록 조회 중인지, 원격 함수 실행 중인지, 모델 요청 중인지에 따라 고칠 곳이 다릅니다. API 인증 오류가 나면 모델 없이 실행하는 4A까지 완료하고 모델 연결을 복구한 뒤 4B를 재실행합니다.
 
@@ -184,14 +334,20 @@ LangChain 1.4의 `langchain.mcp`는 FastMCP client 위에서 작동합니다. �
 
 <p class="section-time">예상 7분 · 16:20–16:27</p>
 
-`notebooks/build-agent-solution.ipynb`의 4번과 비교합니다. 도구 등록은 다음 세 줄입니다.
+`notebooks/build-agent-solution.ipynb`의 4번과 비교합니다. 도구 등록은 서버 생성 → 받은 함수 등록 → 서버 반환입니다.
 
 ```python
+from mcp.server.mcpserver import MCPServer
+
 def build_mcp_server(policy_tool):
     server = MCPServer("업무 정책 도구")
     server.tool()(policy_tool)
     return server
 ```
+
+**4A 풀이 · 실행 경계를 읽습니다.** 등록 뒤와 목록 조회 뒤에는 조회 함수가 0회 실행됩니다. 정산·계정·없는업무를 차례로 호출하면 1·2·3회입니다. 없는업무도 문자열 입력 조건을 만족하므로 함수가 실행되어 `found=false`를 돌려줍니다. 반면 `{}`는 필수 `topic`이 없어 함수 본문에 도달하기 전에 거절됩니다. 오류 뒤에도 횟수는 3회입니다.
+
+목록에서 `lookup_policy`를 찾지 못하면 서버 등록과 공개 이름을 확인합니다. 횟수가 계속 0이라면 `build_mcp_server`가 받은 `policy_tool` 대신 다른 함수를 등록했는지도 확인합니다. JSON-RPC 요청 횟수와 조회 함수 실행 횟수가 같지 않다는 점이 이 관찰의 핵심입니다.
 
 4B에서는 `tools = await adapter.list_tools()`로 받은 도구를 Agent에 전달합니다. 데이터 조회 로직을 다시 작성할 필요가 없습니다. 서버가 등록한 함수, adapter가 반환한 도구, 모델이 요청한 도구 이름이 `lookup_policy`로 이어지는지 확인합니다.
 
@@ -202,80 +358,64 @@ def build_mcp_server(policy_tool):
 | 도구 실행 오류 | 호출된 도구의 실행이 실패 | 도구 인자·실행 로그 |
 | found=false | 조회는 끝났지만 해당 규정이 없음 | 사용자에게 확인할 업무명 |
 
-프로토콜 응답의 `isError`는 도구 실행 오류 표시이며 `found`는 우리가 정한 업무 결과입니다. Adapter는 도구 실행 오류를 LangChain 도구 호출 예외로 전달할 수 있습니다. 필드명을 암기하는 대신 **어느 계층에서 어떤 일이 끝났는지**를 출력으로 읽습니다.
+<mark class="key-point">프로토콜 응답의 `isError`는 도구 실행 오류 표시이며 `found`는 우리가 정한 업무 결과입니다.</mark> 고정 버전의 Adapter는 MCP 도구 오류를 처리하여 오류 내용으로 반환할 수 있습니다. Agent 안에서는 오류 상태의 ToolMessage로 전달됩니다. Python 예외가 없었다는 사실만으로 성공을 판단하지 않습니다. 필드명을 암기하는 대신 **어느 계층에서 어떤 일이 끝났는지**를 출력으로 읽습니다.
 
 </section>
 <section class="slide" id="operations">
 
-<p class="section-time">예상 5분 · 16:27–16:32 · 표와 사례 하나 / 나머지는 복습</p>
+<p class="section-time">예상 5분 · 16:27–16:32</p>
 
-### 로드맵 읽기 · 도구 서버가 커지면 무엇이 달라질까요? {#roadmap}
+### 로드맵 읽기 · 도구가 100개라면 어떻게 찾을까요? {#roadmap}
 
-지금 만든 서버는 도구 수가 적고 조회 결과를 바로 돌려줍니다. 이 서버를 여러 팀이 사용하고, 오래 걸리는 작업도 맡기게 된다면 어떤 문제가 생길까요?
+지금은 `lookup_policy` 하나를 찾아 Agent에 연결했습니다. 여기에 휴가·출장·급여·구매 도구까지 100개가 생겼다고 가정합니다. **사용자는 출장비만 물었는데, 모델에 모든 도구 설명을 매번 전달해야 할까요?**
 
-2026년 8월 로드맵은 이런 확장을 다룹니다. **이미 출시한 변화와 앞으로 추진할 방향을 나누어 읽어야 합니다.** [8월 22일 발표](https://blog.modelcontextprotocol.io/posts/mcp-roadmap/) · [공식 로드맵 · 확인 2026-09-09](https://modelcontextprotocol.io/development/roadmap)
+<figure class="trace-example">
 
-#### 이미 달라진 기반: 요청마다 필요한 정보를 전달합니다
+![왼쪽은 도구 설명 카드가 책상을 가득 채우고, 오른쪽은 분류 카드를 통해 필요한 도구 카드 몇 장만 꺼낸 모습.](/images/workshop/tool-discovery-desk.png)
 
-7월 28일 명세에서는 초기화 handshake와 프로토콜 세션을 없앴습니다. 서버가 이전 연결을 기억하지 않아도 요청을 처리할 수 있도록 바뀐 것입니다. `server/discover`는 지원 버전과 기능을 알아보는 선택적 호출이며, 예전 초기화 절차를 다른 이름으로 반드시 수행한다는 뜻은 아닙니다. 목록 결과의 캐시 지원도 이 릴리스에 포함됩니다. [7월 명세 발표](https://blog.modelcontextprotocol.io/posts/2026-07-28/)
+<figcaption>왼쪽은 전체 목록을 한꺼번에 전달하는 방식, 오른쪽은 필요한 도구를 찾아 전달하는 방식을 비유합니다. AI 제작 이미지이며 특정 제품의 화면이나 성능 비교 결과는 아닙니다.</figcaption>
+</figure>
 
-예를 들어 첫 요청은 서버 A가 받고 다음 요청은 서버 B가 받을 수 있습니다. 각 요청이 필요한 정보를 담으면 프로토콜 세션 때문에 같은 서버에 묶일 필요가 줄어듭니다. 다만 두 서버가 같은 티켓을 읽어야 한다면 **업무 저장소를 공유하는 설계**는 여전히 필요합니다. 이 경우 저장소 공유는 별도의 서비스 설계 문제입니다.
+#### 필요한 도구를 찾는 단계를 둡니다
 
-#### 다음 다섯 방향은 어떤 문제를 풀려는 걸까요?
+|진행|출장비 문의 예시|
+|---|---|
+|1. 질문에서 필요한 분야를 정합니다.|“출장비를 정산하고 싶어요” → 출장·정산 관련 기능을 찾음|
+|2. 그 분야의 도구 설명을 가져옵니다.|출장비 조회·영수증 확인 도구의 이름과 입력 형식을 확인|
+|3. 알맞은 도구를 호출합니다.|출장비 조회에 필요한 인자를 넣어 실제 실행|
 
-|운영에서 생기는 상황|로드맵의 방향|읽을 때 주의할 점|
-|---|---|---|
-|보고서 생성이 오래 걸리고 도중에 취소 요청도 옴|장시간 작업·이벤트·진행 통신의 조합 정리|관련 기능을 같은 수명주기와 오류 처리로 연결하는 작업|
-|로컬 연결과 원격 연결을 각각 구현·관리함|HTTP 중심 전송 통합과 강화|원격의 무상태 전환은 출시됐지만 HTTP over stdio는 추진 방향|
-|사용자가 자리를 비운 동안 Agent가 다른 Agent에 일을 맡김|Agent 신원과 권한 위임|누구를 대신해 어떤 권한으로 호출하는지 다루는 문제|
-|도구가 많고 클라이언트마다 반환값을 다르게 다룸|점진적 발견과 도구 결과 형식 개선|구체 API가 모두 확정·배포된 것으로 읽지 않음|
-|명세·SDK·빠른 시작 예제가 서로 어긋남|SDK 개발 경험과 명세 적합성 개선|명세에서 SDK·예제를 생성하고 검증하는 실험도 포함|
+이 흐름을 **필요할 때 기능을 더 알아가는 점진적 발견(Progressive Discovery)**이라고 부릅니다. 앞의 `server/discover`는 서버의 지원 버전·기능을 확인하는 요청입니다. 여기서 말하는 것은 **많은 업무 도구 중 무엇을 모델에 보여줄지**의 문제입니다.
 
-로드맵은 향후 6~12개월의 방향을 설명하며 고정된 출시 약속은 아닙니다. 구현 여부는 사용하는 명세와 SDK에서 확인합니다. [공식 우선순위와 범위](https://modelcontextprotocol.io/development/roadmap#priority-areas)
+처음 전달할 도구 설명을 줄일 수 있지만, 찾는 단계가 추가되고 필요한 도구를 놓칠 수도 있습니다. 도구를 적게 보여주는 것만으로 좋은 설계가 되는 것은 아닙니다.
 
-#### 사례 1 · 도구 100개를 처음부터 모두 알려줘야 할까요?
+#### 지금 실습과 로드맵을 구분합니다
 
-식당 메뉴 문의에는 식당 관련 도구만 필요합니다. 작은 진입점에서 시작해 대화가 구체화될수록 도구를 더 발견하는 방식이 Progressive Discovery의 방향입니다. 처음 전달할 설명을 줄일 수 있지만, 필요한 도구를 찾는 단계가 추가됩니다. 어떤 도구를 숨기고 언제 더 보여줄지도 설계해야 합니다.
+- **지금 실행한 것:** `adapter.list_tools()`로 도구 목록을 받아 Agent에 전달했습니다. 질문에 맞춰 목록을 좁히는 기능은 구현하지 않았습니다.
+- **이미 가능한 제품별 구현:** Host가 도구 검색·선택 기능을 따로 만들 수 있습니다.
+- **공식 로드맵의 방향:** 서버가 큰 도구 목록을 단계적으로 안내하는 방식과 캐시의 관계 등을 표준화하려는 작업입니다. 구체적인 새 API가 모두 확정됐다는 뜻은 아닙니다.
 
-**생각해 보기:** 사용자가 “출장비 정산”을 물었는데 처음에는 일반 정산 도구만 보입니다. 출장 전용 도구를 찾을 경로가 없다면 무슨 일이 생길까요?
+2026년 8월 22일 공식 로드맵은 이를 우선 과제로 제시합니다. 위 출장비 흐름은 그 방향을 이해하기 위한 설계 예시입니다. [공식 로드맵 · Improved Primitives](https://modelcontextprotocol.io/development/roadmap#4-improved-primitives)
 
-현재 실습의 목록 조회는 이 점진적 발견 시스템 전체가 아닙니다. `server/discover`로 서버의 버전·기능을 확인하는 것과도 구분합니다. 로드맵은 `tools/call`의 텍스트·구조화 결과를 클라이언트가 일관되게 다루는 문제도 함께 다룹니다. [도구 발견·결과 형식의 개선 방향](https://modelcontextprotocol.io/development/roadmap#4-improved-primitives)
+**생각해 보기:** 출장비 도구가 있는데도 검색 결과에 일반 정산 도구만 나왔습니다. 모델이 “출장비 규정은 없습니다”라고 답해도 될까요?
 
-<details><summary>사례 2 · 10분 걸리는 보고서는 어떻게 기다릴까요?</summary>
+<details><summary>설명 비교</summary>
 
-“완료됐나요?”를 계속 묻는 polling과 서버가 완료 소식을 보내는 방식은 비용과 연결 조건이 다릅니다. 그동안 진행률을 표시하거나 사용자가 취소할 수도 있습니다. 각각의 기능이 있어도, 취소 직후 완료 통지가 도착했을 때 어떻게 처리할지는 함께 정해야 합니다.
-
-로드맵은 Tasks·이벤트·진행 통신이 서로 맞물리도록 정리하는 방향을 제시합니다. **Tasks는 7월 개편에서 공식 확장으로 이동했으며, 핵심 프로토콜에 다시 포함하는 것은 향후 목표**입니다. [Tasks 확장 제안](https://modelcontextprotocol.io/seps/2663-tasks-extension)
-
-**질문:** 사용자가 취소한 직후 결과가 도착했습니다. 화면에 보여주는 것과 실제 발송·저장하는 것을 같은 방식으로 처리해도 될까요?
-
-MCP에도 장시간 작업이 있다는 이유로 A2A와 같아지는 것은 아닙니다. 다음 장에서는 도구 호출의 결과를 기다리는 일과 독립 Agent에 작업을 맡기는 일을 비교합니다.
+도구를 찾지 못한 것과 규정이 없는 것은 다릅니다. 관련 도구를 더 찾거나 사용자에게 필요한 정보를 확인해야 합니다. 앞 실습의 `found=false`는 실제 조회 함수를 실행한 결과입니다. 도구 발견 단계에서 놓친 것을 같은 결과로 취급하면 안 됩니다.
 
 </details>
 
-<details><summary>사례 3 · 정산 조회 권한을 받은 Agent가 다른 Agent를 부른다면?</summary>
+<details><summary>더 읽기 · 나머지 로드맵은 어떤 문제를 다루나요?</summary>
 
-사용자가 정산 자료의 조회만 허용했습니다. 첫 Agent가 보조 Agent에 일부 조사를 맡길 때, 같은 자격 증명을 통째로 넘기면 허용 범위를 좁히기 어렵습니다.
+|추가로 생기는 문제|로드맵이 다루는 방향|
+|---|---|
+|보고서가 오래 걸리고 중간에 취소 요청도 옴|장시간 작업·진행 알림·취소를 일관되게 연결|
+|로컬과 원격 연결을 각각 관리함|HTTP 중심의 전송 방식 통합과 캐시 개선|
+|사람이 없는 동안 보조 Agent가 호출함|호출 주체의 신원과 위임받은 권한 처리|
+|같은 결과를 Client마다 다르게 해석함|도구 결과 형식과 SDK·예제의 일관성 개선|
 
-로드맵의 Agent Identity는 사람이 없는 실행에서도 호출 주체와 위임된 권한을 다루려는 방향입니다. DPoP, 워크로드 신원, 토큰 교환처럼 기존 보안 표준을 활용하는 작업을 포함합니다. [신원과 위임의 추진 범위](https://modelcontextprotocol.io/development/roadmap#3-agent-identity-and-enterprise-ready-security)
-
-**질문:** 보조 Agent에게도 전체 정산 자료가 필요할까요? 특정 출장 건만 읽도록 맡길 수 있다면 서버는 무엇을 확인해야 할까요?
-
-권한을 식별하는 토큰이 있어도 실제 자료의 접근 허용 여부는 서버에서 검사해야 합니다. 현재 localhost 실습 서버에는 이런 인증·위임 체계가 구현되어 있지 않습니다.
-
-</details>
-
-<details class="instructor-note"><summary>강사용 진행 노트 · 로드맵 해설과 토론</summary>
-
-다섯 방향을 모두 설명하면 약 8~10분, 전체 표를 짚고 사례 하나만 논의하면 약 3~5분을 예상합니다. 고정된 65분 안에서 운영 시연과 풀이의 배분을 조절합니다. 새 필수 구현 과제를 추가하지 않습니다.
-
-처음 질문의 “도구 100개”를 회수한 뒤, 실제 참가자의 업무에 가까운 장시간 작업 또는 권한 위임 사례 하나를 고릅니다. 약어 암기보다 “지금 만든 서버에 어떤 요구가 추가되는가”를 말하게 합니다.
-
-마지막에는 무상태 기반은 출시된 변화, 점진적 발견·전송 통합 등의 구체 작업은 로드맵, 구현 지원은 SDK별 확인이라는 세 구분을 짚습니다. 위 업무 상황과 장단점은 원문 방향을 구체화한 예시이며 해당 기능의 성능을 측정한 결과가 아닙니다.
+향후 6~12개월의 개발 방향이며 고정된 출시 약속은 아닙니다. 앞에서 배운 요청별 metadata는 이미 명세에 반영된 내용이고, 이 표의 개선 작업 전체가 현재 실습에 구현된 것은 아닙니다. [공식 로드맵 전체](https://modelcontextprotocol.io/development/roadmap)
 
 </details>
-
-
 
 </section>
 <section class="slide" id="wrap">
@@ -296,7 +436,7 @@ MCP에도 장시간 작업이 있다는 이유로 A2A와 같아지는 것은 아
 
 <details><summary>설명 비교</summary>
 
-절차 문서만으로 실제 조회 기능이 생기지는 않습니다. Harness가 Skill을 읽게 하고, 조회 도구도 연결해야 합니다. 같은 MCP 도구도 어떤 Skill과 지침을 함께 주는지에 따라 작업 절차가 달라질 수 있습니다.
+<mark class="key-point">절차 문서만으로 실제 조회 기능이 생기지는 않습니다.</mark> Harness가 Skill을 읽게 하고, 조회 도구도 연결해야 합니다. 같은 MCP 도구도 어떤 Skill과 지침을 함께 주는지에 따라 작업 절차가 달라질 수 있습니다.
 
 </details>
 

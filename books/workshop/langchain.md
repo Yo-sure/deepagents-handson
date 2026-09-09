@@ -65,7 +65,9 @@ pageClass: lec-page
 
 LangChain은 모델 호출, 메시지, 도구 연결에 쓰는 인터페이스를 제공합니다. 이 장에서는 **모델 설정 → 도구 등록 → Agent 생성 → 질문 전달 → 응답 읽기** 순서로 기본 사용법을 익힙니다.
 
-### 먼저 한 번 호출합니다
+### 모델 호출 코드를 읽습니다
+
+이 절은 교재의 코드와 예시 결과를 읽는 개념 설명입니다. 웹페이지를 읽는 동안 모델이 호출되지는 않습니다. 직접 실행할 때는 아래의 [선택 실습 · 응답과 토큰 비교](#response-lab)를 따라갑니다.
 
 ```python
 from course.common import get_model
@@ -96,7 +98,15 @@ LangChain의 ChatOpenAI
 
 위의 문자열 입력은 사용자 메시지 한 개를 보내는 간단한 표기입니다. 대화에 지시문과 이전 답변을 넣으려면 **누가 한 말인지 나타내는 `role`과 내용인 `content`**를 함께 전달합니다.
 
-아래는 HTTP 요청 본문에 들어가는 메시지의 원시 JSON 형태입니다. 키와 HTTP 헤더는 생략했습니다.
+**① 요청: 어떤 모델에 무엇을 보낼까요?** 아래는 `ChatOpenAI`가 OpenRouter에 보내는 요청의 형태를 설명한 예시입니다. 터미널에서 실행할 명령이 아닙니다. 실제 호출은 아래 Jupyter 셀에서 진행합니다.
+
+```http
+POST https://openrouter.ai/api/v1/chat/completions
+Authorization: Bearer [설정한 OpenRouter 키]
+Content-Type: application/json
+```
+
+`Authorization`은 접속 인증, `Content-Type`은 본문이 JSON임을 알리는 헤더입니다. 다음 본문의 `model`은 선택할 모델이고, `messages`는 모델에 전달할 대화입니다. 키는 본문에 넣지 않습니다.
 
 ```json
 {
@@ -108,7 +118,7 @@ LangChain의 ChatOpenAI
 }
 ```
 
-같은 내용을 LangChain 메시지 객체로 쓰면 다음과 같습니다. 주 실습 노트북의 환경 셀을 실행한 뒤 새 코드 셀에 아래 코드를 넣어 실행합니다. 이 예제는 실제 모델을 한 번 호출합니다.
+같은 요청을 LangChain 메시지 객체로 표현한 코드입니다. `invoke`에서 모델을 호출하고, 그 아래 네 줄은 응답의 어떤 값을 출력하는지 보여 줍니다. 여기서는 코드를 읽고 다음 예시 결과와 연결합니다.
 
 ```python
 from course.common import get_model
@@ -138,7 +148,36 @@ LangChain은 `[{"role": "user", "content": "..."}]` 같은 Python dict 목록도
 
 ### 답변 문자열 밖에 무엇이 남을까요?
 
-`response`는 답변만 든 문자열이 아니라 `AIMessage` 객체입니다. 방금 출력한 `usage_metadata`에서 `input_tokens`, `output_tokens`, `total_tokens`를 찾아봅니다. 토큰은 모델이 입력과 출력을 처리하는 단위이며 글자 수나 단어 수와 같지 않습니다. 입력에는 사용자 질문 외에 함께 보낸 지시문과 대화 기록도 포함됩니다.
+`response`는 답변만 든 문자열이 아니라 `AIMessage` 객체입니다. `usage_metadata`에는 입력·출력·전체 토큰 수가 각각 `input_tokens`, `output_tokens`, `total_tokens`로 담깁니다. 아래 예시에서 그 위치를 확인합니다. 토큰은 모델이 입력과 출력을 처리하는 단위이며 글자 수나 단어 수와 같지 않습니다. 입력에는 사용자 질문 외에 함께 보낸 지시문과 대화 기록도 포함됩니다.
+
+**② 응답: 답변과 종료 이유, 사용량이 함께 옵니다.** 위 질문에 대한 비스트리밍 응답은 다음 형태입니다. 필드를 읽기 위한 축약 예시이며, 답변·ID·토큰 수는 실측값이 아닙니다.
+
+```json
+{
+  "id": "gen-example",
+  "object": "chat.completion",
+  "model": "google/gemini-3.8-flash",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "LangChain은 모델과 도구를 연결해 AI 애플리케이션을 구성하는 프레임워크입니다."
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 30,
+    "completion_tokens": 25,
+    "total_tokens": 55
+  }
+}
+```
+
+`choices`는 생성 결과 목록이고 `[0]`은 첫 결과입니다. 그 안의 `message`에서 답변을, `finish_reason`에서 이번 생성이 끝난 이유를 읽습니다. 바깥의 `id`는 이 응답의 식별자이며, 도구 요청의 `tool_call_id`와는 다릅니다.
+
+**③ LangChain 객체: JSON의 값을 다음 위치에서 읽습니다.** `ChatOpenAI`는 HTTP 응답을 `AIMessage`로 변환하므로, 노트북에서는 원시 JSON의 경로 대신 오른쪽 표현을 사용합니다.
 
 |HTTP 응답 JSON에서 읽는 위치|LangChain에서 읽는 위치|
 |---|---|
@@ -148,9 +187,53 @@ LangChain은 `[{"role": "user", "content": "..."}]` 같은 Python dict 목록도
 |`usage.total_tokens`|`response.usage_metadata["total_tokens"]`|
 |`choices[0].finish_reason`|`response.response_metadata.get("finish_reason")`|
 
+위 설명용 JSON을 LangChain으로 읽었을 때의 출력도 함께 봅니다. **실제 실행 로그가 아니라 같은 예시 값을 옮긴 것입니다.**
+
+```text
+응답 종류: AIMessage
+답변: LangChain은 모델과 도구를 연결해 AI 애플리케이션을 구성하는 프레임워크입니다.
+토큰 사용량: {'input_tokens': 30, 'output_tokens': 25, 'total_tokens': 55}
+종료 이유: stop
+```
+
+이 예시에서는 입력 30 + 출력 25 = 전체 55입니다. 실제 호출의 토큰 수와 문장은 달라질 수 있습니다.
+
 사용량이 없는 응답에서는 `usage_metadata`가 `None`일 수 있습니다. 이때 사용량이 0이라고 해석하지 않습니다. 모델에 따라 추론 토큰 등 세부 항목이 추가되기도 하며, 토큰 수만으로 내부 추론 내용을 볼 수 있는 것은 아닙니다.
 
-**직접 비교:** 지시문을 “한국어로 다섯 문장 답합니다.”로 바꾸고 다시 실행합니다. 답변 길이와 출력 토큰은 어떻게 달라졌나요? 입력 토큰도 달라졌는지 확인합니다. 실제 수치는 응답마다 달라질 수 있습니다.
+### `finish_reason`은 왜 확인하나요?
+
+<mark class="key-point">`finish_reason`은 이번 모델 생성이 끝난 이유이며, 답변의 정확성이나 업무 성공을 판정하는 값은 아닙니다.</mark> 이 Chat Completions 응답의 필드명은 `finish_reason`입니다. 다른 API나 SDK에서 본 `finishReason`을 그대로 이 JSON의 키로 사용하지 않습니다.
+
+|값|무슨 일이 끝났나요?|다음에 확인할 것|
+|---|---|---|
+|`stop`|자연스럽게 생성을 마쳤거나 지정한 종료 문자열에 도달했습니다.|답변이 질문과 근거에 맞는지 확인합니다. 정답이라는 표시는 아닙니다.|
+|`length`|생성 토큰 한도에 도달했습니다.|문장·JSON·도구 인자가 잘렸는지 확인합니다. 입력이나 출력 한도를 조정한 뒤 다시 실행할지 판단합니다.|
+|`tool_calls`|모델이 도구 호출 요청을 반환했습니다.|`message.tool_calls`의 이름·인자를 읽습니다. 프로그램이 도구를 실행하고 결과를 돌려줘야 합니다.|
+|`content_filter`|콘텐츠 필터에 의해 출력이 제한됐습니다.|누락된 내용을 완성된 답변으로 쓰지 않고, 제한 사유를 확인합니다.|
+|`error`|OpenRouter가 생성 오류로 표시했습니다.|오류 내용을 확인합니다. HTTP 오류나 SDK 예외로 전달되는 실패도 있으므로 이 값만 검사하지 않습니다.|
+
+`tool_calls`일 때 `message.content`는 비어 있을 수 있습니다. **답변이 없다는 이유만으로 실패라고 판단하지 않고 도구 요청이 있는지 확인합니다.** 직접 `model.invoke()`한 응답은 요청을 읽는 단계까지이며, 뒤에서 만들 `create_agent`가 도구 실행과 다음 모델 호출을 연결합니다.
+
+OpenRouter는 여러 제공사의 종료 이유를 위 값으로 맞추며, 원래 값은 `native_finish_reason`에 별도로 담을 수 있습니다. 제공사 원본 필드가 LangChain 객체에 모두 그대로 남는다고 가정하지 않습니다. [OpenRouter 요청·응답 형식과 종료 이유](https://openrouter.ai/docs/api_reference/overview#finish-reason) · [OpenAI Chat Completions 공식 API](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create)
+
+**먼저 확인:** 위 JSON에서 `finish_reason`만 `length`로 바뀌었다면 같은 답변을 그대로 써도 될까요? `stop`이어도 내용이 틀릴 수 있는 이유는 무엇인가요?
+
+### 선택 실습 · 응답과 토큰 비교 {#response-lab}
+
+직접 결과를 확인하려면 **JupyterLab에서 `notebooks/concepts.ipynb`를 열고, 맨 아래 ‘모델 응답과 토큰 비교’ 절**로 이동합니다. 이 활동은 실제 모델을 두 번 호출합니다. 시작 안내에서 키 설정을 마친 환경이 필요합니다.
+
+1. 노트북 맨 위의 **환경 확인 코드 셀**을 Shift+Enter로 실행합니다.
+2. ‘모델 응답과 토큰 비교’의 **첫 코드 셀**을 실행합니다. 한 문장 지시문의 답변·사용량·종료 이유가 셀 아래에 나옵니다.
+3. 바로 다음 **두 번째 코드 셀**을 실행합니다. 질문은 그대로 두고 지시문을 다섯 문장으로 바꾼 결과가 나옵니다. 첫 결과도 변수에 남아 있어 함께 비교할 수 있습니다.
+
+|확인할 것|완료 기준|
+|---|---|
+|응답 내용|두 출력에서 답변을 찾고 실제 문장 수를 비교합니다. 모델이 지시를 따랐는지도 봅니다.|
+|토큰 사용량|입력·출력·전체 토큰을 각각 짚습니다. 출력이 길어질 때 사용량이 어떻게 달라졌는지 자신의 결과로 설명합니다.|
+|종료 이유|각 결과의 `finish_reason`을 읽고, 잘린 출력인지 등을 위 표로 판단합니다.|
+
+<mark class="key-point">예시의 숫자와 같아야 성공하는 실습이 아닙니다. 지시문을 바꾼 두 응답에서 내용·사용량·종료 이유를 찾아 설명하면 됩니다.</mark> 사용량이 제공되지 않으면 ‘미제공’으로 기록하며 0으로 바꾸지 않습니다. 오류가 나면 다음 비교 셀로 넘어가지 않고 접속 설정을 확인합니다.
+
 
 ### `ainvoke()`는 언제 쓰나요?
 
@@ -181,6 +264,14 @@ asyncio.run(main())  # 일반 Python 파일에서 실행
 
 ## 개념 2 · Python 함수를 도구로 등록합니다
 
+<figure class="trace-example">
+
+![모델 작업대에서 조회 요청을 보내고, 도구 작업대에서 자료를 찾아 결과를 돌려주는 두 작업대.](/images/workshop/model-tool-exchange.png)
+
+<figcaption>모델은 조회를 요청하고, 프로그램은 도구를 실행해 결과를 돌려줍니다. AI로 제작한 역할 비유이며, 그림의 체크 표시는 도구의 반환 결과를 뜻합니다. 결과의 정확성까지 자동 보장하지는 않습니다.</figcaption>
+</figure>
+
+
 <p class="section-time">예상 6분 · 10:57–11:03</p>
 
 먼저 함수는 입력을 받아 결과를 돌려주는 일반 Python 코드입니다. 아래 실행 칸에서 `topic`을 `정산`, `계정`, `없는업무`로 바꿔 실행해 봅니다.
@@ -207,7 +298,7 @@ print(lookup_team.invoke({"topic": "정산"}))
 
 ### `@tool`을 붙이면 무엇이 달라질까요?
 
-Python의 데코레이터는 함수를 다른 함수에 전달하고, 그 반환값을 원래 이름에 붙이는 문법입니다. `@tool`은 조회를 실행하는 것이 아니라 **함수를 도구 객체로 변환**합니다. 이 예제에서는 `StructuredTool`이 만들어집니다.
+Python의 데코레이터는 함수를 다른 함수에 전달하고, 그 반환값을 원래 이름에 붙이는 문법입니다. `@tool`은 조회를 실행하는 것이 아니라 **<mark class="key-point">함수를 도구 객체로 변환</mark>**합니다. 이 예제에서는 `StructuredTool`이 만들어집니다.
 
 ```python
 # @tool을 쓰지 않고 같은 변환을 풀어 쓴 모습입니다.
@@ -221,7 +312,47 @@ print(lookup_team.args)           # 모델에게 알릴 입력 필드
 print(lookup_team.invoke({"topic": "정산"}))
 ```
 
-변환 전에는 `lookup_team("정산")`으로 함수를 호출합니다. 변환 후에는 도구 인터페이스인 `.invoke({"topic": "정산"})`을 사용합니다. 도구 객체에는 실행할 함수뿐 아니라 이름·설명·입력 schema(입력 형식)가 담깁니다. 모델은 이 설명과 형식을 받아 어떤 도구에 어떤 값을 요청할지 고릅니다. Python 함수 본문을 모델이 직접 실행하는 것은 아닙니다.
+변환 전에는 `lookup_team("정산")`으로 함수를 호출합니다. 변환 후에는 도구 인터페이스인 `.invoke({"topic": "정산"})`을 사용합니다. 도구 객체에는 실행할 함수뿐 아니라 <mark class="key-point">이름·설명·입력 schema(입력 형식)</mark>가 담깁니다. 모델은 이 설명과 형식을 받아 어떤 도구에 어떤 값을 요청할지 고릅니다. Python 함수 본문을 모델이 직접 실행하는 것은 아닙니다.
+
+### 모델도 도구도 왜 `invoke()`로 실행할까요? {#runnable}
+
+LangChain의 **Runnable은 입력을 받아 실행하고 결과를 돌려주는 공통 인터페이스**입니다. 모델이나 도구처럼 서로 다른 객체를 같은 메서드 이름으로 실행할 수 있도록 약속한 것입니다. `@tool`로 만든 도구도 이 인터페이스를 따릅니다. 일반 Python 함수의 호출 문법이 바뀐 것이 아니라, 함수를 감싼 **도구 객체의 메서드**를 사용하는 것입니다.
+
+아래는 앞에서 본 모델·도구와 뒤에서 만들 Agent를 비교한 표입니다. 실행 지시가 아니라 각 호출의 역할을 읽는 예시입니다.
+
+|호출|받는 입력|실행하는 일과 반환값|
+|---|---|---|
+|`model.invoke(messages)`|대화 메시지|모델을 호출하고 `AIMessage`를 반환합니다.|
+|`lookup_team.invoke({"topic": "정산"})`|도구의 입력 형식에 맞는 값|일반 입력 dict로 직접 호출하므로 문자열 `"재무지원팀"`을 반환합니다. 모델 호출은 없습니다.|
+|`agent.invoke({"messages": messages})`|Agent의 초기 상태|구성된 그래프를 실행하고 메시지 등을 담은 상태를 반환합니다. 내부에서 모델·도구를 여러 번 호출할 수 있습니다.|
+
+**Agent 안에서 보는 결과는 왜 `ToolMessage`일까요?** 위 표는 함수 인자만 담은 dict로 직접 호출한 경우입니다. 호출 ID가 포함된 **ToolCall**을 전달하면, 같은 도구도 결과를 `ToolMessage`로 감싸서 반환합니다. ID는 어느 요청의 결과인지 연결하는 데 쓰입니다.
+
+```python
+# 위에서 만든 lookup_team 도구를 두 방식으로 호출한 비교입니다.
+plain = lookup_team.invoke({"topic": "정산"})
+message = lookup_team.invoke({
+    "type": "tool_call",
+    "name": "lookup_team",
+    "args": {"topic": "정산"},
+    "id": "call_1",
+})
+print(type(plain).__name__, repr(plain))
+print(type(message).__name__, repr(message.content), message.tool_call_id)
+```
+
+설치된 실습 환경에서 모델 호출 없이 확인한 출력입니다.
+
+```text
+str '재무지원팀'
+ToolMessage '재무지원팀' call_1
+```
+
+<mark class="key-point">일반 입력 dict로 직접 호출한 반환값과, Agent의 도구 요청에 대응하는 `ToolMessage`를 구분합니다.</mark> 이 예제에서 함수가 만든 내용은 같지만, 후자는 `content`와 `tool_call_id`를 가진 메시지입니다. Agent 실행에서는 이 메시지를 다음 모델 입력에 연결합니다.
+
+<mark class="key-point">`invoke()`는 입력 하나로 실행한다는 공통 사용법입니다. 무엇을 실행하고 어떤 값을 반환하는지는 대상 객체에 따라 다릅니다.</mark> 따라서 `invoke()` 한 번이 항상 모델 호출 한 번을 뜻하지는 않습니다.
+
+앞에서 본 `ainvoke()`는 비동기 실행 방법입니다. Runnable에는 여러 입력을 처리하는 `batch()`, 결과를 순차적으로 받는 `stream()`도 있습니다. 실제 병렬 처리나 스트리밍 방식은 구현에 따라 달라집니다. 이 절에서는 <strong>일반 함수는 `함수(인자)`, LangChain 도구 객체는 `.invoke(입력)`</strong>으로 실행한다는 차이를 먼저 익힙니다. [Runnable 공식 API](https://reference.langchain.com/python/langchain-core/runnables/base/Runnable) · [BaseTool의 실행 인터페이스](https://reference.langchain.com/python/langchain-core/tools/base/BaseTool)
 
 ### 이름·설명·입력 조건을 직접 정합니다
 
@@ -272,19 +403,42 @@ print(lookup_team.invoke({"topic": "정산"}))
 
 설명에 “읽기 전용”이라고 쓰는 것만으로 쓰기가 차단되지는 않습니다. 인증 키·사용자 권한은 모델이 채울 인자로 받지 않고 프로그램에서 관리하며, 조회 함수 안에서 필요한 권한을 검사합니다. 타입 힌트는 입력 형식의 재료이고, 반환 타입 `-> str`만으로 업무 결과가 정확한지 검사해 주지는 않습니다.
 
-### 직접 실행 · 허용 목록만 늘리면 될까요? {#tool-input-lab}
+### 직접 구현 · 휴가 문의도 처리하도록 확장합니다 {#tool-input-lab}
 
-아래는 **입력 검사 → 함수 실행**을 나누어 보는 Python 예제입니다. 브라우저에서는 같은 원리를 일반 Python으로 확인하고, 실제 `args_schema`와 `ValidationError`는 개념 노트북의 ‘도구 입력 조건’ 셀에서 확인합니다.
+지금 조회 기능은 정산·계정 문의만 처리합니다. **“휴가 문의는 인사지원팀으로 안내해 주세요”**라는 새 요구가 들어왔습니다. 아래 코드의 입력 조건과 조회 함수를 수정해 휴가를 지원해 봅니다.
+
+<mark class="key-point">휴가는 인사지원팀으로 안내하고, 기존 정산·계정 조회도 그대로 동작해야 완료입니다.</mark> 이 활동에서는 새 입력을 허용하는 일과 그 입력을 처리할 데이터를 준비하는 일이 어떻게 다른지 확인합니다.
+
+아래 실행 칸을 직접 수정합니다. 앞에서 배운 `TeamInput`과 `Literal`로 입력을 검사한 뒤 `find_team`이 담당 팀을 찾습니다. 처음 실행하면 브라우저가 Python과 Pydantic을 준비합니다. 모델 호출이나 API 키는 필요하지 않습니다.
 
 <PythonPlayground kind="validation" />
 
+**먼저 현재 코드를 실행해 휴가 문의가 어디에서 거절되는지 확인합니다.** 그다음 휴가를 처리하도록 수정합니다. 수정할 위치를 먼저 찾아보고, 막히면 아래 힌트를 펼칩니다.
+
+<details><summary>수정 힌트 · 입력은 통과했는데 조회가 실패한다면?</summary>
+
 |순서|바꿀 곳|실행해서 확인할 것|
 |---|---|---|
-|1|처음 코드 실행|허용 목록에 휴가가 없어 입력 거절|
-|2|`allowed`에 `"휴가"` 추가|입력은 통과하지만 `teams`에 값이 없어 `KeyError`|
-|3|`teams`에 `"휴가": "인사지원팀"` 추가|인사지원팀 출력|
+|1|처음 코드 실행|`TeamInput(topic="휴가")`에서 입력을 거절합니다. 아직 조회 함수는 실행되지 않았습니다.|
+|2|`TeamInput`의 `Literal`에 `"휴가"` 추가|입력 검사는 통과합니다. 하지만 `teams`에 휴가 담당 팀이 없어 조회할 때 `KeyError`가 납니다.|
+|3|함수 안 `teams`에 `"휴가": "인사지원팀"` 추가|휴가 문의에 `인사지원팀`을 반환합니다.|
 
-편집기에서는 `TeamInput`의 `Literal`에 휴가를 추가한 뒤, 함수의 dict에도 담당 팀을 추가합니다. **입력 허용과 실제 처리 코드를 모두 바꿔야 완료입니다.**
+`KeyError`는 새 요구가 아직 절반만 반영됐다는 단서입니다. 입력 허용 범위를 바꿔도 담당 팀 데이터가 자동으로 추가되지는 않습니다.
+
+</details>
+
+**완료 확인:** 수정한 코드의 `TeamInput(topic="휴가")`에서 `topic` 값을 아래 순서로 바꾸고, 매번 **Python 실행**을 누릅니다. 나머지 코드는 유지합니다.
+
+|입력|확인할 결과|
+|---|---|
+|`"휴가"`|`인사지원팀` 출력|
+|`"정산"`|기존과 같이 `재무지원팀` 출력|
+|`"계정"`|기존과 같이 `IT지원팀` 출력|
+|`"없는업무"`|입력 검증 오류 안내. 임의의 담당 팀을 반환하지 않음|
+
+**설명해 보기:** 휴가를 `Literal`에만 추가했을 때는 왜 실패했나요? 입력 검사와 담당 팀 조회가 각각 책임지는 일을 한 문장씩 설명합니다.
+
+이 실행 칸에서는 검증 단계를 보이기 위해 `TeamInput(...)`을 직접 호출합니다. 앞의 `@tool(args_schema=TeamInput)` 예제에서는 도구 객체가 같은 스키마로 입력을 검사한 뒤 함수를 호출합니다. 실제 LangChain 도구까지 함께 실행하려면 `notebooks/concepts.ipynb`의 ‘도구 입력 조건’ 셀을 사용합니다.
 
 ### 일반 함수도 결국 도구 객체로 변환됩니다
 
@@ -341,7 +495,7 @@ print(result["messages"][-1].content)
 OpenAI API에는 애플리케이션 지침을 담는 `developer` 역할도 있습니다. 모든 제공자의 `system`이 일괄적으로 이름을 바꾼 것은 아닙니다. 이 그림은 LangChain의 `SystemMessage`를 기준으로 하며, 실제 API 역할은 모델·연결 어댑터에 따라 확인합니다. [OpenAI 메시지 역할 설명](https://developers.openai.com/api/docs/guides/text)
 
 
-LangChain은 모델의 도구 요청을 받아 함수를 실행하고, 결과를 메시지에 추가해 모델에 돌려줍니다. `messages`는 Agent State의 필드이며 `add_messages`라는 병합 규칙이 적용됩니다. 새 ID는 추가하고 같은 ID는 갱신합니다. 다음 장의 [Reducer 설명](./graph#reducers)에서 직접 비교합니다. 우리는 조회 로직과 지침을 작성하고, 이 반복 연결은 프레임워크를 사용합니다. 직접 연결할 수도 있지만 도구 요청 처리와 메시지 누적도 직접 구현해야 합니다.
+<mark class="key-point">LangChain은 모델의 도구 요청을 받아 함수를 실행하고, 결과를 메시지에 추가해 모델에 돌려줍니다.</mark> `messages`는 Agent State의 필드이며 `add_messages`라는 병합 규칙이 적용됩니다. 새 ID는 추가하고 같은 ID는 갱신합니다. 다음 장의 [Reducer 설명](./graph#reducers)에서 직접 비교합니다. 우리는 조회 로직과 지침을 작성하고, 이 반복 연결은 프레임워크를 사용합니다. 직접 연결할 수도 있지만 도구 요청 처리와 메시지 누적도 직접 구현해야 합니다.
 
 이제 아래 실습에서 `lookup_policy`와 `build_agent`를 완성합니다. 첫 함수는 데이터를 찾고, 두 번째 함수는 모델과 그 도구를 연결합니다.
 
@@ -362,11 +516,16 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 해당 번호의 구현 셀을
 
 ### 질문을 바꾸고 메시지를 읽습니다
 
-`build-agent.ipynb`의 **1B 실행 셀**에서 질문 문자열을 바꿉니다. 셀 아래의 메시지에서 도구 이름·인자·결과·마지막 답변을 확인합니다. 다음 코드를 1B 아래의 새 셀에서 실행할 수도 있습니다. 실제 모델을 호출합니다.
+`build-agent.ipynb`에서 1A 검사를 통과한 뒤, 1B의 함수 정의 셀과 실행 셀을 차례로 실행합니다. 도구 요청에서는 이름·인자를, 도구 결과에서는 정책을, 마지막 답변에서는 그 정책을 올바르게 사용했는지 확인합니다. **이 장에서는 2. 업무 Graph 앞에서 멈춥니다.**
+
+아래 코드는 1B 실행 셀에서 만든 `local_agent`를 사용합니다. 개인 과제 시간에 1B 아래 새 코드 셀에서 실행하거나, 기존 실행 셀의 `question`만 바꿉니다. 실행할 때마다 실제 모델을 호출하며, 이전 대화 없이 새 질문으로 시작합니다.
 
 ```python
 question = "정산 문의도 해야 하고 계정도 잠겼습니다. 각각 어느 팀에 연락해야 하나요?"
-result = agent.invoke({"messages": [{"role": "user", "content": question}]})
+result = local_agent.invoke(
+    {"messages": [{"role": "user", "content": question}]},
+    config={"recursion_limit": 12},
+)
 for message in result["messages"]:
     message.pretty_print()
 ```
@@ -384,14 +543,13 @@ for message in result["messages"]:
 
 앞에서 시작한 조회 함수와 Agent 구성 실습을 이어서 완성합니다. 새 과제를 시작하는 것이 아니라, 같은 함수에 다른 입력을 넣어 결과를 비교하는 단계입니다.
 
-아래 준비 문제는 주 실습에서 막힌 개념을 작은 함수로 확인할 때 사용합니다.
+### 같은 Agent를 다른 질문으로 검사합니다
 
-### 조회와 입력 조건을 작게 확인합니다
+노트북의 **1B 완료 확인과 개인 과제** 표에 있는 없는업무·복합 문의·출장 일비·잘못된 근거 요청을 하나씩 실행합니다. 각 실행 아래 Markdown 셀에 **질문 / 도구 요청·결과 / 최종 답변의 일치 여부**를 남깁니다. 실패한 질문은 docstring이나 지침을 수정한 뒤 같은 입력으로 다시 비교합니다. 통과했다면 어느 메시지가 근거인지 설명합니다.
 
-위의 교재 Python 실행 창에서 정상·없는 업무를 비교합니다. 실제 LangChain 입력 스키마를 바꾸려면 `concepts.ipynb`의 **도구 입력 조건** 셀을 사용합니다. 허용 목록과 함수의 조회 데이터가 서로 맞는지 확인합니다.
+<mark class="key-point">조회 성공과 답변의 정확성은 따로 확인합니다.</mark> P-99가 답변에 등장해도 “P-99가 아니라 P-01”이라고 바로잡았다면 근거를 지어낸 경우가 아닙니다. 문맥까지 읽고 판단합니다.
 
-주 실습에서는 `build-agent.ipynb`의 **1A 검사 셀**을 다시 실행합니다. 정산·계정·없는업무를 구분한 뒤 1B의 질문을 바꿉니다. 준비 문제용 Python 파일은 별도로 작성하지 않습니다.
-
+입력 검사가 막힌 경우에만 앞의 **휴가 문의 확장** 실행 창을 다시 봅니다. 그 예제는 `TeamInput`의 허용 조건을 검사하며, 주 실습의 `lookup_policy`는 임의의 업무명을 받아 미등록 업무에 `found=False`를 반환합니다. 두 예제의 입력 조건을 섞지 않습니다.
 
 <aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>규정에는 “한도 20만 원, 단 사전 승인이 없으면 15만 원”이라고 적혀 있습니다. 도구가 답변을 짧게 하려고 “한도 20만 원”만 돌려줍니다.<br><br><strong>모델이 올바르게 답하는 데 어떤 정보가 더 필요할까요?</strong> 규정 전체를 보낼 필요가 있는지도 생각해 봅니다.</p></aside>
 

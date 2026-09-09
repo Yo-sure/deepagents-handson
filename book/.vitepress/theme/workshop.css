@@ -128,3 +128,27 @@
 .choice-guide > div { padding: 12px 0; display: grid; grid-template-columns: 100px minmax(0,1fr); gap: 12px; border-bottom: 1px solid #dfe7e1; }
 .choice-guide dt { font-size: 14px; font-weight: 650; color: #315543; }
 .choice-guide dd { margin: 0; font-size: 15px; line-height: 1.8; overflow-wrap: anywhere; }
+
+/* Static tool-call diagram: readable in the initial HTML without a JS renderer. */
+.lec.workshop-edition .tool-execution-flow { margin: 28px 0; padding: 24px; border: 1px solid #d5dfda; border-radius: 8px; background: #fff; }
+.lec.workshop-edition .tool-execution-flow figcaption { color: #243b34; font-size: 19px; font-weight: 750; }
+.lec.workshop-edition .tool-flow-input { margin: 12px 0 22px; color: #53675e; }
+.lec.workshop-edition .tool-flow-stages { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; padding: 0; margin: 0; list-style: none; }
+.lec.workshop-edition .tool-flow-stage { list-style: none; position: relative; padding: 16px; margin: 0; min-width: 0; border: 1px solid #b7cdc0; border-radius: 6px; background: #f1f7f3; }
+.lec.workshop-edition .tool-flow-program { background: #fff5e7; border-color: #e1c99f; }
+.lec.workshop-edition .tool-flow-stage:not(:last-child)::after { content: '→'; position: absolute; right: -24px; top: 45%; font-size: 24px; color: #65766d; }
+.lec.workshop-edition .tool-flow-owner { display: block; font-size: 13px; font-weight: 750; color: #426452; }
+.lec.workshop-edition .tool-flow-program .tool-flow-owner { color: #80571c; }
+.lec.workshop-edition .tool-flow-stage h3 { margin: 10px 0; font-size: 17px; line-height: 1.5; }
+.lec.workshop-edition .tool-flow-stage p, .lec.workshop-edition .tool-flow-stage dd { margin: 10px 0; font-size: 14px; line-height: 1.7; }
+.lec.workshop-edition .tool-flow-stage dl { margin: 14px 0; }
+.lec.workshop-edition .tool-flow-stage dt { margin-top: 10px; color: #68766f; font-size: 12px; }
+.lec.workshop-edition .tool-flow-stage dd { margin: 2px 0 8px; }
+.lec.workshop-edition .tool-flow-stage code { white-space: normal; overflow-wrap: anywhere; }
+.lec.workshop-edition .tool-flow-stage blockquote { margin: 16px 0; padding: 10px 12px; border-left: 3px solid #81a18d; font-size: 15px; line-height: 1.8; color: #243b34; }
+.lec.workshop-edition .tool-flow-stage .tool-flow-key { margin-top: 18px; padding-top: 12px; border-top: 1px solid #d6e0d9; font-weight: 650; }
+.lec.workshop-edition .tool-flow-caption { margin: 18px 0 0; color: #627168; font-size: 13px; }
+@media (max-width: 1050px) {
+  .lec.workshop-edition .tool-flow-stages { grid-template-columns: 1fr; gap: 30px; }
+  .lec.workshop-edition .tool-flow-stage:not(:last-child)::after { content: '↓'; right: 50%; top: auto; bottom: -30px; }
+}

@@ -60,10 +60,13 @@ def test_notebook_syntax_and_clean_outputs():
 
 
 @pytest.mark.parametrize("alias", [False, True])
-def test_solution_notebook_end_to_end(alias):
+@pytest.mark.parametrize("edition", ["solution", "student"])
+def test_solution_notebook_end_to_end(alias, edition):
     notebook = nbformat.read(
         ROOT / "notebooks/build-agent-solution.ipynb", as_version=4
     )
+    if edition == "student":
+        notebook = completed_student()
     cells = []
     for cell in notebook.cells:
         if cell.cell_type != "code":
@@ -114,3 +117,95 @@ def test_orientation_notebook():
 def test_concept_sections_run_independently(indices):
     notebook = nbformat.read(ROOT / "notebooks/concepts.ipynb", as_version=4)
     execute([notebook.cells[i] for i in indices])
+
+
+def test_student_langchain_cells_and_textbook_followup():
+    """1A・1B만 완성한 새 커널에서 교재의 추가 질문까지 실행합니다."""
+    import re
+
+    student = nbformat.read(ROOT / "notebooks/build-agent.ipynb", as_version=4)
+    solution = nbformat.read(ROOT / "notebooks/build-agent-solution.ipynb", as_version=4)
+    chapter = ROOT.parent / "books/workshop/langchain.md"
+    if not chapter.is_file():
+        pytest.skip("배포 ZIP에는 교재 원문이 포함되지 않습니다.")
+    section = chapter.read_text(encoding="utf-8").split(
+        "### 질문을 바꾸고 메시지를 읽습니다", 1
+    )[1]
+    example = re.search(r"```python\n(.*?)```", section, re.S).group(1)
+    cells = [student.cells[1], nbformat.v4.new_code_cell(MODEL_SETUP)]
+    for index in [3, 4, 6, 7]:
+        cells.append(solution.cells[index] if index in [3, 6] else student.cells[index])
+    cells.append(nbformat.v4.new_code_cell("""
+assert result["messages"][-1].type == "ai"
+assert "P-02" in result["messages"][-1].content
+assert any(m.type == "tool" for m in result["messages"])
+"""))
+    cells.append(nbformat.v4.new_code_cell(example))
+    cells.append(nbformat.v4.new_code_cell("""
+assert any(m.type == "tool" for m in result["messages"])
+assert result["messages"][-1].content
+"""))
+    execute(cells)
+
+
+def completed_student():
+    """학생용 제공 셀을 유지하고 지정된 구현 부분만 완성합니다."""
+    student = nbformat.read(ROOT / "notebooks/build-agent.ipynb", as_version=4)
+    solution = nbformat.read(ROOT / "notebooks/build-agent-solution.ipynb", as_version=4)
+    for index in [3, 6, 10, 21, 32]:
+        student.cells[index].source = solution.cells[index].source
+    student.cells[24].source = student.cells[24].source.replace(
+        "tools = []  # TODO: adapter에서 도구 목록을 받아 연결합니다.",
+        "tools = await adapter.list_tools()",
+    )
+    return student
+
+
+@pytest.mark.parametrize("section,indices,assertion", [
+    ("graph", [3, 6, 7, 10, 11, 13], 'assert result["decision"] == "ask" and not draft_calls'),
+    ("loop", [3, 15, 16], 'assert repaired["status"] == "passed"'),
+    ("mcp", [3, 21, 22, 24], 'assert any(m.type == "tool" for m in result["messages"])'),
+    ("a2a", [28, 30, 32, 33], 'assert review["artifact"]["passed"] is True'),
+    ("integration", [3, 6, 10, 15, 21, 28, 32, 35, 37, 39], 'assert decision == "accepted"'),
+])
+def test_student_sections_from_fresh_kernel(section, indices, assertion):
+    notebook = completed_student()
+    cells = [notebook.cells[1], nbformat.v4.new_code_cell(MODEL_SETUP)]
+    cells.extend(notebook.cells[i] for i in indices)
+    cells.append(nbformat.v4.new_code_cell(assertion))
+    execute(cells)
+
+
+def test_card_and_mcp_without_model_setup():
+    notebook = completed_student()
+    cells = [notebook.cells[1], nbformat.v4.new_code_cell("""
+def forbid_model():
+    raise AssertionError("모델 없는 실습에서 모델 설정을 요청했습니다.")
+import course.common
+course.common.get_model = forbid_model
+get_model = forbid_model
+""")]
+    cells.extend(notebook.cells[i] for i in [3, 21, 22, 28])
+    cells.append(nbformat.v4.new_code_cell('assert card.skills[0].id == "review-policy"'))
+    execute(cells)
+
+
+def test_unfinished_mcp_connection_stops_before_model_call():
+    from nbclient.exceptions import CellExecutionError
+
+    notebook = completed_student()
+    original = nbformat.read(ROOT / "notebooks/build-agent.ipynb", as_version=4)
+    cells = [notebook.cells[1], nbformat.v4.new_code_cell(MODEL_SETUP)]
+    cells.extend(notebook.cells[i] for i in [3, 21])
+    cells.append(original.cells[24])
+    with pytest.raises(CellExecutionError, match="4B: await adapter.list_tools"):
+        execute(cells)
+
+
+@pytest.mark.parametrize("decision,expected", [("approve", "approved"), ("reject", "held")])
+def test_approval_decisions_from_fresh_kernel(decision, expected):
+    notebook = nbformat.read(ROOT / "notebooks/concepts.ipynb", as_version=4)
+    notebook.cells[11].source = notebook.cells[11].source.replace('decision = "approve"', f'decision = "{decision}"')
+    cells = [notebook.cells[i] for i in [1, 9, 10, 11]]
+    cells.append(nbformat.v4.new_code_cell(f'assert resumed["decision"] == "{expected}"; assert app.get_state(config).next == ()'))
+    execute(cells)

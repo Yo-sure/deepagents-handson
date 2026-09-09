@@ -53,6 +53,9 @@ def check_graph(build_workflow, lookup):
         assert result["topic"] == topic and result["contact"] == contact, (
             f"{label}: 입력 State를 바꾸었습니다."
         )
+        assert result["data"] == json.loads(lookup(topic)), (
+            f"{label}: 조회 결과 data를 바꾸거나 지웠습니다."
+        )
         if missing:
             assert result.get("missing") == missing, (
                 f"{label}: missing 기대={missing}, 실제={result.get('missing')}"

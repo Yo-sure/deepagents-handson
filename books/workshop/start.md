@@ -66,14 +66,6 @@ Anthropic은 Agent 평가에서 실행 환경을 분리하고 이전 작업의 �
 
 이제 실행 폴더와 라이브러리, 키와 접속 조건을 함께 확인하고 첫 답변을 받아 봅니다.
 
-<details class="instructor-note"><summary>강사용 진행 노트 · 시작 질문</summary>
-
-진행 예: 상황 30초 → 의견 한두 개 1분 → 최근 사례와 본문 연결 1분 30초. 별도 기록이나 제출은 요구하지 않습니다.
-
-설문에서 나온 환경설정 경험 한 건과 연결합니다. 폴더·라이브러리·접속 조건 중 한두 답을 들으면 충분합니다. 원문은 평가 환경에 관한 글이며 PC 설치 문제를 직접 실험한 연구는 아닙니다.
-
-</details>
-
 </section>
 
 <section class="slide" id="overview">
@@ -247,8 +239,10 @@ WORKSHOP_MODEL=google/gemini-3.8-flash
 workshop 폴더에서 한 번 실행합니다. 이 명령은 노트북 화면을 여는 준비 단계입니다. 이후 실습은 셀에서 실행합니다.
 
 ```bash
-.venv/bin/jupyter lab notebooks/orientation.ipynb
+.venv/bin/jupyter lab --ServerApp.root_dir=. notebooks/orientation.ipynb
 ```
+
+`--ServerApp.root_dir=.`는 현재 `workshop` 폴더 전체를 Jupyter 파일 탐색기에 표시합니다. 따라서 노트북뿐 아니라 뒤 Skill 실습에서 수정할 `skills/policy-answer/SKILL.md`도 열 수 있습니다.
 
 터미널에 표시된 로컬 주소를 열고 Python 3 커널을 선택합니다. 터미널은 열어 둡니다. **환경 확인** 셀을 Shift+Enter로 실행하여 Python 경로와 라이브러리를 확인합니다.
 

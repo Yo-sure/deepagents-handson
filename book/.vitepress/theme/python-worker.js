@@ -3,6 +3,7 @@ let runtime;
 self.onmessage = async ({ data }) => {
   try {
     runtime ??= await loadPyodide();
+    if (data.packages?.includes('pydantic')) await runtime.loadPackage('pydantic');
     self.postMessage({ type: 'ready' });
     let output = '';
     const capture = text => { output = (output + text + '\n').slice(-16000); };
