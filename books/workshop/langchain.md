@@ -45,11 +45,11 @@ pageClass: lec-page
 
 먼저 평범한 Python 함수를 읽고, 도구 등록과 `create_agent` 구성을 차례로 붙입니다. 어떤 부분을 우리가 작성하고 어떤 연결을 LangChain이 맡는지 살펴봅니다.
 
-<details class="instructor-note"><summary>강사용 진행 노트 · 시작 질문</summary>
+<details class="instructor-note"><summary>함께 짚어보기 · 시작 질문</summary>
 
-함수의 용도·입력값이라는 답을 받은 뒤 아래 코드의 이름, 설명, `topic`을 짚습니다. 앞 장의 “조회했는지 확인하기”를 다시 토론하기보다, 그 실행을 만드는 코드로 넘어갑니다.
+모델이 조회 함수를 요청하려면 어떤 정보가 필요할까요? 아래 코드에서 도구 이름, 설명, `topic`의 입력 형식을 찾습니다.
 
-이 도입은 프레임워크가 맡는 연결을 이해하기 위한 질문입니다. 실행 결과를 검증하고 다음 작업을 시작하는 Loop Engineering은 Harness 장에서 다룹니다. 최신 소식을 별도로 덧붙이기보다 현재 공식 API가 해결하는 문제와 연결합니다.
+이 도입은 프레임워크가 맡는 연결을 이해하기 위한 질문입니다. 실행 결과를 검증하고 다음 작업을 시작하는 Loop Engineering은 Harness 장에서 다룹니다.
 
 </details>
 
@@ -232,7 +232,7 @@ OpenRouter는 여러 제공사의 종료 이유를 위 값으로 맞추며, 원�
 |토큰 사용량|입력·출력·전체 토큰을 각각 짚습니다. 출력이 길어질 때 사용량이 어떻게 달라졌는지 자신의 결과로 설명합니다.|
 |종료 이유|각 결과의 `finish_reason`을 읽고, 잘린 출력인지 등을 위 표로 판단합니다.|
 
-<mark class="key-point">예시의 숫자와 같아야 성공하는 실습이 아닙니다. 지시문을 바꾼 두 응답에서 내용·사용량·종료 이유를 찾아 설명하면 됩니다.</mark> 사용량이 제공되지 않으면 ‘미제공’으로 기록하며 0으로 바꾸지 않습니다. 오류가 나면 다음 비교 셀로 넘어가지 않고 접속 설정을 확인합니다.
+예시의 숫자와 같아야 성공하는 실습이 아닙니다. 지시문을 바꾼 두 응답에서 내용·사용량·종료 이유를 찾아 설명하면 됩니다. 사용량이 제공되지 않으면 ‘미제공’으로 기록하며 0으로 바꾸지 않습니다. 오류가 나면 다음 비교 셀로 넘어가지 않고 접속 설정을 확인합니다.
 
 
 ### `ainvoke()`는 언제 쓰나요?
@@ -253,9 +253,9 @@ asyncio.run(main())  # 일반 Python 파일에서 실행
 
 `await`는 이 함수의 다음 줄을 응답이 올 때까지 기다리게 하되, 이벤트 루프가 다른 비동기 작업을 처리할 수 있게 합니다. `ainvoke()` 하나로 여러 요청이 자동 병렬화되거나 모델이 더 빨리 생성하는 것은 아닙니다. Jupyter처럼 이벤트 루프가 이미 있는 곳에서는 `asyncio.run()` 대신 셀에서 `await main()`을 실행합니다. 답변을 조금씩 표시하는 스트리밍은 별도 기능인 `stream()`·`astream()`입니다. [ChatOpenAI 동기·비동기 API](https://reference.langchain.com/python/langchain-openai/langchain_openai/chat_models/base/ChatOpenAI)
 
-<details class="instructor-note"><summary>강사 진행 노트 · 기초 호출 14분</summary>
+<details class="instructor-note"><summary>함께 짚어보기 · 동기와 비동기 호출</summary>
 
-연결 구조 2분 → 역할과 메시지 4분 → 실제 응답·토큰 비교 5분 → 비동기 사용 상황 3분을 예상합니다. 비동기는 서버에서 기다림을 처리하는 목적까지만 설명하고 이벤트 루프 구현으로 확장하지 않습니다. 주 실습의 함수 작성 시간은 유지하고, 마지막 운영 사례는 필요에 따라 복습으로 이어갑니다.
+동기 호출은 결과를 받을 때까지 현재 흐름을 기다리게 합니다. 비동기 호출은 기다리는 동안 다른 요청을 처리할 수 있게 합니다. 함수 이름뿐 아니라 어디에서 결과가 필요하고 어디까지 동시에 진행할 수 있는지 설명합니다.
 
 </details>
 
@@ -298,7 +298,7 @@ print(lookup_team.invoke({"topic": "정산"}))
 
 ### `@tool`을 붙이면 무엇이 달라질까요?
 
-Python의 데코레이터는 함수를 다른 함수에 전달하고, 그 반환값을 원래 이름에 붙이는 문법입니다. `@tool`은 조회를 실행하는 것이 아니라 **<mark class="key-point">함수를 도구 객체로 변환</mark>**합니다. 이 예제에서는 `StructuredTool`이 만들어집니다.
+Python의 데코레이터는 함수를 다른 함수에 전달하고, 그 반환값을 원래 이름에 붙이는 문법입니다. `@tool`은 조회를 실행하는 것이 아니라 <strong><mark class="key-point">함수를 도구 객체로 변환</mark></strong>합니다. 이 예제에서는 `StructuredTool`이 만들어집니다.
 
 ```python
 # @tool을 쓰지 않고 같은 변환을 풀어 쓴 모습입니다.
@@ -312,7 +312,7 @@ print(lookup_team.args)           # 모델에게 알릴 입력 필드
 print(lookup_team.invoke({"topic": "정산"}))
 ```
 
-변환 전에는 `lookup_team("정산")`으로 함수를 호출합니다. 변환 후에는 도구 인터페이스인 `.invoke({"topic": "정산"})`을 사용합니다. 도구 객체에는 실행할 함수뿐 아니라 <mark class="key-point">이름·설명·입력 schema(입력 형식)</mark>가 담깁니다. 모델은 이 설명과 형식을 받아 어떤 도구에 어떤 값을 요청할지 고릅니다. Python 함수 본문을 모델이 직접 실행하는 것은 아닙니다.
+변환 전에는 `lookup_team("정산")`으로 함수를 호출합니다. 변환 후에는 도구 인터페이스인 `.invoke({"topic": "정산"})`을 사용합니다. 도구 객체에는 실행할 함수뿐 아니라 이름·설명·입력 schema(입력 형식)가 담깁니다. <mark class="key-point">모델은 이 설명과 형식을 받아 어떤 도구에 어떤 값을 요청할지 고릅니다. Python 함수 본문을 모델이 직접 실행하는 것은 아닙니다.</mark>
 
 ### 모델도 도구도 왜 `invoke()`로 실행할까요? {#runnable}
 
@@ -407,7 +407,7 @@ ToolMessage '재무지원팀' call_1
 
 지금 조회 기능은 정산·계정 문의만 처리합니다. **“휴가 문의는 인사지원팀으로 안내해 주세요”**라는 새 요구가 들어왔습니다. 아래 코드의 입력 조건과 조회 함수를 수정해 휴가를 지원해 봅니다.
 
-<mark class="key-point">휴가는 인사지원팀으로 안내하고, 기존 정산·계정 조회도 그대로 동작해야 완료입니다.</mark> 이 활동에서는 새 입력을 허용하는 일과 그 입력을 처리할 데이터를 준비하는 일이 어떻게 다른지 확인합니다.
+휴가는 인사지원팀으로 안내하고, 기존 정산·계정 조회도 그대로 동작해야 완료입니다. 이 활동에서는 새 입력을 허용하는 일과 그 입력을 처리할 데이터를 준비하는 일이 어떻게 다른지 확인합니다.
 
 아래 실행 칸을 직접 수정합니다. 앞에서 배운 `TeamInput`과 `Literal`로 입력을 검사한 뒤 `find_team`이 담당 팀을 찾습니다. 처음 실행하면 브라우저가 Python과 Pydantic을 준비합니다. 모델 호출이나 API 키는 필요하지 않습니다.
 
@@ -457,9 +457,9 @@ agent = create_agent(model=model, tools=[lookup_team])
 
 참고: [공식 도구 사용법](https://docs.langchain.com/oss/python/langchain/tools), [tool 옵션 API](https://reference.langchain.com/python/langchain-core/tools/convert/tool)
 
-<details class="instructor-note"><summary>강사 진행 노트 · 도구 기본과 확장</summary>
+<details class="instructor-note"><summary>함께 짚어보기 · 도구 기본과 확장</summary>
 
-기본 설명은 기존 6분을 기준으로 데코레이터 변환과 이름·설명·입력 형식을 짚습니다. 명시 schema 예제 실행과 반례 수정까지 함께 진행하면 추가 8~10분을 예상합니다. 전체 세션 종료는 11:50이며, 이 경우 뒤의 개인 과제에서 같은 입력 검사를 다시 다루는 시간을 통합하고 운영 상세는 복습으로 이어갑니다. 모든 옵션을 외우게 하기보다 “모델에 무엇을 알리고 프로그램이 무엇을 검사하는가”를 코드에서 찾습니다.
+도구의 이름·설명·입력 형식을 찾은 뒤 “모델에 무엇을 알리고 프로그램이 무엇을 검사하는가”를 구분합니다. 명시 schema 예제는 선택 심화입니다. 빈 문자열과 잘못된 값이 들어왔을 때 함수 실행 전 어떤 검사가 필요한지 예상하고 결과를 비교합니다.
 
 </details>
 
@@ -553,11 +553,11 @@ for message in result["messages"]:
 
 <aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>규정에는 “한도 20만 원, 단 사전 승인이 없으면 15만 원”이라고 적혀 있습니다. 도구가 답변을 짧게 하려고 “한도 20만 원”만 돌려줍니다.<br><br><strong>모델이 올바르게 답하는 데 어떤 정보가 더 필요할까요?</strong> 규정 전체를 보낼 필요가 있는지도 생각해 봅니다.</p></aside>
 
-<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+<details class="instructor-note"><summary>토론 길잡이</summary>
 
 한도와 사전 승인 예외가 모두 필요합니다. 관련 없는 규정은 생략할 수 있지만 답변을 바꾸는 조건은 남겨야 합니다.
 
-한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+반대 선택이 더 나아지는 조건도 하나 찾아봅니다.
 
 </details>
 
@@ -624,7 +624,7 @@ for message in result["messages"]:
 참고: [LangChain Agents](https://docs.langchain.com/oss/python/langchain/agents).
 
 
-<details class="instructor-note"><summary>강사용 진행 노트 · 풀이 비교</summary>
+<details class="instructor-note"><summary>함께 짚어보기 · 풀이 비교</summary>
 
 학생 구현의 조회 조건을 먼저 보고 계정·없는업무 입력을 비교합니다. 이후 완성 예제의 P-99 사례로 도구 오류와 답변 오류를 구분합니다. 질문은 노트북 1B 셀에서 바꿉니다.
 

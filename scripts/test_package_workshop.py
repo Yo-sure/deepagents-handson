@@ -57,7 +57,7 @@ class PackagingTests(unittest.TestCase):
         package.validate_content("workshop/.env.example", b"OPENROUTER_API_KEY=\nWORKSHOP_MODEL=example\n")
 
     def test_traversal_and_non_allowlisted_entries_rejected(self):
-        for name in ("../escape.py", "workshop/../escape.py", "workshop/.env", "workshop/runs/result.py"):
+        for name in ("../escape.py", "workshop/../escape.py", "workshop/.env", "workshop/runs/result.py", "workshop/VALIDATION.md", "workshop/audit/report.md"):
             with self.assertRaises(ValueError):
                 package.verify_archive(package.archive_bytes({name: b"fake"}))
 

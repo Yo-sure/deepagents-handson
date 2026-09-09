@@ -129,7 +129,7 @@ for (const page of ['toc', 'git-setup', 'updates']) {
   }
 }
 
-const workshopPages = ['start', 'agent', 'langchain', 'graph', 'harness', 'mcp', 'a2a', 'wrap', 'engineering', 'build']
+const workshopPages = ['start', 'agent', 'langchain', 'graph', 'harness', 'mcp', 'a2a', 'wrap', 'engineering', 'build', 'advanced-quiz']
 const workshopDst = resolve(__dirname, '../workshop')
 await mkdir(workshopDst, { recursive: true })
 for (let i = 0; i < workshopPages.length; i++) {

@@ -127,11 +127,11 @@ LangGraph는 이런 제어 흐름을 코드로 표현할 때 사용할 수 있�
 실패를 재현할 입력·관련 코드·검사 근거를 다음 실행에 전달하는 것은 Context 관점입니다. 실패를 확인해 다음 작업을 맡기는 반복은 Loop 관점입니다. 기능·교재 검토를 나누고 결과를 합치는 구조는 Graph 관점입니다. 이 구조 안에서도 각 역할은 도구와 실행 환경이 필요합니다.
 <aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>Agent A는 함수 이름을 바꾸고, B는 그 함수를 쓰는 코드를 고칩니다. 동시에 작업했더니 B는 이전 이름을 그대로 사용했습니다.<br><br><strong>어느 작업을 먼저 끝내야 할까요?</strong> 둘을 동시에 진행하려면 미리 무엇을 약속해야 할까요?</p></aside>
 
-<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+<details class="instructor-note"><summary>토론 길잡이</summary>
 
 입력·출력과 수정 권한이 겹치는지부터 봅니다. 독립 작업은 병렬로, 의존 작업은 순서대로 배치하고 통합 검증 책임을 정합니다.
 
-한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+반대 선택이 더 나아지는 조건도 하나 찾아봅니다.
 
 </details>
 
@@ -198,7 +198,7 @@ workshop 폴더의 `notebooks/harness-control.ipynb`를 열고 위에서부터 �
 
 <p class="section-time">예상 8분 · 해당 수업 시간에 포함</p>
 
-<details class="instructor-note"><summary>강사용 진행 노트 · 설계 메모 풀이</summary>
+<details class="instructor-note"><summary>함께 짚어보기 · 설계 메모 풀이</summary>
 
 F1과 D1의 검토가 같은 후보를 읽었는지부터 묻습니다. 그다음 중복 작업과 잘못된 PASS를 비교합니다. 실행 순서와 세 반례의 대응을 비교합니다. 실제 자동화 구현은 필수로 요구하지 않습니다.
 

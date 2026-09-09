@@ -113,10 +113,21 @@ class ReviewExecutor(AgentExecutor):
 def create_app(port: int, *, model=None, profile="policy", binding="JSONRPC"):
     if profile not in {"policy", "style"} or binding not in {"JSONRPC", "HTTP+JSON"}:
         raise ValueError("지원하지 않는 역할 또는 바인딩입니다.")
-    policy = profile == "policy"
+    if profile == "policy":
+        agent_name = "업무 초안 검토"
+        agent_description = "정책 ID와 담당 팀을 검사하는 학습용 검토 시스템"
+        skill_id = "review-policy"
+        skill_name = "규정 검토"
+        skill_description = "초안의 정책 근거 확인"
+    else:
+        agent_name = "문장 표현 검토"
+        agent_description = "문장의 불명확한 표현만 검토합니다. 정책 근거 검증은 수행하지 않습니다."
+        skill_id = "review-style"
+        skill_name = "표현 검토"
+        skill_description = "문장의 표현상 불명확한 점 확인"
     card = AgentCard(
-        name="업무 초안 검토" if policy else "문장 표현 검토",
-        description="정책 ID와 담당 팀을 검사하는 학습용 검토 시스템" if policy else "문장의 불명확한 표현만 검토합니다. 정책 근거 검증은 수행하지 않습니다.",
+        name=agent_name,
+        description=agent_description,
         version="2026.9",
         capabilities=AgentCapabilities(streaming=False),
         supported_interfaces=[
@@ -130,9 +141,9 @@ def create_app(port: int, *, model=None, profile="policy", binding="JSONRPC"):
         default_output_modes=["text/plain"],
         skills=[
             AgentSkill(
-                id="review-policy" if policy else "review-style",
-                name="규정 검토" if policy else "표현 검토",
-                description="초안의 정책 근거 확인" if policy else "문장의 표현상 불명확한 점 확인",
+                id=skill_id,
+                name=skill_name,
+                description=skill_description,
                 tags=["review"],
             )
         ],

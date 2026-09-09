@@ -14,7 +14,7 @@ pageClass: lec-page
 
 <p class="lead">Python 조회 함수를 MCP 서버로 공개하고, LangChain Agent에서 원격 도구로 사용합니다. 통신 원리는 교재에서 읽고, 실제 호출은 Jupyter에서 실행합니다.</p>
 
-앞 장의 `create_agent`에는 같은 프로그램의 함수를 연결했습니다. 이제 여러 Agent가 동일한 정책 조회를 쓰도록 별도 서버로 제공합니다. <strong><mark class="key-point">JSON-RPC로 무엇을 요청하는지 → transport로 어떻게 전달하는지 → LangChain에서 어떻게 사용하는지</mark></strong>를 순서대로 배웁니다.
+앞 장의 `create_agent`에는 같은 프로그램의 함수를 연결했습니다. 이제 여러 Agent가 동일한 정책 조회를 쓰도록 별도 서버로 제공합니다. <strong>JSON-RPC로 무엇을 요청하는지 → transport로 어떻게 전달하는지 → LangChain에서 어떻게 사용하는지</strong>를 순서대로 배웁니다.
 
 실습은 `notebooks/build-agent.ipynb`의 4번입니다. 조회 데이터와 함수는 앞 장 것을 재사용합니다. 새로 할 일은 도구 등록과 LangChain 연결 두 가지입니다.
 
@@ -436,7 +436,7 @@ def build_mcp_server(policy_tool):
 
 <details><summary>설명 비교</summary>
 
-<mark class="key-point">절차 문서만으로 실제 조회 기능이 생기지는 않습니다.</mark> Harness가 Skill을 읽게 하고, 조회 도구도 연결해야 합니다. 같은 MCP 도구도 어떤 Skill과 지침을 함께 주는지에 따라 작업 절차가 달라질 수 있습니다.
+절차 문서만으로 실제 조회 기능이 생기지는 않습니다. Harness가 Skill을 읽게 하고, 조회 도구도 연결해야 합니다. 같은 MCP 도구도 어떤 Skill과 지침을 함께 주는지에 따라 작업 절차가 달라질 수 있습니다.
 
 </details>
 

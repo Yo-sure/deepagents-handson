@@ -10,7 +10,8 @@
     "prebuild": "npm run preassets",
     "dev": "vitepress dev --port 5174",
     "build": "vitepress build",
-    "preview": "vitepress preview --port 5174"
+    "preview": "vitepress preview --port 5174",
+    "postbuild": "python3 ../scripts/check-public-release.py .vitepress/dist"
   },
   "devDependencies": {
     "@codemirror/commands": "^6.11.0",

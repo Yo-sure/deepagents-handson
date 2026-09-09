@@ -31,7 +31,7 @@ const groups = [
     ['04 Harness · Loop', '/workshop/harness'], ['05 MCP', '/workshop/mcp'],
     ['06 A2A · ACP', '/workshop/a2a'], ['07 통합 · 정리', '/workshop/wrap'],
   ] },
-  { title: '복습', items: [['실습 전체 모아보기', '/workshop/build']] },
+  { title: '복습', items: [['실습 전체 모아보기', '/workshop/build'], ['코드·설계 심화 10문항', '/workshop/advanced-quiz']] },
   { title: '참고 자료', items: [['Loop · Graph Engineering', '/workshop/engineering'], ['Git으로 자료 받기', '/git-setup'], ['버전 · 참고 자료', '/updates']] },
 ]
 const expanded = ref([true, true, false])

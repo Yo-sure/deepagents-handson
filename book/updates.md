@@ -87,6 +87,6 @@ Anthropic의 2026-03-24 사례는 생성과 평가를 나누고 구체적인 평
 
 Codex·Claude Code 활용 자료에서는 작업 범위와 검증 기준을, LangChain 사례에서는 실행 기록을 바탕으로 하네스를 개선하는 방법을 읽습니다. 제품마다 제공하는 기능과 설정 방식은 다릅니다.
 
-[Loop·Graph Engineering 설계 활동](./workshop/engineering)에서는 다음 작업을 선택하는 규칙, 역할별 의존성, 검증 결과와 중단 조건을 작성합니다. 업무 그래프와 수정 루프를 직접 구현하고 싶다면 [선택 심화](./workshop/build#loop)로 이어갑니다.
+[Loop·Graph Engineering 설계 활동](./workshop/engineering)에서는 다음 작업을 선택하는 규칙, 역할별 의존성, 검증 결과와 중단 조건을 작성합니다. 추가로 [제공 루프 구현](./workshop/build#loop)을 읽고 종료 조건을 대조할 수 있습니다.
 
 참고: [Codex 모범 사례](https://learn.chatgpt.com/guides/best-practices), [Claude Code 모범 사례](https://code.claude.com/docs/en/best-practices), [LangChain 하네스 개선](https://www.langchain.com/blog/improving-deep-agents-with-harness-engineering).

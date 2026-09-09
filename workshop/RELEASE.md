@@ -15,7 +15,6 @@ ZIP을 풀고 Ubuntu의 workshop 폴더에서 `bash setup.sh`를 실행합니다
 - `skills/`: 예제에서 사용하는 공개 실습 절차
 - `tests/`: 코드 동작 검증용 테스트
 - `build_lab/HARNESS_WORKSHEET.md`: 하네스의 실행·피드백·완료 조건을 설계하는 활동지
-- `VALIDATION.md`: 현재 검증 범위와 남은 한계
 - `pyproject.toml`, `uv.lock`: 재현 가능한 의존성 설치 정보
 - `MANIFEST.json`: 포함 파일별 SHA256과 크기. 자기 자신은 해시 목록에서 제외됩니다.
 

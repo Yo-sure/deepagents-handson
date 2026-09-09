@@ -151,7 +151,7 @@ State는 실행 중 노드들이 읽고 갱신하는 값입니다. 이 예제에
 
 <<< ../../workshop/course/graph_lab.py#route{python}
 
-`route`는 State를 갱신하지 않고 다음 경로 이름을 반환합니다. 정책 ID와 회신 대상이 있으면 `draft`, 부족하면 `ask`입니다. 아래 `add_conditional_edges`가 이 이름을 실제 노드에 연결합니다. 주 실습에서는 공백만 있는 회신 대상도 거절하도록 조건을 보강합니다.
+<mark class="key-point">`route`는 State를 갱신하지 않고 다음 경로 이름을 반환합니다.</mark> 정책 ID와 회신 대상이 있으면 `draft`, 부족하면 `ask`입니다. 아래 `add_conditional_edges`가 이 이름을 실제 노드에 연결합니다. 주 실습에서는 공백만 있는 회신 대상도 거절하도록 조건을 보강합니다.
 
 ### Reducer · 반환한 값을 기존 값에 어떻게 합칠까요? {#reducers}
 
@@ -292,9 +292,9 @@ flowchart TB
 
 **Pregel이라는 이름은 어디서 왔나요?** LangGraph의 실행 런타임 이름은 `Pregel`입니다. Google의 대규모 그래프 처리 시스템 Pregel에서 이름과 실행 모델을 가져왔습니다. 핵심은 BSP(Bulk Synchronous Parallel), 즉 병렬 작업 사이에 갱신을 반영하는 동기화 경계를 두는 방식입니다. LangGraph는 각 단계에서 **실행할 노드 선택 → 병렬 실행 → 갱신 반영**을 반복합니다. 이 절에서는 이름을 외우기보다 그림의 주황색 경계를 읽으면 됩니다. [LangGraph 런타임 설명](https://docs.langchain.com/oss/python/langgraph/pregel) · [Google Pregel 논문](https://research.google/pubs/pregel-a-system-for-large-scale-graph-processing/)
 
-<details class="instructor-note"><summary>강사 진행 노트 · 상태 갱신의 핵심</summary>
+<details class="instructor-note"><summary>함께 짚어보기 · 상태 갱신의 핵심</summary>
 
-State·node·edge 7분 설명 중 기본 교체 규칙을 짚고, 병합 비교 실행과 super-step에는 추가 5분을 예상합니다. 뒤 운영 복습 시간에서 조절합니다. “리스트면 누적된다”, “messages가 State 전체다”, “super-step은 도구 호출 한 번이다”라는 세 오해를 확인합니다. 병렬 그래프의 직접 구현은 여기서 요구하지 않습니다.
+“리스트면 누적된다”, “messages가 State 전체다”, “super-step은 도구 호출 한 번이다”라는 세 오해를 확인합니다. 병렬 그래프의 직접 구현은 여기서 요구하지 않습니다.
 
 </details>
 
@@ -430,7 +430,7 @@ flowchart TB
     style REVIEW fill:#fff0d8,stroke:#d69b50
 ```
 
-<mark class="key-point">이 교재에서는 초안 준비, 승인 대기, 승인 후 처리를 별도 노드로 나눕니다. 승인 노드는 저장된 제안을 읽고 결정을 반환하는 일만 맡습니다.</mark> 위의 `review`가 그 형태입니다. 현재 예제는 승인 결과 확인에서 끝나며, 그림의 실제 발송은 업무에 적용할 때의 확장 구조입니다.
+이 교재에서는 초안 준비, 승인 대기, 승인 후 처리를 별도 노드로 나눕니다. 승인 노드는 저장된 제안을 읽고 결정을 반환하는 일만 맡습니다. 위의 `review`가 그 형태입니다. 현재 예제는 승인 결과 확인에서 끝나며, 그림의 실제 발송은 업무에 적용할 때의 확장 구조입니다.
 
 분리는 재개 때문에 앞 작업이 반복되는 범위를 줄입니다. 다만 발송 노드 자체도 장애로 재시도될 수 있으므로, 실제 전송에는 작업 ID를 이용한 중복 방지 등 별도 대책이 필요합니다. 사람의 결정을 기다리는 동안 초안이 바뀔 수 있는 서비스라면 승인 대상의 ID·버전도 함께 확인해야 합니다.
 
@@ -450,11 +450,11 @@ State는 노드마다 처음부터 다시 만드는 요청서가 아닙니다. �
 
 <aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>어제 팀장이 20만 원 지출을 승인했습니다. 오늘 프로그램을 다시 켰더니 규정이 15만 원으로 바뀌었습니다.<br><br><strong>어제 승인만 보고 그대로 처리해도 될까요?</strong> 다시 확인해야 할 정보를 하나 골라 봅니다.</p></aside>
 
-<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+<details class="instructor-note"><summary>토론 길잡이</summary>
 
 승인이 어느 데이터와 버전에 대한 것인지 확인해야 합니다. 재개는 실행 상태를 이어 주지만 승인 근거의 유효성을 자동 보장하지는 않습니다.
 
-한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+반대 선택이 더 나아지는 조건도 하나 찾아봅니다.
 
 </details>
 
@@ -549,11 +549,11 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 2번 정의·연결 셀을 작
 
 <aside class="discussion-prompt"><strong>생각거리 · 여유가 있으면 +3분</strong><p>문의에 답장을 받을 주소가 없습니다. 그런데 프로그램은 주소를 묻지 않고 답변 초안부터 만들었습니다.<br><br><strong>초안이 잘 작성됐어도 실습 요구를 만족한 걸까요?</strong> 실행 기록의 visited에서 ask와 draft 중 어느 단계로 갔는지 확인합니다.</p></aside>
 
-<details class="instructor-note"><summary>강사용 토론 길잡이</summary>
+<details class="instructor-note"><summary>토론 길잡이</summary>
 
 최종 문장 외에 필요한 분기를 지켰는지 봅니다. 회신 대상 확인이 필수인 요구라면 경로도 평가 대상입니다. 반대로 필요 없는 경로까지 강제하고 있지는 않은지 검토합니다.
 
-한 답을 빨리 받기보다, 반대 선택이 더 나아지는 조건을 하나 더 묻습니다. 별도 기록이나 제출은 요구하지 않습니다. 기본 배정에 추가하는 선택 활동이므로 다음 섹션의 시간을 조절합니다.
+반대 선택이 더 나아지는 조건도 하나 찾아봅니다.
 
 </details>
 
@@ -565,7 +565,7 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 2번 정의·연결 셀을 작
 
 <p class="section-time">예상 10분 · 13:40–13:50</p>
 
-<details class="instructor-note"><summary>강사용 진행 노트 · 분기 풀이</summary>
+<details class="instructor-note"><summary>함께 짚어보기 · 분기 풀이</summary>
 
 정상 연락처와 공백 연락처를 비교합니다. 조건식을 설명할 때 State 전체를 다시 강의하기보다 분기에 사용한 필드 두 개를 짚습니다. 영속 복구는 현재 메모리 저장 예제의 기능으로 설명하지 않습니다.
 
@@ -655,7 +655,7 @@ JupyterLab의 `notebooks/build-agent.ipynb`에서 2번 정의·연결 셀을 작
 |Reducer|필드별 병합 규칙입니다. 기본은 교체, add는 리스트 연결, add_messages는 메시지 ID를 반영한 병합입니다.|
 |멈춤과 재개|interrupt와 checkpointer의 역할을 구별합니다. END에 도착했다고 업무가 통과한 것은 아닙니다.|
 
-**짧게 설명해 보기:** <mark class="key-point">정책은 있지만 회신 대상이 빈칸이면 어느 경로로 가야 할까요?</mark> 초안 생성은 실행될까요?
+**짧게 설명해 보기:** 정책은 있지만 회신 대상이 빈칸이면 어느 경로로 가야 할까요? 초안 생성은 실행될까요?
 
 <details><summary>설명 비교</summary>
 

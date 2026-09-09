@@ -33,7 +33,9 @@ jobs:
           python-version: '3.12'
 
       - name: Verify workshop packager
-        run: python scripts/test_package_workshop.py
+        run: |
+          python scripts/test_package_workshop.py
+          python scripts/test_public_release.py
 
       - name: Install deps
         working-directory: book

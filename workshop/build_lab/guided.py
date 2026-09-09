@@ -9,18 +9,14 @@ def build_workflow(lookup, generate, refine, limit=2, router=None, ask_node=None
     def read(state):
         return {"data": json.loads(lookup(state["topic"])), "visited": ["lookup"]}
 
-    def route(state):
-        if router is not None:
-            return router(state)
+    def default_route(state):
         return (
             "draft"
             if state["data"]["found"] and state.get("contact", "").strip()
             else "ask"
         )
 
-    def ask(state):
-        if ask_node is not None:
-            return ask_node(state)
+    def default_ask(state):
         return {
             "decision": "ask",
             "draft": "업무 주제와 회신 대상을 확인해 주세요.",
@@ -44,15 +40,17 @@ def build_workflow(lookup, generate, refine, limit=2, router=None, ask_node=None
         }
 
     graph = StateGraph(Inquiry)
-    for name, node in [
-        ("lookup", read),
-        ("ask", ask),
-        ("draft", draft),
-        ("review", review),
-    ]:
-        graph.add_node(name, node)
+    # 노트북에서 전달한 분기 함수와 질문 노드를 직접 연결합니다.
+    question_node = ask_node if ask_node is not None else default_ask
+    route_after_lookup = router if router is not None else default_route
+    graph.add_node("lookup", read)
+    graph.add_node("ask", question_node)
+    graph.add_node("draft", draft)
+    graph.add_node("review", review)
     graph.add_edge(START, "lookup")
-    graph.add_conditional_edges("lookup", route, {"ask": "ask", "draft": "draft"})
+    graph.add_conditional_edges(
+        "lookup", route_after_lookup, {"ask": "ask", "draft": "draft"}
+    )
     graph.add_edge("ask", END)
     graph.add_edge("draft", "review")
     graph.add_edge("review", END)

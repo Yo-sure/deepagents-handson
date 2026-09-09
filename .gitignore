@@ -25,3 +25,8 @@ book/workshop/
 
 # 원본(개정 전) 교재 — 공개 배포 제외.
 books/pdf/
+
+# 비공개 감사·강의 운영 메모
+_workspace/
+.claude/
+workshop/VALIDATION.md
