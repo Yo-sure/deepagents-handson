@@ -14,20 +14,39 @@ Git에 익숙하다면 저장소를 복제해서 실습할 수 있습니다. Git
 
 ## 저장소 복제
 
-[공개 GitHub 저장소](https://github.com/Yo-sure/deepagents-handson)의 main 브랜치에는 교재 원고와 실습 코드가 함께 있습니다. WSL 터미널에서 작업할 폴더로 이동한 뒤 실행합니다.
+[공개 GitHub 저장소](https://github.com/Yo-sure/deepagents-handson)의 main 브랜치에는 교재 원고와 실습 코드가 함께 있습니다. Ubuntu 터미널에서 홈 폴더에 복제합니다. 이 안내의 실습 경로는 `~/deepagents-handson/workshop`입니다. ZIP 안내의 `~/lecture/workshop`과 구분합니다.
 
 ```bash
+cd ~
 git clone --branch main --single-branch https://github.com/Yo-sure/deepagents-handson.git
 cd deepagents-handson/workshop
 ```
 
-실습하는 위치는 저장소 루트가 아니라 **workshop 폴더**입니다. 교재 웹사이트를 직접 빌드하거나 Node.js를 설치할 필요는 없습니다. `book/`, `books/`, `scripts/`는 교재 제작용이므로 수업 중 수정하지 않습니다.
+실습하는 위치는 저장소 루트가 아니라 **workshop 폴더**입니다. `pwd` 결과가 `/home/사용자명/deepagents-handson/workshop`으로 끝나고 `setup.sh`가 보이는지 확인합니다. Node.js나 교재 웹사이트 빌드는 필요하지 않습니다.
 
 ## 환경 준비와 첫 호출
 
-복제한 저장소의 `workshop` 폴더에서 [환경 준비](./workshop/start#setup)를 따릅니다. ZIP과 같은 notebook 의존성 그룹을 설치하고 `.env`를 준비한 뒤 JupyterLab을 엽니다.
+현재 `workshop` 폴더에서 설치와 접속 설정을 진행합니다. 키는 설치 중 안내에 따라 설정하고 노트북 셀에 적지 않습니다.
 
-`orientation.ipynb`로 환경과 첫 모델 호출을 확인합니다. 직접 코드를 작성하는 파일은 `notebooks/build-agent.ipynb`이며, 풀이 비교는 `build-agent-solution.ipynb`에서 합니다. Python 파일로 옮기거나 별도 CLI를 실행하지 않습니다.
+```bash
+bash setup.sh
+```
+
+‘노트북 환경 준비 완료’가 나오면 같은 터미널에서 실행합니다.
+
+```bash
+.venv/bin/jupyter lab --no-browser --ServerApp.root_dir=. notebooks/orientation.ipynb
+```
+
+터미널에 표시된 토큰이 포함된 주소를 Windows 브라우저에서 엽니다. 주소와 토큰을 다른 사람에게 공유하지 않습니다. `orientation.ipynb`의 환경 확인 셀에서 실행 Python이 이 폴더의 `.venv/bin/python`인지 보고, 다음 셀에서 첫 모델 호출을 확인합니다. 문제가 있으면 [접속·환경 확인 안내](./workshop/start#connection)를 봅니다.
+
+|할 일|파일|
+|---|---|
+|환경·첫 모델 호출 확인|notebooks/orientation.ipynb|
+|각 장의 함수 작성|notebooks/build-agent.ipynb|
+|작성한 함수와 풀이 비교|notebooks/build-agent-solution.ipynb|
+
+나중에 다시 열 때에는 `cd ~/deepagents-handson/workshop`으로 돌아온 뒤 위 Jupyter 명령을 실행합니다. 설치를 반복할 필요는 없습니다. 커널을 재시작했다면 노트북 맨 위의 선행 셀 안내를 따릅니다.
 
 ## 수업 중 자료가 갱신된 경우
 
@@ -40,6 +59,6 @@ git status --short
 
 실습 노트북을 수정한 상태에서 자료를 새로 받을 때는 자신의 작업을 먼저 보관합니다. 새 버전은 다른 폴더에 복제하고, 변경 안내에 따라 작성한 함수만 옮깁니다. 기존 실습 폴더에 새 ZIP을 덮어쓰거나 실습 노트북 전체를 교체하지 않습니다.
 
-[전체 시간표로 돌아가기](./toc)
+**다음 단계:** 첫 모델 호출이 끝났다면 [LangChain 실습](./workshop/langchain)으로 이어갑니다. 이미 진행 중이었다면 [실습 전체 모아보기](./workshop/build)에서 해당 장을 찾습니다.
 
 </section></div></div>
