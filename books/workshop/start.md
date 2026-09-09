@@ -46,7 +46,15 @@ pageClass: lec-page
 
 <p class="section-time">예상 10분 · 09:00–09:10</p>
 
-강사의 실무 경험과 오늘 다룰 주제를 소개하고, 사전 설문에 나온 경험 수준·관심 업무·궁금한 점을 함께 살펴봅니다. 설문에 적은 질문을 어느 수업에서 다루는지 확인합니다.
+**윤재웅 | 삼성SDS Cello AI 그룹 지능화 엔지니어링 파트**
+
+- **개발·설계** · GPTs, RAG, Text2SQL, Multi-Agent, Document AI, 에이전트 메모리 모듈
+- **오픈소스** · LangChain DeepAgents Skills 미들웨어 기여
+- **출품** · 삼성 기술전(STF) 출품 ’23·’26
+- **수상** · 삼성SDS AI Summit 대상 ’26 · GenAI 해커톤 우승 ’23
+- **자격** · Claude Certified Architect – Foundations ’26 · AWS Certified Machine Learning – Specialty ’25
+
+사전 설문에 나온 경험 수준·관심 업무·궁금한 점을 함께 살펴보고, 설문에 적은 질문을 어느 수업에서 다루는지 확인합니다.
 
 설문 리뷰를 마치면 환경설정을 함께 진행합니다. 설치 여부와 관계없이 같은 실습 폴더를 열고 첫 모델 호출까지 확인합니다. 그다음 개념을 배우고 직접 코드를 작성합니다.
 
