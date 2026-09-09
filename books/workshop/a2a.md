@@ -12,7 +12,7 @@ pageClass: lec-page
 
 # A2A로 다른 Agent에 작업 맡기기
 
-<p class="lead">다른 팀의 Agent가 어떤 일을 하는지 알아내고, 초안을 맡긴 뒤 작업 상태와 검토 산출물을 받습니다. Agent Card → Message → Task·Artifact를 실제 Jupyter 출력과 연결합니다.</p>
+<p class="lead">다른 팀의 Agent가 어떤 일을 하는지 알아내고, 초안을 맡긴 뒤 작업 상태와 검토 산출물을 받습니다. Agent Card → Message → Executor → 이벤트 처리 → Task·Artifact까지 클라이언트와 서버의 책임을 연결합니다.</p>
 
 지금까지 문의 Agent가 정책을 조회하고 답변을 만들었습니다. 이제 별도로 운영하는 검토 Agent에 “이 초안의 정책 근거를 확인해 달라”고 맡깁니다. 상대가 어떤 모델·도구·프레임워크를 쓰는지 알아야 할까요? <strong><mark class="key-point">내부 구현을 공유하지 않고도 역할·요청·진행 상태·결과를 주고받는 규약</mark></strong>이 A2A입니다.
 
@@ -23,7 +23,8 @@ pageClass: lec-page
 
 |할 수 있어야 하는 일|확인할 결과|
 |---|---|
-|Card·Message·Task·Artifact를 구분합니다.|build-agent.ipynb 5A·5B의 실제 응답에서 기능·요청·상태·검토서를 찾습니다.|
+|Card·Message·Task·Artifact를 구분합니다.|기능 소개·요청·작업 상태·결과 문서가 다른 이유를 설명합니다.|
+|Executor·이벤트 큐·저장소의 역할을 설명합니다.|요청부터 상태·산출물이 응답에 반영되는 경로를 설명합니다.|
 |완료 상태와 업무 수용 여부를 따로 판단합니다.|5C에서 정상 결과는 accepted, 진행 중은 pending, 불일치 결과는 held로 분류합니다.|
 
 
@@ -71,7 +72,7 @@ Elastic의 뉴스룸 예제에서는 기자가 조사 Agent에 자료 조사를 
 
 ## 개념 1 · Agent 내부와 Agent 사이의 연결
 
-<p class="section-time">예상 4분 · 16:48–16:52</p>
+
 
 LangGraph는 한 Agent의 상태와 실행 흐름을 구성합니다. A2A는 그 Agent가 외부 요청을 받는 접점을 정의합니다. **LangGraph로 만든 Agent를 A2A 서버로 공개할 수 있습니다.** A2A가 모델의 추론이나 내부 그래프를 대신 만드는 것은 아닙니다.
 
@@ -83,7 +84,7 @@ flowchart LR
     B -->|"Task 상태와 검토서"| A
 ```
 
-클라이언트는 상대의 내부 메모리나 도구를 공유받는 대신, 공개된 기능과 메시지를 사용합니다. A2A 클라이언트는 다른 Agent뿐 아니라 일반 애플리케이션일 수도 있습니다. 이번 노트북은 클라이언트 역할을 합니다. [A2A 핵심 개념](https://a2a-protocol.org/latest/topics/key-concepts/)
+클라이언트는 상대의 내부 메모리나 도구를 공유받는 대신, 공개된 기능과 메시지를 사용합니다. A2A 클라이언트는 다른 Agent뿐 아니라 일반 애플리케이션일 수도 있습니다. 웹 앱이나 다른 Agent가 클라이언트 역할을 맡을 수 있습니다. [A2A 핵심 개념](https://a2a-protocol.org/latest/topics/key-concepts/)
 
 | 선택 | 적합한 상황 | 얻는 것과 비용 |
 |---|---|---|
@@ -106,11 +107,11 @@ flowchart LR
 
 MCP에도 원격 호출과 장시간 작업이 있으므로 시간·거리·모델 유무만으로 구분할 수 없습니다. 공통 도구 인터페이스가 필요하면 MCP를, 상대의 작업·추가 대화·산출물을 A2A 계약으로 다룰 필요가 있으면 A2A를 검토합니다. **이미 양쪽이 같은 HTTP 업무 API로 충분히 연결되어 있다면 A2A로 바꿀 필요는 없습니다.** 여러 독립 구현과 같은 방식으로 연결할 때 표준화의 이점이 커집니다. [MCP와 A2A의 관계](https://a2a-protocol.org/latest/topics/a2a-and-mcp/)
 
-Card를 찾는 전략은 알려진 주소의 well-known 경로 조회, 후보 주소 직접 설정, 레지스트리 검색 등으로 나뉩니다. A2A가 모든 레지스트리 검색 API를 하나로 정한 것은 아닙니다. 6D는 제공된 후보 주소에서 실제 Card를 조회합니다. [공식 발견 전략](https://a2a-protocol.org/latest/topics/agent-discovery/)
+Card를 찾는 전략은 알려진 주소의 well-known 경로 조회, 후보 주소 직접 설정, 레지스트리 검색 등으로 나뉩니다. A2A가 모든 레지스트리 검색 API를 하나로 정한 것은 아닙니다. 예를 들어 후보 서버 주소를 알고 있다면 각 주소에서 Card를 읽고 기능을 비교할 수 있습니다. [공식 발견 전략](https://a2a-protocol.org/latest/topics/agent-discovery/)
 
 ## 개념 2 · Card로 찾고, Message로 맡깁니다
 
-<p class="section-time">예상 4분 · 16:52–16:56</p>
+
 
 Agent Card는 서버가 공개하는 JSON 소개 문서입니다. 보통 `/.well-known/agent-card.json`에서 가져옵니다. 모델에게 질문하기 전에 클라이언트가 읽습니다.
 
@@ -127,11 +128,12 @@ Agent Card는 서버가 공개하는 JSON 소개 문서입니다. 보통 `/.well
 찾은 Agent에 보내는 한 차례의 발화가 **Message**입니다. Message는 역할과 ID, 하나 이상의 **Part**를 담습니다. Part에는 텍스트·파일·구조화 데이터를 넣을 수 있습니다. 이 예제는 업무 JSON을 텍스트 Part 하나에 담습니다.
 
 ```python
-# SDK 메시지 생성 부분 발췌. 실행은 노트북 5B에서 합니다.
+# SDK 메시지 구성 예시. 아래 값만으로 요청의 모양을 읽습니다.
 import json
 import uuid
 from a2a.types import Message, Part, Role
 
+payload = {"topic": "계정", "draft": "초안", "request_id": "req-1", "version": 1}
 message = Message(
     role=Role.ROLE_USER,
     message_id=str(uuid.uuid4()),
@@ -143,23 +145,23 @@ message = Message(
 
 ## 개념 3 · 응답은 Message일 수도, Task일 수도 있습니다
 
-<p class="section-time">예상 5분 · 16:56–17:01</p>
+
 
 **Message로 바로 답할지 Task를 만들지는 서버 구현이 결정합니다.** 프로토콜이 요청 문장을 읽고 자동 분류하는 것은 아닙니다. 서버는 고정 규칙이나 모델 판단을 사용할 수 있습니다. 상태 관리 없이 답을 돌려주면 Message, 작업 ID로 상태와 산출물을 관리하면 Task로 표현합니다. 짧은 작업도 Task가 될 수 있습니다. [공식 응답 선택 설명](https://a2a-protocol.org/latest/topics/life-of-a-task/#agent-response-message-or-task)
 
 Task는 작업 ID·상태·산출물을 담습니다. 검토서처럼 작업이 만든 결과물이 **Artifact**이며 Part 목록으로 내용을 담습니다.
 
-|순서|노트북 클라이언트|검토 A2A 서버|
+|순서|클라이언트|검토 A2A 서버|
 |---|---|---|
 |1 · 발견|Agent Card 조회 →|기능·접속 주소 반환|
-|2 · 요청|초안을 담은 SendMessage →|ReviewExecutor가 Task 생성|
+|2 · 요청|초안을 담은 SendMessage →|Executor가 Task 생성|
 |3 · 수행|응답을 기다림|working으로 갱신 → 규칙·모델 검토|
 |4 · 반환|← Task와 ReviewResult Artifact 수신|산출물 저장·completed로 종료|
 |5 · 수용|현재 요청·버전·passed를 확인|검토 수행과 결과 수용을 구분|
 
-우리 `course/a2a_lab.py`의 `ReviewExecutor.execute`는 요청마다 Task를 생성하도록 작성되어 있습니다. SDK가 초안 길이를 보고 선택한 결과가 아닙니다. 클라이언트의 `return_immediately=False`는 **Task가 종료되거나 추가 입력·인증이 필요한 상태가 될 때까지 기다리는 설정**이며 Message/Task 선택 설정이 아닙니다. Message 직접 응답에는 영향을 주지 않습니다. [명세의 응답 대기 설정](https://a2a-protocol.org/latest/specification/#322-sendmessageconfiguration)
+서버는 짧은 검토에도 Task를 생성하도록 설계할 수 있습니다. SDK가 초안 길이를 보고 선택하는 것은 아닙니다. 클라이언트의 `return_immediately=False`는 **Task가 종료되거나 추가 입력·인증이 필요한 상태가 될 때까지 기다리는 설정**이며 Message/Task 선택 설정이 아닙니다. Message 직접 응답에는 영향을 주지 않습니다. [명세의 응답 대기 설정](https://a2a-protocol.org/latest/specification/#322-sendmessageconfiguration)
 
-현재 서버는 추가 입력 상태를 구현하지 않아 정상 검토에서는 최종 Task를 받습니다. 비스트리밍 설정이므로 submitted·working이 셀에 차례로 보이지 않습니다.
+중간 상태를 서버에서 생성했더라도 비스트리밍 대기 요청의 화면에 그 상태가 하나씩 나타나는 것은 아닙니다. 최종 Task를 받는 방식과 중간 갱신을 스트림으로 받는 방식을 구분합니다.
 
 | 식별자 | 무엇을 구분하나요? |
 |---|---|
@@ -180,7 +182,7 @@ contextId가 같다고 모든 내부 대화와 메모리가 자동 공유되는 
 |첫 초안 검토 완료|ctx-1|task-1|artifact-1|
 |수정한 초안을 다시 검토|ctx-1|새 task-2|새 artifact-2|
 
-위 ID는 관계를 설명하기 위한 예시입니다. 후속 Message에 이전 작업의 `referenceTaskIds`를 담을 수 있습니다. 현재 실습의 `delegate`는 매번 새 요청을 보내며 같은 contextId를 재사용하는 대화까지 구현하지 않습니다. 따라서 실습의 업무 `request_id`·`version`을 A2A의 문맥이나 Task ID와 같은 값으로 취급하지 않습니다. [공식 후속 작업 설명](https://a2a-protocol.org/latest/topics/life-of-a-task/#task-refinements)
+위 ID는 관계를 설명하기 위한 예시입니다. 후속 Message에 이전 작업의 `referenceTaskIds`를 담을 수 있습니다. 업무에서 사용하는 문서 ID·수정 버전은 contextId나 Task ID와 별도로 정할 수 있습니다. [공식 후속 작업 설명](https://a2a-protocol.org/latest/topics/life-of-a-task/#task-refinements)
 
 ### 검토 작업이 끝났다는 것과 초안이 통과했다는 것
 
@@ -204,7 +206,7 @@ contextId가 같다고 모든 내부 대화와 메모리가 자동 공유되는 
 |TASK_STATE_REJECTED|rejected|수행 거절·종료|
 |TASK_STATE_UNSPECIFIED|unspecified|상태 미지정|
 
-`delegate`가 enum 이름의 `TASK_STATE_`를 제거하고 소문자로 바꿉니다. 원본은 반환값의 `task.status.state`에서 확인할 수 있습니다. 예를 들어 `TASK_STATE_COMPLETED` → `completed`는 **출력 표기 변환**입니다. 5C의 `accepted`·`pending`·`held`는 이와 별도로 수업이 정한 **업무 수용 판정**이며 A2A TaskState가 아닙니다. [공식 TaskState 정의](https://a2a-protocol.org/latest/specification/#413-taskstate)
+표의 오른쪽은 enum을 읽기 쉽게 풀어 쓴 표현입니다. 애플리케이션이 결과를 채택·보류하는 업무 판정은 A2A TaskState와 별도로 설계합니다. [공식 TaskState 정의](https://a2a-protocol.org/latest/specification/#413-taskstate)
 
 ```mermaid
 stateDiagram-v2
@@ -219,93 +221,249 @@ stateDiagram-v2
 
 auth_required는 인증이 필요한 상태, rejected는 요청을 거절한 종료 상태입니다. 지원되는 갱신 수신 방식은 Card에서 확인합니다. 짧은 작업은 응답을 기다리고, 긴 작업은 GetTask 조회·SSE 스트림·설정된 webhook의 push 알림을 사용할 수 있습니다. 스트리밍은 연결 유지가, webhook은 수신 endpoint 운영이 필요합니다.
 
-종료된 Task를 다시 working으로 되살리지 않습니다. 후속 수정은 같은 contextId 아래 새 작업으로 만들 수 있습니다. 현재 실습 서버는 추가 입력 대화·스트리밍·push를 구현하지 않습니다. [공식 생애주기](https://a2a-protocol.org/latest/topics/life-of-a-task/)
+종료된 Task를 다시 working으로 되살리지 않습니다. 후속 수정은 같은 contextId 아래 새 작업으로 만들 수 있습니다. 지원할 응답 방식은 서버 구현과 Card의 선언을 일치시켜야 합니다. [공식 생애주기](https://a2a-protocol.org/latest/topics/life-of-a-task/)
 
 </details>
 
-## 개념 4 · 요청 하나를 서버 코드와 출력까지 따라갑니다
+## 개념 4 · 서버는 요청을 어떻게 작업과 응답으로 바꿀까요?
 
-<p class="section-time">예상 5분 · 17:01–17:06 · 요청·응답·수용 조건 / 서버 내부 코드는 추가 읽기</p>
+<p class="section-time">개념 1~4 총 20분 · 서버의 실행과 이벤트 처리까지 설명</p>
 
-이번 실습에서는 **제공된 A2A 서버에 초안을 맡기고, 받은 결과를 채택할 조건을 직접 구현**합니다. 서버 전체를 처음부터 작성하지는 않습니다. 다만 어디에서 업무 코드를 실행하고 어디에서 프로토콜 응답을 만드는지 알아야 출력의 오류를 구분할 수 있습니다. 구현 파일은 `workshop/course/a2a_lab.py`, 실행 위치는 `notebooks/build-agent.ipynb`의 5A → 5B → 5C입니다. 첫 환경 셀을 실행한 커널에서 이어갑니다.
+클라이언트가 Message를 보내도 업무가 저절로 실행되지는 않습니다. **서버 개발자가 AgentExecutor에 업무 실행을 연결하고, 실행 중 생긴 상태·산출물을 이벤트로 전달**해야 합니다. 아래는 A2A Python SDK 1.1.2의 구성입니다. Executor·EventQueue·TaskUpdater는 SDK 구현의 부품이며, 프로토콜이 모든 언어에 같은 클래스 이름을 요구하는 것은 아닙니다.
 
-### 1. 먼저 세 구간의 책임을 구분합니다
+```mermaid
+flowchart TB
+    C["클라이언트 · Message 전송"] --> R["HTTP 라우트 · 요청 해석"]
+    R --> H["DefaultRequestHandler · 요청 처리"]
+    H --> X["AgentExecutor.execute · 업무 실행 연결"]
+    X --> W["내부 Agent 또는 업무 함수"]
+    W --> X
+    X --> Q["EventQueue · Task / 상태 / 산출물 이벤트"]
+    Q --> P["SDK 이벤트 소비·결과 처리"]
+    P --> S["TaskStore · 현재 Task 보관"]
+    P --> O["응답 구성 · Task 또는 스트림"]
+    O --> C
+```
 
-|구간|제공 코드가 하는 일|직접 확인하거나 구현할 일|
+이 그림은 한 요청의 역할을 구분한 것입니다. SDK 내부의 이벤트 소비·결과 집계는 요청 처리 경로와 함께 동작합니다. 큐에 이벤트를 넣었다고 즉시 모든 클라이언트에게 보이거나 디스크에 영구 저장되는 것은 아닙니다.
+
+|부품 · import 위치|맡는 책임|맡지 않는 책임|
 |---|---|---|
-|5A · 발견|HTTP 서버를 시작하고 Agent Card 조회|review-policy·접속 주소·streaming=false 찾기|
-|5B · 위임|Message 전송 → 서버 검토 → Task·Artifact 수신|초안을 바꾸고 요청·응답에서 같은 업무 ID와 버전 찾기|
-|5C · 수용|반례 검사와 실제 결과 전달|accept_review를 구현하여 현재 초안에 쓸 수 있는 결과만 채택|
+|AgentExecutor · a2a.server.agent_execution|execute와 cancel에 업무 실행·취소 연결|모델이나 업무 규칙 자동 생성|
+|RequestContext · a2a.server.agent_execution|요청 Message, Task·context ID, 현재 작업 등의 실행 문맥 전달|모든 이전 대화·모델 메모리 자동 공유|
+|EventQueue · a2a.server.events|Executor가 만든 응답 이벤트 전달|분산 작업 배정이나 영속 작업 큐 보장|
+|TaskUpdater · a2a.server.tasks.task_updater|상태·산출물 갱신 이벤트를 만들어 큐에 넣기|TaskStore에 직접 쓰거나 내부 Agent 실행|
+|DefaultRequestHandler · a2a.server.request_handlers|요청과 Executor 연결, 이벤트 결과 처리 조정|업무상 통과 기준 결정|
+|InMemoryTaskStore · a2a.server.tasks|프로세스 메모리에 Task 보관|서버 재시작 후 복구|
 
-5A에서 기능을 발견해도 검토는 실행되지 않습니다. 5B에서 검토가 끝나도 결과 채택은 아직 별도 판단입니다. 이 두 경계를 출력으로 확인하는 것이 실습의 핵심입니다.
+### execute의 반환값보다 이벤트를 봅니다
 
-### 2. 무엇을 보내는가: 업무 입력을 Message에 담습니다
+`execute(context, event_queue)`는 요청을 읽고 내부 Agent를 실행하는 접점입니다. 결과는 보통 `return "검토 완료"`가 아니라 **`await event_queue.enqueue_event(...)`로 전달**합니다. enqueue는 큐에 넣는다는 뜻입니다. 이 응답 경로에서는 다음 객체를 구별합니다.
 
-5B의 `payload`는 다음 네 값입니다. `topic`·`draft`는 검토할 내용이고, `request_id`·`version`은 결과가 어느 초안에 대한 것인지 대조할 값입니다.
-
-```python
-# 노트북 5B의 업무 입력
-import uuid
-
-payload = {
-    "topic": "계정",
-    "draft": "계정 문의는 IT지원팀에 전달합니다. 근거: P-02",
-    "request_id": str(uuid.uuid4()),
-    "version": 1,
-}
-```
-
-`delegate(url, payload)`는 앞에서 본 `Message(parts=[Part(text=...)])`에 이 사전을 JSON 문자열로 넣습니다. 여기서 **messageId는 통신 메시지의 ID, request_id는 우리 업무의 ID**입니다. `version`도 A2A가 자동으로 올려 주지 않습니다. 클라이언트가 어느 초안을 맡기는지 정해 보내야 합니다.
-
-<details><summary>추가 읽기 · 서버의 어느 코드가 요청을 받는가?</summary>
-
-### 3. 서버의 어느 코드가 요청을 받는가?
-
-`create_app`은 아래 부품을 연결합니다. `serve_app`은 노트북 셀 안에서 서버를 열고 셀이 끝나면 닫는 제공 함수입니다. 5A와 5B는 각각 서버를 시작하므로 이전 셀의 서버가 계속 살아 있다고 가정하지 않습니다.
-
-|부품 · import 위치|실제 역할|
+|큐에 넣는 객체|알리는 내용|
 |---|---|
-|AgentCard · a2a.types|업무 기능과 접속 주소 공개|
-|AgentExecutor · a2a.server.agent_execution|업무 실행 인터페이스. ReviewExecutor가 이를 구현|
-|TaskUpdater · a2a.server.tasks.task_updater|진행 상태와 산출물 이벤트 생성|
-|DefaultRequestHandler · a2a.server.request_handlers|프로토콜 요청을 Executor에 연결하고 결과 처리|
-|InMemoryTaskStore · a2a.server.tasks|현재 서버 프로세스의 Task 보관|
-|create_agent_card_routes·create_jsonrpc_routes · a2a.server.routes|Card 조회와 JSON-RPC 요청을 HTTP 경로에 연결|
+|Message|상태 추적 없이 직접 답하는 메시지|
+|Task|추적할 작업과 현재 상태·ID|
+|TaskStatusUpdateEvent|기존 작업의 상태 변화|
+|TaskArtifactUpdateEvent|기존 작업의 산출물 추가·갱신|
 
-요청은 **HTTP 경로 → 요청 처리기 → ReviewExecutor.execute**로 들어옵니다. Executor는 Task를 만들고 `start_work()`로 처리 중임을 알린 뒤 다음 업무 코드를 실행합니다. 아래는 실제 구현에서 요청을 읽고 결과를 구성하는 부분입니다.
+새 Task를 다루는 아래 예제에서는 **Task를 먼저 큐에 넣고 같은 ID로 후속 갱신을 보냅니다.** 기존 Task를 이어 처리하는 구현이라면 요청 문맥의 현재 Task를 확인해야 합니다. 매번 새 작업으로 덮어쓰는 방식은 추가 입력 대화에 적합하지 않습니다.
+
+### SDK 코드로 읽는 최소 서버 실행부
+
+다음 클래스는 새 요청을 받아 글자 수를 세는 설명용 Executor입니다. 업무 함수 자리에 모델 호출이나 컴파일된 LangGraph를 넣을 수 있습니다. A2A 연결 원리를 보기 위해 이 예제의 업무에는 모델이 필요하지 않습니다. 아래 블록은 **SDK 서버 구성 예제**이며, 바로 뒤 화면 실행 창에서는 이벤트 흐름을 Python만으로 확인합니다.
 
 ```python
-# course/a2a_lab.py의 ReviewExecutor.execute 내부 발췌
-# json은 표준 라이브러리, verify는 course.harness_lab의 제공 검사 함수입니다.
-payload = json.loads(context.get_user_input())
-errors = verify(payload["draft"], payload["topic"])
-artifact = {
-    "request_id": payload["request_id"],
-    "version": payload["version"],
-    "passed": not errors,
-    "feedback": errors,
-}
+from a2a.server.agent_execution import AgentExecutor, RequestContext
+from a2a.server.events import EventQueue
+from a2a.server.tasks.task_updater import TaskUpdater
+from a2a.types import Part, Task, TaskState, TaskStatus
+
+
+class TextReviewExecutor(AgentExecutor):
+    async def execute(self, context: RequestContext, event_queue: EventQueue):
+        # 이 예제는 새 작업 요청을 처리합니다.
+        await event_queue.enqueue_event(Task(
+            id=context.task_id,
+            context_id=context.context_id,
+            status=TaskStatus(state=TaskState.TASK_STATE_SUBMITTED),
+        ))
+        updater = TaskUpdater(
+            event_queue=event_queue,
+            task_id=context.task_id,
+            context_id=context.context_id,
+        )
+        await updater.start_work()
+        text = context.get_user_input()
+        result = f"검토한 글자 수: {len(text)}"  # 내부 업무 실행 자리
+        await updater.add_artifact(parts=[Part(text=result)], name="ReviewResult")
+        await updater.complete()
+
+    async def cancel(self, context: RequestContext, event_queue: EventQueue):
+        updater = TaskUpdater(
+            event_queue=event_queue,
+            task_id=context.task_id,
+            context_id=context.context_id,
+        )
+        await updater.cancel()
 ```
 
-`context.get_user_input()`으로 Message의 텍스트를 읽고, JSON을 다시 사전으로 해석합니다. `verify`가 정책 ID·담당 팀 누락을 검사합니다. `passed`는 오류 목록이 비었는지로 결정합니다. 별도의 LangChain 모델 호출은 표현 검토를 수행하고 그 답을 `artifact["model_note"]`에 넣습니다. <mark class="key-point">이 실습에서 통과 판정을 내리는 것은 규칙 검사이며, 모델의 표현 검토 답변이 아닙니다.</mark>
+|호출|생기는 이벤트|읽는 의미|
+|---|---|---|
+|enqueue_event(Task(...))|Task|추적할 작업을 알림|
+|start_work()|TaskStatusUpdateEvent|작업이 working 상태임을 알림|
+|add_artifact(...)|TaskArtifactUpdateEvent|업무 결과를 산출물로 전달|
+|complete()|TaskStatusUpdateEvent|작업이 completed 상태임을 알림|
 
-그 다음 Python 사전을 A2A 산출물로 포장합니다.
+`start_work()`가 내부 Agent를 시작하는 것은 아닙니다. **업무 호출은 Executor가 직접 하고, TaskUpdater는 그 상태와 결과를 알립니다.** `complete()`도 검토 내용의 통과 여부를 판단하지 않습니다. 실행 중 실패를 어떻게 처리하고 failed로 알릴지는 서버 구현에서 정해야 합니다.
+
+`cancel()` 역시 실제 작업의 중단과 상태 통지를 연결하는 자리입니다. 위처럼 짧은 계산 예제에서 취소 상태를 알리는 코드만으로, 별도 프로세스의 긴 모델 호출이나 외부 작업이 자동으로 취소되지는 않습니다. 그런 구현에는 실행 핸들·취소 전파·이미 수행한 부작용 처리 방침이 필요합니다.
+
+### 화면에서 이벤트와 최종 Task를 연결합니다
+
+아래는 **SDK나 네트워크를 실행하지 않는 축소 모형**입니다. 왼쪽 역할인 이벤트 생산과 오른쪽 역할인 Task 반영을 나눠 읽습니다. 작업 ID 검사를 먼저 하고, 이후 이벤트로 같은 Task를 갱신합니다. `passed=False`를 True로 바꿔도 completed라는 상태 자체는 같다는 점을 확인합니다. 첫 Task 이벤트를 제거하면 갱신 대상이 없다는 오류가 납니다.
+
+<PythonPlayground kind="a2a-events" />
+
+출력은 `submitted → working → 산출물 → completed`입니다. 마지막 상태와 산출물은 서로 다른 정보를 담습니다. 상태 갱신을 소비하지 않으면 클라이언트가 보는 Task는 오래된 상태에 머물 수 있고, 완료 이벤트만 보내면 결과 문서가 자동으로 만들어지지 않습니다. 실제 SDK의 오류 형식·저장 방식은 이 모형과 다릅니다.
+
+### Executor를 서버에 연결하는 마지막 단계
+
+클래스 정의만으로 HTTP 요청을 받을 수는 없습니다. Agent Card는 공개 설명이고, 요청 처리기는 실행부와 저장소를 연결하며, 라우트는 접속 경로를 만듭니다. 아래는 앞의 `TextReviewExecutor`와 별도로 정의한 `card`를 연결하는 구성 발췌입니다.
 
 ```python
-# 같은 execute 내부 발췌. updater는 앞에서 생성한 TaskUpdater입니다.
-# 파일 상단의 import: import json / from a2a.types import Part
-await updater.add_artifact(
-    parts=[Part(text=json.dumps(artifact, ensure_ascii=False))],
-    name="ReviewResult",
+from a2a.server.request_handlers import DefaultRequestHandler
+from a2a.server.tasks import InMemoryTaskStore
+from a2a.server.routes import create_agent_card_routes, create_jsonrpc_routes
+from starlette.applications import Starlette
+
+handler = DefaultRequestHandler(
+    agent_executor=TextReviewExecutor(),
+    task_store=InMemoryTaskStore(),
+    agent_card=card,
 )
-await updater.complete()
+app = Starlette(routes=(
+    create_agent_card_routes(agent_card=card)
+    + create_jsonrpc_routes(request_handler=handler, rpc_url="/")
+))
 ```
 
-첫 호출은 검토서를 전달하고, 두 번째 호출은 **검토 작업이 끝났음**을 알립니다. `passed=False`여도 검토를 정상 수행했다면 completed입니다. 요청 JSON이나 필수 키가 잘못된 경우에는 제공 서버가 failed로 처리합니다. 두 코드 블록은 메서드 내부 발췌이므로 단독 실행하지 않습니다. 전체 클래스의 실행과 서버 연결은 5B가 담당합니다.
+ASGI 서버가 app을 실행하면 Card 조회와 작업 요청 경로가 열립니다. Card만 게시하고 요청 처리 경로를 연결하지 않으면 기능 소개는 읽히지만 작업은 실행되지 않습니다. 반대로 내부 Agent가 정상 동작해도 산출물 이벤트를 보내지 않으면 A2A 결과 계약은 완성되지 않습니다.
+
+**이해 확인:** 모델이 검토서를 만들었는데 클라이언트의 Task에는 산출물이 없습니다. 내부 모델을 바꾸기 전에 어디를 확인해야 할까요?
+
+<details><summary>설명 비교</summary>
+
+Executor가 모델 결과를 받은 뒤 add_artifact를 호출했는지, 갱신의 Task ID가 맞는지, 이벤트가 SDK 처리부에서 소비·반영되었는지 확인합니다. 모델 결과 생성과 프로토콜 결과 전달은 별도 단계입니다.
 
 </details>
 
-### 4. 응답에서 무엇을 읽는가?
+[공식 Executor 튜토리얼](https://a2a-protocol.org/latest/tutorials/python/4-agent-executor/) · [Python SDK API](https://a2a-protocol.org/latest/sdk/python/api/)에서 인터페이스를 확인할 수 있습니다. 위 코드는 수업 고정 SDK 1.1.2의 import와 메서드를 사용합니다.
+
+### ACP 통합 이후: REST 형태로도 A2A를 사용합니다 {#acp-rest}
+
+Card의 접속 방식이 달라도 Message·Task·Artifact의 의미는 유지됩니다. 프로토콜의 업무 계약과 HTTP에 담는 형식을 구분합니다.
+
+Agent Communication Protocol(ACP)은 REST 중심의 Agent 통신 규약이었으며, 공식 사이트는 현재 Linux Foundation의 A2A에 통합되었다고 안내합니다. 에디터와 코딩 Agent를 연결하는 **Agent Client Protocol**과는 다른 ACP입니다. [ACP 공식 통합 안내](https://agentcommunicationprotocol.dev/introduction/welcome)
+
+현재 A2A는 JSON-RPC·gRPC·HTTP+JSON/REST 바인딩을 정의합니다. **REST로 연결한다고 A2A가 아닌 것은 아닙니다.** 기존 ACP의 URL·필드가 변경 없이 호환된다는 뜻도 아닙니다. 연결할 서버가 Card에 공개한 바인딩과 현재 A2A의 요청·응답 형식을 따릅니다.
+
+|같은 작업|JSON-RPC 바인딩|HTTP+JSON/REST 바인딩|
+|---|---|---|
+|작업 요청|POST 본문의 method=SendMessage|POST /message:send|
+|작업 조회|method=GetTask|GET /tasks/{id}|
+|취소 요청|method=CancelTask|POST /tasks/{id}:cancel|
+|돌려받을 의미|Task의 상태·Artifact|같은 Task 상태·Artifact|
+
+[공식 바인딩별 메서드 대응표](https://a2a-protocol.org/latest/specification/#53-method-mapping-reference)
+
+아래는 REST 바인딩의 요청 구조 예시입니다. `message`·`configuration`을 본문에 직접 담고 JSON-RPC의 `jsonrpc`·`method`·`params` 포장을 사용하지 않습니다. 주소와 ID는 설명용입니다.
+
+<details><summary>REST 요청 형식과 서버 구성</summary>
+
+```http
+POST /message:send HTTP/1.1
+Host: agent.example.com
+Content-Type: application/a2a+json
+
+{
+  "message": {
+    "messageId": "msg-1",
+    "role": "ROLE_USER",
+    "parts": [{"text": "이 문장의 불명확한 표현을 검토해 주세요."}]
+  },
+  "configuration": {"returnImmediately": false}
+}
+```
+
+SDK 1.1.2의 `from a2a.server.routes import create_rest_routes`로 같은 요청 처리기를 REST 경로에 연결할 수 있습니다. `create_app(..., binding="HTTP+JSON")`은 이 경로와 Card의 바인딩을 함께 설정합니다. 두 서버가 서로 다른 바인딩을 제공할 수도 있습니다. 클라이언트는 Card를 읽어 해당 바인딩을 지원하는 연결을 생성합니다. 단순히 Card 문자열만 REST로 바꿔서는 서버 경로가 생기지 않습니다. [HTTP+JSON/REST 명세](https://a2a-protocol.org/latest/specification/#11-httpjsonrest-protocol-binding)
+
+</details>
+
+</section>
+<section class="slide" id="observe">
+
+## 실습 · 요청·연결·수용 조건을 구현합니다
+
+**직접 구현:** 5A 정의 셀의 `make_review_request(payload)`에서 Message의 역할·ID·JSON 텍스트 Part와 SendMessageRequest를 만듭니다. `connect_review_client(http, url, expected_skill)`에서는 Card 조회 → 기능 ID 확인 → ClientConfig·ClientFactory로 연결을 작성합니다. 5B는 이 두 함수를 실제 서버 연결·전송에 사용합니다. 5C의 `accept_review`도 직접 작성합니다. 서버 실행과 응답 파싱은 제공됩니다.
+
+**구현 순서:** 요청·연결 함수 작성 6분 → 5A·5B 실행 3분 → 5C 수용 조건과 반례는 이어지는 개인 실습에서 구현합니다. 막히면 풀이 노트북의 같은 5A·5B·5C 번호와 각 결과 해석을 확인합니다. 요청의 message_id, Task의 id, 업무 payload의 request_id·version을 구별해야 합니다.
+
+<p class="section-time">예상 9분 · 17:08–17:17 · 요청·연결 구현과 실행</p>
+
+<!-- lesson-exercise:a2a -->
+
+서버의 ReviewExecutor와 응답 파싱은 제공됩니다. 요청 생성·Card 기반 클라이언트 연결·업무 수용 함수는 직접 작성합니다. 제공 서버는 규칙 검사와 모델의 표현 검토를 실행하고 TaskUpdater로 결과를 전달합니다. 구현 위치는 `course/a2a_lab.py`입니다.
+
+요청·연결 함수를 완성한 뒤 5B의 draft를 바꿔 아래 두 경우를 실행합니다. 5C는 다음 개인 구현 시간에 작성합니다.
+
+| draft | 기대 상태 | 검토서와 수용 결과 |
+|---|---|---|
+| 계정 문의는 IT지원팀에 전달합니다. 근거: P-02 | completed | passed=true, accepted |
+| 확인했습니다. | completed | passed=false, feedback에 누락 정보, held |
+
+두 실행의 Task ID·messageId·업무 request_id를 찾아 어떤 것이 바뀌었는지 비교합니다. 실제 모델의 표현 검토는 model_note에서 읽습니다. API 오류가 났다면 연결을 복구하고 5B를 다시 실행합니다. 두 결과를 기록한 뒤 마지막에는 정상 초안으로 5B를 실행해, 다음 5C에서 사용할 `review`와 `payload`를 정상 결과로 준비합니다.
+
+**반례:** 검토는 통과했지만 현재 기대 버전을 2로 바꾸면 어떨까요? Task를 다시 요청하는 실험이 아니라, 받은 결과를 현재 초안에 적용해도 되는지 판단하는 실험입니다. 5C에서 held가 나와야 합니다.
+
+
+</section>
+<section class="slide" id="practice">
+
+## 개인 구현 · 현재 초안에 쓸 수 있는 검토 결과를 판단합니다
+
+<p class="section-time">예상 6분 · 17:17–17:23 · 5C 구현·반례 검사</p>
+
+5A·5B에서 받은 실제 결과를 바탕으로 `accept_review`를 작성합니다. **판단 순서 예상 1분 → 구현 3분 → 검사와 버전 반례 2분**으로 진행합니다.
+
+submitted·working은 pending, 그 외 미완료 상태는 held입니다. completed일 때만 산출물의 요청 ID·버전·passed를 비교합니다. 반환값의 계약은 아래 풀이의 입력 표와 노트북 5C 표를 따릅니다.
+
+먼저 정상 결과를 채택하고, 같은 결과의 현재 기대 버전만 2로 바꿔 held인지 확인합니다. 이어 `check_accept_review`로 누락 필드와 타입 반례를 확인합니다. `True`를 버전 1로 받지 않으려면 값의 비교뿐 아니라 타입도 확인해야 합니다. 마지막으로 자신이 고른 반례 하나를 추가합니다.
+
+</section>
+<section class="slide" id="operations">
+
+<details><summary>참고 · 독립 운영과 신뢰, 그리고 두 ACP</summary>
+
+프로세스를 나눈 것만으로 검증의 독립성이나 정확성이 확보되지는 않습니다. 같은 잘못된 규칙을 공유하면 같은 오류를 낼 수 있습니다. 별도 기준·데이터·권한·책임을 누가 관리하는지 확인해야 합니다.
+
+현재 서버의 InMemoryTaskStore는 프로세스 메모리입니다. A2A를 사용한다고 재시작 복구나 영속 저장이 자동 제공되지는 않습니다. 공개 서비스는 Card의 인증 선언뿐 아니라 서버의 권한 검사·저장소·타임아웃·취소 처리가 필요합니다.
+
+| 이름 | 다루는 연결 |
+|---|---|
+| A2A | 독립 Agent 시스템 사이의 작업·메시지 |
+| Agent Communication Protocol | Agent 상호 운용 규약. 공식 사이트는 A2A 합류를 안내 |
+| Agent Client Protocol | 편집기·IDE와 코딩 Agent의 연결 |
+
+두 ACP는 약자가 같지만 다릅니다. Agent Communication Protocol의 A2A 통합과 현재 REST 바인딩은 [앞의 비교](#acp-rest)에서 다룹니다. [Communication ACP](https://agentcommunicationprotocol.dev/introduction/welcome) · [Client ACP](https://agentclientprotocol.com/get-started/introduction)
+
+</details>
+</section>
+<section class="slide" id="solution">
+
+## 풀이 · 통신 결과를 업무 판단에 연결합니다
+
+### 실습 응답에서 무엇을 읽는가?
 
 5B의 `review = await delegate(url, payload)`가 반환하는 사전은 **수업 도우미 함수의 반환값**입니다. 아래 바깥쪽 키를 A2A의 원본 응답 필드로 혼동하지 않습니다.
 
@@ -318,7 +476,7 @@ await updater.complete()
 
 정상 초안에서는 `TASK_STATE_COMPLETED`, `passed=True`, 빈 `feedback`을 기대합니다. `draft`만 `"확인했습니다."`로 바꾸면 검토 작업은 여전히 completed이지만 `passed=False`이고 누락 정보가 feedback에 나옵니다. **완료 상태는 같고 검토 결과는 달라지는 두 실행**을 비교합니다. `model_note` 문장은 실행마다 달라질 수 있습니다.
 
-### 5. 무엇을 직접 구현하는가: 결과를 현재 초안에 적용할 조건
+### 5C 구현 계약: 결과를 현재 초안에 적용할 조건
 
 5C의 함수는 다음 네 입력을 받습니다. 실제 호출에서 어떤 값을 넘기는지 먼저 연결합니다.
 
@@ -349,110 +507,7 @@ accept_review(
 |Task는 completed인데 held|feedback, 요청 ID, 현재 기대 버전, passed의 실제 타입|
 |산출물 접근 중 오류|완료 상태와 사전 존재 여부를 확인하기 전에 필드를 읽었는지|
 
-수업은 SDK 1.1.2와 A2A v1 JSON-RPC 바인딩을 사용합니다. 이전 예제의 `message/send`나 Part 형식을 섞지 않습니다. [A2A v1 명세](https://a2a-protocol.org/latest/specification/) · [공식 LangGraph 연결 예제](https://github.com/a2aproject/a2a-samples/tree/main/samples/python/agents/langgraph)
 
-### ACP 통합 이후: REST 형태로도 A2A를 사용합니다 {#acp-rest}
-
-이 비교는 통합 장 6D에서 두 서버의 바인딩을 확인할 때 읽습니다. 지금은 Card의 접속 방식이 달라도 Message·Task·Artifact의 의미는 같다는 점만 확인합니다.
-
-Agent Communication Protocol(ACP)은 REST 중심의 Agent 통신 규약이었으며, 공식 사이트는 현재 Linux Foundation의 A2A에 통합되었다고 안내합니다. 에디터와 코딩 Agent를 연결하는 **Agent Client Protocol**과는 다른 ACP입니다. [ACP 공식 통합 안내](https://agentcommunicationprotocol.dev/introduction/welcome)
-
-현재 A2A는 JSON-RPC·gRPC·HTTP+JSON/REST 바인딩을 정의합니다. **REST로 연결한다고 A2A가 아닌 것은 아닙니다.** 기존 ACP의 URL·필드가 변경 없이 호환된다는 뜻도 아닙니다. 연결할 서버가 Card에 공개한 바인딩과 현재 A2A의 요청·응답 형식을 따릅니다.
-
-|같은 작업|JSON-RPC 바인딩|HTTP+JSON/REST 바인딩|
-|---|---|---|
-|작업 요청|POST 본문의 method=SendMessage|POST /message:send|
-|작업 조회|method=GetTask|GET /tasks/{id}|
-|취소 요청|method=CancelTask|POST /tasks/{id}:cancel|
-|돌려받을 의미|Task의 상태·Artifact|같은 Task 상태·Artifact|
-
-[공식 바인딩별 메서드 대응표](https://a2a-protocol.org/latest/specification/#53-method-mapping-reference)
-
-아래는 REST 바인딩의 요청 구조 예시입니다. `message`·`configuration`을 본문에 직접 담고 JSON-RPC의 `jsonrpc`·`method`·`params` 포장을 사용하지 않습니다. 주소와 ID는 설명용입니다.
-
-<details><summary>6D 연결 참고 · REST 요청 형식과 서버 구성</summary>
-
-```http
-POST /message:send HTTP/1.1
-Host: agent.example.com
-Content-Type: application/a2a+json
-
-{
-  "message": {
-    "messageId": "msg-1",
-    "role": "ROLE_USER",
-    "parts": [{"text": "이 문장의 불명확한 표현을 검토해 주세요."}]
-  },
-  "configuration": {"returnImmediately": false}
-}
-```
-
-SDK 1.1.2의 `from a2a.server.routes import create_rest_routes`로 같은 요청 처리기를 REST 경로에 연결할 수 있습니다. `create_app(..., binding="HTTP+JSON")`은 이 경로와 Card의 바인딩을 함께 설정합니다. 노트북 **6D의 표현 검토 서버가 실제로 이 방식을 사용**하고 정책 검토 서버는 JSON-RPC를 사용합니다. 클라이언트는 Card를 읽어 해당 바인딩을 지원하는 연결을 생성합니다. 단순히 Card 문자열만 REST로 바꿔서는 서버 경로가 생기지 않습니다. [HTTP+JSON/REST 명세](https://a2a-protocol.org/latest/specification/#11-httpjsonrest-protocol-binding)
-
-</details>
-
-</section>
-<section class="slide" id="observe">
-
-## 실습 · Card와 실제 응답부터 읽습니다
-
-**직접 구현:** 5A 정의 셀의 `make_review_request(payload)`에서 Message의 역할·ID·JSON 텍스트 Part와 SendMessageRequest를 만듭니다. `connect_review_client(http, url, expected_skill)`에서는 Card 조회 → 기능 ID 확인 → ClientConfig·ClientFactory로 연결을 작성합니다. 5B는 이 두 함수를 실제 서버 연결·전송에 사용합니다. 5C의 `accept_review`도 직접 작성합니다. 서버 실행과 응답 파싱은 제공됩니다.
-
-**구현 순서:** 요청·연결 함수 작성 10분 → 5A·5B 실행 5분 → 5C 수용 조건과 반례는 이어지는 개인 실습에서 구현합니다. 막히면 풀이 노트북의 같은 5A·5B·5C 번호와 각 결과 해석을 확인합니다. 요청의 message_id, Task의 id, 업무 payload의 request_id·version을 구별해야 합니다.
-
-<p class="section-time">예상 7분 · 17:06–17:13 · 5A Card 조회와 5B 두 초안 비교</p>
-
-<!-- lesson-exercise:a2a -->
-
-제공된 서버를 실행하는 일과 수용 조건을 구현하는 일을 구분합니다. 5A·5B의 통신 코드는 제공되며, 직접 작성할 함수는 5C의 `accept_review`입니다. 화면의 출력에서 먼저 Card·Message·Task·Artifact를 찾은 뒤 조건을 작성합니다.
-
-5B의 draft만 바꿔 아래 두 경우를 실행합니다. 나머지 코드를 새로 작성하지 않습니다. 5C는 다음 개인 구현 시간에 작성합니다.
-
-| draft | 기대 상태 | 검토서와 수용 결과 |
-|---|---|---|
-| 계정 문의는 IT지원팀에 전달합니다. 근거: P-02 | completed | passed=true, accepted |
-| 확인했습니다. | completed | passed=false, feedback에 누락 정보, held |
-
-두 실행의 Task ID·messageId·업무 request_id를 찾아 어떤 것이 바뀌었는지 비교합니다. 실제 모델의 표현 검토는 model_note에서 읽습니다. API 오류가 났다면 연결을 복구하고 5B를 다시 실행합니다. 두 결과를 기록한 뒤 마지막에는 정상 초안으로 5B를 실행해, 다음 5C에서 사용할 `review`와 `payload`를 정상 결과로 준비합니다.
-
-**반례:** 검토는 통과했지만 현재 기대 버전을 2로 바꾸면 어떨까요? Task를 다시 요청하는 실험이 아니라, 받은 결과를 현재 초안에 적용해도 되는지 판단하는 실험입니다. 5C에서 held가 나와야 합니다.
-
-
-</section>
-<section class="slide" id="practice">
-
-## 개인 구현 · 현재 초안에 쓸 수 있는 검토 결과를 판단합니다
-
-<p class="section-time">예상 10분 · 17:13–17:23 · 5C 구현·반례 검사</p>
-
-5A·5B에서 받은 실제 결과를 바탕으로 `accept_review`를 작성합니다. **판단 순서 예상 2분 → 구현 5분 → 검사와 버전 반례 3분**으로 진행합니다.
-
-submitted·working은 pending, 그 외 미완료 상태는 held입니다. completed일 때만 산출물의 요청 ID·버전·passed를 비교합니다. 반환값의 계약은 앞의 개념 4와 노트북 5C 표를 따릅니다.
-
-먼저 정상 결과를 채택하고, 같은 결과의 현재 기대 버전만 2로 바꿔 held인지 확인합니다. 이어 `check_accept_review`로 누락 필드와 타입 반례를 확인합니다. `True`를 버전 1로 받지 않으려면 값의 비교뿐 아니라 타입도 확인해야 합니다. 마지막으로 자신이 고른 반례 하나를 추가합니다.
-
-</section>
-<section class="slide" id="operations">
-
-<details><summary>참고 · 독립 운영과 신뢰, 그리고 두 ACP</summary>
-
-프로세스를 나눈 것만으로 검증의 독립성이나 정확성이 확보되지는 않습니다. 같은 잘못된 규칙을 공유하면 같은 오류를 낼 수 있습니다. 별도 기준·데이터·권한·책임을 누가 관리하는지 확인해야 합니다.
-
-현재 서버의 InMemoryTaskStore는 프로세스 메모리입니다. A2A를 사용한다고 재시작 복구나 영속 저장이 자동 제공되지는 않습니다. 공개 서비스는 Card의 인증 선언뿐 아니라 서버의 권한 검사·저장소·타임아웃·취소 처리가 필요합니다.
-
-| 이름 | 다루는 연결 |
-|---|---|
-| A2A | 독립 Agent 시스템 사이의 작업·메시지 |
-| Agent Communication Protocol | Agent 상호 운용 규약. 공식 사이트는 A2A 합류를 안내 |
-| Agent Client Protocol | 편집기·IDE와 코딩 Agent의 연결 |
-
-두 ACP는 약자가 같지만 다릅니다. Agent Communication Protocol의 A2A 통합과 현재 REST 바인딩은 [앞의 비교](#acp-rest)에서 다룹니다. [Communication ACP](https://agentcommunicationprotocol.dev/introduction/welcome) · [Client ACP](https://agentclientprotocol.com/get-started/introduction)
-
-</details>
-</section>
-<section class="slide" id="solution">
-
-## 풀이 · 통신 결과를 업무 판단에 연결합니다
 
 <p class="section-time">예상 4분 · 17:23–17:27</p>
 

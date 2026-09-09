@@ -3,6 +3,31 @@ import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { withBase } from 'vitepress'
 const props = defineProps<{ kind?: string }>()
 const snippets = {
+  "a2a-events": `# 이벤트 전달을 이해하기 위한 모형입니다. A2A SDK/서버는 실행하지 않습니다.
+passed = False
+events = [
+    ("task", {"id": "task-1", "state": "submitted", "artifacts": []}),
+    ("status", {"task_id": "task-1", "state": "working"}),
+    ("artifact", {"task_id": "task-1", "result": {"passed": passed}}),
+    ("status", {"task_id": "task-1", "state": "completed"}),
+]
+
+task = None
+for kind, payload in events:
+    if kind == "task":
+        task = payload
+    else:
+        if task is None or payload["task_id"] != task["id"]:
+            raise ValueError("갱신할 Task가 없습니다")
+        if kind == "status":
+            task["state"] = payload["state"]
+        elif kind == "artifact":
+            task["artifacts"].append(payload["result"])
+    print(kind, "→", task)
+
+print("최종 상태:", task["state"])
+print("업무 통과:", task["artifacts"][0]["passed"])
+`,
   lookup: `teams = {"정산": "재무지원팀", "계정": "IT지원팀"}
 
 def lookup_team(topic):
