@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 500" role="img" aria-labelledby="title desc">
+<title id="title">두 검토 결과를 기다리는 Graph 설계</title>
+<desc id="desc">같은 후보 버전에서 기능 검토와 교재 검토를 병렬로 시작합니다. 두 결과를 취합한 뒤 결함이 있으면 수정하여 새 후보를 다시 검토하고, 둘 다 통과하면 사람이 최종 확인합니다.</desc>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="#577369"/></marker></defs>
+<rect width="680" height="500" rx="8" fill="#fff"/>
+<g fill="none" stroke="#577369" stroke-width="2" marker-end="url(#arrow)">
+<path d="M340 94 V120 H190 V151"/><path d="M340 120 H490 V151"/>
+<path d="M190 211 V242 H310 V268"/><path d="M490 211 V242 H370 V268"/>
+<path d="M340 328 V353 H170 V400"/><path d="M340 353 H510 V400"/>
+<path d="M70 430 H28 V64 H230"/>
+</g>
+<g fill="#f2f6f4" stroke="#718b80" stroke-width="1.5">
+<rect x="230" y="34" width="220" height="60" rx="5"/>
+<rect x="80" y="151" width="220" height="60" rx="5"/><rect x="380" y="151" width="220" height="60" rx="5"/>
+<rect x="230" y="268" width="220" height="60" rx="5"/>
+<rect x="70" y="400" width="200" height="60" rx="5" fill="#fff3e4"/>
+<rect x="410" y="400" width="200" height="60" rx="5"/>
+</g>
+<g fill="#25312e" font-family="Segoe UI,Malgun Gothic,sans-serif" font-size="21" text-anchor="middle">
+<text x="340" y="72">같은 후보 버전</text>
+<text x="190" y="189">기능 검토</text><text x="490" y="189">교재 검토</text>
+<text x="340" y="306">두 결과 취합</text>
+<text x="170" y="438">수정 후 새 후보</text><text x="510" y="438">사람의 최종 확인</text>
+<text x="235" y="382" font-size="18">결함 있음</text><text x="445" y="382" font-size="18">둘 다 통과</text>
+</g>
+</svg>
