@@ -1,7 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue'
 import questions from './wrapQuestions.json'
-const deck = ref(questions.map((_, i) => i))
+const props = defineProps({ questionIds: { type: Array, default: () => questions.map((_, i) => i) } })
+const selectedIds = props.questionIds
+const deck = ref([...selectedIds])
 const position = ref(0)
 const picks = ref({})
 const finished = ref(false)
@@ -9,12 +11,12 @@ const retry = ref(false)
 const id = computed(() => deck.value[position.value])
 const current = computed(() => questions[id.value])
 const answered = computed(() => picks.value[id.value] !== undefined)
-const correct = computed(() => questions.filter((q, i) => picks.value[i] === q.answer).length)
-const wrong = computed(() => questions.flatMap((q, i) => picks.value[i] !== undefined && picks.value[i] !== q.answer ? [i] : []))
+const correct = computed(() => selectedIds.filter(i => picks.value[i] === questions[i].answer).length)
+const wrong = computed(() => selectedIds.filter(i => picks.value[i] !== undefined && picks.value[i] !== questions[i].answer))
 function choose(i) { if (!answered.value) picks.value[id.value] = i }
 function next() { if (position.value + 1 === deck.value.length) finished.value = true; else position.value++ }
 function restart(onlyWrong = false) {
-  const ids = onlyWrong ? [...wrong.value] : questions.map((_, i) => i)
+  const ids = onlyWrong ? [...wrong.value] : [...selectedIds]
   if (!ids.length) return
   if (onlyWrong) ids.forEach(i => delete picks.value[i]); else picks.value = {}
   deck.value = ids; position.value = 0; finished.value = false; retry.value = onlyWrong
@@ -23,7 +25,7 @@ function restart(onlyWrong = false) {
 
 <template>
   <div class="wrap-quiz">
-    <div class="quiz-status"><strong>{{ retry ? '틀린 문제 다시 풀기' : '오늘의 개념 퀴즈' }}</strong><span>정답 {{ correct }} / {{ questions.length }}</span></div>
+    <div class="quiz-status"><strong>{{ retry ? '틀린 문제 다시 풀기' : '오늘의 개념 퀴즈' }}</strong><span>정답 {{ correct }} / {{ selectedIds.length }}</span></div>
     <template v-if="!finished">
       <p class="quiz-count">카드 {{ position + 1 }} / {{ deck.length }} · {{ current.topic }}</p>
       <progress :value="position + (answered ? 1 : 0)" :max="deck.length" aria-label="현재 퀴즈 진행률" />
@@ -44,7 +46,7 @@ function restart(onlyWrong = false) {
       <div class="quiz-actions"><button type="button" :disabled="position === 0" @click="position--">이전 카드</button><button type="button" :disabled="!answered" @click="next">{{ position + 1 === deck.length ? '결과 보기' : '다음 카드' }}</button></div>
     </template>
     <div v-else class="quiz-result" aria-live="polite">
-      <h3>{{ wrong.length ? '헷갈린 개념을 한 번 더 확인해 봅시다.' : '20개 개념을 모두 맞혔습니다.' }}</h3>
+      <h3>{{ wrong.length ? '헷갈린 개념을 한 번 더 확인해 봅시다.' : `${selectedIds.length}개 개념을 모두 맞혔습니다.` }}</h3>
       <p>정답 {{ correct }}개 · 다시 볼 문제 {{ wrong.length }}개</p>
       <p v-if="retry">처음 풀이와 이번 재도전 결과를 합친 현재 기록입니다.</p>
       <div class="quiz-actions"><button v-if="wrong.length" type="button" @click="restart(true)">틀린 {{ wrong.length }}문제 다시 풀기</button><button type="button" @click="restart()">전체 다시 풀기</button></div>
