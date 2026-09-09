@@ -241,7 +241,7 @@ workshop 폴더에서 한 번 실행합니다. 이 명령은 노트북 화면을
 .venv/bin/jupyter lab --no-browser --ServerApp.root_dir=. notebooks/orientation.ipynb
 ```
 
-`--ServerApp.root_dir=.`는 현재 `workshop` 폴더 전체를 Jupyter 파일 탐색기에 표시합니다. 따라서 노트북뿐 아니라 뒤 Skill 실습에서 수정할 `skills/policy-answer/SKILL.md`도 열 수 있습니다.
+`--ServerApp.root_dir=.`는 현재 `workshop` 폴더 전체를 Jupyter 파일 탐색기에 표시합니다. 따라서 노트북뿐 아니라 뒤 Skill 실습에서 수정할 `skills/policy-answer/SKILL.md`도 열 수 있습니다. 파일 탐색기가 `notebooks` 안을 보여 주면 위쪽 경로 맨 왼쪽의 폴더 아이콘을 눌러 최상위로 이동한 뒤 `skills → policy-answer → SKILL.md`를 엽니다.
 
 `--no-browser`는 WSL에서 브라우저를 자동으로 여는 대신 주소를 직접 열도록 합니다. 터미널에 표시된 `http://localhost:.../lab?token=...` 또는 `http://127.0.0.1:...` 주소 전체를 Windows 브라우저 주소창에 붙여 넣습니다. 주소의 포트는 실행 결과를 따르며, 토큰이 포함된 주소는 공유하지 않습니다.
 
