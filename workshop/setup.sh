@@ -24,4 +24,4 @@ fi
 uv sync --locked --python 3.12 --group notebook
 .venv/bin/python configure_access.py
 .venv/bin/python -c 'import langchain, langgraph, deepagents, mcp, a2a, jupyterlab; print("노트북 환경 준비 완료")'
-printf '\n다음 명령으로 Jupyter를 열고 환경 확인 → 모델 호출 셀을 실행하세요.\n.venv/bin/jupyter lab --ServerApp.root_dir=. notebooks/orientation.ipynb\n'
+printf '\n다음 명령으로 Jupyter를 열고 환경 확인 → 모델 호출 셀을 실행하세요.\n.venv/bin/jupyter lab --no-browser --ServerApp.root_dir=. notebooks/orientation.ipynb\n'

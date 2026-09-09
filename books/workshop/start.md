@@ -179,7 +179,7 @@ wsl --install -d Ubuntu-24.04
 
 macOS·Linux는 WSL 진입 단계가 없습니다. 자신의 터미널에서 이어갈 수 있으나, 설치·실행 안내의 기준 환경은 위 WSL 구성입니다.
 
-### 3. 같은 폴더를 편집기와 터미널에서 엽니다
+### 3. Ubuntu 터미널에서 실습 폴더를 엽니다
 
 Windows에서 받은 자료는 파일 탐색기의 주소 표시줄에 `\\wsl.localhost\Ubuntu-24.04\home`을 입력하고 자신의 Ubuntu 사용자 폴더 안으로 복사할 수 있습니다. 그 안에 `lecture` 폴더를 새로 만들고, 압축을 풀어 얻은 **workshop 폴더 전체**를 넣습니다. 결과는 `자신의 사용자 폴더/lecture/workshop/pyproject.toml` 형태입니다. 이미 사용 중인 동명 폴더를 덮어쓰지 않습니다.
 
@@ -189,12 +189,11 @@ Windows에서 받은 자료는 파일 탐색기의 주소 표시줄에 `\\wsl.lo
 cd ~/lecture/workshop
 pwd
 ls pyproject.toml uv.lock course exercises skills
-code .
 ```
 
-`code .`은 현재 폴더를 VS Code로 엽니다. 왼쪽 아래에 `WSL: Ubuntu-24.04`와 같은 표시가 있는지 확인합니다. VS Code의 **터미널 → 새 터미널**을 열고 `pwd`를 실행했을 때도 끝이 `/lecture/workshop`이어야 합니다.
+실습은 아래에서 여는 **브라우저의 JupyterLab**으로 진행합니다. VS Code는 선택 사항입니다. VS Code도 사용하려면 같은 Ubuntu 터미널에서 `code .`을 실행하고, 왼쪽 아래에 `WSL: Ubuntu-24.04`와 같은 표시가 있는지 확인합니다. 편집기의 터미널에서도 `pwd`의 끝이 `/lecture/workshop`이어야 합니다.
 
-`code`를 찾지 못하면 Windows에 VS Code와 WSL 확장을 설치한 뒤 Ubuntu 터미널을 다시 엽니다. 편집기를 통해 WSL 폴더를 여는 절차는 [VS Code WSL 안내](https://code.visualstudio.com/docs/remote/wsl)를 참고합니다.
+VS Code 사용 시 `code`를 찾지 못하면 Windows에 VS Code와 WSL 확장을 설치한 뒤 Ubuntu 터미널을 다시 엽니다. [VS Code WSL 안내](https://code.visualstudio.com/docs/remote/wsl)를 참고합니다. JupyterLab으로 진행한다면 바로 다음 설치 단계로 넘어갑니다.
 
 ### 4. 설치 스크립트를 실행합니다
 
@@ -239,12 +238,16 @@ WORKSHOP_MODEL=google/gemini-3.8-flash
 workshop 폴더에서 한 번 실행합니다. 이 명령은 노트북 화면을 여는 준비 단계입니다. 이후 실습은 셀에서 실행합니다.
 
 ```bash
-.venv/bin/jupyter lab --ServerApp.root_dir=. notebooks/orientation.ipynb
+.venv/bin/jupyter lab --no-browser --ServerApp.root_dir=. notebooks/orientation.ipynb
 ```
 
 `--ServerApp.root_dir=.`는 현재 `workshop` 폴더 전체를 Jupyter 파일 탐색기에 표시합니다. 따라서 노트북뿐 아니라 뒤 Skill 실습에서 수정할 `skills/policy-answer/SKILL.md`도 열 수 있습니다.
 
-터미널에 표시된 로컬 주소를 열고 Python 3 커널을 선택합니다. 터미널은 열어 둡니다. **환경 확인** 셀을 Shift+Enter로 실행하여 Python 경로와 라이브러리를 확인합니다.
+`--no-browser`는 WSL에서 브라우저를 자동으로 여는 대신 주소를 직접 열도록 합니다. 터미널에 표시된 `http://localhost:.../lab?token=...` 또는 `http://127.0.0.1:...` 주소 전체를 Windows 브라우저 주소창에 붙여 넣습니다. 주소의 포트는 실행 결과를 따르며, 토큰이 포함된 주소는 공유하지 않습니다.
+
+열린 탭이 `orientation.ipynb`인지 확인하고 Python 3 커널을 선택합니다. **환경 확인** 셀을 Shift+Enter로 실행합니다. 출력된 Python 경로가 자신의 `lecture/workshop/.venv/bin/python`을 가리키는지 확인합니다. 다른 Python이면 현재 커널을 종료하고 위 명령으로 연 JupyterLab의 Python 3 커널에서 다시 실행합니다.
+
+수업 동안 Jupyter를 실행한 터미널은 열어 둡니다. 브라우저 탭을 닫아도 커널과 서버는 계속 실행됩니다. 작업을 마칠 때는 노트북을 저장하고 터미널에서 Ctrl+C를 누른 뒤 종료 여부에 `y`로 답합니다. 다시 시작하면 새 주소를 열고 필요한 단계까지 셀을 순서대로 실행합니다.
 
 ### 7. 노트북에서 모델과 도구를 호출합니다
 
@@ -255,8 +258,8 @@ workshop 폴더에서 한 번 실행합니다. 이 명령은 노트북 화면을
 ### 준비 완료 체크
 
 <div class="setup-checklist" role="group" aria-label="준비 완료 체크">
-<label><input type="checkbox"><span><code>workshop</code> 폴더가 있고, 편집기에서 <code>notebooks/build-agent.ipynb</code>를 열고 첫 셀을 실행할 수 있습니다.</span></label>
-<label><input type="checkbox"><span>편집기 터미널의 현재 위치가 <code>workshop</code>이며 Python과 라이브러리 확인이 성공합니다.</span></label>
+<label><input type="checkbox"><span>JupyterLab에서 <code>notebooks/orientation.ipynb</code>와 <code>skills</code> 폴더를 열 수 있습니다.</span></label>
+<label><input type="checkbox"><span>환경 확인 셀의 Python 경로가 <code>workshop/.venv/bin/python</code>이며 라이브러리 확인이 성공합니다.</span></label>
 <label><input type="checkbox"><span><code>.env</code>를 저장했고 실제 모델 호출이 성공합니다.</span></label>
 <label><input type="checkbox"><span><code>orientation.ipynb</code> 셀 아래에서 도구 요청·결과와 정산 문의 답변을 확인했습니다.</span></label>
 </div>
