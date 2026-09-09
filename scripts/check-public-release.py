@@ -2,8 +2,8 @@
 from pathlib import Path
 import sys
 
-PRIVATE_NAMES = {"_workspace", ".claude", "validation.md", "agents.md", "claude.md"}
-PRIVATE_TEXT = ("통합 검증 전 초안", "다관점 감사 —", "자가 피드백 큐", "크로스 전파 로그")
+PRIVATE_NAMES = {"_workspace", ".claude", "validation.md", "agents.md", "claude.md", "workshop_quality_review.md"}
+PRIVATE_TEXT = ("통합 검증 전 초안", "다관점 감사 —", "자가 피드백 큐", "크로스 전파 로그", "워크숍 목표·실행·복습 정합성 점검")
 
 
 def check_site(root: Path) -> list[str]:
